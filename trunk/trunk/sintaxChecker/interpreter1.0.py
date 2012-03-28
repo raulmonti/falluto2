@@ -76,7 +76,7 @@ def STOP():         return "STOP"
 
 #INSTANCE
 def INSTANCE():     return keyword("INSTANCE"), IDENT, "=", IDENT, "(", PARAMLIST, ")"
-def PARAMLIST():    return 0, re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+def PARAMLIST():    return 0, (re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), -1, ( ",", re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")))
 
 
 #----- END LENGUAJE ------------------------------------------------------------
