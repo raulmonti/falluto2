@@ -1,0 +1,7 @@
+function fak(n,k) {
+    if (n==0) { // 0! is 1 by definition
+        return 1;
+    } else {
+        return n * fak(n - 1);
+    };
+}

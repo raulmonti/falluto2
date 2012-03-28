@@ -1,0 +1,97 @@
+import re, fileinput
+from pyPEG.pyPEG import parse
+from pyPEG.pyPEG import keyword, _and, _not
+
+
+#---- TODO ---------------------------------------------------------------------
+#
+#   1-  Se debe permitir formulas como (a->b)=(c->d) o se cubren con 
+#       (a->b)<->(c->d)?
+#
+#   2-  En COMP() esta al vicio (BOOL, re.compile(r"\="), BOOL)?
+#
+#   3-  Se puede hacer next(v) = next(v2)?
+#
+#---- END TODO -----------------------------------------------------------------
+
+
+# VALIDAS PARA EL ENCABEZADO DEL MODULO ----------------------------------------
+# - MODULE m()
+# - MODULE m(;)
+# - MODULE m(v1,v2,v3)
+# - MODULE m(;a1,a2,a3)
+# - MODULE m(v1,v2,v3;)
+# ------------------------------------------------------------------------------
+
+
+#------ LENGUAJE ---------------------------------------------------------------
+
+#IDENTIFIERS
+
+def IDENT():        return re.compile(r"(?!\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
+def INT():          return re.compile(r"\d+")
+def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
+
+#FORMULAS
+
+def PROPFORM():     return [ (re.compile(r"\!(?!\=)"), PROPFORM), (PROPVAL, -1, ( LOGICOP, PROPVAL))]
+def PROPVAL():      return [ COMP, BOOL, IDENT, (re.compile(r"\("), PROPFORM, re.compile(r"\)"))]
+def LOGICOP():      return re.compile(r"\-\>|\&|\||\<\-\>")
+def COMP():         return MATH, COMPOP, MATH
+def MATH():         return [ (re.compile(r"\-(?!>)"), MATH), (MATHVAL, -1, (MATHOP, MATHVAL))]
+def MATHVAL():      return [ BOOL, IDENT, INT, SET, (re.compile(r"\("), MATH, re.compile(r"\)"))]
+def MATHOP():       return re.compile(r"\+|\-|\*|\/|\%")
+def COMPOP():       return re.compile(r"\<(?!->)|\>|\=")
+def NEXTPROPFORM(): return [ (re.compile(r"\!(?!\=)"), NEXTPROPFORM), (NEXTPROPVAL, -1, ( LOGICOP, NEXTPROPVAL))]
+def NEXTPROPVAL():  return [ (re.compile(r"next"), "(", IDENT, ")", "=", [MATH, PROPFORM, SET]), (re.compile(r"\("), NEXTPROPFORM, re.compile(r"\)"))]
+
+
+#SYSTEM
+
+def SYSTEM():       return -1, MODULE
+
+#MODULE 
+
+def MODULE():       return keyword("MODULE"), IDENT, "(", CONTEXTVARS, CONTEXTACTS, ")", MODULEBODY
+def CONTEXTVARS():  return 0, (IDENT, -1, (",", IDENT))
+def CONTEXTACTS():  return 0, (";", 0, ( IDENT, -1, (",", IDENT)))
+def MODULEBODY():   return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
+def VAR():          return keyword("VAR"), -1, VARDCL
+def VARDCL():       return IDENT, ":", VARTYPE
+def VARTYPE():      return [BOOLEAN,SET,RANGE]
+def BOOLEAN():      return "bool"
+def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
+def RANGE():        return re.compile(r"\d+"), "..", re.compile(r"\d+")
+
+def FAULT():        return keyword("FAULT"), -1, FAULTDECL
+def FAULTDECL():    return IDENT, ":", 0, PROPFORM, ":", NEXTPROPFORM
+
+def INIT():         return keyword("INIT"), 0, PROPFORM
+def TRANS():        return keyword("TRANS"), -1, TRANSDECL
+def TRANSDECL():    return "[", 0, IDENT, "]", ":", 0, PROPFORM, ":", NEXTPROPFORM, -1, PFAULTDECL
+def PFAULTDECL():   return "<", [BIZ, STOP], ">"
+def BIZ():          return "BIZ", "(", IDENT, -1, (",", IDENT), ")"
+def STOP():         return "STOP"
+
+#----- END LENGUAJE ------------------------------------------------------------
+
+
+
+files = fileinput.input()
+result = parse(SYSTEM(), files, True)
+print result
+
+
+
+
+
+
+
+#def BOOL(): return re.compile(r"FALSE|TRUE")
+#def MATHOPER():     return re.compile(r"[\+\-\*\/\%]")
+#def COMPOPER():     return re.compile(r"\<(?!->)|\>|\=")#(r"\<|\>|\=|\>\=|\<\=")
+#def LOGICOPER():    return re.compile(r"\-\>|\<\-|\<\-\>|\&|\||\=")
+#def FORM():         return 0, re.compile(r"\-"), [IDENT,INT,(re.compile(r"\("), FORM, re.compile(r"\)"))], 0, ( MATHOPER, FORM)
+#def COMPFORM():     return [FORM , BOOL] , COMPOPER, [FORM , BOOL]
+#def PROPFORM():     return 0, re.compile(r"\!"), [COMPFORM, BOOL, IDENT, (re.compile(r"\("), PROPFORM, re.compile(r"\)"))], 0, (LOGICOPER, PROPFORM)
+#[COMPFORM, IDENT, BOOL, (re.compile(r"\!"), PROPFORM)]
