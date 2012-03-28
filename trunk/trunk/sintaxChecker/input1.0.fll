@@ -1,3 +1,5 @@
+INSTANCE I1=M1(M2.a)
+
 MODULE M0 ()
 MODULE M1(v1,v2)
 MODULE M2(v1,v2;a1,a2)
@@ -19,8 +21,12 @@ MODULE M5(v1;a1)
 	TRANS
 		[t1]:a=FALSE:next(a)=TRUE&next(b)={a,g}
 
+INSTANCE I1=M1(M2.a)
+
 MODULE M6 (v1)
 	VAR v:0..1
 	FAULT f::next(r)=TRUE
 	INIT v=0
 	TRANS []:TRUE:next(v)={a,v} <BIZ (x,z)>
+INSTANCE I1=M1(M2.a)
+

@@ -28,7 +28,7 @@ from pyPEG.pyPEG import keyword, _and, _not
 
 #IDENTIFIERS
 
-def IDENT():        return re.compile(r"(?!\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
+def IDENT():        return re.compile(r"(?!\bINSTANCE\b\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
 def INT():          return re.compile(r"\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
@@ -48,7 +48,7 @@ def NEXTPROPVAL():  return [ (re.compile(r"next"), "(", IDENT, ")", "=", [MATH, 
 
 #SYSTEM
 
-def SYSTEM():       return -1, MODULE
+def SYSTEM():       return -1, [MODULE, INSTANCE]
 
 #MODULE 
 
@@ -72,6 +72,12 @@ def TRANSDECL():    return "[", 0, IDENT, "]", ":", 0, PROPFORM, ":", NEXTPROPFO
 def PFAULTDECL():   return "<", [BIZ, STOP], ">"
 def BIZ():          return "BIZ", "(", IDENT, -1, (",", IDENT), ")"
 def STOP():         return "STOP"
+
+
+#INSTANCE
+def INSTANCE():     return keyword("INSTANCE"), IDENT, "=", IDENT, "(", PARAMLIST, ")"
+def PARAMLIST():    return 0, re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+
 
 #----- END LENGUAJE ------------------------------------------------------------
 
