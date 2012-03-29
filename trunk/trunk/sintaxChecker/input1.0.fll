@@ -1,6 +1,14 @@
 INSTANCE I1=M1(M2.a, M3.b)
 
 MODULE M0 ()
+	TRANS
+		[]:TRUE:next(v) = next(w)
+
+LTLSPEC v U x
+
+LTLSPEC G (v T TRUE)
+
+
 MODULE M1(v1,v2)
 MODULE M2(v1,v2;a1,a2)
 MODULE M3() VAR FAULT INIT TRANS
@@ -19,7 +27,7 @@ MODULE M5(v1;a1)
 	INIT
 		a=TRUE & b=10 & c={a,b}
 	TRANS
-		[t1]:a=FALSE:next(a)=TRUE&next(b)={a,g}
+		[t1]:a=FALSE:next(a)=TRUE,next(b)={a,g}
 
 INSTANCE I1=M1(M2.a)
 
@@ -28,5 +36,8 @@ MODULE M6 (v1)
 	FAULT f::next(r)=TRUE
 	INIT v=0
 	TRANS []:TRUE:next(v)={a,v} <BIZ (x,z)>
-INSTANCE I1=M1(M2.a)
+INSTANCE I1=M1(M2.a,M6.v)
+
+LTLSPEC G X(Y(v->x)) <-> TRUE U v -> G TRUE
+
 

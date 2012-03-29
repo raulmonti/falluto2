@@ -28,7 +28,7 @@ from pyPEG.pyPEG import keyword, _and, _not
 
 #IDENTIFIERS
 
-def IDENT():        return re.compile(r"(?!\bINSTANCE\b\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
+def IDENT():        return re.compile(r"(?!\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
 def INT():          return re.compile(r"\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
@@ -42,13 +42,12 @@ def MATH():         return [ (re.compile(r"\-(?!>)"), MATH), (MATHVAL, -1, (MATH
 def MATHVAL():      return [ BOOL, IDENT, INT, SET, (re.compile(r"\("), MATH, re.compile(r"\)"))]
 def MATHOP():       return re.compile(r"\+|\-|\*|\/|\%")
 def COMPOP():       return re.compile(r"\<(?!->)|\>|\=")
-def NEXTPROPFORM(): return [ (re.compile(r"\!(?!\=)"), NEXTPROPFORM), (NEXTPROPVAL, -1, ( LOGICOP, NEXTPROPVAL))]
-def NEXTPROPVAL():  return [ (re.compile(r"next"), "(", IDENT, ")", "=", [MATH, PROPFORM, SET]), (re.compile(r"\("), NEXTPROPFORM, re.compile(r"\)"))]
-
+def NEXTPROPFORM(): return NEXTVAL, "=", [ SET, NEXTVAL, INT, PROPFORM], -1, ( ",", NEXTVAL, "=", [ INT, PROPFORM, NEXTVAL, SET])
+def NEXTVAL():      return keyword("next"), "(", IDENT, ")"
 
 #SYSTEM
 
-def SYSTEM():       return -1, [MODULE, INSTANCE]
+def SYSTEM():       return -1, [MODULE, INSTANCE, LTLSPEC, FAIRNESS, COMPASSION]
 
 #MODULE 
 
@@ -79,6 +78,19 @@ def INSTANCE():     return keyword("INSTANCE"), IDENT, "=", IDENT, "(", PARAMLIS
 def PARAMLIST():    return 0, (re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), -1, ( ",", re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")))
 
 
+#LTL SPECIFICATIONS
+def LTLSPEC():      return [ (keyword("LTLSPEC"), LTLEXP), (keyword("LTLSPEC NAME"), ":=", LTLEXP)]
+def LTLEXP():       return [ (re.compile(r"\!"), LTLEXP), (LTLVAL, -1, (LTLBOP, LTLVAL))]
+def LTLVAL():       return [ (LTLUOP, LTLEXP), PROPFORM, (re.compile(r"\("), LTLEXP, re.compile(r"\)"))]
+def LTLUOP():       return re.compile(r"\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
+def LTLBOP():       return re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
+
+
+#FAIRNESS
+def FAIRNESS():     return keyword("FAIRNESS"), PROPFORM
+def COMPASSION():   return keyword("COMPASSION"), "(", PROPFORM, ",", PROPFORM, ")"
+
+
 #----- END LENGUAJE ------------------------------------------------------------
 
 
@@ -101,3 +113,8 @@ print result
 #def COMPFORM():     return [FORM , BOOL] , COMPOPER, [FORM , BOOL]
 #def PROPFORM():     return 0, re.compile(r"\!"), [COMPFORM, BOOL, IDENT, (re.compile(r"\("), PROPFORM, re.compile(r"\)"))], 0, (LOGICOPER, PROPFORM)
 #[COMPFORM, IDENT, BOOL, (re.compile(r"\!"), PROPFORM)]
+
+
+#def NEXTPROPFORM(): return [ (re.compile(r"\!(?!\=)"), NEXTPROPFORM), (NEXTPROPVAL, -1, ( LOGICOP, NEXTPROPVAL))]
+#def NEXTPROPVAL():  return [ (re.compile(r"next"), "(", IDENT, ")", "=", [MATH, PROPFORM, SET]), (re.compile(r"\("), NEXTPROPFORM, re.compile(r"\)"))]
+
