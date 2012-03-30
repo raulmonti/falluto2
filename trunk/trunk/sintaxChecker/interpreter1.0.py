@@ -16,6 +16,10 @@ from pyPEG.pyPEG import keyword, _and, _not
 #
 #   5-  Revisar si next(v) = 0..6 es como next(v) = {0,1,2,3,4,5,6}
 #
+#   5-  En caso de que se cumpla solo la guarda de la ocurrencia de una falla, 
+#       revisar que no se vea obligada a ocurrir ya que su guarda es en 
+#       realidad condicion de habilitacion.
+#
 #---- END TODO -----------------------------------------------------------------
 
 
