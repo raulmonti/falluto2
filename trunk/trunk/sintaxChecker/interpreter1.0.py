@@ -8,9 +8,13 @@ from pyPEG.pyPEG import keyword, _and, _not
 #   1-  Se debe permitir formulas como (a->b)=(c->d) o se cubren con 
 #       (a->b)<->(c->d)?
 #
-#   2-  En COMP() esta al vicio (BOOL, re.compile(r"\="), BOOL)?
+#   2-  Se puede hacer next(v) = next(v2)?
 #
-#   3-  Se puede hacer next(v) = next(v2)?
+#   3-  Esta bien declarar fallas sin condicion de habilitacion ni efecto?
+#
+#   4-  Se puede tener mas de una accion con el mismo nombre en el mismo modulo?
+#
+#   5-  Revisar si next(v) = 0..6 es como next(v) = {0,1,2,3,4,5,6}
 #
 #---- END TODO -----------------------------------------------------------------
 
@@ -28,7 +32,7 @@ from pyPEG.pyPEG import keyword, _and, _not
 
 #IDENTIFIERS
 
-def IDENT():        return re.compile(r"(?!\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*")
+def IDENT():        return re.compile(r"(?!\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
 def INT():          return re.compile(r"\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
@@ -63,12 +67,12 @@ def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      
 def RANGE():        return re.compile(r"\d+"), "..", re.compile(r"\d+")
 
 def FAULT():        return keyword("FAULT"), -1, FAULTDECL
-def FAULTDECL():    return IDENT, ":", 0, PROPFORM, ":", NEXTPROPFORM
+def FAULTDECL():    return IDENT, ":", 0, PROPFORM, ":", 0, NEXTPROPFORM
 
 def INIT():         return keyword("INIT"), 0, PROPFORM
 def TRANS():        return keyword("TRANS"), -1, TRANSDECL
-def TRANSDECL():    return "[", 0, IDENT, "]", ":", 0, PROPFORM, ":", NEXTPROPFORM, -1, PFAULTDECL
-def PFAULTDECL():   return "<", [BIZ, STOP], ">"
+def TRANSDECL():    return "[", 0, IDENT, "]", ":", 0, PROPFORM, ":", 0, NEXTPROPFORM, -1, PFAULTDECL
+def PFAULTDECL():   return "..", [BIZ, STOP], ".."
 def BIZ():          return "BIZ", "(", IDENT, -1, (",", IDENT), ")"
 def STOP():         return "STOP"
 

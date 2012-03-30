@@ -1,0 +1,29 @@
+MODULE cell(input;read,write)
+	VAR
+		value: 0..1
+	FAULT
+		f::
+	INIT
+		value = 0
+	TRANS
+		[read]::
+		[write]::next(value)=input ..BIZ(f,value)..
+	
+
+MODULE user(read,write)
+	VAR
+		output:0..1		
+	INIT
+		output = 0
+	TRANS
+		[]::next(output)={0,1}
+		[write]:: 
+		[read]::
+
+FAIRNESS write
+FAIRNESS read
+
+INSTANCE cell1 = cell(user1.output,read,write)
+INSTANCE user1 = user(read,write)
+
+LTLSPEC G(write -> X(user1.output = cell1.value))
