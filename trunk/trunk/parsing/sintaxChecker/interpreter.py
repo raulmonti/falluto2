@@ -3,26 +3,6 @@ from pyPEG.pyPEG import parse
 from pyPEG.pyPEG import keyword, _and, _not
 
 
-#---- TODO ---------------------------------------------------------------------
-#
-#   1-  Se debe permitir formulas como (a->b)=(c->d) o se cubren con 
-#       (a->b)<->(c->d)?
-#
-#   2-  Se puede hacer next(v) = next(v2)?
-#
-#   3-  Esta bien declarar fallas sin condicion de habilitacion ni efecto?
-#
-#   4-  Se puede tener mas de una accion con el mismo nombre en el mismo modulo?
-#
-#   5-  Revisar si next(v) = 0..6 es como next(v) = {0,1,2,3,4,5,6}
-#
-#   5-  En caso de que se cumpla solo la guarda de la ocurrencia de una falla, 
-#       revisar que no se vea obligada a ocurrir ya que su guarda es en 
-#       realidad condicion de habilitacion.
-#
-#---- END TODO -----------------------------------------------------------------
-
-
 # VALIDAS PARA EL ENCABEZADO DEL MODULO ----------------------------------------
 # - MODULE m()
 # - MODULE m(;)
@@ -57,15 +37,14 @@ def NEXTVAL():      return keyword("next"), "(", IDENT, ")"
 
 def SYSTEM():       return -1, [MODULE, INSTANCE, LTLSPEC, FAIRNESS, COMPASSION]
 
-#MODULE 
+#MODULE
 
 def MODULE():       return keyword("MODULE"), IDENT, "(", CONTEXTVARS, CONTEXTACTS, ")", MODULEBODY
 def CONTEXTVARS():  return 0, (IDENT, -1, (",", IDENT))
 def CONTEXTACTS():  return 0, (";", 0, ( IDENT, -1, (",", IDENT)))
 def MODULEBODY():   return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
-def VAR():          return keyword("VAR"), -1, VARDCL
-def VARDCL():       return IDENT, ":", VARTYPE
-def VARTYPE():      return [BOOLEAN,SET,RANGE]
+def VAR():          return keyword("VAR"), -1, VARDECL
+def VARDECL():      return IDENT, ":", [BOOLEAN,SET,RANGE]
 def BOOLEAN():      return "bool"
 def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
 def RANGE():        return re.compile(r"\d+"), "..", re.compile(r"\d+")
@@ -105,25 +84,14 @@ def COMMENT():      return [re.compile(r"#.*"), re.compile("/\*.*?\*/", re.S)]
 
 
 
-files = fileinput.input()
-result = parse(SYSTEM(), files, True, COMMENT)
-print result
-
 def interpret():
     files = fileinput.input()
     return parse(SYSTEM(), files, True, COMMENT)
-    
-
-#def BOOL(): return re.compile(r"FALSE|TRUE")
-#def MATHOPER():     return re.compile(r"[\+\-\*\/\%]")
-#def COMPOPER():     return re.compile(r"\<(?!->)|\>|\=")#(r"\<|\>|\=|\>\=|\<\=")
-#def LOGICOPER():    return re.compile(r"\-\>|\<\-|\<\-\>|\&|\||\=")
-#def FORM():         return 0, re.compile(r"\-"), [IDENT,INT,(re.compile(r"\("), FORM, re.compile(r"\)"))], 0, ( MATHOPER, FORM)
-#def COMPFORM():     return [FORM , BOOL] , COMPOPER, [FORM , BOOL]
-#def PROPFORM():     return 0, re.compile(r"\!"), [COMPFORM, BOOL, IDENT, (re.compile(r"\("), PROPFORM, re.compile(r"\)"))], 0, (LOGICOPER, PROPFORM)
-#[COMPFORM, IDENT, BOOL, (re.compile(r"\!"), PROPFORM)]
 
 
-#def NEXTPROPFORM(): return [ (re.compile(r"\!(?!\=)"), NEXTPROPFORM), (NEXTPROPVAL, -1, ( LOGICOP, NEXTPROPVAL))]
-#def NEXTPROPVAL():  return [ (re.compile(r"next"), "(", IDENT, ")", "=", [MATH, PROPFORM, SET]), (re.compile(r"\("), NEXTPROPFORM, re.compile(r"\)"))]
+if __name__ == '__main__':
+    print interpret()
+
+
+
 

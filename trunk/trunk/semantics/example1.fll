@@ -10,7 +10,7 @@ MODULE cell(input;read,write)
 		[write]::next(value)=input ..BIZ(f,value)..
 	
 
-MODULE user(read,write)
+MODULE user(;read,write)
 	VAR
 		output:0..1		
 	INIT
