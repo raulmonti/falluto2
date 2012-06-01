@@ -1,0 +1,4 @@
+1. Crear propias excepciones para que no se mezclen en el codigo. Por ejemplo para reemplaza la el SyntaxError de interpreter.py
+2. Sobrecargar el print para no usar printME() (por ej en Module e Instance)
+3. PyPEG no me da la linea de los LTLSPEC que defino al final de los archivos .fll, sera un error en interpreter.py?
+4. Parsear contraints

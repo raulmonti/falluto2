@@ -1,0 +1,22 @@
+--MODULE raul(v1,v2;a1,a2)
+MODULE raul(v1, v2; a1, a3)
+	VAR
+		a: 1..2
+--		raul:bool
+--		a: bool
+--		b: bool
+		c: {raul,casa,perro}
+	FAULT
+		f1:a<2*a:next(c)=raul
+	INIT
+		a = 1
+	TRANS
+		[trans1]:a>1:next(a)= 1 .. BIZ(x1,x2,x3) ..
+
+
+LTLSPEC (G TRUE)
+
+INSTANCE hombre = raul(h1,h2,j1,j2)
+
+
+
