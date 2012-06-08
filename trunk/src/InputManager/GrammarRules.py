@@ -19,9 +19,15 @@ import re
 #   LENGUAGE (EN PEG)
 #
 
+# Agregamos a la siguiente lista separada por '|' las palabras que no queremos 
+# que sean reservadas para el programa, y por lo tanto no queremos permitir como 
+# identificadores.
+identifiers = re.compile(r"(?!\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+
+
 #IDENTIFIERS
 
-def IDENT():        return re.compile(r"(?!\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+def IDENT():        return identifiers
 def INT():          return re.compile(r"\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
@@ -71,31 +77,36 @@ def PARAMLIST():    return 0, (re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), -
 
 
 
-#LTLSPECS
+#LTLSPECS#######################################################################
+#FIXME:
+# Ojo con esta definicion, ya que puede contener inconsistencias debido a que
+# no estoy seguro de que el orden entre LTLBOP y LTLUOP descarte el hecho de que
+# vaya a dar correcto el matching con LTLBOP cuando en realidad sea una LTLUOP
+
 ltlbinops = re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
 ltluops = re.compile(r"\!|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
 
 def LTLSPEC():      return (keyword("LTLSPEC"), LTLEXP)
-def LTLEXP():       return LTLBOP
-def LTLBOP():       return LTLUOP , -1 , ( ltlbinops, LTLUOP )
-def LTLUOP():       return -1 , ltluops, LTLVAL
-def LTLVAL():       return [PROPFORM , ("(" , LTLEXP, ")") ]
-
-"""
-def LTLSPEC():      return (keyword("LTLSPEC"), LTLEXP)
 def LTLEXP():       return [LTLBOP, LTLUOP]
-def LTLBOP():       return LTLUOP , ltlbinops, LTLUOP
+def LTLBOP():       return LTLUOP , ltlbinops, LTLEXP
 def LTLUOP():       return -1 , ltluops, LTLVAL
 def LTLVAL():       return [ PROPFORM , ("(" , LTLEXP, ")") ]
-"""
+
+#------------------------------------------------------------------------------#
+
+
 
 
 #FAIRNESS
 def FAIRNESS():     return keyword("FAIRNESS"), PROPFORM
 def COMPASSION():   return keyword("COMPASSION"), "(", PROPFORM, ",", PROPFORM, ")"
 
+
+
 #COMENT
 def COMMENT():      return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
+
+
 
 #///////////////////////////////////////////////////////////////////////////////
 
@@ -111,11 +122,6 @@ def LTLVAL():       return [ (LTLUOP, LTLEXP), PROPFORM, (re.compile(r"\("), LTL
 def LTLUOP():       return re.compile(r"\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
 def LTLBOP():       return re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
 """
-
-
-
-
-
 """
 ###
 def LTLSPEC():      return (keyword("LTLSPEC"), LTLEXP)
@@ -125,6 +131,15 @@ def LTLVAL():       return -1 , ltluops, [PROPFORM , (re.compile(r"\(") , LTLEXP
 """
 
 
+""" @@@@ VERSION "TEORICAMENTE CORRECTA" @@@@
+
+def LTLSPEC():      return (keyword("LTLSPEC"), LTLEXP)
+def LTLEXP():       return LTLBOP
+def LTLBOP():       return LTLUOP , -1 , ( ltlbinops, LTLUOP )
+def LTLUOP():       return -1 , ltluops, LTLVAL
+def LTLVAL():       return [PROPFORM , ("(" , LTLEXP, ")") ]
+
+"""
 
 
 

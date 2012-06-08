@@ -1,0 +1,12 @@
+MODULE main()
+	VAR
+		_act:{read,write,user#UA#1}
+		_cell1#value:0..1
+		_cell2#value:0..1
+		_cell3#value:0..1
+		_user#input:0..1
+		_user#output:0..1
+	INIT
+		cell1.value = 0 & cell2.value = 0 & cell3.value = 0 & user.input = 0 & user.output = 0
+	TRANS
+		

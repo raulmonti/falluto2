@@ -9,7 +9,7 @@ from pyPEG import keyword, _and, _not
 
 
 
-def LENG():         return [ (re.compile("!"), VALS, OP, VALS), (re.compile("\!"), VALS)]
+def LENG():         return [ (VALS, OP, LENG), VALS]
 def OP():           return re.compile(r"\bU\b")
 def VALS():         return re.compile(r"TRUE")
 def COMMENT():      return [re.compile(r"//.*"), re.compile("/\*.*?\*/", re.S)]

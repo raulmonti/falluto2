@@ -215,6 +215,7 @@ class Parser():
         for x in module:
             if x.__name__ == 'IDENT':
                 m.name = x.what
+                m.line = x.__name__.line
             elif x.__name__ == 'CONTEXTVARS':
                 for v in x.what:
                     var = Var()

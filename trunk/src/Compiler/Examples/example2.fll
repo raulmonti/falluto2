@@ -1,0 +1,33 @@
+MODULE cell(input; read, write)
+	VAR
+		value:0..1
+	FAULT
+		lose:value=1:next(value)=0
+	INIT
+		value = 0
+	TRANS
+		[write]::next(value) = input
+		[read]::		
+
+MODULE sistema(cell1, cell2, cell3; read, write)
+	VAR
+		input:0..1
+		output:0..1
+	INIT
+		output = 0 & input = 0
+	TRANS
+		[read]:(cell1 + cell2 + cell3)>1: next(input) = 1
+		[read]:(cell1 + cell2 + cell3)<=1: next(input) = 0
+		[write]::
+		[]::next(output) = (1-output)
+
+
+INSTANCE cell1 = cell(user.output, read, write)
+INSTANCE cell2 = cell(user.output, read, write)
+INSTANCE cell3 = cell(user.output, read, write)
+INSTANCE user = user(cell1.value,cell2.value,cell3.value, read, write)
+
+
+LTLSPEC G(write -> X(read -> X(user.input = user.output)))
+
+		
