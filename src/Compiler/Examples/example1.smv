@@ -1,0 +1,30 @@
+MODULE main()
+	VAR
+		_action : {read,write,user1_UA_1,cell1_f};
+		_cell1value : 0..1;
+		_user1output : 0..1;
+		_cell1factive : boolean;
+
+	INIT
+		--_cell1factive esta en false al comienzo porque debe ocurrir la accion de falla para que se active
+		_cell1factive = FALSE & _cell1value = 0 & _user1output = 0
+	
+	TRANS
+		(TRUE & next(_action) = read & TRUE & next(_cell1value) = _cell1value & next(_cell1factive) = _cell1factive & next(_user1output) = _user1output) |
+		(TRUE & next(_action) = write & !_cell1factive & next(_cell1value) = _user1output & next(_user1output) = _user1output & next(_cell1factive) = _cell1factive) |
+		(TRUE & next(_action) = write & _cell1factive &  next(_user1output) = _user1output & next(_cell1factive) = _cell1factive) |
+		-- notar que en el caso anterior no se define el next-value de cell1value debido a la falla bizantina
+		(!_cell1factive & next(_action) = cell1_f & next(_cell1factive) = TRUE & next(_cell1value) = _cell1value & next(_user1output) = _user1output) |
+		(TRUE & next(_action) = user1_UA_1 & next(_cell1value) = _cell1value & next(_cell1factive) = _cell1factive)
+		-- de nuevo, arriba no se le da next-value a _useroutput esta vez ya que nos interesa que quede aleatorio
+		-- fata la negacion del Y de todas las guardas, para que no se vea obligada a ocurrir una falla en el caso de que las demas guardas no se cumplan
+
+
+LTLSPEC G((_action=write) -> (_user1output = _cell1value))
+
+--LTLSPEC F _action=read
+
+LTLSPEC G(!_cell1factive) -> G((_action=write) -> (_user1output = _cell1value))
+
+--FAIRNESS _action = read
+FAIRNESS _action = write
