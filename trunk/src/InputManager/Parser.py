@@ -10,6 +10,8 @@
     un manejo mas intuitivo de la informacion que contiene.
 """
 
+from Debug import *
+from Config import *
 
 
 #///////////////////////////////////////////////////////////////////////////////
@@ -27,13 +29,13 @@ class FallutoElem():
 #
 class System():
     def __init__(self):
-        self.modules = []
+        self.modules = {}
         self.instances = []
         self.timeLogics = []
         self.contraints = []
         
     def printMe(self):
-        for m in self.modules:
+        for name, m in self.modules:
             m.printMe()
         for i in self.instances:
             i.printMe()
@@ -115,7 +117,7 @@ class Module():
         self.line = ""
         self.name = ""
         self.contextVars = []
-        self.contextActs = []
+        self.synchroActs = []
         self.localVars = []
         self.trans = []
         self.faults = []
@@ -178,10 +180,13 @@ class Parser():
 
     def parse(self, inputList):
         
+        if DEBUGTODO__ :
+            DebugTODO("FALTA PARSEAR \'LTLSPECNAME\'...")
+        
         for x in inputList:
             if x.__name__ == 'MODULE':
                 m = self.parseModule(x.what)
-                self.system.modules.append(m)
+                self.system.modules[m.name] = m
             elif x.__name__ == 'INSTANCE':
                 i = self.parseInstance(x.what)
                 self.system.instances.append(i)
@@ -227,7 +232,7 @@ class Parser():
                     act = ContextAct()
                     act.name = a.what
                     act.line = a.__name__.line
-                    m.contextActs.append(act)
+                    m.synchroActs.append(act)
             elif x.__name__ == 'MODULEBODY':
                 for e in x.what:
                     if e.__name__ == 'VAR':

@@ -86,7 +86,7 @@ def PARAMLIST():    return 0, (re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), -
 ltlbinops = re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
 ltluops = re.compile(r"\!|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
 
-def LTLSPEC():      return (keyword("LTLSPEC"), LTLEXP)
+def LTLSPEC():      return [(keyword("LTLSPEC"), LTLEXP) , (keyword("LTLSPECNAME"), IDENT, ":=", LTLEXP)]
 def LTLEXP():       return [LTLBOP, LTLUOP]
 def LTLBOP():       return LTLUOP , ltlbinops, LTLEXP
 def LTLUOP():       return -1 , ltluops, LTLVAL

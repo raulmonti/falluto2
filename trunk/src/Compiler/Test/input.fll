@@ -5,5 +5,5 @@ MODULE rau5()
 MODULE rau3()
 
 INSTANCE raul = raul()
-INSTANCE raul = rau5()
-INSTANCE pepe = ra()
+INSTANCE raul = raul()
+INSTANCE pepe = raul()

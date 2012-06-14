@@ -25,7 +25,7 @@ MODULE sistema(cell1, cell2, cell3; read, write)
 INSTANCE cell1 = cell(user.output, read, write)
 INSTANCE cell2 = cell(user.output, read, write)
 INSTANCE cell3 = cell(user.output, read, write)
-INSTANCE user = user(cell1.value,cell2.value,cell3.value, read, write)
+INSTANCE user = sistema(cell1.value,cell2.value,cell3.value, read, write)
 
 
 LTLSPEC G(write -> X(read -> X(user.input = user.output)))
