@@ -12,6 +12,7 @@
 
 from Debug import *
 from Config import *
+from InputManager.pyPEG.pyPEG import Symbol
 
 
 #///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +36,7 @@ class System():
         self.contraints = []
         
     def printMe(self):
-        for name, m in self.modules:
+        for name, m in self.modules.iteritems():
             m.printMe()
         for i in self.instances:
             i.printMe()
@@ -71,7 +72,7 @@ class Fault():
     def __init__(self):
         self.name = ""
         self.pre = ""
-        self.pos = ""
+        self.pos = []
         self.line = ""
 
 class TransFault(FallutoElem):
@@ -133,7 +134,7 @@ class Module():
         print "\n",
 
         print "\t. PARAMETRIC ACTIONS:"
-        for x in self.contextActs:
+        for x in self.synchroActs:
             print "\t\t-", x.name, x.line
         print "\n",
 
@@ -171,13 +172,27 @@ class Module():
 #===============================================================================
 
 class Parser():
-
+    #......................................................................
     def __init__(self):
         self.system = System()
 
+    #......................................................................
     def retriveSystem(self):
         return self.system
 
+    #......................................................................
+    def cleanAST(self, AST):
+        ret = []
+        if isinstance(AST, Symbol):
+            ret += self.cleanAST(AST.what)
+        elif isinstance(AST, unicode):
+            ret.append(unicode(AST))
+        elif isinstance(AST, list):
+            for x in AST:
+                ret += (self.cleanAST(x))
+        return ret
+
+    #......................................................................
     def parse(self, inputList):
         
         if DEBUGTODO__ :
@@ -293,15 +308,30 @@ class Parser():
         fl = []
         for f in faults:
             flt = Fault()
-            flt.name = f.what[0].what
             flt.line = f.__name__.line
+            f = f.what  # [name, pre, pos]
+            flt.name = f[0].what
             try:
-                flt.pre = f.what[1].what
-                flt.pos = f.what[2].what
+                flt.pre = f[1]
+                print flt.pre
+                for x in (f[2].what):
+                    pair = ( x.what[0], x.what[1])
+                    flt.pos.append(pair)
             except:
                 pass
             fl.append(flt)
         return fl
+
+    #......................................................................
+    def cleanPrecond(self, ast):
+        pass
+    #......................................................................
+    def cleanPoscond(self, ast):
+        pass
+        
+
+
+
 
 #===============================================================================
 

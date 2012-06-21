@@ -16,7 +16,7 @@ MODULE user(;read,write)
 	INIT
 		output = 0
 	TRANS
-		[]::next(output)={0,1}
+		[zZz]::next(output)={0,1}
 		[write]:: 
 		[read]::
 
@@ -26,4 +26,4 @@ FAIRNESS read
 INSTANCE cell1 = cell(user1.output,read,write)
 INSTANCE user1 = user(read,write)
 
-LTLSPEC G(write -> X(user1.output = cell1.value))
+LTLSPEC G( user1.zZz | write -> X(user1.output = cell1.value))

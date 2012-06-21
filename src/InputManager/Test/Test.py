@@ -2,9 +2,9 @@
 
 import sys, os
 
-sys.path.append(os.path.abspath('../'))
+sys.path.append(os.path.abspath('../../'))
 
-import Parser, Interpreter
+from InputManager import Parser, Interpreter
 import fileinput
 
 if __name__ == '__main__':
