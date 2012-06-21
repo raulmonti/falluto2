@@ -13,6 +13,17 @@
 import pyPEG
 from pyPEG.pyPEG import keyword, _and, _not
 import re
+from Debug import *
+from Config import *
+
+if DEBUGTODO__:
+    DebugTODO("Dar la opcion de dar nombre al systema.fll dentro del" +\
+              "systema, por ejemplo usando la etiqueta fllname seguida" +\
+              " del nombre.\n")
+    DebugTODO("Aceptar numeros como parametros en las instancias si es que" +\
+              " se debe\n")
+    DebugTODO("Esta falla se rompe y esta bien escrita: " +\
+              " f_1 : TRUE : next(localv1) = (TRUE | FALSE = 1>2)\n")
 
 
 #///////////////////////////////////////////////////////////////////////////////
@@ -41,8 +52,8 @@ def MATH():         return [ (re.compile(r"\-(?!>)"), MATH), (MATHVAL, -1, (MATH
 def MATHVAL():      return [ BOOL, IDENT, INT, SET, (re.compile(r"\("), MATH, re.compile(r"\)"))]
 def MATHOP():       return re.compile(r"\+|\-|\*|\/|\%")
 def COMPOP():       return re.compile(r"\<\=|\>\=|\<(?!->)|\>|\=")
-def NEXTPROPFORM(): return NEXTVAL, "=", [SET, NEXTVAL, MATH, PROPFORM, INT], -1, ( ",", NEXTVAL, "=", [SET, NEXTVAL, MATH, PROPFORM, INT])
-def NEXTVAL():      return keyword("next"), "(", IDENT, ")"
+def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
+def NEXTVAL():      return keyword("next"), "(", IDENT, ") = ", [SET, NEXTVAL, MATH, PROPFORM, INT]
 
 #SYSTEM
 
@@ -90,7 +101,7 @@ def LTLSPEC():      return [(keyword("LTLSPEC"), LTLEXP) , (keyword("LTLSPECNAME
 def LTLEXP():       return [LTLBOP, LTLUOP]
 def LTLBOP():       return LTLUOP , ltlbinops, LTLEXP
 def LTLUOP():       return -1 , ltluops, LTLVAL
-def LTLVAL():       return [ PROPFORM , ("(" , LTLEXP, ")") ]
+def LTLVAL():       return [ PROPFORM , (re.compile(r"\(") , LTLEXP, re.compile(r"\)")) ]
 
 #------------------------------------------------------------------------------#
 

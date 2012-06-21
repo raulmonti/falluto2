@@ -20,7 +20,7 @@ MODULE main()
 		-- fata la negacion del Y de todas las guardas, para que no se vea obligada a ocurrir una falla en el caso de que las demas guardas no se cumplan
 
 
-LTLSPEC G((_action=write) -> (_user1output = _cell1value))
+LTLSPEC G((_action=write) -> X (_user1output = _cell1value))
 
 --LTLSPEC F _action=read
 

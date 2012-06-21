@@ -13,7 +13,10 @@ debugColorDict = {
 }
 
 def Debug(color, string):
-    print '\033[' + debugColorDict[color] + string + '\033[1;m'
+    print '\033[' + debugColorDict[color] + "DEBUG: " +  str(string) + '\033[1;m'
     
 def DebugTODO(string):
-    print '\033[' + debugColorDict['debugTODO'] + "TODO: " + string + '\033[1;m'    
+    print '\033[' + debugColorDict['debugTODO'] + "TODO: " + string + '\033[1;m'
+
+def DebugRED(string):
+    print '\033[' + debugColorDict['debugRED'] + "DEBUG: " + string + '\033[1;m'
