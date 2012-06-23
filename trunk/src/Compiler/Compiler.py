@@ -28,6 +28,8 @@ if DEBUGTODO__:
     DebugTODO("El metodo padre deberia definir el tab para el metodo hijo\n")
     DebugTODO("Que pasa si quiero poscondiciones de fallas mas complejas y" + \
               " no simplemente & de cambios de variables\n")
+    DebugTODO(" Cambiar el 'x in self.instanceVarTable[inst]' por un 'try'" +\
+              " semejante al de la linea compileFaultPre donde sea necesario." )
 
 ################################################################################
 #ENUMERACION DE LAS VARIABLES "NUEVAS" DEL "PROGRAMA" NUSMV Y SU REPRESENTACION 
@@ -51,6 +53,9 @@ def formatModuleVar(moduleName, varName):
 
 def formatFaultActiveVar(instanceName, faultName):
     return str(instanceName + '#' + faultName + '#active')
+
+def formatNNTransName(instanceName, NNcount):
+    return str(instanceName)+ '#' + VARSDICT["nnAction"] + str(NNcount)
 
 ################################################################################
 
@@ -109,14 +114,16 @@ class Compiler():
     #......................................................................
     def compile(self):
         if not len(self.system.instances):
-            raise SyntaxError
+            raise SyntaxError("NO SE DECLARARON INSTANCIAS!!!!")
+        self.tab += 1
         self.compileVars()
         self.compileInit()
-        if len(self.system.timeLogics):
-            self.compileLTLSpecs()
-        self.tab += 1
         self.compileTrans()
         self.tab -= 1
+        
+        if len(self.system.timeLogics):
+            self.compileLTLSpecs()
+        
         self.fileOutput.write(self.stringOutput);
     #......................................................................
     """ 
@@ -206,14 +213,13 @@ class Compiler():
 
     #......................................................................
     def compileVars(self):
-        self.out("MODULE main()\n\n" + str(self.tab + 1) + "VAR\n")
-        self.tab += 1
+        self.out("MODULE main()\n\n" + str(self.tab) + "VAR\n")
         # actions VAR
+        self.tab += 1
         self.compileActVar()
         self.compileModVars()
         self.compileContextVars()
-        self.tab -= 2
-
+        self.tab -= 1
     #......................................................................
     def compileFaultInit(self):
         for f in self.fActiveVarList:
@@ -236,14 +242,14 @@ class Compiler():
 
     #......................................................................
     def compileInit(self):
-        self.out("\n" + str(self.tab + 1) + "INIT\n")
+        self.out("\n" + str(self.tab) + "INIT\n")
         self.tab += 1
         # active fault variable initialization (all False at the beginning)
         self.compileFaultInit()
         # module's particular INIT's
         self.compileModInit()
         self.out(str(self.tab) + "TRUE\n")
-        self.tab -= 2
+        self.tab -= 1
 
     #......................................................................
     def compileLTLSpecs(self):
@@ -251,7 +257,6 @@ class Compiler():
         for ltl in self.system.timeLogics:
             p = Parser()
             cltl = p.cleanAST(ltl.spec)
-            DebugRED(str(cltl))
             for x in cltl:
                 # habla de una variable local?
                 if '.' in x:
@@ -273,45 +278,35 @@ class Compiler():
 
     #......................................................................
     def compileTrans(self):
-        self.out(str(self.tab) + "TRANS\n")
-        self.tab += 1
         self.compileFaultCausedTrans()
-        self.tab -= 1
+        self.compileCommonTrans()
+
 
     #......................................................................
     def compileFaultCausedTrans(self):
+        self.out("\n" + str(self.tab) + "TRANS\n")
+        self.tab += 1
         for inst in self.system.instances:
             mname = inst.type
             for fault in self.system.modules[mname].faults:
                 self.out(self.tab)
                 ff = formatFaultActiveVar(inst.name, fault.name)
                 self.out("( !" + ff + " & ")
-                self.out(self.compileFaultPre(fault.pre) + " & ")
-                self.out("next("+VARSDICT["actionVar"]+") = "+fault.name+" & ")
+                self.out("next("+VARSDICT["actionVar"]+") = " + \
+                    formatModuleFault(inst.name,fault.name) + " & ")
                 self.out("next(" + ff + ") = TRUE & ")
-                
+                self.compileFaultPre(inst, fault.pre)
                 excList = [ ff, VARSDICT["actionVar"]]
-                parser = Parser()
-                for (x,y) in fault.pos:
-                    nx = parser.cleanAST(x)
-                    nx = self.instanceVarTable[inst.name][nx[0]]
-                    excList.append(nx)
-                    self.out( "next(" + nx + ") = (") 
-                    ny = parser.cleanAST(y)
-                    for string in ny:
-                        if string in self.instanceVarTable[inst.name]:
-                            string = self.instanceVarTable[inst.name][string]
-                        self.out(string)
-                    self.out(") & >>>> ")
-
-                DebugRED(str(parser.cleanAST(fault.pre)))
-                DebugRED(str(parser.cleanAST(fault.pos)))
+                excList += self.compileFaultPos(inst, fault.pos)
 
                 # vars that wont change                
-                self.out(self.notChangingVarsList(excList) + ") |\n")
-
+                self.out(self.notChangingVarsList(excList) + "TRUE ) |\n")
+        self.out(str(self.tab) + "TRUE")
+        self.tab -= 1
     #......................................................................
     def notChangingVarsList(self, exceptions = []):
+        if DEBUG__:
+            self.out("   <    @REST:   >   ")
         string = ""
         for v in self.fActiveVarList:
             if not v in exceptions:
@@ -322,7 +317,67 @@ class Compiler():
                     string += "next(" + v + ") = " + v + " & "
         return string
 
+    #......................................................................
+    def compileFaultPre(self, inst, pre):
+        if DEBUG__:
+            self.out("   <    @PRE:   >   ")
+        parser = Parser()
+        pre = parser.cleanAST(pre)
+        if pre != []:
+            for x in pre :
+                backup = x
+                try:
+                    x = self.instanceVarTable[inst.name][x]
+                except KeyError:
+                    if DEBUG__:
+                        DebugRED(x)
+                    pass
+                self.out(x)
+            self.out(" & ")
 
-    def compileFaultPre(self, pre):
-        return " PRE "
+    #......................................................................
+    def compileFaultPos(self, inst, pos):
+        excList = []
+        parser = Parser()
+        if DEBUG__:
+            self.out("   <    @POS:   >   ")
+        for (x,y) in pos:
+            nx = parser.cleanAST(x)
+            nx = self.instanceVarTable[inst.name][nx[0]]
+            excList.append(nx)
+            self.out( "next(" + nx + ") = (") 
+            ny = parser.cleanAST(y)
+            for string in ny:
+                if string in self.instanceVarTable[inst.name]:
+                    string = self.instanceVarTable[inst.name][string]
+                self.out(string)
+            self.out(") & ")
+        return excList
 
+    #......................................................................
+    def compileSynchroTrans(self):
+        pass
+    #......................................................................
+    def compileCommonTrans(self):
+        self.out( "\n\n" + str(self.tab) + "-- COMMON TRANSITIONS\n")
+        self.out(str(self.tab) + "TRANS\n\n")
+        self.tab += 1
+        for inst in self.system.instances:
+            nnCount = 0
+            mod = self.system.modules[inst.type]
+            for trans in mod.trans:
+                if not trans.name in mod.synchroActs:
+                    trn = trans.name
+                    if trans.name == "":
+                        trn = formatNNTransName(inst.name, nnCount)
+                        nnCount += 1
+                    else:
+                        trn = formatModuleAct(inst.name, trn)
+                    self.out(str(self.tab))
+                    self.out("next(" + VARSDICT["actionVar"] + ") = " + trn + " & ")
+                    self.compileFaultPre(inst, trans.pre)
+                    exc = self.compileFaultPos(inst, trans.pos)
+                    excList = [VARSDICT["actionVar"]] + exc
+                    self.out(self.notChangingVarsList(excList) + "TRUE ) |\n")
+        self.out(str(self.tab) + "TRUE\n")
+        self.tab -= 1

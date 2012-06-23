@@ -53,7 +53,7 @@ def MATHVAL():      return [ BOOL, IDENT, INT, SET, (re.compile(r"\("), MATH, re
 def MATHOP():       return re.compile(r"\+|\-|\*|\/|\%")
 def COMPOP():       return re.compile(r"\<\=|\>\=|\<(?!->)|\>|\=")
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
-def NEXTVAL():      return keyword("next"), "(", IDENT, ") = ", [SET, NEXTVAL, MATH, PROPFORM, INT]
+def NEXTVAL():      return keyword("next"), "(", IDENT, ")", "=", [SET, NEXTVAL, MATH, PROPFORM, INT]
 
 #SYSTEM
 
@@ -68,6 +68,7 @@ def MODULEBODY():   return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 def VAR():          return keyword("VAR"), -1, VARDECL
 def VARDECL():      return IDENT, ":", [BOOLEAN,SET,RANGE]
 def BOOLEAN():      return "bool"
+DebugYELLOW("Porblema con los SET que se estan parseando mal :(\n")
 def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
 def RANGE():        return INT, "..", INT
 
