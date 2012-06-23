@@ -84,7 +84,7 @@ class Trans(FallutoElem):
     def __init__(self):
         FallutoElem.__init__(self)
         self.pre = ""
-        self.pos = ""
+        self.pos = []
         self.faults = []
 
 class Instance(FallutoElem):
@@ -276,7 +276,10 @@ class Parser():
                 elif x.__name__ == 'PROPFORM':
                     tr.pre = x.what
                 elif x.__name__ == 'NEXTPROPFORM':
-                    tr.pos = x.what
+                    for p in x.what:
+                        p = p.what
+                        pair = (p[0], p[1])
+                        tr.pos.append(pair)
                 elif x.__name__ == 'PFAULTDECL':
                     for f in x.what:
                         flt = TransFault()
@@ -313,7 +316,6 @@ class Parser():
             flt.name = f[0].what
             try:
                 flt.pre = f[1]
-                print flt.pre
                 for x in (f[2].what):
                     pair = ( x.what[0], x.what[1])
                     flt.pos.append(pair)
