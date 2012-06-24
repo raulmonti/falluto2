@@ -1,6 +1,2 @@
-MODULE raul()
---    INIT
---        a = b+c
-LTLSPEC TRUE U FALSE U TRUE S (!X raul) -> 4+2 > 3
--- LTLSPEC G (!(raul <-> F monti))
-    
+MODULE extra()
+MODULE raul(v1, v2; a1, a2)
