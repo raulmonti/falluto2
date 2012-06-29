@@ -1,3 +1,4 @@
+
 MODULE extra()
 
 MODULE raul(v1, v2; a1, a2)
@@ -15,3 +16,7 @@ MODULE raul(v1, v2; a1, a2)
 		[tra1]:FALSE & FALSE:next(var1) = FALSE ..BIZ(f1, var2, var3)..
 		[]::
 		[tra2]:: ..STOP(f)..
+
+INSTANCE pp = raul(a1, 3,  FALSE, a.f1)
+LTLSPEC G X TRUE -> FALSE & X FALSE -> TRUE
+COMPASSION (TRUE, pp.var2)

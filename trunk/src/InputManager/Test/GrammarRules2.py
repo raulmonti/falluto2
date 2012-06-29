@@ -58,10 +58,7 @@ def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, re.compile(r"
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
 def BOOLEXP():      return [BOOLBINOP, BOOLVAL]
 def BOOLBINOP():    return BOOLVAL, re.compile(booleanop), BOOLEXP
-def BOOLVAL():      return [ BOOL, IDENT, MATH, \ 
-                             (re.compile(r"\("), BOOLEXP, re.compile(r"\)")), \
-                             (re.compile(r"\!"), BOOLEXP), \
-                             (MATH , re.compile(booleanop), MATH) ]
+def BOOLVAL():      return [ BOOL, IDENT, MATH, (re.compile(r"\("), BOOLEXP, re.compile(r"\)")), (re.compile(r"\!"), BOOLEXP), (MATH , re.compile(booleanop), MATH) ]
 
 
 #PROPOSITIONAL FORMULA
@@ -113,7 +110,8 @@ def STOP():         return "STOP", "(", IDENT, ")"
 
 #INSTANCE
 def INSTANCE():     return keyword("INSTANCE"), IDENT, "=", IDENT, "(", PARAMLIST, ")"
-def PARAMLIST():    return 0, (re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), -1, ( ",", re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")))
+instparams = [re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"), re.compile(r"\d+")]
+def PARAMLIST():    return 0, ( instparams, -1, ( ",", instparams))
 
 
 
