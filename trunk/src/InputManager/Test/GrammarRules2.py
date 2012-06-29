@@ -39,7 +39,6 @@ def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
 
 #MATH FORMULA
-
 """
 mathbinop = r"\+|\-|\*|\/|\%"
 def MATH():         return [MATHBINOP , MATHUOP]
@@ -47,7 +46,6 @@ def MATHUOP():      return -1, re.compile(r"\-"), MATHVAL
 def MATHBINOP():    return MATHUOP, re.compile(mathbinop), MATH
 def MATHVAL():      return [ INT, IDENT, (re.compile(r"("), MATH, re.compile(r")"))]
 """
-
 # Los operadores anidan a derecha, no doy prioridades ya que no vienen el caso
 # despues que se las arregle NuSMV o que quien sea. 
 mathbinop = r"\+|\-|\*|\/|\%"
@@ -60,7 +58,10 @@ def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, re.compile(r"
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
 def BOOLEXP():      return [BOOLBINOP, BOOLVAL]
 def BOOLBINOP():    return BOOLVAL, re.compile(booleanop), BOOLEXP
-def BOOLVAL():      return [BOOL, IDENT, (re.compile(r"\("), BOOLEXP, re.compile(r"\)")), (re.compile(r"\!"), BOOLEXP), (MATH , re.compile(booleanop), MATH)]
+def BOOLVAL():      return [ BOOL, IDENT, MATH, \ 
+                             (re.compile(r"\("), BOOLEXP, re.compile(r"\)")), \
+                             (re.compile(r"\!"), BOOLEXP), \
+                             (MATH , re.compile(booleanop), MATH) ]
 
 
 #PROPOSITIONAL FORMULA
@@ -72,8 +73,12 @@ def PROPVAL():      return [BOOLEXP, (re.compile(r"\("), PROPFORM, re.compile(r"
 
 #NEXT PROPOSITIONAL FORMULA
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
-def NEXTVAL():      return keyword("next"), "(", IDENT, ")", "=", [SET, NEXTVAL, MATH, PROPFORM]
-
+def NEXTVAL():      return keyword("next"), "(", IDENT, ")", "=", \
+                           [ IDENT, SET, NEXTREF, MATH, PROPFORM]
+def NEXTREF():      return keyword("next"), "(", IDENT, ")"
+if DEBUG__:
+    DebugTODO("Revisar si se le puede asignar un RANGE a un NEXTVAL en NuSMV "+\
+              "y si es asi agregarlo en la regla gramatical correspondiente.")
 
 #VAR TYPES
 def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
@@ -103,7 +108,7 @@ def TRANS():        return keyword("TRANS"), -1, TRANSDECL
 def TRANSDECL():    return "[", 0, IDENT, "]", ":", 0, PROPFORM, ":", 0, NEXTPROPFORM, -1, PFAULTDECL
 def PFAULTDECL():   return "..", [BIZ, STOP], ".."
 def BIZ():          return "BIZ", "(", IDENT, -1, (",", IDENT), ")"
-def STOP():         return "STOP"
+def STOP():         return "STOP", "(", IDENT, ")"
 
 
 #INSTANCE
