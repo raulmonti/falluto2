@@ -32,10 +32,15 @@ class Types():
     IDENT = 11
     TRANS = 12
     PERMFAULT = 13
+    INSTANCE = 14
+    COMPASSION = 15
+    FAIRNESS = 16
+    LTLSPEC = 17
     inverse = { 
                 0:'SYSTEM', 1:'MODULE', 2:'BOOL', 3:'SET', 4:'RANGE',
                 5:'FAULT', 6:'LOCALVAR', 7:'NEXTVAL', 8:'NEXTREF', 9:'PROPFORM', 
-                10:'MATH', 11:'IDENT', 12:'TRANS', 13:'PERMFAULT'
+                10:'MATH', 11:'IDENT', 12:'TRANS', 13:'PERMFAULT', 
+                14:'INSTANCE', 15:'COMPASSION', 16:'FAIRNESS', 17:'LTLSPEC'
               }
 
 
@@ -104,6 +109,12 @@ class System(FallutoBaseElem):
         print "<MODULES>"
         for m in self.modules.itervalues():
             m.printMe()
+        for i in self.instances.itervalues():
+            print i
+        for c in self.contraints:
+            print c
+        for l in self.ltlspecs:
+            print l
     
     def parse(self, AST):
         self.name = "NO NAME FOR SYSTEMS YET :S"
@@ -114,7 +125,22 @@ class System(FallutoBaseElem):
                 m = Module()
                 m.parse(elem)
                 self.modules[m.name] = m
-
+            elif elem.__name__ == "INSTANCE":
+                i = Instance()
+                i.parse(elem)
+                self.instances[i.name] = i
+            elif elem.__name__ == "LTLSPEC":
+                l = LtlSpec()
+                l.parse(elem)
+                self.ltlspecs.append(l)
+            elif elem.__name__ == "FAIRNESS":
+                f = Fairness()
+                f.parse(elem)
+                self.contraints.append(f)
+            elif elem.__name__ == "COMPASSION":
+                c = Compassion()
+                c.parse(elem)
+                self.contraints.append(c)
 
 class Module(FallutoBaseElem):
     def __init__(self):
@@ -184,6 +210,7 @@ class Module(FallutoBaseElem):
         print "< TRANS >"
         for t in self.trans:
             print t
+
 
 class Trans(FallutoBaseElem):
     def __init__ (self):
@@ -426,4 +453,73 @@ class Bool(FallutoBaseElem):
 
     def __repr__(self):
         return Types.inverse[self.type] + " : " + repr(self.domain)
+
+class Instance(FallutoBaseElem):
+    def __init__(self):
+        FallutoBaseElem.__init__(self)
+        self.type = Types.INSTANCE
+        self.module = ""
+        self.params = []
+
+    def parse(self, AST):
+        self.line = AST.__name__.line
+        AST = AST.what
+        self.name = AST[0].what
+        self.module = AST[1].what
+        for v in AST[2].what:
+            self.params.append(v)
+
+    def __repr__(self):
+        return "< INSTANCE >: " + self.name + ": " + "of module " + \
+                self.module + ": Params " + repr(self.params)
+
+
+class LtlSpec(FallutoBaseElem):
+    def __init__(self):
+        FallutoBaseElem.__init__(self)
+        self.type = Types.LTLSPEC
+    
+    def parse(self, AST):
+        self.line = AST.__name__.line
+        AST = AST.what
+        self.value = cleanAST(AST)
+        
+    def __repr__(self):
+        return "< LTLSPEC >: " + repr(self.value)
+
+
+class Fairness(FallutoBaseElem):
+    def __init__(self):
+        FallutoBaseElem.__init__(self)
+        self.type = Types.FAIRNESS
+    
+    def parse(self, AST):
+        self.line = AST.__name__.line
+        AST = AST.what
+        self.value = cleanAST(AST)
+        
+    def __repr__(self):
+        return "< FAIRNESS >: " + repr(self.value)
+
+
+
+class Compassion(FallutoBaseElem):
+    def __init__(self):
+        FallutoBaseElem.__init__(self)
+        self.type = Types.COMPASSION
+        self.pre = None
+        self.pos = None
+    
+    def parse(self, AST):
+        self.line = AST.__name__.line
+        AST = AST.what
+        self.pre = cleanAST(AST[0])
+        self.pos = cleanAST(AST[1])
+
+    def __repr__(self):
+        return "< COMPASSION >: Pre: " + repr(self.pre) + " Pos: " + \
+                repr(self.pos)
+
+
+
 
