@@ -39,13 +39,6 @@ def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
 
 #MATH FORMULA
-"""
-mathbinop = r"\+|\-|\*|\/|\%"
-def MATH():         return [MATHBINOP , MATHUOP]
-def MATHUOP():      return -1, re.compile(r"\-"), MATHVAL
-def MATHBINOP():    return MATHUOP, re.compile(mathbinop), MATH
-def MATHVAL():      return [ INT, IDENT, (re.compile(r"("), MATH, re.compile(r")"))]
-"""
 # Los operadores anidan a derecha, no doy prioridades ya que no vienen el caso
 # despues que se las arregle NuSMV o que quien sea. 
 mathbinop = r"\+|\-|\*|\/|\%"
@@ -73,7 +66,7 @@ def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
 def NEXTVAL():      return keyword("next"), "(", IDENT, ")", "=", \
                            [ IDENT, SET, NEXTREF, MATH, PROPFORM]
 def NEXTREF():      return keyword("next"), "(", IDENT, ")"
-if DEBUG__:
+if DEBUGTODO__:
     DebugTODO("Revisar si se le puede asignar un RANGE a un NEXTVAL en NuSMV "+\
               "y si es asi agregarlo en la regla gramatical correspondiente.")
 
@@ -175,6 +168,12 @@ def LTLVAL():       return [PROPFORM , ("(" , LTLEXP, ")") ]
 
 """
 
-
+"""
+mathbinop = r"\+|\-|\*|\/|\%"
+def MATH():         return [MATHBINOP , MATHUOP]
+def MATHUOP():      return -1, re.compile(r"\-"), MATHVAL
+def MATHBINOP():    return MATHUOP, re.compile(mathbinop), MATH
+def MATHVAL():      return [ INT, IDENT, (re.compile(r"("), MATH, re.compile(r")"))]
+"""
 
 
