@@ -2,7 +2,6 @@
 # Raul Monti
 
 
-
 from Debug import *
 from Config import *
 from InputManager.pyPEG.pyPEG import *
@@ -11,6 +10,7 @@ if DEBUG__:
     DebugGREEN("Revisar si es buena idea lo del pseudo ENUM de la clase Types")
     DebugRED("pyPEG tiene problemas con la primera y ultima lineas de el " + \
              "archivo de entrada :S, es como que no las detecta en .line")
+if DEBUGTODO__:
     DebugTODO("Module contextvars and synchroacts quizas deberian poseer " + \
               "clase propia y no ser parseadas en Module.")
     DebugTODO("Cambiar los printMe() por __string__ o __unicode__.")
@@ -74,7 +74,7 @@ class FallutoBaseElem():
     sin lo que agrega PyPEG) y si check == True entonces chequea correctitud 
     en los tipos.
 """
-if DEBUG__:
+if DEBUGTODO__:
     DebugTODO("Implemetar el checkeo de tipos.")
 
 def cleanAST(ast = [], check = False, expect = None):
@@ -154,7 +154,7 @@ class Module(FallutoBaseElem):
         self.trans = []
 
     def parse(self, AST):
-        if DEBUG__:
+        if DEBUGTODO__:
             DebugYELLOW("Parsing Module: " + str(AST) + " at " + \
                 AST.__name__.line)
         assert AST != []
@@ -217,7 +217,7 @@ class Trans(FallutoBaseElem):
         FallutoBaseElem.__init__(self)
         self.type = Types.TRANS
         self.faults = []
-        self.pre = None
+        self.pre = PropForm()
         self.pos = []
     
     def parse(self, AST):
@@ -227,9 +227,7 @@ class Trans(FallutoBaseElem):
             if elem.__name__ == 'IDENT':
                 self.name = elem.what
             elif elem.__name__ == 'PROPFORM':
-                p = PropForm()
-                p.parse(elem)
-                self.pre = p
+                self.pre.parse(elem)
             elif elem.__name__ == 'NEXTPROPFORM':
                 for v in elem.what:
                     n = NextVal()
@@ -376,6 +374,7 @@ class PropForm(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
         self.type = Types.PROPFORM
+        self.val = []
 
     def parse(self, AST):
         self.line = AST.__name__.line
