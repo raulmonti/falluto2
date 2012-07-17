@@ -22,17 +22,19 @@ debugColorDict = {
     'debugTODO'   : '1;45m'
 }
 
-def Debug(color, string):
+def debug(color, string):
     print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  + "]: " + str(string) + '\033[1;m'
     
-def DebugTODO(string):
+def debugTODO(string):
     print '\033[' + debugColorDict['debugTODO'] + "TODO: [" + str(lineno()) + "]: " + str(string) + '\033[1;m'
 
-def DebugRED(string):
+def debugRED(string):
     print '\033[' + debugColorDict['debugRED'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
 
-def DebugGREEN(string):
+def debugGREEN(string):
     print '\033[' + debugColorDict['debugGREEN'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
 
-def DebugYELLOW(string):
+def debugYELLOW(string):
     print '\033[' + debugColorDict['debugYELLOW'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+
+

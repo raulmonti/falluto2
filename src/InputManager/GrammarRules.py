@@ -6,8 +6,8 @@
 
 """
     En este modulo se determinan las reglas gramaticales que definen la 
-    gramatica de entrada para falluto. Las reglas seran interpretadas por los 
-    modulos de la libreria PyPEG.
+    gramatica de entrada para falluto. Las reglas seran interpretadas por
+    la libreria PyPEG.
 """
 
 import pyPEG
@@ -33,12 +33,12 @@ if DEBUGTODO__:
 # Agregamos a la siguiente lista separada por '|' las palabras que no queremos 
 # que sean reservadas para el programa, y por lo tanto no queremos permitir como 
 # identificadores.
-identifiers = re.compile(r"(?!\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+identifiers = r"(?!\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
 
 
 #IDENTIFIERS
 
-def IDENT():        return identifiers
+def IDENT():        return re.compile(identifiers)
 def INT():          return re.compile(r"\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 
@@ -68,7 +68,7 @@ def MODULEBODY():   return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 def VAR():          return keyword("VAR"), -1, VARDECL
 def VARDECL():      return IDENT, ":", [BOOLEAN,SET,RANGE]
 def BOOLEAN():      return "bool"
-DebugYELLOW("Porblema con los SET que se estan parseando mal :(\n")
+DebugYELLOW("Problema con los SET que se estan parseando mal :(")
 def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
 def RANGE():        return INT, "..", INT
 
