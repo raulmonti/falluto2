@@ -1,0 +1,106 @@
+-- Ejemplo largo con todos los casos posibles de imput (o por lo menos se espera que los tenga)
+
+
+MODULE mod1 (contextv1, contextv2; synchro1, synchro2)
+
+	VAR
+
+		localv1: bool
+		localv2: { a, e, i, o, u }
+		localv3: -12..1200
+
+	FAULT
+
+		fault1 : 						is BIZ(localv1, localv2)
+		fault2 : localv1 	=> 	next(localv2) = u 	is TRANSIENT
+		fault3 : localv3 = contextv1 + contextv2 		is STOP(trans1, synchro1)
+		fault4 : localv3 = contextv1 - contextv2		is STOP
+
+	INIT
+
+		localv1 = TRUE | localv1 = FALSE & localv2 = a -> localv3 < 10
+
+	TRANS
+
+		[trans1]: localv1 = TRUE & localv2 = u  => next(localv2) = a, next(localv3) = localv3 + 1
+		[]: localv1 = FALSE & localv2 = a => next(localv2) = e, next(localv3) = localv3 + 1 
+		[]: localv1 = FALSE & localv2 = e => next(localv2) = i, next(localv3) = localv3 + 1
+		[]: localv1 = FALSE & localv2 = i => next(localv2) = o, next(localv3) = localv3 + 1
+		[]: localv1 = FALSE & localv2 = o => next(localv2) = u, next(localv3) = localv3 + 1
+		[synchro1]: => next(localv1) = TRUE
+		[synchro2]: localv3 = 1200 => next(localv3) = 0
+
+
+MODULE mod2(; reset1, reset2)
+
+	VAR
+
+		sem : bool
+
+	FAULT
+
+	INIT
+		sem = TRUE
+	TRANS
+		[]:
+		[reset1]: sem => next(sem) = FALSE
+		[reset2]: !sem => next(sem) = TRUE
+
+
+INSTANCE inst1 = mod1( v1, v2, s1, s2)
+INSTANCE inst3 = mod1( v1, v2, s1, s2)
+INSTANCE inst4 = mod1( v1, v2, s1, s2)
+INSTANCE inst5 = mod1( v1, v2, s1, s2)
+INSTANCE inst6 = mod1( v1, v2, s1, s2)
+INSTANCE inst7 = mod1( v1, v2, s1, s2)
+INSTANCE inst8 = mod1( v1, v2, s1, s2)
+INSTANCE inst9 = mod1( v1, v2, s1, s2)
+INSTANCE inst10 = mod1( v1, v2, s1, s2)
+INSTANCE inst11 = mod1( v1, v2, s1, s2)
+INSTANCE inst13 = mod1( v1, v2, s1, s2)
+INSTANCE inst14 = mod1( v1, v2, s1, s2)
+INSTANCE inst15 = mod1( v1, v2, s1, s2)
+INSTANCE inst16 = mod1( v1, v2, s1, s2)
+INSTANCE inst17 = mod1( v1, v2, s1, s2)
+INSTANCE inst18 = mod1( v1, v2, s1, s2)
+INSTANCE inst19 = mod1( v1, v2, s1, s2)
+INSTANCE inst21 = mod1( v1, v2, s1, s2)
+INSTANCE inst23 = mod1( v1, v2, s1, s2)
+INSTANCE inst24 = mod1( v1, v2, s1, s2)
+INSTANCE inst25 = mod1( v1, v2, s1, s2)
+INSTANCE inst26 = mod1( v1, v2, s1, s2)
+INSTANCE inst27 = mod1( v1, v2, s1, s2)
+INSTANCE inst28 = mod1( v1, v2, s1, s2)
+INSTANCE inst29 = mod1( v1, v2, s1, s2)
+INSTANCE inst31 = mod1( v1, v2, s1, s2)
+INSTANCE inst33 = mod1( v1, v2, s1, s2)
+INSTANCE inst34 = mod1( v1, v2, s1, s2)
+INSTANCE inst35 = mod1( v1, v2, s1, s2)
+INSTANCE inst36 = mod1( v1, v2, s1, s2)
+INSTANCE inst37 = mod1( v1, v2, s1, s2)
+INSTANCE inst38 = mod1( v1, v2, s1, s2)
+INSTANCE inst39 = mod1( v1, v2, s1, s2)
+INSTANCE inst41 = mod1( v1, v2, s1, s2)
+INSTANCE inst43 = mod1( v1, v2, s1, s2)
+INSTANCE inst44 = mod1( v1, v2, s1, s2)
+INSTANCE inst45 = mod1( v1, v2, s1, s2)
+INSTANCE inst46 = mod1( v1, v2, s1, s2)
+INSTANCE inst47 = mod1( v1, v2, s1, s2)
+INSTANCE inst48 = mod1( v1, v2, s1, s2)
+INSTANCE inst49 = mod1( v1, v2, s1, s2)
+INSTANCE inst10 = mod1( v1, v2, s1, s2)
+
+INSTANCE inst10 = mod1( v1, v2, s1, s2)
+
+INSTANCE inst10 = mod1( v1, v2, s1, s2)
+
+INSTANCE inst10 = mod1( v1, v2, s1, s2)
+
+INSTANCE inst2 = mod2( s1, s2)
+
+
+LTLSPEC G inst1.localv3 < 1201 
+
+FAIRNESS synchro1
+
+COMPASSION ( synchro1, synchro2)

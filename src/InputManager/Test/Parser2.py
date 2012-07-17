@@ -7,15 +7,15 @@ from Config import *
 from InputManager.pyPEG.pyPEG import *
 
 if DEBUG__:
-    DebugGREEN("Revisar si es buena idea lo del pseudo ENUM de la clase Types")
-    DebugRED("pyPEG tiene problemas con la primera y ultima lineas de el " + \
+    debugGREEN("Revisar si es buena idea lo del pseudo ENUM de la clase Types")
+    debugRED("pyPEG tiene problemas con la primera y ultima lineas de el " + \
              "archivo de entrada :S, es como que no las detecta en .line")
 if DEBUGTODO__:
-    DebugTODO("Module contextvars and synchroacts quizas deberian poseer " + \
+    debugTODO("Module contextvars and synchroacts quizas deberian poseer " + \
               "clase propia y no ser parseadas en Module.")
-    DebugTODO("Cambiar los printMe() por __string__ o __unicode__.")
-    DebugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
-
+    debugTODO("Cambiar los printMe() por __string__ o __unicode__.")
+    debugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
+    debguTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
 
 class Types():
     SYSTEM = 0
@@ -75,7 +75,7 @@ class FallutoBaseElem():
     en los tipos.
 """
 if DEBUGTODO__:
-    DebugTODO("Implemetar el checkeo de tipos.")
+    debugTODO("Implemetar el checkeo de tipos.")
 
 def cleanAST(ast = [], check = False, expect = None):
     ret = []
@@ -103,6 +103,7 @@ class System(FallutoBaseElem):
         self.instances = {}
         self.ltlspecs = []
         self.contraints = []
+        self.name = "NN System"
 
     def printMe(self):
         print "SYSTEM STARTS AT", self.line
@@ -117,7 +118,6 @@ class System(FallutoBaseElem):
             print l
     
     def parse(self, AST):
-        self.name = "NO NAME FOR SYSTEMS YET :S"
         if AST != []:
             self.line = AST[0].__name__.line
         for elem in AST:
@@ -141,6 +141,13 @@ class System(FallutoBaseElem):
                 c = Compassion()
                 c.parse(elem)
                 self.contraints.append(c)
+            elif elem.__name__ == "SYSNAME":
+                self.name = elem.what[0]
+                pass
+            else:
+                raise SyntaxError(elem)
+
+    #.......................................................................
 
 class Module(FallutoBaseElem):
     def __init__(self):
@@ -154,14 +161,13 @@ class Module(FallutoBaseElem):
         self.trans = []
 
     def parse(self, AST):
-        if DEBUGTODO__:
-            DebugYELLOW("Parsing Module: " + str(AST) + " at " + \
+        if DEBUG__:
+            debugYELLOW("Parsing Module: " + str(AST) + " at " + \
                 AST.__name__.line)
         assert AST != []
         self.line = AST.__name__.line
         AST = AST.what # AST = [ name, contextvars, synchroacts, body]
         self.name = AST[0].what
-        
         for v in AST[1].what:
             self.contextVars.append(v.what)
         for a in AST[2].what:
@@ -181,6 +187,8 @@ class Module(FallutoBaseElem):
                     fault.parse(f)
                     self.faults.append(fault)
             elif elem.__name__ == "TRANS":
+                #reset de nn count atribute for unamed trans 
+                Trans.nncount = 0
                 for t in elem.what:
                     trans = Trans()
                     trans.parse(t)
@@ -212,7 +220,12 @@ class Module(FallutoBaseElem):
             print t
 
 
+    #.......................................................................
+    
 class Trans(FallutoBaseElem):
+
+    nncount = 0
+    
     def __init__ (self):
         FallutoBaseElem.__init__(self)
         self.type = Types.TRANS
@@ -233,18 +246,18 @@ class Trans(FallutoBaseElem):
                     n = NextVal()
                     n.parse(v)
                     self.pos.append(n)
-            elif elem.__name__ == 'PFAULTDECL':
-                for f in elem.what:
-                    fault = PermFault()
-                    fault.parse(f)
-                    self.faults.append(fault)
             else:
                 raise SyntaxError(elem.__name__)
-
+        if self.name == "":
+            self.name = "nnact"+repr(self.nncount)
+            Trans.nncount += 1
+        
     def __repr__(self):
         return "< trans >: " + repr(self.name) + ": PRE: " + repr(self.pre) + \
                ": POS: " + repr(self.pos) + ": FAULTS: " + repr(self.faults)
 
+
+    #.......................................................................
 
 class PermFault(FallutoBaseElem):
     def __init__ (self):
@@ -263,7 +276,8 @@ class PermFault(FallutoBaseElem):
         return self.name + repr(self.value)
 
 
-
+    #.......................................................................
+    
 class LocalVar(FallutoBaseElem):
     def __init__ (self):
         FallutoBaseElem.__init__(self)
@@ -291,18 +305,20 @@ class LocalVar(FallutoBaseElem):
     def printMe(self):
         print "< LocalVar >", self.name, ":", Types.inverse[self.type], \
             ":", self.domain
-
-
-
+    
+    #.......................................................................
+    
 class Fault(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
         self.pre = []
         self.pos = []
+        self.type = Types.FAULT
+        self.faulttype = ""
+        self.efects = []
 
     def parse(self, AST):
         self.line = AST.__name__.line
-        self.type = Types.FAULT
         AST = AST.what     # AST = IDENT, ":", 0, PROPFORM, ":", 0, NEXTPROPFORM
         self.name = AST[0].what
         for elem in AST[1::]:
@@ -313,14 +329,21 @@ class Fault(FallutoBaseElem):
                     n = NextVal()
                     n.parse(e)
                     self.pos.append(n)
+            elif elem.__name__ == 'FAULTTYPE':                
+                elem = elem.what[0]
+                self.faulttype = elem.__name__
+                for efect in elem.what:
+                    self.efects.append(efect.what)
             else:
                 raise SyntaxError(elem) #debug (no deberia pasar nunca)
 
     def __repr__(self):
-        string = "< Fault > " + self.name + ": PRE: " + repr(self.pre) +\
-             " POS: " + repr(self.pos)
+        string = "< Fault > " + self.name + " of type " + self.faulttype + \
+            ": PRE: " + repr(self.pre) + " POS: " + repr(self.pos) + \
+            " EFECTS: " + repr(self.efects)
         return string
-        
+
+    #.......................................................................
             
 class NextVal(FallutoBaseElem):
     def __init__(self):
@@ -358,6 +381,9 @@ class NextVal(FallutoBaseElem):
     def __repr__(self):
         return self.name + ":" + repr(self.val) + " "
 
+
+    #.......................................................................
+
 class Ident(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -369,6 +395,9 @@ class Ident(FallutoBaseElem):
 
     def __repr__(self):
         return self.name
+
+
+    #.......................................................................
 
 class PropForm(FallutoBaseElem):
     def __init__(self):
@@ -383,6 +412,9 @@ class PropForm(FallutoBaseElem):
     def __repr__(self):
         return repr(self.val)
 
+
+    #.......................................................................
+
 class Math(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -396,6 +428,9 @@ class Math(FallutoBaseElem):
     def __repr__(self):
         return repr(self.val)
 
+
+    #.......................................................................
+
 class NextRef(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -408,6 +443,9 @@ class NextRef(FallutoBaseElem):
     
     def __repr__(self):
         return "next(" + repr(self.name) + ")"
+
+
+    #.......................................................................
 
 class Set(FallutoBaseElem):
     def __init__(self):
@@ -425,6 +463,8 @@ class Set(FallutoBaseElem):
         return Types.inverse[self.type] + " : " + repr(self.domain)
 
 
+    #.......................................................................
+
 class Range(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -441,6 +481,8 @@ class Range(FallutoBaseElem):
         return Types.inverse[self.type] + " : " + repr(self.domain)
 
 
+    #.......................................................................
+
 class Bool(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -452,6 +494,9 @@ class Bool(FallutoBaseElem):
 
     def __repr__(self):
         return Types.inverse[self.type] + " : " + repr(self.domain)
+
+
+    #.......................................................................
 
 class Instance(FallutoBaseElem):
     def __init__(self):
@@ -473,6 +518,8 @@ class Instance(FallutoBaseElem):
                 self.module + ": Params " + repr(self.params)
 
 
+    #.......................................................................
+
 class LtlSpec(FallutoBaseElem):
     def __init__(self):
         FallutoBaseElem.__init__(self)
@@ -486,6 +533,8 @@ class LtlSpec(FallutoBaseElem):
     def __repr__(self):
         return "< LTLSPEC >: " + repr(self.value)
 
+
+    #.......................................................................
 
 class Fairness(FallutoBaseElem):
     def __init__(self):
@@ -501,6 +550,7 @@ class Fairness(FallutoBaseElem):
         return "< FAIRNESS >: " + repr(self.value)
 
 
+    #.......................................................................
 
 class Compassion(FallutoBaseElem):
     def __init__(self):
@@ -518,7 +568,5 @@ class Compassion(FallutoBaseElem):
     def __repr__(self):
         return "< COMPASSION >: Pre: " + repr(self.pre) + " Pos: " + \
                 repr(self.pos)
-
-
 
 

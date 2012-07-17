@@ -1,0 +1,25 @@
+FLLNAME raul.fll
+MODULE module1 (ctxvar1, ctxvar2; sychact1, sychact2)
+
+    	VAR
+        	lvar1 : 1..10
+        	lvar2 : bool
+		lvar3 : { a, b, c, d }
+
+	FAULT
+		lfault1 : lvar3 = a | lvar3 = c => next(lvar1) = poscondition, next(lvar2) = postcondition is BIZ(lvar1, lavar2)
+		lfault2 : is TRANSIENT
+		f_1 : TRUE => next(localv1) = (TRUE | FALSE = 1>2) is TRANSIENT
+
+	INIT
+	
+	TRANS
+	    	[write] : TRUE :
+
+INSTANCE inst1 = module1(1,2,r,w)
+
+LTLSPEC G just(module1.write) -> TRUE
+
+--FAIRNESS
+
+--COMPASSION
