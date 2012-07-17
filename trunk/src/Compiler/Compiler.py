@@ -124,7 +124,7 @@ class Compiler():
         if len(self.system.timeLogics):
             self.compileLTLSpecs()
         
-        self.fileOutput.write(self.stringOutput);
+        self.fileOutput.write(self.stringOutput)
     #......................................................................
     """ 
         Adds a relation between an original name of variable in the input and 
@@ -287,6 +287,7 @@ class Compiler():
         self.out("\n" + str(self.tab) + "TRANS\n")
         self.tab += 1
         for inst in self.system.instances:
+#            self.out("(")
             mname = inst.type
             for fault in self.system.modules[mname].faults:
                 self.out(self.tab)
@@ -363,6 +364,7 @@ class Compiler():
         self.out(str(self.tab) + "TRANS\n\n")
         self.tab += 1
         for inst in self.system.instances:
+#            self.out("(")
             nnCount = 0
             mod = self.system.modules[inst.type]
             for trans in mod.trans:
