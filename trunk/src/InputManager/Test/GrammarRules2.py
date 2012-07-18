@@ -25,6 +25,7 @@ if DEBUGTODO__:
     debugTODO("Revisar si se le puede asignar un RANGE a un NEXTVAL en NuSMV " \
                + "y si es asi agregarlo en la regla gramatical"                \
                + " correspondiente.")
+    debugTODO("Sacar a 'next' de las palabras prohibidas.")
 
 
 #///////////////////////////////////////////////////////////////////////////////
@@ -70,9 +71,10 @@ def PROPVAL():      return [BOOLEXP, (re.compile(r"\("), PROPFORM, \
 
 #NEXT PROPOSITIONAL FORMULA
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
-def NEXTVAL():      return keyword("next"), "(", IDENT, ")", "=", \
+ #keyword("next"), "(", IDENT, ")", "=", \
+def NEXTVAL():      return IDENT, "'", "=", \
                            [ PROPFORM, MATH, IDENT, SET, NEXTREF ]
-def NEXTREF():      return keyword("next"), "(", IDENT, ")"
+def NEXTREF():      return IDENT, "'" #keyword("next"), "(", IDENT, ")"
 
 
 #VAR TYPES
@@ -131,25 +133,25 @@ def LTLSPEC():      return [(keyword("LTLSPEC"), LTLEXP) , (keyword("LTLSPECNAME
 def LTLEXP():       return [LTLBOP, LTLUOP]
 def LTLBOP():       return LTLUOP , ltlbinops, LTLEXP
 def LTLUOP():       return -1 , ltluops, LTLVAL
-def LTLVAL():       return [ LTLPROPFORM , (re.compile(r"\(") , LTLEXP, re.compile(r"\)")) ]
+def LTLVAL():       return [ EVENTPRED , (re.compile(r"\(") , LTLEXP, re.compile(r"\)")) ]
 
 
 #LTL PROP FORMULA
-def LTLPROPFORM():  return [LTLPROPBINOP, LTLPROPVAL]
-def LTLPROPBINOP(): return LTLPROPVAL, re.compile(propbinop), LTLPROPFORM
-def LTLPROPVAL():   return [ACTION, BOOLEXP, (re.compile(r"\("), LTLPROPFORM, re.compile(r"\)")), (re.compile(r"\!"), LTLPROPFORM)]
+def EVENTPRED():  return [EVENTPREDBINOP, EVENTPREDVAL]
+def EVENTPREDBINOP(): return EVENTPREDVAL, re.compile(propbinop), EVENTPRED
+def EVENTPREDVAL():   return [ACTION, BOOLEXP, (re.compile(r"\("), EVENTPRED, re.compile(r"\)")), (re.compile(r"\!"), EVENTPRED)]
 
 
 #LTL NEXT PROPOSITIONAL FORMULA
-def LTLNEXTPROPFORM(): return LTLNEXTVAL, -1, ( ",", LTLNEXTVAL)
-def LTLNEXTVAL():      return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
-                           [ IDENT, SET, NEXTREF, MATH, LTLPROPFORM]
-
+def EVENTNEXTPRED(): return EVENTNEXTVAL, -1, ( ",", EVENTNEXTVAL)
+#return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
+def EVENTNEXTVAL():  return [IDENT, ACTION], "'", "=", \
+                           [ IDENT, SET, NEXTREF, MATH, EVENTPRED]
 
 
 #FAIRNESS
-def FAIRNESS():     return keyword("FAIRNESS"), PROPFORM
-def COMPASSION():   return keyword("COMPASSION"), "(", PROPFORM, ",", PROPFORM, ")"
+def FAIRNESS():     return keyword("FAIRNESS"), EVENTPRED
+def COMPASSION():   return keyword("COMPASSION"), "(", EVENTPRED, ",", EVENTPRED, ")"
 
 
 #COMENT
