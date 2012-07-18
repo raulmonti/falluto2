@@ -25,7 +25,10 @@ if DEBUGTODO__:
     debugTODO("Cuidado: se deja poner cualquier string como palabra de" + \
               " sincronizacion en la instansiacion")
     debugTODO("Quitar el fault active de las fallas que son transient")
-
+    debugTODO("Mejorar el codigo de las common transitions (usar el varSet)")
+    debugTODO("Averiguar si es mas eficiente compilar local vars o buscarlas" \
+            + " en la varTable\n")
+    debugTODO("Cambiar '= FALSE' por '!' en los predicados ya compilados\n")
 
 
 
@@ -99,7 +102,7 @@ class Compiler():
         self.synchroActs = []
         self.varTable = {}
         #
-        self.varSet = None
+        self.varSet = set([])
 
     #.......................................................................
     """ Assumes that the input system is correct. """
@@ -153,7 +156,18 @@ class Compiler():
 
     #.......................................................................
     def fill_var_set(self):
-        pass
+        #local variables (from vartable)
+        for i in self.varTable.itervalues():
+            for (x,v) in i.iteritems():
+                self.varSet.add(v)
+        #faults
+        for i in self.sys.instances.itervalues():
+            m = self.sys.modules[i.module]
+            for f in m.faults:
+                if f.faulttype != 'TRANSIENT':
+                    self.varSet.add(self.compile_fault_active(i.name,f.name))
+        #action
+        self.varSet.add(Names.actionvar)
 
     #.......................................................................
     def build_var_section(self):
@@ -183,6 +197,11 @@ class Compiler():
                     else:
                         c = self.compile_local_act(i.name, c)
                     actlist.append(c)
+            #BIZ efects action
+            for f in self.sys.modules[i.module].faults:
+                if f.faulttype == 'BIZ':
+                    actlist.append(self.compile_biz_efect(i.name,f.name))
+
         #output action var
         out += self.compile_set(actlist)
         self.out( out + ";" )
@@ -252,7 +271,8 @@ class Compiler():
                 thistransvect = []
                 #STOP faults which desable the transition:
                 for f in m.faults:
-                    if f.faulttype == "STOP" and t.name in f.efects:
+                    if f.faulttype == "STOP" and (t.name in f.efects \
+                        or f.efects == []):
                         thistransvect.append(self.compile_fault_active(i.name, \
                                 f.name) + " = FALSE")
                 #trans enabling condition
@@ -270,7 +290,7 @@ class Compiler():
                 for e in t.pos:
                     thistransvect.append( "next(" + \
                         self.compile_local_var(i.name,e.name) + ") = " + \
-                        str(self.compileit(i.name,e.val)))
+                        str(self.compile_it(i.name,e.val)))
                 #everithing else must remain the same
                     #instance vars
                 if DEBUG__:
@@ -305,22 +325,130 @@ class Compiler():
         for i in self.sys.instances.itervalues():
             m = self.sys.modules[i.module]
             for f in m.faults:
-                debugRED("ACA QUEDE")
-                pass
-                
-            #STOP faults
-            #TRANSIENT faults
-            #BIZ faults
+                thistransvect = []
+                exceptSet = set([])
+                #STOP faults which desable the transition (only total faults 
+                #in this case)
+                for f in m.faults:
+                    if f.faulttype == "STOP" and f.efects == []:
+                        thistransvect.append(self.compile_fault_active(i.name, \
+                                f.name) + " = FALSE")
+                #if not transient
+                if f.faulttype != 'TARNSIENT':
+                    #not active now but will be active in next
+                    c = self.compile_fault_active( i.name, f.name)
+                    thistransvect.append( "!"+ c)
+                    thistransvect.append( "next(" + c + ")")
+                    exceptSet.add(c)
+                #pre
+                thistransvect.append( self.compile_prop_form(i.name, f.pre))
+                #pos
+                for e in self.compile_next_pred(i.name, f.pos):
+                    thistransvect.append(e)
+                for e in f.pos:
+                    exceptSet.add(self.compile_local_var(i.name, e.name))
+                #action
+                thistransvect.append("next(" + Names.actionvar + ") = " +\
+                    self.compile_local_fault(i.name, f.name))
+                exceptSet.add(Names.actionvar)
+                #everithing else:
+                for v in self.varSet - exceptSet:
+                    thistransvect.append("next(" + v + ") = " + v)
+
+                #Only for BIZ faults
+                if f.faulttype == 'BIZ':
+                    transvect.append(self.build_biz_efect_trans(i.name, f))
+
+                #append this transition to the transition vector
+                transvect.append(self.ampersonseparatedtuplestring( \
+                        thistransvect, False, False))
         
         #synchro transitions
+        #get dict with all synchro transitions and instances related to them:
+        syncdict = self.get_sync_act_dict()
+        for (sa,il) in syncdict.iteritems(): # for (synchro action, instance list) in ...
+            thistransvect = []
+            exceptSet = set([])
+            #stop faults which disable this action
+            for iname in il:
+                i = self.sys.instances[iname]
+                m = self.sys.modules[i.module]
+                for f in m.faults:
+                    if f.faulttype == 'STOP' and \
+                        (sa in [self.compile_action(iname,x) for x in f.efects]\
+                        or f.efects == []):
+                        thistransvect.append("!" + self.compile_fault_active( \
+                            iname, f.name))
+                                   
+            #pre and pos for each instance that has this SA
+            for iname in il:
+                i = self.sys.instances[i.name]
+                m = self.sys.modules[i.module]
+                for t in m.trans:
+                    if t.name == sa:
+                        #pre
+                        thistransvect.append( self.compile_prop_form(iname, \
+                            t.pre))
+                        #pos
+                        for e in self.compile_next_pred(iname, t.pos):
+                            thistransvect.append(e)
+                        for e in t.pos:
+                            exceptSet.add(self.compile_local_var(iname, e.name))
+                        break
+
+            #action
+            thistransvect.append("next(" + Names.actionvar + ") = " + sa)
+            exceptSet.add(Names.actionvar)
+
+            #everithing else:
+            for v in self.varSet - exceptSet:
+                thistransvect.append("next(" + v + ") = " + v)
+            
+            #append this transition to the transition vector
+            transvect.append(self.ampersonseparatedtuplestring( \
+                thistransvect, False, False))
+
+        #TOTAL STOPS
 
 
         self.out(self.ampersonseparatedtuplestring(transvect, False, True, '|'))
 
 
+    #.......................................................................
+    def get_sync_act_dict(self):
+        syncdict = {} # dict[sa] = [..] where sa is a sync action and [..] is
+                      # a list of instances wich synchronice using sa
+        for i in self.sys.instances.itervalues():
+            m = self.sys.modules[i.module]
+            n = len(m.contextVars)
+            for sa in i.params[n::]:
+                if sa in syncdict:
+                    syncdict[sa].append(i.name)
+                else:
+                    syncdict[sa] = []
+                    syncdict[sa].append(i.name)
+        return syncdict
 
 
-
+    #.......................................................................
+    def build_biz_efect_trans( self, iname, fault):
+        #mod = self.sys.modules[self.sys.instances[iname].module]
+        thistransvect = []
+        exceptSet = set([])
+        thistransvect.append(self.compile_fault_active(iname,fault.name))
+        #action
+        thistransvect.append("next(" + Names.actionvar + ") = " +\
+            self.compile_biz_efect(iname, fault.name))
+        exceptSet.add(Names.actionvar)
+        for e in fault.efects: # e is type NextVal
+            #con agregarlas a la lista de excepcion ya me aseguro de que no se
+            #defina el proximo valor para la variable y por lo tanto NuSMV le
+            #asigne un valor aleatorio dentro de su dominio. 8-)
+            exceptSet.add(self.compile_local_var(iname,e))
+        #everithing else:
+        for v in self.varSet - exceptSet:
+            thistransvect.append("next(" + v + ") = " + v)
+        return self.ampersonseparatedtuplestring(thistransvect,False,False)
 
 
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -343,6 +471,17 @@ class Compiler():
     def compile_local_act(self, instName, actName):
         return instName + "#" + actName
 
+    #.......................................................................
+    def compile_action(self, iname, actname):
+        i = self.sys.instances[iname]
+        m = self.sys.modules[i.module]
+        n = len(m.contextVars)
+        index = 0
+        for elem in m.synchroActs:
+            if actname == elem:
+                return i.params[n+index]
+            index += 1
+        return self.compile_local_act(iname, actname)
 
     #.......................................................................
     def compile_NN_action(self, instName, counter):
@@ -381,7 +520,17 @@ class Compiler():
     def compile_math(self, iname, lst):
         return self.compile_prop_form(iname, lst)
 
-
+    #.......................................................................
+    def compile_next_pred(self, iname, lst):
+        ret = []
+        for n in lst:
+            ret.append("next(" + self.compile_local_var(iname, n.name) + \
+            ") = " + self.compile_it(iname, n.val))
+        return ret
+        
+    #.......................................................................
+    def compile_biz_efect(seld, iname, fname):
+        return "bizE#" + iname + "#" + fname
 
 
 
@@ -435,7 +584,7 @@ class Compiler():
             return string
 
     #.......................................................................
-    def compileit( self, iname, it):
+    def compile_it( self, iname, it):
         if isinstance(it, Parser2.Set):
             return self.compile_set(iname, it.domain)
         elif isinstance(it, Parser2.NextRef):
