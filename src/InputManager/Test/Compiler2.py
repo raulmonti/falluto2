@@ -112,9 +112,14 @@ class Compiler():
         self.compile_system()
         if system.name != "":
             outputName = system.name
-        self.fileOutput = open(outputName + ".fll", 'w+')                       # a+ means append to the end of the file, w+ truncates the file at the beginning.
+            
+        # a+ means append to the end of the file, w+ truncates the file at 
+        # the beginning.
+        self.fileOutput = open(outputName + ".fll", 'w+')                       
         self.fileOutput.write(self.stringOutput)
-
+        self.fileOutput.close()
+        
+        return outputName + ".fll"
 
 
     #.......................................................................
@@ -127,7 +132,9 @@ class Compiler():
         self.build_init_section()
         self.build_trans_section()
         self.tab -= 1
-
+        self.out("\n\n\n")
+        self.build_ltlspecs()
+        self.build_contraints()
 
     #.......................................................................
     def fill_var_table(self):
@@ -410,11 +417,9 @@ class Compiler():
             transvect.append(self.ampersonseparatedtuplestring( \
                 thistransvect, False, False))
 
-        #TOTAL STOPS
-
-
         self.out(self.ampersonseparatedtuplestring(transvect, False, True, '|'))
-
+        #restor tab level
+        self.tab -= 1
 
     #.......................................................................
     def get_sync_act_dict(self):
@@ -451,6 +456,80 @@ class Compiler():
         for v in self.varSet - exceptSet:
             thistransvect.append("next(" + v + ") = " + v)
         return self.ampersonseparatedtuplestring(thistransvect,False,False)
+
+
+
+    #.......................................................................
+    def build_ltlspecs(self):
+        for ltl in self.sys.ltlspecs:
+            ltlout = "LTLSPEC "
+            for item in ltl.value:
+                if self.issynchro(item):
+                    ltlout += "(" + Names.actionvar + " = " + item + ")"
+                elif '.' in item:
+                    i, p, n = item.partition('.')
+                    ins = self.sys.instances[i]
+                    mod = self.sys.modules[ins.module]
+                    if n in [x.name for x in mod.localVars]:
+                        ltlout += self.compile_local_var(i,n)
+                    else:
+                        ltlout += "(" + Names.actionvar + " = " \
+                            + self.compile_action(i,n) + ")"
+                else:
+                    ltlout += item
+                ltlout += " "
+            self.out(ltlout)           
+
+
+    #.......................................................................
+    def issynchro(self, item):
+        for i in self.sys.instances.itervalues():
+            m = self.sys.modules[i.module]
+            n = len(m.localVars)
+            if item in i.params[n::]:
+                return True
+        return False
+
+
+    #.......................................................................
+    def build_contraints(self):
+        for c in self.sys.contraints:
+            controut = ""
+            if isinstance(c, Parser2.Fairness):
+                controut = "FAIRNESS "
+                controut += self.compile_LTL(c.value)
+            elif isinstance(c, Parser2.Compassion):
+                controut = "FAIRNESS( "  \
+                    + self.compile_LTL(c.pre) \
+                    + ", " + self.compile_LTL(c.pos) + ")"
+            else:
+                raise TypeError(type(c))
+            self.out(controut)
+
+
+    #.......................................................................
+    def compile_LTL(self, ltl):
+        ltlout = ""
+        for item in ltl:
+            if self.issynchro(item):
+                ltlout += "(" + Names.actionvar + " = " + item + ")"
+            elif '.' in item:
+                i, p, n = item.partition('.')
+                ins = self.sys.instances[i]
+                mod = self.sys.modules[ins.module]
+                if n in [x.name for x in mod.localVars]:
+                    ltlout += self.compile_local_var(i,n)
+                else:
+                    ltlout += "(" + Names.actionvar + " = " \
+                        + self.compile_action(i,n) + ")"
+            else:
+                ltlout += item
+            ltlout += " "
+        return ltlout
+
+
+
+
 
 
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -533,6 +612,12 @@ class Compiler():
     #.......................................................................
     def compile_biz_efect(seld, iname, fname):
         return "bizE#" + iname + "#" + fname
+
+
+
+
+
+
 
 
 
