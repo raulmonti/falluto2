@@ -11,8 +11,8 @@
     la libreria PyPEG.
 """
 
-import InputManager.pyPEG
-from InputManager.pyPEG.pyPEG import keyword, _and, _not
+import pyPEG.pyPEG
+from pyPEG.pyPEG import keyword, _and, _not
 import re
 from Debug import *
 from Config import *

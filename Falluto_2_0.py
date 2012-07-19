@@ -1,14 +1,11 @@
+
 from subprocess import call
-
-
 import sys, os
-sys.path.append(os.path.abspath('../../'))
 
-
-from GrammarRules2 import SYSTEM, COMMENT
-from Parser2 import *
-from InputManager.pyPEG.pyPEG import *
-from Compiler2 import Compiler
+from pyPEG.pyPEG import *
+from src.GrammarRules2 import SYSTEM, COMMENT
+from src.Parser2 import *
+from src.Compiler2 import Compiler
 import fileinput
 import Debug
 import Config
@@ -23,4 +20,5 @@ if __name__ == '__main__':
     #sys.printMe()
     c = Compiler()
     outputfile = c.compile(sys, "outcompilertest.smv")
+    #Call NuSMV in a subprocess
     call(["NuSMV", os.path.abspath(outputfile)]) 

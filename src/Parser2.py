@@ -4,7 +4,7 @@
 
 from Debug import *
 from Config import *
-from InputManager.pyPEG.pyPEG import *
+from pyPEG.pyPEG import *
 
 if DEBUG__:
     debugGREEN("Revisar si es buena idea lo del pseudo ENUM de la clase Types")
