@@ -36,4 +36,10 @@ INSTANCE cell1 = cell(sys.output, r, w)
 INSTANCE cell2 = cell(sys.output, r, w)
 INSTANCE cell3 = cell(sys.output, r, w)
 
-LTLSPEC G ( just(w) -> X ((just(r) -> sys.value' = sys.output) U just(w)))
+LTLSPEC G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) U just(w)))
+
+LTLSPEC G TRUE
+
+LTLSPEC F just(r)
+
+--FAIRNESS just(r)

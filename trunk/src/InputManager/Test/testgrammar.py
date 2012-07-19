@@ -11,5 +11,5 @@ import Config
 if __name__ == '__main__':
 
     files = fileinput.input()
-    ast = parse(SYSTEM(), files, True, COMMENT, lineCount = True)
+    ast = parse(SYSTEM(), files, True, COMMENT, packrat = True,lineCount = True)
     Debug.debugYELLOW( ast)

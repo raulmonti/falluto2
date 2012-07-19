@@ -30,6 +30,18 @@ if DEBUGTODO__:
                + " el next valor y desp se chequea la correctitud en el resto" \
                + " del programa o si se define todo por separado para los "    \
                + "predicados con next. La segunda opcion parece mas eficiente.")
+    debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
+               + " G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) " \
+               + "U just(w))).")
+
+
+
+
+
+
+
+
+
 
 #///////////////////////////////////////////////////////////////////////////////
 #   LENGUAGE (EN PEG)
@@ -41,9 +53,9 @@ identifiers = r"(?!\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b
 def IDENT():        return re.compile(identifiers)
 def INT():          return re.compile(r"\-?\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
-
-#ACTUAL ACTION
 def ACTION():       return "just(", re.compile(identifiers), ")"
+
+
 
 #MATH FORMULA
 # Los operadores anidan a derecha, no doy prioridades ya que no vienen el caso
@@ -51,7 +63,7 @@ def ACTION():       return "just(", re.compile(identifiers), ")"
 mathbinop = r"\+|\-|\*|\/|\%"
 def MATH():         return [MATHBINOP, MATHVAL]
 def MATHBINOP():    return MATHVAL , re.compile(mathbinop), MATH
-def MATHVAL():      return [ INT, NEXTREF, IDENT, (re.compile(r"\("), MATH, \
+def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, \
                             re.compile(r"\)")), (re.compile(r"\-"), MATH)]
 
 
@@ -59,7 +71,7 @@ def MATHVAL():      return [ INT, NEXTREF, IDENT, (re.compile(r"\("), MATH, \
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
 def BOOLEXP():      return [BOOLBINOP, BOOLVAL]
 def BOOLBINOP():    return BOOLVAL, re.compile(booleanop), BOOLEXP
-def BOOLVAL():      return [ BOOL, MATH, NEXTREF, IDENT, (re.compile(r"\("), BOOLEXP, \
+def BOOLVAL():      return [ BOOL, MATH, IDENT, (re.compile(r"\("), BOOLEXP, \
                             re.compile(r"\)")), (re.compile(r"\!"), BOOLEXP)]
 #, (MATH , re.compile(booleanop), MATH) ]
 
@@ -81,7 +93,7 @@ def NEXTREF():      return IDENT, "'" #keyword("next"), "(", IDENT, ")"
 
 
 #VAR TYPES
-def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"      #En NuSMV enumeration types no se pueden usar las palabras reservadas
+def SET():          return "{", [IDENT, INT], -1, (",", [IDENT, INT]), "}"
 def RANGE():        return INT, "..", INT
 def BOOLEAN():      return "bool"
 
@@ -142,20 +154,14 @@ def LTLVAL():       return [ EVENTPRED , (re.compile(r"\(") , LTLEXP, re.compile
 #LTL PROP FORMULA
 def EVENTPRED():  return [EVENTPREDBINOP, EVENTPREDVAL]
 def EVENTPREDBINOP(): return EVENTPREDVAL, re.compile(propbinop), EVENTPRED
-def EVENTPREDVAL():   return [ACTION, BOOLEXP, (re.compile(r"\("), EVENTPRED, re.compile(r"\)")), (re.compile(r"\!"), EVENTPRED)]
-
-
-#LTL NEXT PROPOSITIONAL FORMULA
-def EVENTNEXTPRED(): return EVENTNEXTVAL, -1, ( ",", EVENTNEXTVAL)
-#return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
-def EVENTNEXTVAL():  return [IDENT, ACTION], "'", "=", \
-                           [ NEXTREF, IDENT, SET, MATH, EVENTPRED]
+def EVENTPREDVAL():   return [ ACTION, BOOLEXP, \
+                             (re.compile(r"\("), EVENTPRED, re.compile(r"\)")),\
+                             (re.compile(r"\!"), EVENTPRED)]
 
 
 #FAIRNESS
 def FAIRNESS():     return keyword("FAIRNESS"), EVENTPRED
 def COMPASSION():   return keyword("COMPASSION"), "(", EVENTPRED, ",", EVENTPRED, ")"
-
 
 #COMENT
 def COMMENT():      return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
@@ -163,4 +169,9 @@ def COMMENT():      return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
 
 #///////////////////////////////////////////////////////////////////////////////
 
+#LTL NEXT PROPOSITIONAL FORMULA
+#def EVENTNEXTPRED(): return EVENTNEXTVAL, -1, ( ",", EVENTNEXTVAL)
+#return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
+#def EVENTNEXTVAL():  return [IDENT, ACTION], "'", "=", \
+#                          [EVENTPRED, MATH, IDENT, SET]
 

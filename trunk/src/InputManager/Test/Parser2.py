@@ -15,7 +15,7 @@ if DEBUGTODO__:
               "clase propia y no ser parseadas en Module.")
     debugTODO("Cambiar los printMe() por __string__ o __unicode__.")
     debugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
-    debguTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
+    debugTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
 
 class Types():
     SYSTEM = 0
@@ -76,6 +76,13 @@ class FallutoBaseElem():
 """
 if DEBUGTODO__:
     debugTODO("Implemetar el checkeo de tipos.")
+
+
+class counter ():
+    count = 0
+    def __init__(self):
+        pass
+
 
 def cleanAST(ast = [], check = False, expect = None):
     ret = []
