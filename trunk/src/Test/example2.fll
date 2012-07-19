@@ -29,5 +29,3 @@ INSTANCE user = sistema(cell1.value,cell2.value,cell3.value, read, write)
 
 
 LTLSPEC G(write -> X(read -> X(user.input = user.output)))
-
-		

@@ -12,4 +12,4 @@ if __name__ == '__main__':
 
     files = fileinput.input()
     ast = parse(SYSTEM(), files, True, COMMENT, lineCount = True)
-    Debug.DebugYELLOW( ast)
+    Debug.debugYELLOW( ast)

@@ -1,5 +1,6 @@
 -- Ejemplo largo con todos los casos posibles de imput (o por lo menos se espera que los tenga)
 
+FLLNAME LargeOutput
 
 MODULE mod1 (contextv1, contextv2; synchro1, synchro2)
 

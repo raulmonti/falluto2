@@ -103,7 +103,7 @@ class System(FallutoBaseElem):
         self.instances = {}
         self.ltlspecs = []
         self.contraints = []
-        self.name = "NN System"
+        self.name = ""
 
     def printMe(self):
         print "SYSTEM STARTS AT", self.line
