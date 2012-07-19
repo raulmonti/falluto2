@@ -26,7 +26,10 @@ if DEBUGTODO__:
                + "y si es asi agregarlo en la regla gramatical"                \
                + " correspondiente.")
     debugTODO("Sacar a 'next' de las palabras prohibidas.")
-
+    debugTODO("Decidir si la regla es que en todas las propform se pueda usar" \
+               + " el next valor y desp se chequea la correctitud en el resto" \
+               + " del programa o si se define todo por separado para los "    \
+               + "predicados con next. La segunda opcion parece mas eficiente.")
 
 #///////////////////////////////////////////////////////////////////////////////
 #   LENGUAGE (EN PEG)
@@ -34,7 +37,7 @@ if DEBUGTODO__:
 
 
 #IDENTIFIERS
-identifiers = r"(?!\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bnext\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
+identifiers = r"(?!\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bENDMODULE\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
 def IDENT():        return re.compile(identifiers)
 def INT():          return re.compile(r"\-?\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
@@ -48,7 +51,7 @@ def ACTION():       return "just(", re.compile(identifiers), ")"
 mathbinop = r"\+|\-|\*|\/|\%"
 def MATH():         return [MATHBINOP, MATHVAL]
 def MATHBINOP():    return MATHVAL , re.compile(mathbinop), MATH
-def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, \
+def MATHVAL():      return [ INT, NEXTREF, IDENT, (re.compile(r"\("), MATH, \
                             re.compile(r"\)")), (re.compile(r"\-"), MATH)]
 
 
@@ -56,7 +59,7 @@ def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, \
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
 def BOOLEXP():      return [BOOLBINOP, BOOLVAL]
 def BOOLBINOP():    return BOOLVAL, re.compile(booleanop), BOOLEXP
-def BOOLVAL():      return [ BOOL, MATH, IDENT, (re.compile(r"\("), BOOLEXP, \
+def BOOLVAL():      return [ BOOL, MATH, NEXTREF, IDENT, (re.compile(r"\("), BOOLEXP, \
                             re.compile(r"\)")), (re.compile(r"\!"), BOOLEXP)]
 #, (MATH , re.compile(booleanop), MATH) ]
 
@@ -73,7 +76,7 @@ def PROPVAL():      return [BOOLEXP, (re.compile(r"\("), PROPFORM, \
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
  #keyword("next"), "(", IDENT, ")", "=", \
 def NEXTVAL():      return IDENT, "'", "=", \
-                           [ PROPFORM, MATH, IDENT, SET, NEXTREF ]
+                           [ PROPFORM, MATH, NEXTREF, IDENT, SET ]
 def NEXTREF():      return IDENT, "'" #keyword("next"), "(", IDENT, ")"
 
 
@@ -91,7 +94,7 @@ def SYSNAME():      return "FLLNAME", re.compile(r"[\w\.\d\_]*")
 
 #MODULE
 def MODULE():       return keyword("MODULE"), IDENT, "(", CONTEXTVARS, \
-                            CONTEXTACTS, ")", MODULEBODY
+                            CONTEXTACTS, ")", MODULEBODY, keyword("ENDMODULE")
 
 def CONTEXTVARS():  return 0, (IDENT, -1, (",", IDENT))
 def CONTEXTACTS():  return 0, (";", 0, ( IDENT, -1, (",", IDENT)))
@@ -146,7 +149,7 @@ def EVENTPREDVAL():   return [ACTION, BOOLEXP, (re.compile(r"\("), EVENTPRED, re
 def EVENTNEXTPRED(): return EVENTNEXTVAL, -1, ( ",", EVENTNEXTVAL)
 #return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
 def EVENTNEXTVAL():  return [IDENT, ACTION], "'", "=", \
-                           [ IDENT, SET, NEXTREF, MATH, EVENTPRED]
+                           [ NEXTREF, IDENT, SET, MATH, EVENTPRED]
 
 
 #FAIRNESS

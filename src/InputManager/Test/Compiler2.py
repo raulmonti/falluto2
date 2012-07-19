@@ -107,10 +107,12 @@ class Compiler():
     #.......................................................................
     """ Assumes that the input system is correct. """
     def compile(self, system, outputName = "defaultOutput.smv"):
-        assert system 
+        assert system
         self.sys = system
         self.compile_system()
-        self.fileOutput = open(outputName, 'w+')                                # a+ means append to the end of the file, w+ truncates the file at the beginning.
+        if system.name != "":
+            outputName = system.name
+        self.fileOutput = open(outputName + ".fll", 'w+')                       # a+ means append to the end of the file, w+ truncates the file at the beginning.
         self.fileOutput.write(self.stringOutput)
 
 
@@ -245,7 +247,7 @@ class Compiler():
             for f in m.faults:
                 array.append(self.compile_fault_active(i.name, f.name) + \
                             " = FALSE")
-        array1.append(self.ampersonseparatedtuplestring(array, False))
+        array1.append(self.ampersonseparatedtuplestring(array, False, False))
         
         #local inits:
         for i in self.sys.instances.itervalues():

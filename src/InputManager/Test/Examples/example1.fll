@@ -1,4 +1,5 @@
-FLLNAME raul.fll
+FLLNAME raul
+
 MODULE module1 (ctxvar1, ctxvar2; sychact1, sychact2)
 
     	VAR
