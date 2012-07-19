@@ -1,0 +1,45 @@
+FLLNAME votecelloutput
+
+MODULE cell (input; read, write)
+	VAR
+		value : 0..1
+        FAULT
+                falla: value = 1 => value' = 0 is TRANSIENT
+	INIT
+		value = 0
+	TRANS
+		[read]:
+		[write]: => value' = input
+ENDMODULE
+
+
+MODULE user (in1, in2, in3; read, write)
+	VAR
+		output: 0..1
+		value: 0..1
+
+	FAULT
+
+	INIT
+		output = 0 & value = 0
+
+	TRANS
+		[read]: in1 + in2 + in3 > 1 => value' = 1
+		[read]: in1 + in2 + in3 < 2 => value' = 0
+		[write]:
+		[]: => output' = 1-output
+ENDMODULE
+
+
+INSTANCE sys = user(cell1.value, cell2.value, cell3.value, r, w)
+INSTANCE cell1 = cell(sys.output, r, w)
+INSTANCE cell2 = cell(sys.output, r, w)
+INSTANCE cell3 = cell(sys.output, r, w)
+
+LTLSPEC G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) U just(w)))
+
+LTLSPEC G TRUE
+
+LTLSPEC F just(r)
+
+--FAIRNESS just(r)
