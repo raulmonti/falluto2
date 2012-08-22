@@ -9,4 +9,10 @@ DEBUG__ = False
 
 DEBUGTODO__ = False
 
+DEBUGURGENT__ = True
+
+DEBUGCURRENT__ = True
+
+DEBUGSOLVED__ = False
+
 #///////////////////////////////////////////////////////////////////////////////
