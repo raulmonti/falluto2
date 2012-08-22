@@ -31,6 +31,7 @@ MODULE mod1 (contextv1, contextv2; synchro1, synchro2)
 		[synchro1]: => localv1' = TRUE
 		[synchro2]: localv3 = 1200 => localv3' = 0
 
+ENDMODULE
 
 MODULE mod2(; reset1, reset2)
 
@@ -46,10 +47,10 @@ MODULE mod2(; reset1, reset2)
 		[]:
 		[reset1]: sem => sem' = FALSE
 		[reset2]: !sem => sem' = TRUE
-
+ENDMODULE
 
 MODULE mod3 ()
-
+ENDMODULE
 
 
 INSTANCE inst1 = mod1( v1, v2, s1, s2)

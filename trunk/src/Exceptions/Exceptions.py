@@ -6,6 +6,7 @@
 
 class RedeclaredError(Exception):
     def __init__(self, repeated, where):
+        Exception.__init__(self)
         self.rep = repeated
         self.where = where
     def __unicode__(self):
@@ -13,3 +14,18 @@ class RedeclaredError(Exception):
         for x in self.where:
             error += x + " "
         return unicode(error)
+    def __repr__(self):
+        return self.__unicode__()        
+    def __str__(self):
+        return self.__unicode__()        
+        
+class NoInstancesError(Exception):
+    def __init__(self):
+        Exception.__init__(self)
+    def __unicode__(self):
+        return unicode("Error: No instances where declared. The systeme is" \
+                     + " not valid.")
+    def __repr__(self):
+        return self.__unicode__()
+    def __str__(self):
+        return self.__unicode__()

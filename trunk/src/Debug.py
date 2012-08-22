@@ -3,6 +3,7 @@
 # Autor: Raul Monti
 
 import inspect, sys
+from Config import *
 
 def lineno():
     frame = inspect.currentframe()
@@ -19,22 +20,70 @@ debugColorDict = {
     'debugYELLOW' : '1;33m',
     'debugMAGENTA': '1;45m',
     'debugLBLUE'  : '1;94m',
-    'debugTODO'   : '1;45m'
+    'debugTODO'   : '1;45m',
+    'debugURGENT' : '1;41m'
 }
+
+
 
 def debug(color, string):
     print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  + "]: " + str(string) + '\033[1;m'
+
+
     
 def debugTODO(string):
-    print '\033[' + debugColorDict['debugTODO'] + "TODO: [" + str(lineno()) + "]: " + str(string) + '\033[1;m'
+    if DEBUGTODO__:
+        print '\033[' + debugColorDict['debugTODO'] + "TODO: [" + str(lineno()) + "]: " + str(string) + '\033[1;m'
+    else:
+        pass
+
 
 def debugRED(string):
-    print '\033[' + debugColorDict['debugRED'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    if DEBUG__:
+        print '\033[' + debugColorDict['debugRED'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    else:
+        pass
 
 def debugGREEN(string):
-    print '\033[' + debugColorDict['debugGREEN'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    if DEBUG__:
+        print '\033[' + debugColorDict['debugGREEN'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    else:
+        pass
 
 def debugYELLOW(string):
-    print '\033[' + debugColorDict['debugYELLOW'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    if DEBUG__:
+        print '\033[' + debugColorDict['debugYELLOW'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    else:
+        pass
 
 
+def debugURGENT(string):
+    if DEBUGURGENT__:
+        print '\033[' + debugColorDict['debugURGENT'] + "URGENT: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    else:
+        pass
+    
+def debugERROR(string):
+    debugRED(string)
+
+
+def debugCURRENT(string):
+    if DEBUGCURRENT__:
+        print '\033[' + debugColorDict['debugGREEN'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+    else:
+        pass
+
+def debugSOLVED(string):
+    if DEBUGSOLVED__:
+        debug('debugMAGENTA',string)
+    else:
+        pass
+        
+
+
+#
+# COLOR PRINTING ...............................................................
+#
+
+def colorPrint(color, string):
+    print '\033[' + debugColorDict[color] + str(string) + '\033[1;m'
