@@ -310,13 +310,17 @@ class Compiler():
             m = self.sys.modules[i.module]
             for init in m.init:
                 array1.append(self.compile_prop_form(i.name, init))
+        
+        # Action var must be diferent of deadlock at start :| Otherwise I can't 
+        # correctly check for deadlocks. Notice that the initial value of
+        # actionvar does not have any meaning.
+        array1.append(Names.actionvar + "!=" + Names.dkaction)
 
         if array1 != ['']:
             self.out("\n")
             self.out( "INIT\n" )
             self.tab += 1
             self.out(self.ampersonseparatedtuplestring(array1, False, True))
-            #actvar inicia como quiera :|
             #restore tab level
             self.tab -= 1
 
@@ -485,22 +489,33 @@ class Compiler():
         self.tab -= 1
 
 
+
+    """
+        Build the transitions that represents the transition into a deadlock 
+        state. 
+        If no good transition can be made, then we will possibly make a 
+        transition into a deadlock state. I say possible because we could also 
+        make a transition into a fault state if some fault transition is 
+        available.
+    """
     #.......................................................................
     def build_dk_trans_vect(self):
         result = []
     
         for inst in self.sys.instances.itervalues():
             mod = self.sys.modules[inst.module]
+
             # faults transitions preconditions
-            for fault in mod.faults:
-                faultvect = []
-                faultvect.append(self.neg( \
-                    self.compile_prop_form(inst.name, fault.pre)))
-                for stop in self.stopMap[mod.name][fault.name]:
-                    faultvect.append(self.compile_fault_active(inst.name, stop))
-                result.append(self.ampersonseparatedtuplestring( \
-                    faultvect, False, False, '|'))
-            # local transitions preconditions
+#            for fault in mod.faults:
+#                faultvect = []
+#                faultvect.append(self.neg( \
+#                   self.compile_prop_form(inst.name, fault.pre)))
+#                for stop in self.stopMap[mod.name][fault.name]:
+#                    faultvect.append(self.compile_fault_active(inst.name, stop))
+#                result.append(self.ampersonseparatedtuplestring( \
+#                    faultvect, False, False, '|'))
+
+            # negation of local transitions preconditions
             for trans in mod.trans:
                 if not trans.name in mod.synchroActs:
                     transvect = []
@@ -512,7 +527,7 @@ class Compiler():
                     result.append(self.ampersonseparatedtuplestring( \
                     transvect, False, False, '|'))
 
-        # synchro transitions preconditions
+        # negation of synchro transitions preconditions
         for (sync , insts) in self.syncdict.iteritems():
             syncvect = []
             for iname in insts:
@@ -528,6 +543,7 @@ class Compiler():
 
         result.append( "next(" + Names.actionvar + ") = " + Names.dkaction)
         
+        # nothing else changes
         for v in self.varSet - set([Names.actionvar]):
             result.append( "next(" + v + ") = " + v)
 
@@ -551,6 +567,11 @@ class Compiler():
         return syncdict
 
 
+
+    """
+        Build the transitions that represent the sporadic effects of the 
+        occurrence of a bizantine fault.
+    """
     #.......................................................................
     def build_biz_efect_trans( self, iname, fault):
         #mod = self.sys.modules[self.sys.instances[iname].module]
@@ -601,9 +622,10 @@ class Compiler():
                 ltlout += " "
             self.out(ltlout)           
 
+        # Check for deadlock if required
         self.out(self.comment("DEADLOCK CHECK"))
         if self.sys.options.checkdeadlock:
-            self.out("LTLSPEC ! F G " + Names.actionvar + " = " + Names.dkaction)
+            self.out("CTLSPEC AG " + Names.actionvar + " != " + Names.dkaction )
 
 
 
@@ -659,22 +681,23 @@ class Compiler():
                 mod = self.sys.modules[inst.module]
                 
                 # instance pre negations (module deadlock condition)
-                
                 dkVec = []
+                # of faults
                 for f in mod.faults:
                     fpres = self.get_pre_negation(inst, f.name)
-                    dkVec += fpres
-
-                debugTODO("Que pasa con las faltas que no son transient aca?")
-
+                    dkVec.append(self.ampersonseparatedtuplestring( \
+                        fpres, False, False, '|'))
+                    
                 debugURGENT("Aplicar las correcciones de la ultima reunion.")
 
+                # of normal transitions
                 for t in mod.trans:
-                    dkVec.append(self.neg(self.compile_prop_form( \
-                        inst.name, t.pre.val)))
+                    tpres = self.get_pre_negation(inst,t.name)
+                    dkVec.append(self.ampersonseparatedtuplestring( \
+                        tpres, False, False, '|'))
+                    
                 
-                # module actions set
-                
+                # module actions set 
                 actVec = []
                 for f in mod.faults:
                     actVec.append(self.compile_local_fault( \
@@ -942,7 +965,7 @@ class Compiler():
     #.......................................................................
     """
         **
-        ** Get a list of a transition's compiled preconditions.
+        ** Get a list of a transition's compiled preconditions negated.
         **
         
         @return:
@@ -986,8 +1009,10 @@ class Compiler():
         #if action names a fault
         for f in module.faults:
             if f.name == action:
+                # not to be active is a precondition of the fault
+                prelist.append(self.compile_fault_active(inst.name, action))
                 pre = f.pre
-                prelist.append(self.compile_prop_form(inst.name,pre))
+                prelist.append(self.neg(self.compile_prop_form(inst.name,pre)))
                 break        
         # Negation of stop faults activation variable is also part of
         # the action precondition when the fault affects the action.
@@ -1014,7 +1039,9 @@ class Compiler():
         faultlist = []
         mod = self.sys.modules[instance.module]
         for f in [x for x in mod.faults if x.faulttype == 'STOP']:
-            if (action in f.efects) or (f.efects == []):
+            # action != f.name so global stop faults dont stop them selves
+            # don't know if it's right to do so.
+            if (action in f.efects) or (f.efects == []) and action != f.name:
                 faultlist.append(f)
         return faultlist
         
