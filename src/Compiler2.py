@@ -5,7 +5,6 @@ from Debug import *
 from Config import *
 from Parser2 import Types
 import Parser2
-from Exceptions.Exceptions import *
 
 #///////////////////////////////////////////////////////////////////////////////
 # DEBUGING
@@ -33,14 +32,7 @@ if DEBUGTODO__:
     debugTODO("Solo FAULTS totales pueden suspender transiciones de falla?\n")
     debugTODO("Permitir la construccion 'a in {...}' y 'a in n..m'")
 
-debugTODO("Ocultar todas aquellas funciones que no tengan sentido sin haber" \
-        + " hecho todo el proceso de compilacion previo (cargado de tablas," \
-        + " inicializaciones, etc...")
 
-
-debugURGENT("Por alguna razon las transiciones de commitAtomico.fll provocan " \
-    + "que el conjunto de estados inicials sea vacio y por ende la simulacion" \
-    + " no sirva de nada y todas las propiedades dan true :S")
 
 #///////////////////////////////////////////////////////////////////////////////
 # AUXILIAR CLASSES AND FUNCTIONS
@@ -116,12 +108,8 @@ class Compiler():
         #
         self.varSet = set([])
 
-
-
     #.......................................................................
-    """ 
-        Assumes that the input system is correct. 
-    """
+    """ Assumes that the input system is correct. """
     def compile(self, system, outputName = "defaultOutput.smv"):
         assert system
         self.sys = system
@@ -573,19 +561,12 @@ class Compiler():
 
 
 
-
-    """
-        Compile each LTL property in the input file, plus other properties like
-        deadlock check if requeried, and output them to ths NuSMV file.
-    """
     #.......................................................................
     def build_ltlspecs(self):
-        self.out(self.comment("LTL EPECIFICATIONS"))
-        
         for ltl in self.sys.ltlspecs:
             ltlout = "LTLSPEC "
             for item in ltl.value:
-                if self.is_synchro(item):
+                if self.issynchro(item):
                     ltlout += "(" + Names.actionvar + " = " + item + ")"
                 elif '.' in item:
                     i, p, n = item.partition('.')
@@ -601,7 +582,6 @@ class Compiler():
                 ltlout += " "
             self.out(ltlout)           
 
-        self.out(self.comment("DEADLOCK CHECK"))
         if self.sys.options.checkdeadlock:
             self.out("LTLSPEC ! F G " + Names.actionvar + " = " + Names.dkaction)
 
@@ -622,25 +602,20 @@ class Compiler():
                 raise TypeError(type(c))
             self.out(controut)
 
-        # FAULT - SYSTEM FAIRNESS
         # Para evitar que las fallas se apoderen del sistema, nos restringimos
         # a trazas en las que siempre eventualmente ocurra alguna transicion
         # hacia estados normales. Por defecto se usa esta configuracion. Se
         # puede sin embargo desactivar seteando la variables 
         # 'self.sys.options.faultsysfairdisable' como False.
-        
-        self.out(self.comment("FAULT SYSTEM FAIRNESS"))
-        
         if not self.sys.options.faultsysfairdisable:
             actionset = [Names.dkaction]
             for i in self.sys.instances.itervalues():
                 m = self.sys.modules[i.module]
                 for t in m.trans:
                     actionset.append(self.trans_real_name(i.name, t.name))
-            self.out( "FAIRNESS (" + Names.actionvar + " in " + \
-                      self.compile_set(actionset) + ")")
+            self.out("FAIRNESS (" + Names.actionvar + " in " + \
+                self.compile_set(actionset) + ")")
 
-        # SYSTEM - MODULE FAIRNESS
         # Weak fairness para modulos. Un modulo que esta infinitamente 
         # habilitado para realizar alguna accion, debe ser atendido 
         # infinitamente a menudo. Un modulo puede entrar en deadlock cuando 
@@ -650,9 +625,6 @@ class Compiler():
         # deadlock del modulo, de esta manera si el modulo nunca cae en dedalock
         # (siempre esta habilitado para realizar un accion) entonces en algun 
         # momento va a ser atendido.
-        
-        self.out(self.comment("SYSTEM MODULE FAIRNESS"))
-        
         if not self.sys.options.modulewfairdisable:
             fairVec = []
             for inst in self.sys.instances.itervalues():
@@ -662,12 +634,15 @@ class Compiler():
                 
                 dkVec = []
                 for f in mod.faults:
-                    fpres = self.get_pre_negation(inst, f.name)
-                    dkVec += fpres
-
+                    dkVec.append(self.neg(self.compile_prop_form( \
+                        inst.name, f.pre)))
                 debugTODO("Que pasa con las faltas que no son transient aca?")
-
-                debugURGENT("Aplicar las correcciones de la ultima reunion.")
+                
+                debugURGENT("Notar que se esta tratando mal las acciones de" \
+                          + "syncronizacion. Hacer una funcion que dada una" \
+                          + " instancia y una transicion devuelva el string" \
+                          + " que representa la negacion de sus " \
+                          + "precondiciones.")
 
                 for t in mod.trans:
                     dkVec.append(self.neg(self.compile_prop_form( \
@@ -693,6 +668,25 @@ class Compiler():
             self.out( "FAIRNESS " + \
                 self.ampersonseparatedtuplestring(fairVec, False, True, '&'))
 
+    #.......................................................................
+    def compile_LTL(self, ltl):
+        ltlout = ""
+        for item in ltl:
+            if self.issynchro(item):
+                ltlout += "(" + Names.actionvar + " = " + item + ")"
+            elif '.' in item:
+                i, p, n = item.partition('.')
+                ins = self.sys.instances[i]
+                mod = self.sys.modules[ins.module]
+                if n in [x.name for x in mod.localVars]:
+                    ltlout += self.compile_local_var(i,n)
+                else:
+                    ltlout += "(" + Names.actionvar + " = " \
+                        + self.compile_action(i,n) + ")"
+            else:
+                ltlout += item
+            ltlout += " "
+        return ltlout
 
 
 
@@ -788,11 +782,11 @@ class Compiler():
         return "bizE#" + iname + "#" + fname
 
     
-    #.......................................................................
+    #
     def compile_var_list(self, iname, varlist):
         return [self.var_real_value(iname, v) for v in varlist]
 
-    #.......................................................................
+    #
     def var_real_value(self, iname, vname):
         inst = self.sys.instances[iname]
         mod = self.sys.modules[inst.module]
@@ -805,30 +799,8 @@ class Compiler():
         return vname
 
 
-    #.......................................................................
-    def comment(self, string):
-        return "-- " + string
 
 
-    #.......................................................................
-    def compile_LTL(self, ltl):
-        ltlout = ""
-        for item in ltl:
-            if self.is_synchro(item):
-                ltlout += "(" + Names.actionvar + " = " + item + ")"
-            elif '.' in item:
-                i, p, n = item.partition('.')
-                ins = self.sys.instances[i]
-                mod = self.sys.modules[ins.module]
-                if n in [x.name for x in mod.localVars]:
-                    ltlout += self.compile_local_var(i,n)
-                else:
-                    ltlout += "(" + Names.actionvar + " = " \
-                        + self.compile_action(i,n) + ")"
-            else:
-                ltlout += item
-            ltlout += " "
-        return ltlout
 
 
 
@@ -905,20 +877,12 @@ class Compiler():
 
 
     #.......................................................................
-    def is_synchro(self, action, instname = ""):
-        if instname == "":
-            for i in self.sys.instances.itervalues():
-                m = self.sys.modules[i.module]
-                n = len(m.contextVars)
-                if action in i.params[n::]:
-                    return True
-        else:
-            i = self.sys.instances[instname]
+    def issynchro(self, item):
+        for i in self.sys.instances.itervalues():
             m = self.sys.modules[i.module]
-            n = len(m.contextVars)
-            if action in i.params[n::]:
+            n = len(m.localVars)
+            if item in i.params[n::]:
                 return True
-            
         return False
 
 
@@ -939,87 +903,6 @@ class Compiler():
 
 
 
-    #.......................................................................
-    """
-        **
-        ** Get a list of a transition's compiled preconditions.
-        **
-        
-        @return:
-            a list of transition named 'action' compiled preconditions.
-        @instname:
-            Instance where 'action' belongs (only useful if 'action' insn't a 
-            synchronization action)
-        @action:
-            Name of the transition to check for preconditions
-    """
-    def get_pre_negation(self, inst, action):
-        prelist = []
-        if self.is_synchro(action, inst.name):
-            # On synchronization actions, we need to check preconditions in
-            # every instance that synchronises
-            for i in self.sys.instances.itervalues():
-                prelist += self.get_pre_negation_aux(i, action)
-        else:
-            prelist = self.get_pre_negation_aux(inst, action)
-        
-        return prelist
 
 
-
-    #.......................................................................        
-    """
-        Auxiliary function for get_pre_negation.
-        @return:
-            List of compiled preconditions of transition named 'action' in 
-            instance 'inst'.
-    """
-    def get_pre_negation_aux(self, inst, action):
-        prelist = []
-        module = self.sys.modules[inst.module]
-        #if action names a transition
-        for t in module.trans:
-            if t.name == action:
-                pre = t.pre.val
-                prelist.append(self.compile_prop_form(inst.name,pre))
-                break
-        #if action names a fault
-        for f in module.faults:
-            if f.name == action:
-                pre = f.pre
-                prelist.append(self.compile_prop_form(inst.name,pre))
-                break        
-        # Negation of stop faults activation variable is also part of
-        # the action precondition when the fault affects the action.
-        stopfaults = self.get_stop_faults_for_action(inst, action)
-        for sf in stopfaults:
-            prelist.append(self.neg(self.compile_fault_active( \
-                inst.name, sf.name)))
-                
-        return prelist
-                
-    #.......................................................................
-    """
-        **
-        ** Gets stop fault that affect action in instance
-        **
-        @instance:
-            Instance class instance where to check
-        @action:
-            Transition name to check
-        @return:
-            list of stop faults that affect the transition
-    """
-    def get_stop_faults_for_action(self, instance, action):
-        faultlist = []
-        mod = self.sys.modules[instance.module]
-        for f in [x for x in mod.faults if x.faulttype == 'STOP']:
-            if (action in f.efects) or (f.efects == []):
-                faultlist.append(f)
-        return faultlist
-        
-        
-        
-        
-        
 
