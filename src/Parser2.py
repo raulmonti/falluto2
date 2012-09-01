@@ -14,20 +14,20 @@ debugSOLVED("Cambiar precondiciones vacias por TRUE en el parser."        \
             + " [True] :s Better solution will be to make a PyAST and "   \
             + "call for the propform parse method in the preconditions."  )
 
+debugTODO("Revisar si es buena idea lo del pseudo ENUM de la clase Types" \
+            + "Queda bastante feo, usar el campo type para algo mejor.")
+debugTODO("pyPEG tiene problemas con la primera y ultima lineas de el " + \
+         "archivo de entrada :S, es como que no las detecta en .line")
 
-if DEBUG__:
-    debugGREEN("Revisar si es buena idea lo del pseudo ENUM de la clase Types" \
-                + "Queda bastante feo, usar el campo type para algo mejor.")
-    debugRED("pyPEG tiene problemas con la primera y ultima lineas de el " + \
-             "archivo de entrada :S, es como que no las detecta en .line")
-if DEBUGTODO__:
-    debugTODO("Module contextvars and synchroacts quizas deberian poseer " + \
-              "clase propia y no ser parseadas en Module.")
-    debugTODO("Cambiar los printMe() por __string__ o __unicode__.")
-    debugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
-    debugTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
+debugTODO("Module contextvars and synchroacts quizas deberian poseer " + \
+          "clase propia y no ser parseadas en Module.")
+debugTODO("Cambiar los printMe() por __string__ o __unicode__.")
+debugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
+debugTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
 
 debugTODO("Comprobar redaccion y ortografia con algun traductor :s")
+
+
 
 class Types():
     SYSTEM = 0
@@ -94,8 +94,8 @@ class counter ():
     sin lo que agrega PyPEG) y si check == True entonces chequea correctitud 
     en los tipos.
 """
-if DEBUGTODO__:
-    debugTODO("Implemetar el checkeo de tipos.")
+
+debugTODO("Implemetar el checkeo de tipos.")
 
 def cleanAST(ast = [], check = False, expect = None):
     ret = []
@@ -131,6 +131,7 @@ class System(FallutoBaseElem):
         self.ltlspecs = []
         self.contraints = []
         self.options = Options()
+        self.commonprops = []
 
     def printMe(self):
         print "SYSTEM STARTS AT", self.line
@@ -170,11 +171,47 @@ class System(FallutoBaseElem):
                 self.contraints.append(c)
             elif elem.__name__ == "OPTIONS":
                 self.options.parse(elem)
+            elif elem.__name__ == "PROPERTIE":
+                p = CommonPropertie()
+                p.parse(elem)
+                self.commonprops.append(p)
             else:
                 raise SyntaxError(elem)
         
         if self.instances == {}:
             raise NoInstancesError()
+
+
+
+
+    #.......................................................................
+class CommonPropertie(FallutoBaseElem):
+    def __init__(self):
+        FallutoBaseElem.__init__(self)
+        self.preconditions = []
+        self.propertie = None
+        
+    def parse(self, AST):
+        self.line = AST.__name__.line
+        AST = AST.what[0]
+        self.type = AST.__name__
+
+        
+        for e in AST.what[:-1:]:
+            self.preconditions.append(e)
+        
+        for e in AST.what[-1::]:
+            self.propertie = cleanAST(e.what)
+    
+        debugRED( "Parsing propertie " + self.name + " at line "\
+                   + str(self.line) \
+                   + "\n\t@Preconditions: " + str(self.preconditions) \
+                   + "\n\t@Propertie: " + str(self.propertie))
+
+
+
+
+
 
     #.......................................................................
 
@@ -190,9 +227,6 @@ class Module(FallutoBaseElem):
         self.trans = []
 
     def parse(self, AST):
-        if DEBUG__:
-            debugYELLOW("Parsing Module: " + str(AST) + " at " + \
-                AST.__name__.line)
         assert AST != []
         self.line = AST.__name__.line
         AST = AST.what # AST = [ name, contextvars, synchroacts, body]
@@ -225,6 +259,7 @@ class Module(FallutoBaseElem):
             else:
                 raise SyntaxError
 
+        debugYELLOW("Parsed module " + self.name + " at line " + self.line)
 
     def printMe(self):
         print "< Module >", self.name, "at", self.line
@@ -296,23 +331,6 @@ class Trans(FallutoBaseElem):
                ": POS: " + repr(self.pos) + ": FAULTS: " + repr(self.faults)
 
 
-    #.......................................................................
-debugTODO("Creo que PermFault esta deprecated :S. Borrarla en ese caso.")
-class PermFault(FallutoBaseElem):
-    def __init__ (self):
-        FallutoBaseElem.__init__(self)
-        self.type = Types.PERMFAULT
-        self.value = []
-
-    def parse(self, AST):
-        self.line = AST.__name__.line
-        self.name = AST.__name__
-        AST = AST.what
-        for v in AST:
-            self.value.append(v.what)
-
-    def __repr__(self):
-        return self.name + repr(self.value)
 
 
     #.......................................................................
@@ -401,7 +419,6 @@ class NextVal(FallutoBaseElem):
         self.type = Types.NEXTVAL
 
     def parse(self, AST):
-        debugGREEN(AST)
         self.line = AST.__name__.line
         AST = AST.what
         self.name = AST[0].what
@@ -425,6 +442,10 @@ class NextVal(FallutoBaseElem):
             i = Ident()
             i.parse(AST[1])
             self.val = i
+        elif AST[1].__name__ == 'RANGE':
+            r = Range()
+            r.parse(AST[1])
+            self.val = r
         else:
             raise SyntaxError(AST[1].__name__)
 
