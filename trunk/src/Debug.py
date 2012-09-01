@@ -25,9 +25,12 @@ debugColorDict = {
 }
 
 
+debugStart = "\n===============================================================\n"
+debugEnd = "\n_______________________________________________________________\n\n"
+
 
 def debug(color, string):
-    print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  + "]: " + str(string) + '\033[1;m'
+    print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
 
 
     
@@ -40,22 +43,34 @@ def debugTODO(string):
 
 def debugRED(string):
     if DEBUG__:
-        print '\033[' + debugColorDict['debugRED'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+        debug("debugRED", string)
     else:
         pass
 
 def debugGREEN(string):
     if DEBUG__:
-        print '\033[' + debugColorDict['debugGREEN'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+        debug("debugGREEN", string)
     else:
         pass
 
 def debugYELLOW(string):
     if DEBUG__:
-        print '\033[' + debugColorDict['debugYELLOW'] + "DEBUG: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+        debug("debugYELLOW", string)
     else:
         pass
 
+
+def debugLBLUE(string):
+    if DEBUG__:
+        debug("debugLBLUE", string)
+    else:
+        pass
+
+def debugMAGENTA(string):
+    if DEBUG__:
+        debug("debugMAGENTA", string)
+    else:
+        pass
 
 def debugURGENT(string):
     if DEBUGURGENT__:

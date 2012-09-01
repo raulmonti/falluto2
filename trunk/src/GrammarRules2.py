@@ -31,37 +31,12 @@ ENDOPTIONS
 #################################
 
 
+debugURGENT("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
 
-
-debugURGENT("Parsear correctamente el 'in' y los sets para interpretarlos " \
-        + " como se debe, en Examples/fllprube.fll se ve el problema.")
-
-
-debugTODO("ACTION solo puede ser usada (y debe ser usada si es que voy a " \
-           + "nombrar una accion que acaba de ocurrir) en las propexp de " \
-           + "LTLSPEC. Hay que hacer este chequeo en algun otro lugar del" \
-           + " codigo ya que aca quedaria medio embarrado todo.\n")
-debugTODO("Revisar si se le puede asignar un RANGE a un NEXTVAL en NuSMV " \
-           + "y si es asi agregarlo en la regla gramatical"                \
-           + " correspondiente.")
-debugTODO("Sacar a 'next' de las palabras prohibidas.")
-debugTODO("Decidir si la regla es que en todas las propform se pueda usar" \
-           + " el next valor y desp se chequea la correctitud en el resto" \
-           + " del programa o si se define todo por separado para los "    \
-           + "predicados con next. La segunda opcion parece mas eficiente.")
 debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
            + " G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) " \
            + "U just(w))).")
-
-
-
-debugSOLVED("FAIRNESS VACIOS DEBIDO A MODULE FAIR o FAULT FAIRS\n" \
-          + "Sulution: we where accepting sytems without any instances " \
-          + "declared.")
-
-
-
-
+debugTODO("Definir todo esto de nuevo, si o si primero en hoja :S")
 
 
 #///////////////////////////////////////////////////////////////////////////////
@@ -79,8 +54,8 @@ def ACTION():       return "just(", re.compile(identifiers), ")"
 
 
 #MATH FORMULA
-# Los operadores anidan a derecha, no doy prioridades ya que no vienen el caso
-# despues que se las arregle NuSMV o que quien sea. 
+# Los operadores anidan a derecha, no doy prioridades ya que no vienen al caso
+# despues que se las arregle NuSMV o quien sea. 
 mathbinop = r"\+|\-|\*|\/|\%"
 def MATH():         return [MATHBINOP, MATHVAL]
 def MATHBINOP():    return MATHVAL , re.compile(mathbinop), MATH
@@ -88,7 +63,10 @@ def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, \
                             re.compile(r"\)")), (re.compile(r"\-"), MATH)]
 
 
-def INCLUSION(): return [(IDENT, "'"),IDENT], keyword("in"), SET
+def INCLUSION(): return [(IDENT, "'"),IDENT], re.compile(r"in"), [(re.compile(r"{"), \
+                         IDENT, -1, (re.compile(r","), IDENT) , re.compile(r"}")), \
+                         (INT, re.compile(r".."), INT)]
+
 
 #BOOLEAN FORMULA
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
@@ -97,7 +75,7 @@ def BOOLBINOP():    return BOOLVAL, re.compile(booleanop), BOOLEXP
 def BOOLVAL():      return [ BOOL, INCLUSION, MATH, IDENT, \
                             (re.compile(r"\("), BOOLEXP, re.compile(r"\)")), \
                             (re.compile(r"\!"), BOOLEXP)]
-#, (MATH , re.compile(booleanop), MATH) ]
+
 
 
 #PROPOSITIONAL FORMULA
@@ -110,11 +88,9 @@ def PROPVAL():      return [BOOLEXP, (re.compile(r"\("), PROPFORM, \
 
 #NEXT PROPOSITIONAL FORMULA
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
- #keyword("next"), "(", IDENT, ")", "=", \
 def NEXTVAL():      return IDENT, "'", [( "=", \
-                           [ PROPFORM, MATH, NEXTREF, IDENT, SET ]),("in", SET)]
-def NEXTREF():      return IDENT, "'" #keyword("next"), "(", IDENT, ")"
-
+                           [ PROPFORM, MATH, NEXTREF, IDENT, SET ]),("in", [SET, RANGE])]
+def NEXTREF():      return IDENT, "'"
 
 
 
@@ -125,9 +101,14 @@ def BOOLEAN():      return "bool"
 
 
 #SYSTEM
-def SYSTEM():       return 0, OPTIONS , -1, \
-                            [MODULE, INSTANCE, LTLSPEC, FAIRNESS, COMPASSION]
+def SYSTEM():       return 0, OPTIONS , -1, [MODULE, INSTANCE, LTLSPEC, FAIRNESS, COMPASSION, PROPERTIE]
 
+
+
+#===============================================================================
+"""
+    OPTIONS
+"""
 def OPTIONS():      return keyword("OPTIONS"), -1, [SYSNAME, CHECKDEADLOCK, FAULTSYSFAIRDISABLE, MODULEWFAIRDISABLE], \
                            keyword("ENDOPTIONS")
 def SYSNAME():              return "FLLNAME", re.compile(r"[\w\.\d\_]*")
@@ -135,7 +116,27 @@ def CHECKDEADLOCK():        return keyword("CHECK_DEADLOCK")
 def FAULTSYSFAIRDISABLE():  return keyword("FAULT_SYS_FAIR_DISABLE")
 def MODULEWFAIRDISABLE():   return keyword("MODULE_WEAK_FAIR_DISABLE")
 
-#MODULE
+
+
+
+
+#===============================================================================
+"""
+    COMMON PROPERTIES TO BE CHECKED
+"""
+def PROPERTIE():       return [NORMALBEHAIVIOUR, FINMANYFAULTS, FINMANYFAULT]
+def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "(", LTLEXP, ")"
+def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "(", LTLEXP, ")"
+def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT"), "(", IDENT, -1, (",", IDENT), ";" ,LTLEXP, ")"
+
+
+
+
+
+#===============================================================================
+"""
+    MODULES
+"""
 def MODULE():       return keyword("MODULE"), IDENT, "(", CONTEXTVARS, \
                             CONTEXTACTS, ")", MODULEBODY, keyword("ENDMODULE")
 

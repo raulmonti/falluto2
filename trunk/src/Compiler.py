@@ -7,32 +7,17 @@ from Parser2 import Types
 import Parser2
 from Exceptions.Exceptions import *
 
+
+
 #///////////////////////////////////////////////////////////////////////////////
 # DEBUGING
 #///////////////////////////////////////////////////////////////////////////////
 
-
-if DEBUGTODO__:
-    debugTODO("No se deberia compilar nada si no hay al menos una instancia.")
-    debugTODO("Que pasa si quiero poscondiciones de fallas mas complejas y" + \
-              " no simplemente & de cambios de variables")
-    debugTODO("Que pasa con las variables y acciones a "+ \
-          "las cuales no se les da nombres al crear las instancias?" + \
-          "Es mas, esta permitido hacer eso?")
-    debugTODO("Hay faltas sincronizadas? se agregan a los parametros "+ \
-              "como se hace con las actions? Hay faltas sin nombre?")
-    debugTODO("Mejorar el modulo de excepciones y usarlo en todos lados")
-    debugTODO("Encabezar el output.fll con la fecha y algun comentario")
-    debugTODO("Cuidado: se deja poner cualquier string como palabra de" + \
-              " sincronizacion en la instansiacion")
-    debugTODO("Quitar el fault active de las fallas que son transient")
-    debugTODO("Mejorar el codigo de las common transitions (usar el varSet)")
-    debugTODO("Averiguar si es mas eficiente compilar local vars o buscarlas" \
-            + " en la varTable\n")
-    debugTODO("Cambiar '= FALSE' por '!' en los predicados ya compilados\n")
-    debugTODO("Solo FAULTS totales pueden suspender transiciones de falla?\n")
-    debugTODO("Permitir la construccion 'a in {...}' y 'a in n..m'")
-
+debugTODO("Que pasa con las variables y acciones a "+ \
+      "las cuales no se les da nombres al crear las instancias?" + \
+      "Es mas, esta permitido hacer eso?")
+debugTODO("Mejorar el modulo de excepciones y usarlo en todos lados")
+debugTODO("Mejorar el codigo de las common transitions (usar el varSet)")
 debugTODO("Ocultar todas aquellas funciones que no tengan sentido sin haber" \
         + " hecho todo el proceso de compilacion previo (cargado de tablas," \
         + " inicializaciones, etc...")
@@ -42,11 +27,22 @@ debugURGENT("Por alguna razon las transiciones de commitAtomico.fll provocan " \
     + "que el conjunto de estados inicials sea vacio y por ende la simulacion" \
     + " no sirva de nada y todas las propiedades dan true :S")
 
+debugURGENT("-- SYSTEM MODULE FAIRNESS \\n FAIRNESS ((action# in {  })) Ocurre" \
+    + " porque no hay transiciones en los modulos :S")
+
+
+
 #///////////////////////////////////////////////////////////////////////////////
 # AUXILIAR CLASSES AND FUNCTIONS
 #///////////////////////////////////////////////////////////////////////////////
 
 
+"""
+    Para definir el nivel de tabulado a partir del cual imprimir el output.
+    Para agregar un n '\t' al tabulado hacemos Tablevel += n, similarmente para 
+    restar hacemos -= n. str(Tablevel) devuelve el string con la cantidad
+    de \t elegidos.
+"""
 class TabLevel():
 
     def __init__(self):
@@ -76,33 +72,27 @@ class TabLevel():
         self.level = 0
 
 
-    #.......................................................................
 
+    #.......................................................................
+"""
+    Algunos nombres de variables y valores para el archivo compilado .smv que 
+    se pasa a NuSMV.
+"""
 class Names():
-    actionvar = "action#"           #action variable 
-    dkaction = "dk#action"          #deadlock action name (part of the actionvar domain)
+    actionvar = "action#"   #action variable 
+    dkaction = "dk#action"  #deadlock action name (part of the actionvar domain)
+
+
+
 
 
 #///////////////////////////////////////////////////////////////////////////////
 # THE COMPILER
 #///////////////////////////////////////////////////////////////////////////////
-
 """
-NAMESPACES:
-
-    MODULE NS: module names
-
-    LOCAL VAR NS: local vars names, fault names, context vars names, 
-                  local action names
-
-    SYNCHRO ACT NS: synchro acts names
-
-    INSTANCES NS: instances names
-    
+    El compilador. Su metodo compile() toma los datos parseados del .fll y
+    genera la traduccion a un archivo .smv para ser revisado con NuSMV.
 """
-
-
-
 class Compiler():
     def __init__(self):
         self.sys = None
@@ -120,7 +110,11 @@ class Compiler():
 
     #.......................................................................
     """ 
-        Assumes that the input system is correct. 
+        Assumes that the input system is correct.
+        @param system: a System() instance, with information about the input.
+                Use Parser.py to fill this information.
+        @param outputName: Name of the output file, although the 
+                system.options.sysname has presedence over this param.
     """
     def compile(self, system, outputName = "defaultOutput.smv"):
         assert system
@@ -136,10 +130,14 @@ class Compiler():
         self.fileOutput.write(self.stringOutput)
         self.fileOutput.close()
         
+        debugMAGENTA("Output written to " + outputName + ".smv")
         return outputName + ".smv"
 
 
     #.......................................................................
+    """
+        Compiles de System into self.stringOutput.
+    """
     def compile_system(self):
         self.out("MODULE main()\n")
         self.fill_var_table()
@@ -153,6 +151,7 @@ class Compiler():
         self.out("\n\n\n")
         self.build_contraints()
         self.build_ltlspecs()
+
 
     #.......................................................................
     def fill_var_table(self):
@@ -216,7 +215,6 @@ class Compiler():
                         for t in m.trans:
                             self.stopMap[m.name][t.name].append(f.name)
                         for ff in m.faults:
-                            debugRED(m.name + "  " + ff.name)
                             self.stopMap[m.name][ff.name].append(f.name)
                     else:
                         #solo afecta a las que define
@@ -343,19 +341,20 @@ class Compiler():
                         thistransvect.append(self.compile_fault_active(i.name, \
                                 f.name) + " = FALSE")
                 #trans enabling condition
-                if DEBUG__:
+                if DEBUGSMV__:
                     thistransvect.append(" [[ PRE ]] ")
                 thistransvect.append(self.compile_prop_form(i.name,t.pre.val))
                 #set action next to this transition
-                if DEBUG__:
+                if DEBUGSMV__:
                     thistransvect.append(" [[ EVENT ]] ")
                 thistransvect.append( "next("+Names.actionvar+") = "+ \
                         self.compile_local_act(i.name,t.name))
-                #trans poscondition
-                if DEBUG__:
+                #transition postcondition
+                if DEBUGSMV__:
                     thistransvect.append(" [[ POS ]] ")
                 for e in t.pos:
-                    if isinstance(e.val, Parser2.Set):
+                    if isinstance(e.val, Parser2.Set) or \
+                        isinstance(e.val, Parser2.Range):
                         thistransvect.append( "next(" + \
                             self.compile_local_var(i.name,e.name) + ") in " + \
                             str(self.compile_it(i.name,e.val)))
@@ -363,9 +362,9 @@ class Compiler():
                         thistransvect.append( "next(" + \
                             self.compile_local_var(i.name,e.name) + ") = " + \
                             str(self.compile_it(i.name,e.val)))
-                #everithing else must remain the same
-                    #instance vars
-                if DEBUG__:
+                #everything else must remain the same
+                #instance vars
+                if DEBUGSMV__:
                     thistransvect.append(" [[ OTHERS ]] ")
                 posvars = [x.name for x in t.pos]
                 for (ins,v) in self.varTable.iteritems():
@@ -396,15 +395,15 @@ class Compiler():
         #fault transitions
         for i in self.sys.instances.itervalues():
             m = self.sys.modules[i.module]
-            for f in m.faults:
+            for f in m.faults:                
                 thistransvect = []
                 exceptSet = set([])
                 #STOP faults which desable the transition (only total faults 
                 #can stop fault transitions)
-                for f in m.faults:
-                    if f.faulttype == "STOP" and f.efects == []:
+                for sf in m.faults:
+                    if sf.faulttype == "STOP" and sf.efects == []:
                         thistransvect.append(self.compile_fault_active(i.name, \
-                                f.name) + " = FALSE")
+                                sf.name) + " = FALSE")
                 #if not transient
                 if f.faulttype != 'TRANSIENT':
                     #not active now but will be active in next
@@ -434,6 +433,8 @@ class Compiler():
                 #append this transition to the transition vector
                 transvect.append(self.ampersonseparatedtuplestring( \
                         thistransvect, False, False))
+                        
+                debugLBLUE("Compiling transition for fault " + f.name + " of instance " + i.name + ": " + str(transvect[-1]))
         
         #synchro transitions
         #get dict with all synchro transitions and instances related to them:
@@ -490,6 +491,7 @@ class Compiler():
 
 
 
+    #.......................................................................
     """
         Build the transitions that represents the transition into a deadlock 
         state. 
@@ -498,22 +500,11 @@ class Compiler():
         make a transition into a fault state if some fault transition is 
         available.
     """
-    #.......................................................................
     def build_dk_trans_vect(self):
         result = []
     
         for inst in self.sys.instances.itervalues():
             mod = self.sys.modules[inst.module]
-
-            # faults transitions preconditions
-#            for fault in mod.faults:
-#                faultvect = []
-#                faultvect.append(self.neg( \
-#                   self.compile_prop_form(inst.name, fault.pre)))
-#                for stop in self.stopMap[mod.name][fault.name]:
-#                    faultvect.append(self.compile_fault_active(inst.name, stop))
-#                result.append(self.ampersonseparatedtuplestring( \
-#                    faultvect, False, False, '|'))
 
             # negation of local transitions preconditions
             for trans in mod.trans:
@@ -551,6 +542,11 @@ class Compiler():
 
 
 
+    """
+        Returns a python dict where keys are the names of each synchronization
+        action in ths system and the values are python lists of instances
+        which synchronice using that key.
+    """
     #.......................................................................
     def get_sync_act_dict(self):
         syncdict = {} # dict[sa] = [..] where sa is a sync action and [..] is
@@ -628,8 +624,78 @@ class Compiler():
             self.out("CTLSPEC AG " + Names.actionvar + " != " + Names.dkaction )
 
 
+        #build common properties
+        self.out(self.comment("COMMON PROPERTIES"))
+        for p in self.sys.commonprops:
+            if p.type == "NORMALBEHAIVIOUR":
+                self.out(self.compile_norm_bhvr_prp(p))
+            elif p.type == "FINMANYFAULT" or p.type == "FINMANYFAULTS":
+                self.out(self.compile_f_many_f(p))
+            else:
+                raise TypeError(p.type)
+
 
     #.......................................................................
+    """
+        Compile a normal behaiviour propertie: 
+                G V( !fault.active ) -> prop
+        We want to know if 'prop' is guaranteed if we walk only over normal 
+        traces where faults don't accur.
+    """
+    def compile_norm_bhvr_prp(self, nbp):
+        strprop = "LTLSPEC "
+        faults = []
+        for i in self.sys.instances.itervalues():
+            m = self.sys.modules[i.module]
+            for f in m.faults:
+                faults.append(self.compile_local_fault(i.name, f.name))
+        if faults != []:
+            strprop += "( G ! (" + Names.actionvar + " in " \
+                  + self.compile_set(faults) + " ) ) -> "
+        strprop += self.compile_LTL(nbp.propertie)
+                  
+        debugGREEN("Compiling normal behaviour propertie:\n\t" \
+             + strprop)
+             
+        return strprop
+
+
+
+
+    #.......................................................................
+    
+    """
+        Compile a finitely many fault propertie.
+        We wan't to know if a property holds in cases where finally some faults
+        don't occur ever again.
+    """
+    
+    def compile_f_many_f(self, fmfp):
+        strprop = "LTLSPEC "
+        faults = []
+        for f in fmfp.preconditions:
+            i, p, f = f.what.partition('.')
+            faults.append(self.compile_local_fault(i,f))
+        
+        if faults != []:
+            strprop += "( F G ! (" + Names.actionvar + " in " \
+                + self.compile_set(faults) + ") ) -> "
+
+        strprop += self.compile_LTL(fmfp.propertie)
+
+        debugGREEN("Compiling finitely many faults propertie:\n\t" \
+             + strprop)
+             
+        return strprop
+
+
+
+
+
+    #.......................................................................
+    """
+        Build contraints over the traces that will be checked.
+    """
     def build_contraints(self):
         for c in self.sys.contraints:
             controut = ""
@@ -637,7 +703,7 @@ class Compiler():
                 controut = "FAIRNESS "
                 controut += self.compile_LTL(c.value)
             elif isinstance(c, Parser2.Compassion):
-                controut = "FAIRNESS( "  \
+                controut = "COMPASSION( "  \
                     + self.compile_LTL(c.pre) \
                     + ", " + self.compile_LTL(c.pos) + ")"
             else:
@@ -647,7 +713,7 @@ class Compiler():
         # FAULT - SYSTEM FAIRNESS
         # Para evitar que las fallas se apoderen del sistema, nos restringimos
         # a trazas en las que siempre eventualmente ocurra alguna transicion
-        # hacia estados normales. Por defecto se usa esta configuracion. Se
+        # normal (no de falta). Por defecto se usa esta configuracion. Se
         # puede sin embargo desactivar seteando la variables 
         # 'self.sys.options.faultsysfairdisable' como False.
         
@@ -687,8 +753,6 @@ class Compiler():
                     fpres = self.get_pre_negation(inst, f.name)
                     dkVec.append(self.ampersonseparatedtuplestring( \
                         fpres, False, False, '|'))
-                    
-                debugURGENT("Aplicar las correcciones de la ultima reunion.")
 
                 # of normal transitions
                 for t in mod.trans:
@@ -723,7 +787,6 @@ class Compiler():
 
 
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 
                       #@@ CLASS COMPILATION METHODS @@#
 
@@ -775,11 +838,9 @@ class Compiler():
     #.......................................................................
     def compile_set(self, lst):
         lstlen = len(lst)
-        debugGREEN(lst)
         lst = list(set(lst))
-        debugYELLOW(lst)
         if len(lst) < lstlen:
-            debugRED("Warning, cuting " + str( lstlen - len(lst)) \
+            debugRED("Warning, cutting " + str( lstlen - len(lst)) \
                 + " duplicated elements in list while compiling set" )
         ret = "{ "
         if not lst == []:
@@ -922,6 +983,8 @@ class Compiler():
             return self.compile_prop_form(iname, it.val)
         elif isinstance(it, Parser2.Ident):
             return str(it.name)
+        elif isinstance(it, Parser2.Range):
+            return self.compile_range(it.domain)
         else:
             raise TypeError(it)
 
@@ -1023,6 +1086,8 @@ class Compiler():
                 
         return prelist
                 
+
+
     #.......................................................................
     """
         **
