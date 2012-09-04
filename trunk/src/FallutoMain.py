@@ -26,32 +26,38 @@ def check_output(command, shell = False, universal_newlines = True):
 
 if __name__ == '__main__':
 
+    print( "\033[1;94m\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"\
+         + "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\nFaLLuTO " \
+         + "2 . 0 : 31 Agosto 2012\n\n\033[1;m")
+
     files = fileinput.input()
 
+    if not files:
+        debugERROR("No input file!!! :S")
+
     try:
-        sys = Parser.parse(files)
+        p = Parser.Parser()
         c = Compiler()
-        outputfile = c.compile(sys, "outcompilertest")
-        print os.path.abspath(outputfile)
-        output = check_output(["NuSMV", os.path.abspath(outputfile)])
-        debugCURRENT(output)
-        ast = []
-        (res, rest) = parseLine(output, TraceInterpreter.SYS(), ast, True)
-        if rest != "":
-            colorPrint("debugRED", "ERROR al interpretar las trazas :S\n\n" + rest)
-        else:
+        t = TraceInterpreter.TraceInterpreter()
+        sys = p.parse(files)
+        c.compile(sys, "outcompilertest")                        
+        
+        for i in range(0, len(c.properties)):
+            outputfile = c.smv_file_builder(i)    
+            output = check_output(["NuSMV", os.path.abspath(outputfile)])
+            #debugCURRENT(output)
+            (res, rest) = parseLine(output, TraceInterpreter.SYS(), [], True)
             if rest != "":
-                debugCURRENT("nusmv result parsing "+str(res) \
-                           + " and couldnt parse "+str(rest))
-            ti = TraceInterpreter.TraceInterpreter(c)
-            ti.interpret(res)
+                debugERROR("Error al interpretar las trazas. No se pudo " \
+                        + "interpretar lo que sigue:\n\n"  + rest)
+            t.interpret(res, c)
         
     except NoInstancesError, e:
         colorPrint('debugYELLOW', e)
     
     except subprocess.CalledProcessError, e:
-        debugTODO("Algo anduvo bien mal aca, escribir error en alguna lado y "\
+        debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\
             + "mandar mail a raul para que lo arregle\n")
-        debug("debugRED", "NUSMV: el archivo es erroneo. La salida es la que "\
+        debugERROR("NUSMV: el archivo es erroneo. La salida es la que "\
             + "sige:\n\n" + str(e.cmd))
 

@@ -79,7 +79,7 @@ def debugURGENT(string):
         pass
     
 def debugERROR(string):
-    debugRED(string)
+    debug("debugRED", string)
 
 
 def debugCURRENT(string):

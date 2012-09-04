@@ -8,6 +8,23 @@ import Parser
 from Exceptions.Exceptions import *
 
 
+"""
+    Uso del modulo:
+    
+        Usar una instancia de la clase Compiler para compilar un sistema
+        a partir del metodo compile pasando como paramentro una instancia de 
+        Parser.System() con el sistema previamente parseado.
+        
+        A continuancion realizar sucesivas llamadas al metodo smv_file_builder
+        para construir los archivos smv necesarios para chequear cada propiedad
+        sobre el sistema usando NuSMV.
+        
+        Notar que el archivo generado solo sera valido hasta la proxima llamada
+        al metodo smv_file_builder.
+"""
+
+
+
 
 #///////////////////////////////////////////////////////////////////////////////
 # DEBUGING
@@ -105,6 +122,7 @@ class Compiler():
         self.sys = None
         self.stringOutput = ""
         self.fileOutput = None
+        self.outputName = ""
         self.tab = TabLevel()
         # Tables
         self.syncdict = {}
@@ -112,6 +130,36 @@ class Compiler():
         self.stopMap = {}   # module->transition/fault->[stop faults wich afect]
         #
         self.varSet = set([])
+        self.properties = [] # propertie[i] = [ith propertie representation, compiled ith propertie] 
+
+
+
+
+    #.......................................................................
+    """
+        Builds the smv file for checking the 'propertieIndex' property compiled.
+        @ Note: the system must be compiled.
+        @ Note: propertiIndex must be between 0 and len(self.properties)-1.
+        @ Note: the smv file is only valid until the next call to this method.
+        @ return: the name of the smv file to check the propertieIndex property.
+    """
+    def smv_file_builder(self, propertyIndex):
+    
+        if propertyIndex < 0 or propertyIndex > len(self.properties):
+            raise IndexError("propertyIndex " + str(propertyIndex) \
+                           + " out of range.")
+    
+        #open file and truncate at beginning
+        self.fileOutput = open(self.outputName, 'w+')                       
+        self.fileOutput.write(self.stringOutput + "\n\n" \
+                + self.comment("PROPERTIE " + str(propertyIndex) + ": " \
+                + self.properties[propertyIndex][0]) \
+                + "\n" + self.properties[propertyIndex][1])
+        self.fileOutput.close()
+
+        debugMAGENTA("Output written to " + self.outputName)
+        return self.outputName
+
 
 
 
@@ -123,22 +171,15 @@ class Compiler():
         @param outputName: Name of the output file, although the 
                 system.options.sysname has presedence over this param.
     """
-    def compile(self, system, outputName = "defaultOutput.smv"):
+    def compile(self, system, outputName = "defaultOutput"):
         assert system
         self.sys = system
         self.compile_system()
+        self.outputName = outputName
         if system.options:
             if system.options.sysname != "":
-                outputName = system.options.sysname
-            
-        # a+ means append to the end of the file, w+ truncates the file at 
-        # the beginning.
-        self.fileOutput = open(outputName + ".smv", 'w+')                       
-        self.fileOutput.write(self.stringOutput)
-        self.fileOutput.close()
-        
-        debugMAGENTA("Output written to " + outputName + ".smv")
-        return outputName + ".smv"
+                self.outputName = system.options.sysname
+        self.outputName += ".smv"
 
 
     #.......................................................................
@@ -605,7 +646,6 @@ class Compiler():
     """
     #.......................................................................
     def build_ltlspecs(self):
-        self.out(self.comment("LTL EPECIFICATIONS"))
         
         for ltl in self.sys.ltlspecs:
             ltlout = "LTLSPEC "
@@ -624,24 +664,46 @@ class Compiler():
                 else:
                     ltlout += item
                 ltlout += " "
-            self.out(ltlout)           
+                
+            proprepr = ""
+            for e in ltl.value:
+                proprepr += " " + str(e)
+            
+            self.properties.append([proprepr,ltlout])           
 
         # Check for deadlock if required
-        self.out(self.comment("DEADLOCK CHECK"))
         if self.sys.options.checkdeadlock:
-            self.out("CTLSPEC AG " + Names.actionvar + " != " + Names.dkaction )
+            self.properties.append(["DEADLOCK CHECK", "CTLSPEC AG " \
+                        + Names.actionvar + " != " + Names.dkaction])
 
 
         #build common properties
-        self.out(self.comment("COMMON PROPERTIES"))
         for p in self.sys.commonprops:
+        
+            proprepr = ""
+            lst = []
+            if p.type == "FINMANYFAULT": # in case is a FINMANUFAULT propertie
+                lst = [str(x.what) for x in p.preconditions] + [';'] + p.propertie
+            else:
+                lst = p.propertie
+            for e in lst:
+                proprepr += " " + str(e)
+        
             if p.type == "NORMALBEHAIVIOUR":
-                self.out(self.compile_norm_bhvr_prp(p))
-            elif p.type == "FINMANYFAULT" or p.type == "FINMANYFAULTS":
-                self.out(self.compile_f_many_f(p))
+                self.properties.append(["NORMAL BEHAIVIOUR ("+ proprepr + ")", \
+                    self.compile_norm_bhvr_prp(p)])
+            elif p.type == "FINMANYFAULT":
+                self.properties.append(["FINITELY MANY FAULT (" \
+                    + proprepr +")", self.compile_f_many_f(p)])
+            elif p.type == "FINMANYFAULTS":
+                self.properties.append(["FINITELY MANY FAULTS (" \
+                    + proprepr +")", self.compile_f_many_f(p)])
             else:
                 raise TypeError(p.type)
 
+
+#        for p in self.properties:
+#            debugCURRENT(p[0] + " ---> " + p[1])
 
     #.......................................................................
     """
@@ -681,9 +743,15 @@ class Compiler():
     def compile_f_many_f(self, fmfp):
         strprop = "LTLSPEC "
         faults = []
-        for f in fmfp.preconditions:
-            i, p, f = f.what.partition('.')
-            faults.append(self.compile_local_fault(i,f))
+        if fmfp.type == "FINMANYFAULTS":
+            for i in self.sys.instances.itervalues():
+                mod = self.sys.modules[i.module]
+                for f in mod.faults:        
+                    faults.append(self.compile_local_fault(i.name,f.name))
+        else:
+            for f in fmfp.preconditions:
+                i, p, f = f.what.partition('.')
+                faults.append(self.compile_local_fault(i,f))
         
         if faults != []:
             strprop += "( F G ! (" + Names.actionvar + " in " \
@@ -691,8 +759,7 @@ class Compiler():
 
         strprop += self.compile_LTL(fmfp.propertie)
 
-        debugGREEN("Compiling finitely many faults propertie:\n\t" \
-             + strprop)
+#        debugERROR("Compiling finitely many faults propertie:\n\t" + strprop)
              
         return strprop
 

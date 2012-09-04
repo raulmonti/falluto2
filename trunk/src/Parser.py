@@ -37,18 +37,23 @@ debugTODO("Comprobar redaccion y ortografia con algun traductor :s")
 """
     Module main function
 """
+class Parser():
 
-def parse(inputFile):
-    
-    ast = pyPEG.parse(SYSTEM, inputFile, True, COMMENT, lineCount = True)
-    parsedSystem = System()
+    def __init__(self):
+        pass
 
-    try:
-        parsedSystem.parse(ast)
-    except Exception, e :
-        raise e
+
+    def parse( self, inputFile):
         
-    return parsedSystem
+        ast = pyPEG.parse(SYSTEM, inputFile, True, COMMENT, lineCount = True)
+        parsedSystem = System()
+
+        try:
+            parsedSystem.parse(ast)
+        except Exception, e :
+            raise e
+            
+        return parsedSystem
     
 ################################################################################
 ################################################################################
