@@ -7,6 +7,9 @@ MODULE mod1()
 
 		f1: is TRANSIENT
 		f2: is STOP
+
+	INIT
+		var1 = TRUE
 		
 ENDMODULE
 

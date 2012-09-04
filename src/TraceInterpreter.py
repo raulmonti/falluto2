@@ -64,15 +64,15 @@ string_spec_end = \
 
 class TraceInterpreter():
     
-    def __init__(self, cosys):
+    def __init__(self):
         self.tab = TabLevel()
         self.showstate = True
         self.action = ""
         self.stateN = 0
         self.sysdk = False
         self.activefaults = []
-        self.cosys = cosys
-        self.sys = cosys.sys
+        self.cosys = None
+        self.sys = None
 
     def tprint(self, string, enter = True):
         if enter:
@@ -80,13 +80,10 @@ class TraceInterpreter():
         else:
             print self.tab, string,
             
-    def interpret(self, ast):
-    
-        self.tprint( CB + "\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" \
-                 + "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\nFaLLuTO " \
-                 + "2 . 0 : 31 Agosto 2012\n\n" + CE)
-    
-    
+    def interpret(self, ast, cosys):
+        self.cosys = cosys
+        self.sys = cosys.sys
+
         for sp in ast:
             if sp.__name__ == "TRUESPEC":
                 print CG + "|+|\tSpecification " + CE + CY + str(sp.what[0]) \
