@@ -29,6 +29,9 @@ debugURGENT("Por alguna razon las transiciones de commitAtomico.fll provocan " \
 
 debugURGENT("-- SYSTEM MODULE FAIRNESS \\n FAIRNESS ((action# in {  })) Ocurre" \
     + " porque no hay transiciones en los modulos :S")
+debugURGENT("def var_real_value esta mal, habria que interpretar el valor que"\
+    + " se esta devolviendo, por ejemplo inst1.var1 no es valido, deberia "\
+    + " hacer compile_local_var(inst1,var1) en ese caso.")
 
 
 
@@ -71,7 +74,11 @@ class TabLevel():
     def reset(self):
         self.level = 0
 
+    def i(self):
+        self.level += 1
 
+    def d(self):
+        self.level -= 1
 
     #.......................................................................
 """
@@ -237,7 +244,7 @@ class Compiler():
             #synchro actions
             for v in i.params[n::]:
                 if not v in actlist:
-                    actlist.append(v)
+                    actlist.append(self.compile_synchro(v))
             #faults
             for f in m.faults:
                 actlist.append(self.compile_local_fault(i.name, f.name))
@@ -268,7 +275,7 @@ class Compiler():
         for i in self.sys.instances.itervalues():
             m = self.sys.modules[i.module]
             #fault active vars
-            for f in m.faults:
+            for f in [x for x in m.faults if x.faulttype != 'TRANSIENT']:
                 self.out( self.compile_fault_active(i.name, f.name) + \
                           " : boolean;")
             #local vars
@@ -297,7 +304,7 @@ class Compiler():
         #init fault active vars
         for i in self.sys.instances.itervalues():
             m = self.sys.modules[i.module]
-            for f in m.faults:
+            for f in [x for x in m.faults if x.faulttype != 'TRANSIENT']:
                 array.append(self.compile_fault_active(i.name, f.name) + \
                             " = FALSE")
         array1.append(self.ampersonseparatedtuplestring(array, False, False))
@@ -470,7 +477,8 @@ class Compiler():
                         break
 
             #action
-            thistransvect.append("next(" + Names.actionvar + ") = " + sa)
+            thistransvect.append("next(" + Names.actionvar + ") = " \
+                + self.compile_synchro(sa))
             exceptSet.add(Names.actionvar)
 
             #everithing else:
@@ -793,17 +801,17 @@ class Compiler():
 
     #.......................................................................
     def compile_local_var(self, instName, varName):
-        return instName + "#" + varName
+        return "lvar#" + instName + "#" + varName
 
 
     #.......................................................................
     def compile_local_fault(self, instName, faultName):
-        return instName + "#" + faultName
+        return "lfault#" + instName + "#" + faultName
 
 
     #.......................................................................
     def compile_local_act(self, instName, actName):
-        return instName + "#" + actName
+        return "lact#" + instName + "#" + actName
 
     #.......................................................................
     def compile_action(self, iname, actname):
@@ -813,18 +821,24 @@ class Compiler():
         index = 0
         for elem in m.synchroActs:
             if actname == elem:
-                return i.params[n+index]
+                return self.compile_synchro( i.params[n+index])
             index += 1
         return self.compile_local_act(iname, actname)
 
     #.......................................................................
     def compile_NN_action(self, instName, counter):
-        return instName + "#NNact#" + str(counter)
+        return "lact#" + instName + "#NNact#" + str(counter)
 
 
     #.......................................................................
     def compile_fault_active(self, instName, faultName):
-        return instName + "#" + faultName + "#active"
+        return "factive#" + instName + "#" + faultName
+
+
+    #.......................................................................
+    def compile_synchro(self, schr):
+        return "synchro#" + schr
+
 
     #.......................................................................
     def compile_prop_form(self, instName, propform):
@@ -882,6 +896,7 @@ class Compiler():
         mod = self.sys.modules[inst.module]
         for i in range(0, len(mod.contextVars)):
             if vname == mod.contextVars[i]:
+                debugCURRENT("El valor que estoy devolviendo es: " + str(inst.params[i]))
                 return inst.params[i]
         if vname in mod.localVars:
             return self.compile_local_var(iname,vname)
@@ -899,7 +914,8 @@ class Compiler():
         ltlout = ""
         for item in ltl:
             if self.is_synchro(item):
-                ltlout += "(" + Names.actionvar + " = " + item + ")"
+                ltlout += "(" + Names.actionvar + " = " \
+                          + self.compile_synchro(item) + ")"
             elif '.' in item:
                 i, p, n = item.partition('.')
                 ins = self.sys.instances[i]
@@ -913,6 +929,8 @@ class Compiler():
                 ltlout += item
             ltlout += " "
         return ltlout
+
+
 
 
 
@@ -1020,7 +1038,7 @@ class Compiler():
         mod = self.sys.modules[inst.module]
         for n in range(0,len(mod.synchroActs)):
             if transname == mod.synchroActs[n]:
-                return inst.params[len(mod.contextVars)+n]
+                return self.compile_synchro(inst.params[len(mod.contextVars)+n])
         return self.compile_local_act(instname, transname)
 
 
@@ -1072,8 +1090,10 @@ class Compiler():
         #if action names a fault
         for f in module.faults:
             if f.name == action:
-                # not to be active is a precondition of the fault
-                prelist.append(self.compile_fault_active(inst.name, action))
+                if f.faulttype != "TRANSIENT":
+                    # not to be active is a precondition of the fault
+                    # when fault isn't transient
+                    prelist.append(self.compile_fault_active(inst.name, action))
                 pre = f.pre
                 prelist.append(self.neg(self.compile_prop_form(inst.name,pre)))
                 break        
