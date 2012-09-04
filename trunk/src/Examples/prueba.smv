@@ -1,0 +1,21 @@
+MODULE main()
+
+	VAR
+		var1: {a,b,c,d};
+		var2: boolean;
+		var3: 1..10;
+
+	INIT
+		var2 in {TRUE,FALSE} 
+
+	TRANS
+		var1 in {a,b} -> next(var1) in {c,d} & var2 = var3 in 2..5 & var1 in {c,d} -> next(var1) in {a,b}
+
+--FAIRNESS var1 in {a,b,c}
+
+--LTLSPEC ! (var1 = a & X var1 = b)
+
+--LTLSPEC  F var1 in {d}
+
+LTLSPEC NAME ltlname :=  G !(var1 in {d})
+ LTLSPEC NAME true := G TRUE

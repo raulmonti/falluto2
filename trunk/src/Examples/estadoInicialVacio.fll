@@ -1,0 +1,23 @@
+
+OPTIONS
+
+FLLNAME emptyinitspace
+--CHECK_DEADLOCK
+--FAULT_SYS_FAIR_DISABLE
+--MODULE_WEAK_FAIR_DISABLE
+
+ENDOPTIONS
+
+MODULE mod1()
+    VAR
+        var1: bool
+    INIT
+        var1 = TRUE
+    TRANS
+        []: var1=FALSE => var1'=TRUE
+ENDMODULE
+
+
+INSTANCE inst1 = mod1()
+
+LTLSPEC F G inst1.var1 = FALSE
