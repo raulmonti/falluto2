@@ -1,0 +1,21 @@
+OPTIONS
+
+FLLNAME deadlocktest
+CHECK_DEADLOCK
+
+ENDOPTIONS
+
+MODULE mod1 ()
+	VAR
+		var1 : bool
+	FAULT
+		fault1: is STOP(trans1)
+	TRANS
+--		[trans1]: var1 != FALSE => var1' = !var1
+		[trans1]: TRUE => var1' = !var1
+ENDMODULE
+
+
+INSTANCE inst1 = mod1()
+
+--FAIRNESS just(inst1.fault1)

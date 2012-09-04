@@ -1,0 +1,46 @@
+OPTIONS
+
+CHECK_DEADLOCK
+
+ENDOPTIONS
+
+
+MODULE main(;s1)
+	VAR
+		v: {a,b,c,d}
+		v1: 1..10
+		v3: bool
+
+	FAULT
+		f1: v in {a,b} is STOP(trans1)
+		f2: is STOP
+
+	INIT
+		v' in {a,b} & v3 = FALSE
+		
+
+	TRANS
+		[trans1]: v in {a} => v' in {c,d} , v1' in 2.. 5
+		[trans2]: v in {b,c,d} => v' in {a,b}
+		[s1]: v in {b,c,d} => v' in {a}
+
+ENDMODULE
+
+
+MODULE mod1(var1;s1)
+	VAR
+		var2: bool
+	INIT
+		var2 = !var1
+
+	TRANS
+		[s1]: => var2' = !var2
+ENDMODULE
+
+
+
+INSTANCE inst2 = mod1(inst1.v3,synchro)
+
+INSTANCE inst1 = main(synchro)
+
+LTLSPEC ! G F inst2.var2 = TRUE

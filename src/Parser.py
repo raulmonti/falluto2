@@ -6,6 +6,8 @@ from Debug import *
 from Config import *
 from InputManager.pyPEG.pyPEG import *
 from Exceptions.Exceptions import *
+import InputManager.pyPEG.pyPEG as pyPEG
+from GrammarRules import SYSTEM, COMMENT
 
 
 
@@ -26,6 +28,37 @@ debugTODO("Chequeo exahustivo usando input bien grande y abarcativo.")
 debugTODO("Clase Types y todo lo que hago con ella esta al reverendo pedo.")
 
 debugTODO("Comprobar redaccion y ortografia con algun traductor :s")
+
+
+
+################################################################################
+################################################################################
+################################################################################
+"""
+    Module main function
+"""
+
+def parse(inputFile):
+    
+    ast = pyPEG.parse(SYSTEM, inputFile, True, COMMENT, lineCount = True)
+    parsedSystem = System()
+
+    try:
+        parsedSystem.parse(ast)
+    except Exception, e :
+        raise e
+        
+    return parsedSystem
+    
+################################################################################
+################################################################################
+################################################################################
+
+
+
+
+
+
 
 
 

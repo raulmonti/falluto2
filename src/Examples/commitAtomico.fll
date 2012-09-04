@@ -1,0 +1,75 @@
+OPTIONS
+FLLNAME commitatomico
+
+ENDOPTIONS
+
+
+MODULE RegularVoter(cphase, cup, cd, v0phase, v0d, v1phase, v1d, v2phase, v2d)
+	
+	VAR
+		phase 	: 0..2
+		d     	: bool
+		up    	: bool
+
+	FAULT
+		crash: is STOP
+	
+	INIT
+		phase = 0 & up = TRUE
+
+	TRANS
+		[vote]: phase = 0 & cup & cphase = 1 => d' in {TRUE, FALSE}, phase' = 1
+		[abort]: phase = 0 & !cup => phase' = 2, d' = FALSE
+		[decide]: up & phase < 2 & cphase = 2 => phase' = 2, d' = cd
+		[decide]: up & phase < 2 & v0phase = 2 => phase' = 2, d' = v0d
+		[decide]: up & phase < 2 & v1phase = 2 => phase' = 2, d' = v1d
+		[decide]: up & phase < 2 & v2phase = 2 => phase' = 2, d' = v2d		
+		
+
+ENDMODULE
+
+
+MODULE Coordinator(v0up, v0v, v0p, v1up, v1v, v1p, v2up, v2v, v2p, v3up, v3v, v3p)
+
+	VAR
+		phase   : 0..2
+                d       : bool
+                up      : bool
+
+	
+	FAULT 
+                crash: is STOP
+
+
+	INIT
+		phase = 0 & up = TRUE
+
+	TRANS
+		[vote]: 	phase = 0 => phase' = 1, d' in { TRUE, FALSE }
+		[decide]: 	phase = 1 
+				& v0up & v0v & v0p = 1 
+				& v1up & v1v & v1p = 1
+				& v2up & v2v & v2p = 1
+				& v3up & v3v & v3p = 1
+				=> phase' = 2, d' = TRUE
+		[decide]: 	phase = 1 
+			     	& (!v0up | (v0p >= 1 & !v0v)) 
+				& (!v1up | (v1p >= 1 & !v1v)) 
+				& (!v2up | (v2p >= 1 & !v2v)) 
+				& (!v3up | (v3p >= 1 & !v3v))
+				=> phase' = 2, d' = FALSE
+		
+ENDMODULE
+
+INSTANCE coord = Coordinator(voter0.up, voter0.d, voter0.phase, voter1.up, voter1.d, voter1.phase, voter2.up, voter2.d, voter2.phase, voter3.up, voter3.d, voter3.phase)
+INSTANCE voter0 = RegularVoter(coord.phase, coord.up, coord.d, voter1.phase, voter1.d, voter2.phase, voter2.d, voter3.phase, voter3.d)
+INSTANCE voter1 = RegularVoter(coord.phase, coord.up, coord.d, voter0.phase, voter0.d, voter2.phase, voter2.d, voter3.phase, voter3.d)
+INSTANCE voter2 = RegularVoter(coord.phase, coord.up, coord.d, voter0.phase, voter0.d, voter1.phase, voter1.d, voter3.phase, voter3.d)
+INSTANCE voter3 = RegularVoter(coord.phase, coord.up, coord.d, voter0.phase, voter0.d, voter2.phase, voter2.d, voter1.phase, voter1.d)
+
+
+
+LTLSPEC coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d) &
+	(coord.phase = 0 | coord.phase = 1 | (coord.phase = 2 & !coord.d)) -> 
+	(voter0.phase != 2 & !voter0.d & voter1.phase != 2 & !voter1.d & voter2.phase != 2 & !voter2.d & voter3.phase != 2 & !voter3.d )
+

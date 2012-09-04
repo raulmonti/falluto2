@@ -3,8 +3,8 @@
 
 from Debug import *
 from Config import *
-from Parser2 import Types
-import Parser2
+from Parser import Types
+import Parser
 from Exceptions.Exceptions import *
 
 
@@ -360,8 +360,8 @@ class Compiler():
                 if DEBUGSMV__:
                     thistransvect.append(" [[ POS ]] ")
                 for e in t.pos:
-                    if isinstance(e.val, Parser2.Set) or \
-                        isinstance(e.val, Parser2.Range):
+                    if isinstance(e.val, Parser.Set) or \
+                        isinstance(e.val, Parser.Range):
                         thistransvect.append( "next(" + \
                             self.compile_local_var(i.name,e.name) + ") in " + \
                             str(self.compile_it(i.name,e.val)))
@@ -707,10 +707,10 @@ class Compiler():
     def build_contraints(self):
         for c in self.sys.contraints:
             controut = ""
-            if isinstance(c, Parser2.Fairness):
+            if isinstance(c, Parser.Fairness):
                 controut = "FAIRNESS "
                 controut += self.compile_LTL(c.value)
-            elif isinstance(c, Parser2.Compassion):
+            elif isinstance(c, Parser.Compassion):
                 controut = "COMPASSION( "  \
                     + self.compile_LTL(c.pre) \
                     + ", " + self.compile_LTL(c.pos) + ")"
@@ -991,17 +991,17 @@ class Compiler():
 
     #.......................................................................
     def compile_it( self, iname, it):
-        if isinstance(it, Parser2.Set):            
+        if isinstance(it, Parser.Set):            
             return self.compile_set(self.compile_var_list(iname, it.domain))
-        elif isinstance(it, Parser2.NextRef):
+        elif isinstance(it, Parser.NextRef):
             return "next(" + it.name + ")"
-        elif isinstance(it, Parser2.Math):
+        elif isinstance(it, Parser.Math):
             return self.compile_math(iname, it.val)
-        elif isinstance(it, Parser2.PropForm):
+        elif isinstance(it, Parser.PropForm):
             return self.compile_prop_form(iname, it.val)
-        elif isinstance(it, Parser2.Ident):
+        elif isinstance(it, Parser.Ident):
             return str(it.name)
-        elif isinstance(it, Parser2.Range):
+        elif isinstance(it, Parser.Range):
             return self.compile_range(it.domain)
         else:
             raise TypeError(it)

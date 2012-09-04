@@ -1,0 +1,20 @@
+MODULE mod1()
+
+	VAR
+		var1: bool
+
+	FAULT
+
+		f1: is TRANSIENT
+		f2: is STOP
+		
+ENDMODULE
+
+INSTANCE inst1 = mod1()
+
+
+NORMAL_BEHAIVIOUR( F inst1.var1 = FALSE)
+
+FINITELY_MANY_FAULT( inst1.f2; G F inst1.var1 = TRUE)
+
+FINITELY_MANY_FAULTS( G inst1.var1 != TRUE)
