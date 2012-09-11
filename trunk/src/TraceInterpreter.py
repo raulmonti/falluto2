@@ -98,6 +98,7 @@ class TraceInterpreter():
                 self.tab.d()
     
     
+    #.......................................................................
     def interpret_trace(self, ast):
         ast = ast.what
         self.showaction = False          # so we don't show the first action
@@ -107,16 +108,17 @@ class TraceInterpreter():
             if state.__name__ == "STATE":
                 self.interpret_state(state)
             if state.__name__ == "STATELOOP":
-                self.tprint( CB + "\too   Loop starts here   oo\n" +CE)
+                self.tprint( CR + "\n\t<<<<<<<<<<<<<<<<<<<<  ...  Loop starts" \
+                        + " here  ...  >>>>>>>>>>>>>>>>>>>>\n\n" +CE)
                 for st in state.what:
                     self.interpret_state(st)
 
         self.tprint(CR + string_spec_end + CE)
         print "\n\n"
+    #///////////////////////////////////////////////////////////////////////    
 
 
-
-
+    #.......................................................................
     def interpret_state(self, state):
         state = state.what
         self.showstate = True
@@ -154,7 +156,8 @@ class TraceInterpreter():
         self.tab.d()
         # To start showing actions after the first state has past:
         self.showaction = True 
-
+    #///////////////////////////////////////////////////////////////////////
+    
 
     """
         Interpret and output the actual state of self.action.
@@ -183,17 +186,35 @@ class TraceInterpreter():
             self.tprint(self.interpret_synchro_action())
             
         elif head == "lact":
-            self.tprint(self.interpret_local_action())            
-        
+            self.tprint(self.interpret_local_action())  
+                      
+        elif head == "bizE":
+            self.tprint(self.interpret_biz_efect_action())
+              
         else:
             raise TypeError("Unknown variable head: " + head)
         
         self.showstate = True
         self.sysdk = False
+    #///////////////////////////////////////////////////////////////////////
+
+
+
+    """
+        Get the string correponding to the representation of the ocurrence of
+        a bizantine efect action.
+        @ uses: self.action to get the bizantine efect action ocurrence.
+    """
+    def interpret_biz_efect_action(self):
+        nothing, inst, name = self.action.split("#",2)
+        return "Bizantine efect action from bizantine fault " + CB + \
+            name + CE + " of instance " + CB + inst + CE
 
 
 
 
+
+    #///////////////////////////////////////////////////////////////////////
 
     """
         Get the string correponding to the representation of the ocurrence of
@@ -201,11 +222,10 @@ class TraceInterpreter():
         @ uses: self.action to get the local action ocurrence.
     """
     def interpret_local_action(self):
-        debugCURRENT(self.action)
         la = self.action.split("#",1)[1]
         lainst, laname = la.split("#",1)
         return "Local action " +CB+ laname +CE+ " of instance " +CB+ lainst +CE
-
+    #///////////////////////////////////////////////////////////////////////
 
 
 
@@ -231,7 +251,7 @@ class TraceInterpreter():
                     break
             flag = True
         return string
-
+    #///////////////////////////////////////////////////////////////////////
 
 
 
@@ -241,6 +261,7 @@ class TraceInterpreter():
         a fault.
         @ uses: self.action to get the fault ocurrence.
     """
+    debugTODO("Deberua devolver el string y no imprimirlo")
     def interpret_fault_action(self):
         h,i,f = self.action.split("#",3)
         inst = self.sys.instances[i]
@@ -258,7 +279,7 @@ class TraceInterpreter():
                             + " from this module."
                 print ""
                 break
-        
+    #///////////////////////////////////////////////////////////////////////
 
 
     """

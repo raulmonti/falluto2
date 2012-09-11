@@ -79,7 +79,7 @@ def debugURGENT(string):
         pass
     
 def debugERROR(string):
-    print '\033[' + debugColorDict["debugRED"] + "DEBUGERROR: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+    print '\033[' + debugColorDict["debugRED"] + "ERROR: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
 
 
 def debugCURRENT(string):
