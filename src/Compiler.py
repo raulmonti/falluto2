@@ -821,8 +821,9 @@ class Compiler():
         self.out(self.comment("SYSTEM MODULE FAIRNESS"))
         
         if not self.sys.options.modulewfairdisable:
-            fairVec = []
+
             for inst in self.sys.instances.itervalues():
+                fairVec = []
                 mod = self.sys.modules[inst.module]
    
                 # module actions set (faulty and normal transitions)
@@ -865,7 +866,7 @@ class Compiler():
                 self.out( "FAIRNESS " + \
                     self.ampersonseparatedtuplestring(fairVec, False, True, '&'))
 
-
+    #///////////////////////////////////////////////////////////////////////
 
 
 
