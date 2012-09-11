@@ -18,11 +18,7 @@ from Compiler import TabLevel, Names
 debugTODO("Que pasa cuando una synchro action sincroniza con mas de una "\
         + "accion de un mismo modulo, como saber con cual sincronizo?")
 
-
-debugURGENT("Trancient faults are getting a 'is_active' variable :S. It "\
-        +   "is aparently appearing in the trace when I wan't to show the" \
-        +   " ocurrence of the fault (osea it's replacing actionvar = " \
-        +   "trancientfault :S)")
+debugURGENT("Interpretar warnings de NuSMV. Recordar lo de espacio de estados iniciales vacios por un mal ltlspec")
 
 #===============================================================================
 class SpecificationResult():
@@ -80,19 +76,22 @@ class TraceInterpreter():
         else:
             print self.tab, string,
             
-    def interpret(self, ast, cosys):
+    def interpret(self, ast, cosys, specindex):
         self.cosys = cosys
         self.sys = cosys.sys
 
+
+        specrepr = cosys.properties[specindex][0]
+        #no hace falta este for, deberia ser una unica especification
         for sp in ast:
             if sp.__name__ == "TRUESPEC":
-                print CG + "|+|\tSpecification " + CE + CY + str(sp.what[0]) \
-                    + CE + CG  + "is true\n\n" + CE
+                print CG + "|+|\tSpecification " + CE + CY + str(specrepr) \
+                    + CE + CG  + " is true\n\n" + CE
 
 
             if sp.__name__ == "FALSESPEC":
-                print CR + "|-|\tSpecification " + CE + CY + str(sp.what[0]) \
-                    + CE + CR  + "is false\n\n" + CE \
+                print CR + "|-|\tSpecification " + CE + CY + str(specrepr) \
+                    + CE + CR  + " is false\n\n" + CE \
                     + "\tas demonstrated by the following execution sequence:\n"
                 self.tab.i()
                 self.interpret_trace(sp.what[1])
@@ -182,6 +181,9 @@ class TraceInterpreter():
         
         elif head == "synchro":
             self.tprint(self.interpret_synchro_action())
+            
+        elif head == "lact":
+            self.tprint(self.interpret_local_action())            
         
         else:
             raise TypeError("Unknown variable head: " + head)
@@ -189,6 +191,20 @@ class TraceInterpreter():
         self.showstate = True
         self.sysdk = False
 
+
+
+
+
+    """
+        Get the string correponding to the representation of the ocurrence of
+        a local action.
+        @ uses: self.action to get the local action ocurrence.
+    """
+    def interpret_local_action(self):
+        debugCURRENT(self.action)
+        la = self.action.split("#",1)[1]
+        lainst, laname = la.split("#",1)
+        return "Local action " +CB+ laname +CE+ " of instance " +CB+ lainst +CE
 
 
 
@@ -317,7 +333,7 @@ def SYS():          return -1, ignore(r"(?!--).*\n"), -1, [TRUESPEC, FALSESPEC]
 def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("true")
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
 def TRACE():        return -1, ignore(r"(?!->).*\n"), -1 , STATE, -1, STATELOOP
-def STATE():        return "->", "State:", re.compile(r"\d\.\d"), "<-", -1 , VARCHANGE
+def STATE():        return "->", "State:", re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
 def VARCHANGE():    return re.compile(r"[a-zA-Z0-9\#\_]*"), "=", re.compile(r"[a-zA-Z0-9\#\_]*")
 def STATELOOP():    return "--", "Loop", "starts", "here", -1, STATE
 

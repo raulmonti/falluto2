@@ -38,17 +38,9 @@ debugTODO("Mejorar el codigo de las common transitions (usar el varSet)")
 debugTODO("Ocultar todas aquellas funciones que no tengan sentido sin haber" \
         + " hecho todo el proceso de compilacion previo (cargado de tablas," \
         + " inicializaciones, etc...")
+debugTODO("Permitir DEFINES para facilitar la descripcion del sistema" \
+	+ " y mejorar el rendimiento al no crear nuevas variables.")
 
-
-debugURGENT("Por alguna razon las transiciones de commitAtomico.fll provocan " \
-    + "que el conjunto de estados inicials sea vacio y por ende la simulacion" \
-    + " no sirva de nada y todas las propiedades dan true :S")
-
-debugURGENT("-- SYSTEM MODULE FAIRNESS \\n FAIRNESS ((action# in {  })) Ocurre" \
-    + " porque no hay transiciones en los modulos :S")
-debugURGENT("def var_real_value esta mal, habria que interpretar el valor que"\
-    + " se esta devolviendo, por ejemplo inst1.var1 no es valido, deberia "\
-    + " hacer compile_local_var(inst1,var1) en ese caso.")
 
 
 
@@ -138,6 +130,10 @@ class Compiler():
     #.......................................................................
     """
         Builds the smv file for checking the 'propertieIndex' property compiled.
+        If 'propertieIndex' == -1 then it returns the smv file name of a file
+        without any line ascking to check for properties but with the
+        the compiled system (thought to be used for checking the correcteness of
+        the compiled file, even if there aren't any properties specified.)
         @ Note: the system must be compiled.
         @ Note: propertiIndex must be between 0 and len(self.properties)-1.
         @ Note: the smv file is only valid until the next call to this method.
@@ -145,16 +141,18 @@ class Compiler():
     """
     def smv_file_builder(self, propertyIndex):
     
-        if propertyIndex < 0 or propertyIndex > len(self.properties):
+        if propertyIndex < -1 or propertyIndex > len(self.properties):
             raise IndexError("propertyIndex " + str(propertyIndex) \
                            + " out of range.")
-    
+        
         #open file and truncate at beginning
         self.fileOutput = open(self.outputName, 'w+')                       
-        self.fileOutput.write(self.stringOutput + "\n\n" \
-                + self.comment("PROPERTIE " + str(propertyIndex) + ": " \
-                + self.properties[propertyIndex][0]) \
-                + "\n" + self.properties[propertyIndex][1])
+        self.fileOutput.write(self.stringOutput + "\n\n")
+        if propertyIndex >= 0:
+            self.fileOutput.write(self.comment("PROPERTIE " \
+                    + str(propertyIndex) + ": " \
+                    + self.properties[propertyIndex][0]) \
+                    + "\n" + self.properties[propertyIndex][1])
         self.fileOutput.close()
 
         debugMAGENTA("Output written to " + self.outputName)
@@ -202,6 +200,10 @@ class Compiler():
 
 
     #.......................................................................
+    """
+        Fill the vartable with compiled values of each variable of each 
+        instance.
+    """
     def fill_var_table(self):
         #local vars:
         for i in self.sys.instances.itervalues():
@@ -357,11 +359,13 @@ class Compiler():
             for init in m.init:
                 array1.append(self.compile_prop_form(i.name, init))
         
+        """
         # Action var must be diferent of deadlock at start :| Otherwise I can't 
         # correctly check for deadlocks. Notice that the initial value of
         # actionvar does not have any meaning.
+        # MeeeeEenenenntiIira
         array1.append(Names.actionvar + "!=" + Names.dkaction)
-
+        """
         if array1 != ['']:
             self.out("\n")
             self.out( "INIT\n" )
@@ -369,7 +373,7 @@ class Compiler():
             self.out(self.ampersonseparatedtuplestring(array1, False, True))
             #restore tab level
             self.tab -= 1
-
+        
 
     #.......................................................................
     def build_trans_section(self):
@@ -673,7 +677,7 @@ class Compiler():
 
         # Check for deadlock if required
         if self.sys.options.checkdeadlock:
-            self.properties.append(["DEADLOCK CHECK", "CTLSPEC AG " \
+            self.properties.append(["DEADLOCK CHECK", "CTLSPEC AX AG " \
                         + Names.actionvar + " != " + Names.dkaction])
 
 
@@ -820,6 +824,19 @@ class Compiler():
             fairVec = []
             for inst in self.sys.instances.itervalues():
                 mod = self.sys.modules[inst.module]
+   
+                # module actions set (faulty and normal transitions)
+                actVec = []
+                for f in mod.faults:
+                    actVec.append(self.compile_local_fault( \
+                        inst.name, f.name))
+                for t in mod.trans:
+                    actVec.append(self.trans_real_name( \
+                        inst.name, t.name))
+                
+                #if module hasn't got any actions:
+                if actVec == []:
+                    continue
                 
                 # instance pre negations (module deadlock condition)
                 dkVec = []
@@ -836,15 +853,8 @@ class Compiler():
                         tpres, False, False, '|'))
                     
                 
-                # module actions set 
-                actVec = []
-                for f in mod.faults:
-                    actVec.append(self.compile_local_fault( \
-                        inst.name, f.name))
-                for t in mod.trans:
-                    actVec.append(self.trans_real_name( \
-                        inst.name, t.name))
-                
+               
+                                
                 dkString = \
                     self.ampersonseparatedtuplestring( dkVec, False, False, '&')
                 actString = Names.actionvar + " in " + self.compile_set(actVec)
@@ -852,8 +862,8 @@ class Compiler():
                 fairVec.append(self.ampersonseparatedtuplestring( \
                     [dkString, actString], False, False, '|'))
             
-            self.out( "FAIRNESS " + \
-                self.ampersonseparatedtuplestring(fairVec, False, True, '&'))
+                self.out( "FAIRNESS " + \
+                    self.ampersonseparatedtuplestring(fairVec, False, True, '&'))
 
 
 
@@ -908,6 +918,11 @@ class Compiler():
 
 
     #.......................................................................
+    """
+        Compile each variable, value, and symbol in the propform vector and 
+        return it all as a string where each element is separated to the 
+        following by a space.
+    """
     def compile_prop_form(self, instName, propform):
         out = ""
         for v in propform:
@@ -957,25 +972,50 @@ class Compiler():
     def compile_var_list(self, iname, varlist):
         return [self.var_real_value(iname, v) for v in varlist]
 
+
+
+
+
+    """
+        Get the compiled name corresponding to the variable name vname given 
+        in the context of the instance of name iname.
+        @Return:
+            The compiled variable name if founded; vname otherwise.
+    """
     #.......................................................................
     def var_real_value(self, iname, vname):
+        res = ""
         inst = self.sys.instances[iname]
         mod = self.sys.modules[inst.module]
-        for i in range(0, len(mod.contextVars)):
-            if vname == mod.contextVars[i]:
-                debugCURRENT("El valor que estoy devolviendo es: " + str(inst.params[i]))
-                return inst.params[i]
+        for j in range(0, len(mod.contextVars)):
+            if vname == mod.contextVars[j]:                
+                res = inst.params[j]
+                if '.' in res:
+                    #res is an instance variable (instace.variable)
+                    j,v = res.split(".",1)
+                    return self.var_real_value(j,v)
+                else:
+                    #res is a value (examples: False; 2; etc...)
+                    return res
         if vname in mod.localVars:
             return self.compile_local_var(iname,vname)
         # vname isn't a var -> should have checked before calling this function
         return vname
 
 
+
+    """
+        Get the commented version of 'string' following NuSMV commenting rules.
+    """
     #.......................................................................
     def comment(self, string):
         return "-- " + string
 
 
+
+    """
+        Compiles an ltl formula as returned by parser using fll compiling rules.
+    """
     #.......................................................................
     def compile_LTL(self, ltl):
         ltlout = ""
