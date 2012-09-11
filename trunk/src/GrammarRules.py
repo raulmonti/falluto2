@@ -32,6 +32,7 @@ ENDOPTIONS
 
 
 debugURGENT("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
+debugURGENT("Limpiar el vector de los module fairness antes de entrar en un nuevo module")
 
 debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
            + " G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) " \

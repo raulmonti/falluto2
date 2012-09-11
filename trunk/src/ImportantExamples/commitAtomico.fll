@@ -69,7 +69,7 @@ INSTANCE voter3 = RegularVoter(coord.phase, coord.up, coord.d, voter0.phase, vot
 
 
 
-LTLSPEC coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d) &
-	(coord.phase = 0 | coord.phase = 1 | (coord.phase = 2 & !coord.d)) -> 
-	(voter0.phase != 2 & !voter0.d & voter1.phase != 2 & !voter1.d & voter2.phase != 2 & !voter2.d & voter3.phase != 2 & !voter3.d )
+LTLSPEC G ( (coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d)) &
+	((coord.phase = 0 | coord.phase = 1 | (coord.phase = 2 & !coord.d)) -> 
+	(voter0.phase != 2 & !voter0.d & voter1.phase != 2 & !voter1.d & voter2.phase != 2 & !voter2.d & voter3.phase != 2 & !voter3.d )))
 
