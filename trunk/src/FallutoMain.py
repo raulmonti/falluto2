@@ -39,7 +39,9 @@ if __name__ == '__main__':
         p = Parser.Parser()
         c = Compiler()
         t = TraceInterpreter.TraceInterpreter()
+        debugYELLOW("Parsing input...")
         sys = p.parse(files)
+        debugYELLOW("Compiling the input system...")
         c.compile(sys, "outcompilertest")                        
         
         sysname = \
@@ -61,8 +63,8 @@ if __name__ == '__main__':
             outputfile = c.smv_file_builder(i)
             #debugCURRENT(outputfile)
             output = check_output(["NuSMV", os.path.abspath(outputfile)])
-            debugCURRENT(output)
-            (res, rest) = parseLine(output, TraceInterpreter.SYS(), [], True)
+            #debugCURRENT(output)
+            (res, rest) = parseLine(output, TraceInterpreter.SYS(), [], True, packrat=True)
             if rest != "":
                 debugERROR("Error al interpretar las trazas. No se pudo " \
                         + "interpretar lo que sigue:\n\n"  + rest)

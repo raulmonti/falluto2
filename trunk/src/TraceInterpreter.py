@@ -18,7 +18,6 @@ from Compiler import TabLevel, Names
 debugTODO("Que pasa cuando una synchro action sincroniza con mas de una "\
         + "accion de un mismo modulo, como saber con cual sincronizo?")
 
-debugURGENT("Interpretar warnings de NuSMV. Recordar lo de espacio de estados iniciales vacios por un mal ltlspec")
 
 #===============================================================================
 class SpecificationResult():
@@ -72,9 +71,9 @@ class TraceInterpreter():
 
     def tprint(self, string, enter = True):
         if enter:
-            print self.tab, string
+            print str(self.tab) + string
         else:
-            print self.tab, string,
+            print str(self.tab) + string,
             
     def interpret(self, ast, cosys, specindex):
         self.cosys = cosys
@@ -89,7 +88,7 @@ class TraceInterpreter():
                     + CE + CG  + " is true\n\n" + CE
 
 
-            if sp.__name__ == "FALSESPEC":
+            elif sp.__name__ == "FALSESPEC":
                 print CR + "|-|\tSpecification " + CE + CY + str(specrepr) \
                     + CE + CR  + " is false\n\n" + CE \
                     + "\tas demonstrated by the following execution sequence:\n"
@@ -97,8 +96,33 @@ class TraceInterpreter():
                 self.interpret_trace(sp.what[1])
                 self.tab.d()
     
-    
-    #.......................................................................
+            elif sp.__name__ == "WARNING":
+                self.tprint(CR \
+                      + "@@@@@@@@@  WARNING FOR NEXT TEST CASE: @@@@@@@@@\n"\
+                      + self.interpret_warning(sp) + CE)
+            
+            else:
+                raise TypeError(sp.__name__)
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    """
+        Interpret the NuSMV warning and return the string representing the
+        interpretation.
+    """
+    def interpret_warning(self, ast):
+        return str(ast.what)
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     def interpret_trace(self, ast):
         ast = ast.what
         self.showaction = False          # so we don't show the first action
@@ -115,10 +139,14 @@ class TraceInterpreter():
 
         self.tprint(CR + string_spec_end + CE)
         print "\n\n"
-    #///////////////////////////////////////////////////////////////////////    
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-    #.......................................................................
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    """
+        
+    """    
     def interpret_state(self, state):
         state = state.what
         self.showstate = True
@@ -156,9 +184,12 @@ class TraceInterpreter():
         self.tab.d()
         # To start showing actions after the first state has past:
         self.showaction = True 
-    #///////////////////////////////////////////////////////////////////////
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     
 
+
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Interpret and output the actual state of self.action.
     """
@@ -196,10 +227,10 @@ class TraceInterpreter():
         
         self.showstate = True
         self.sysdk = False
-    #///////////////////////////////////////////////////////////////////////
 
 
 
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get the string correponding to the representation of the ocurrence of
         a bizantine efect action.
@@ -214,8 +245,8 @@ class TraceInterpreter():
 
 
 
-    #///////////////////////////////////////////////////////////////////////
 
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get the string correponding to the representation of the ocurrence of
         a local action.
@@ -225,10 +256,10 @@ class TraceInterpreter():
         la = self.action.split("#",1)[1]
         lainst, laname = la.split("#",1)
         return "Local action " +CB+ laname +CE+ " of instance " +CB+ lainst +CE
-    #///////////////////////////////////////////////////////////////////////
 
 
 
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get the string correponding to the representation of the ocurrence of
         a synchronization action.
@@ -251,11 +282,11 @@ class TraceInterpreter():
                     break
             flag = True
         return string
-    #///////////////////////////////////////////////////////////////////////
 
 
 
 
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get the string correponding to the representation of the ocurrence of
         a fault.
@@ -279,9 +310,11 @@ class TraceInterpreter():
                             + " from this module."
                 print ""
                 break
-    #///////////////////////////////////////////////////////////////////////
 
 
+
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get the string corresponding to the representetaion of a local variable
         state.
@@ -294,7 +327,7 @@ class TraceInterpreter():
 
 
 
-
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Get all variable changes in the state that concern to the user, and take
         note of other variable changes like actionvar value and fault values.
@@ -331,7 +364,7 @@ class TraceInterpreter():
 
 
 
-
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     """
         Orders a varchange (a list of two elements representing the value that 
         takes some variable in some state), placing first the element that 
@@ -350,7 +383,9 @@ class TraceInterpreter():
     Lenguaje PyPEG para interpretar las trazas
 """
 
-def SYS():          return -1, ignore(r"(?!--).*\n"), -1, [TRUESPEC, FALSESPEC]
+def SYS():          return -1, ignore(r"(?!--|\*\*\*\*\*\*\*\*   WARNING   \*\*\*\*\*\*\*\*).*\n"), -1, \
+                           [WARNING, TRUESPEC, FALSESPEC]
+def WARNING():      return re.compile(r"((?!\*\*\*\*\*\*\*\* END WARNING \*\*\*\*\*\*\*\*).*\n)*\*\*\*\*\*\*\*\* END WARNING \*\*\*\*\*\*\*\*")
 def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("true")
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
 def TRACE():        return -1, ignore(r"(?!->).*\n"), -1 , STATE, -1, STATELOOP
