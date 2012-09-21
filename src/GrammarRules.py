@@ -47,14 +47,31 @@ debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
 #
 
 
+#===============================================================================
+
 #IDENTIFIERS
-identifiers = r"(?!\bin\b|\bCHECKDEADLOCK\b|\bENDOPTIONS\b|\bOPTIONS\b|\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bENDMODULE\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
+identifiers = r"(?!\bin\b|\bCHECKDEADLOCK\b|\bENDOPTIONS\b|\bOPTIONS\b|\
+\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\
+\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bENDMODULE\b|\
+\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bMODULE\b|\bFALSE\b|\bTRUE\b|\
+\bFAULT\b)[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
+
+
 def IDENT():        return re.compile(identifiers)
 def INT():          return re.compile(r"\-?\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
 def ACTION():       return "just(", re.compile(identifiers), ")"
 
 
+
+
+
+
+
+
+
+
+#===============================================================================
 
 #MATH FORMULA
 # Los operadores anidan a derecha, no doy prioridades ya que no vienen al caso
@@ -66,11 +83,28 @@ def MATHVAL():      return [ INT, IDENT, (re.compile(r"\("), MATH, \
                             re.compile(r"\)")), (re.compile(r"\-"), MATH)]
 
 
-def INCLUSION(): return [(IDENT, "'"),IDENT], re.compile(r"in"), [(re.compile(r"{"), \
-                         IDENT, -1, (re.compile(r","), IDENT) , re.compile(r"}")), \
-                         (INT, re.compile(r".."), INT)]
 
 
+
+
+
+
+#===============================================================================
+#SET INCLUSION
+def INCLUSION(): return [(IDENT, "'"),IDENT], re.compile(r"in"), \
+                        [(re.compile(r"{"), IDENT, -1, \
+                        (re.compile(r","), IDENT) , re.compile(r"}")), \
+                        (INT, re.compile(r".."), INT)]
+
+
+
+
+
+
+
+
+
+#===============================================================================
 #BOOLEAN FORMULA
 booleanop = r"\<\=|\>\=|\<(?!->)|\>|\=|\!\="
 def BOOLEXP():      return [BOOLBINOP, BOOLVAL]
@@ -81,6 +115,14 @@ def BOOLVAL():      return [ BOOL, INCLUSION, MATH, IDENT, \
 
 
 
+
+
+
+
+
+
+
+#===============================================================================
 #PROPOSITIONAL FORMULA
 propbinop = r"\-\>|\&|\||\<\-\>"
 def PROPFORM():     return [PROPBINOP, PROPVAL]
@@ -89,6 +131,14 @@ def PROPVAL():      return [BOOLEXP, (re.compile(r"\("), PROPFORM, \
                             re.compile(r"\)")), (re.compile(r"\!"), PROPFORM)]
 
 
+
+
+
+
+
+
+
+#===============================================================================
 #NEXT PROPOSITIONAL FORMULA
 def NEXTPROPFORM(): return NEXTVAL, -1, ( ",", NEXTVAL)
 def NEXTVAL():      return IDENT, "'", [( "=", \
@@ -127,10 +177,12 @@ def MODULEWFAIRDISABLE():   return keyword("MODULE_WEAK_FAIR_DISABLE")
 """
     COMMON PROPERTIES TO BE CHECKED
 """
-def PROPERTIE():       return [NORMALBEHAIVIOUR, FINMANYFAULTS, FINMANYFAULT]
+def PROPERTIE():        return [NORMALBEHAIVIOUR, FINMANYFAULTS, FINMANYFAULT]
 def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "(", LTLEXP, ")"
 def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "(", LTLEXP, ")"
 def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT"), "(", IDENT, -1, (",", IDENT), ";" ,LTLEXP, ")"
+def NGOODTRANS():       return keyword("N_GOOD_TRANS"), "(", INT, ";", LTLEXP, ")"
+#def NGOODTRANSF():      return keyword("N_GOOD_TRANS_F"), "(", INT, ";", IDENT, -1, (",", IDENT), ";", LTLEXP, ")"
 
 
 
@@ -202,11 +254,4 @@ def COMPASSION():   return keyword("COMPASSION"), "(", EVENTPRED, ",", EVENTPRED
 def COMMENT():      return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
 
 
-#///////////////////////////////////////////////////////////////////////////////
-
-#LTL NEXT PROPOSITIONAL FORMULA
-#def EVENTNEXTPRED(): return EVENTNEXTVAL, -1, ( ",", EVENTNEXTVAL)
-#return keyword("next"), "(", [IDENT, ACTION], ")", "=", \
-#def EVENTNEXTVAL():  return [IDENT, ACTION], "'", "=", \
-#                          [EVENTPRED, MATH, IDENT, SET]
 
