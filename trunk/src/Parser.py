@@ -230,6 +230,9 @@ class CommonPropertie(FallutoBaseElem):
         self.propertie = None
         
     def parse(self, AST):
+    
+        debugCURRENT(AST)
+    
         self.line = AST.__name__.line
         AST = AST.what[0]
         self.type = AST.__name__

@@ -1,0 +1,124 @@
+\documentclass[titlepage, 10pt]{article}
+
+
+\pagestyle{plain}
+\title{Revisi\'{o}n y extensi\'{o}n de un model checker para la vericaci\'{o}n autom\'{a}tica de sistemas tolerantes a fallas}
+\author{Raul Monti}
+\date{jue 6 de sep, 2012}
+
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+\section{Introducci\'on al model checking}
+\label{introduction}
+\subsection{\textbf{NuSMV}}
+
+NuSMV\cite{NuSMVBibl} es un model checker simb\'olico originado en la reingenieria, reimplementaci\'on
+y extensi\'on of CMU SMV. Usamos su segunda versi\'on la cual implementa tanto t\'ecnicas
+de \textbf{model checking simb\'olico basado en BDD}, como  t\'ecnicas de model checking
+basadas en \textbf{satisfactibilidad proposisional (SAT)}.
+Cada una de estas t\'ecnicas sulen ser \'utiles para resolver diferentes tipos
+de problemas y por lo tanto pueden considerarse complementarias.\\
+
+El c\'odigo de \emph{NuSMV} se distribuye bajo licencia LGPL-2.1 la cual permite el 
+uso gratuito del software por parte de cualquier persona interesada asi como a 
+contribuir con el desarrollo del mismo. La adopci\'on de esta licencia ha permitido la
+contribuci\'on al proyecto por parte de numerosos \'ambitos cient\'ificos asi como
+industriales.\\
+
+El proyecto de software libre NuSMV apunta a crear una base com\'un para
+el estudio y comparaci\'on de diferentes t\'ecnicas de model checkin simb\'olico.\\
+
+\begin{itemize}
+
+
+\item%
+\textbf{Funcionalidades:}\\
+
+\emph{NUSMV} permite la representaci\'on de sistemas finitos tanto s\'incronos
+como as\'incronos, aunque estos \'ultimos estan deprecados en las versiones superiores
+a la 2.5.0., y al an\'alisis de especificaciones expresadas en CTL (l\'ogica de \'arbol
+computacional) y LTL (l\'ogica temporal lineal).
+
+
+\item%
+\textbf{Arquitectura:}\\
+
+
+\item%
+\textbf{Qualidades de la implementacion:}\\
+
+\emph{NUSMV} esta escrito en ANSI C, y es compatible con POSIX. \emph{NUSMV} usa un avanzado
+paquete de BDD desarollado en Colorado University, y provee una interf\'az general para
+linking con avanzados resolvedores SAT. Esto produce que NUSMV sea muy robusto, portable,
+eficiente, y facil de entender por personas fuera del equipo de desarrollo.\\
+\\
+
+
+\end{itemize}
+
+
+\subsection{Por qu\'e NuSMV?}
+
+Porque nos da un gran control sobre la eficiencia del checkeo del modelo. Esto se debe
+a que ... (Preguntar bien a Pedro o leer mucho para entender :D)
+
+
+\section{Falluto 2.0}
+
+\subsection{Objetivos}
+\begin{itemize}
+\item%
+Ocultar al usuario las complejidades de tener que definir un sistema usando una herramienta
+con la complejidad de NuSMV.
+\item
+Ocultar las complejidades de definir de manera funcional el comportamiento de fallas,
+presentando una sintaxis declarativa para la especificaci\'on de las mismas.
+\end{itemize}
+
+\subsection{Implementaci\'on de Falluto 2.0}
+
+Falluto 2.0 esta escrito en Python. Python es un Lenguaje de programación interpretado cuya filosof\'ia hace hincapi\'e en una sintaxis limpia que favorezca un c\'odigo legible.
+Se trata de un lenguaje de programaci\'on multiparadigma ya que soporta orientaci\'on a objetos, programaci\'on imperativa y, en menor medida, programaci\'on funcional. Es un lenguaje interpretado, usa tipado din\'amico, es fuertemente tipado y es multiplataforma. Posee una muy completa librer\'ia estadar.
+Es administrado por la Python Software Foundation. Posee una licencia de c\'odigo abierto, denominada Python Software Foundation License,1 que es compatible con la Licencia p\'ublica general de GNU a partir de la versión 2.1.1, e incompatible en ciertas versiones anteriores.
+
+
+\subsubsection{A cerca del valor inicial de actvar\#}
+
+Notar que el valor inicial de esta variable no tiene significado alguno en el
+sistema ya que representa la acci\'{o}n que se realiz\'{o} en el estado anterior para 
+transitar hasta el actual. Dado que el estado actual es el inicial, osea no hubo
+estado anterior, esta variable no representa nada en este momento. Sin embargo
+es importante darle un valor correcto para que no afecte la verificaci\'{o}n de
+propiedades en el sistema smv resultante.\\
+
+\noindent Las opciones para su valor inicial son:\\
+\begin{enumerate}
+
+\item%
+    Un valor incial espec\'{i}fico, que solo se use en este caso.
+\item%
+    Cualquier valor dentro de su dominio.
+\end{enumerate}
+
+
+\newpage % Bibliography goes in new page
+
+\begin{thebibliography}{99}
+
+\bibitem{NuSMVBibl} NuSMV 2.5 User Manual. Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren,
+Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev. http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf
+
+\end{thebibliography}
+
+
+
+
+
+\end{document}
