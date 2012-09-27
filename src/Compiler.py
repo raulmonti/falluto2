@@ -41,7 +41,9 @@ debugTODO("Ocultar todas aquellas funciones que no tengan sentido sin haber" \
 debugTODO("Permitir DEFINES para facilitar la descripcion del sistema" \
 	+ " y mejorar el rendimiento al no crear nuevas variables.")
 
-
+debugTODO("Eliminar las restricciones sintacticas para nombres reservados de "\
+        + "falluto, detectarlos en otro lado y devolver un mensaje de error " \
+        + "mas expresivo de lo que esta pasando")
 
 
 #///////////////////////////////////////////////////////////////////////////////
