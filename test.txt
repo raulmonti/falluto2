@@ -1,0 +1,1 @@
+FAIRNESS TRUE & variable in {a,b}
