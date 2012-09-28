@@ -311,7 +311,7 @@ class LocalVar(FallutoBaseElem):
         debugCURRENT("Parsing domain for local variable:")
         debugCURRENT(domain)
         for elem in domain:
-            self.domain.append(elem.what)          
+            self.domain.append(elem)          
 
 
 

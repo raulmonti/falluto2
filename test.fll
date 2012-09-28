@@ -20,7 +20,7 @@ MODULE module1(ctxvar1; synact1):
 		fault1: 5+3 > 7 | FALSE & TRUE => var1' = !var1 is TRANSIENT
 	INIT
 
-		var1 = TRUE
+		var1 = TRUE & var3 = -(1+5/var3*(8%4))
 
 	TRANS
 		[]: => var1' = !var1, var1' = !var1

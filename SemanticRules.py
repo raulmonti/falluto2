@@ -72,6 +72,7 @@ def BOOLVAL(): return [ BOOL
                       , (re.compile(r"\("), BOOLPROP, re.compile(r"\)"))
                       , (re.compile(FLBO), BOOLPROP)
                       , INCLUSION
+                      , COMPLEXID
                       , IDENT
                       ]
 
