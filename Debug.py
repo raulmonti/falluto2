@@ -43,32 +43,32 @@ def debugTODO(string):
 
 def debugRED(string):
     if DEBUG__:
-        debug("debugRED", string)
+        print '\033[' + debugColorDict["debugRED"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 
 def debugGREEN(string):
     if DEBUG__:
-        debug("debugGREEN", string)
+        print '\033[' + debugColorDict["debugGREEN"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 
 def debugYELLOW(string):
     if DEBUG__:
-        debug("debugYELLOW", string)
+        print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 
 
 def debugLBLUE(string):
     if DEBUG__:
-        debug("debugLBLUE", string)
+        print '\033[' + debugColorDict["debugLBLUE"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 
 def debugMAGENTA(string):
     if DEBUG__:
-        debug("debugMAGENTA", string)
+        print '\033[' + debugColorDict["debugMAGENTA"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 
@@ -90,7 +90,7 @@ def debugCURRENT(string):
 
 def debugSOLVED(string):
     if DEBUGSOLVED__:
-        debug('debugMAGENTA',string)
+        print '\033[' + debugColorDict["debugMAGENTA"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
         
