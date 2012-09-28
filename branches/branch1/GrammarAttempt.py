@@ -2,7 +2,7 @@
     En esta gramatica logro resolver el problema que tenia en otras, en las
     cuales Identificadores solitarios eran parseados como formulas 
     proposicionales o matematicas, cuando en realidad no se sabe lo que son
-    hasta mas adelante, en el chequeo semantico.
+    hasta mas adelante en etapas de comprobacion semantico.
     Solo dejo aca como ejemplo las formulas matematicas que en este caso no
     matechean IDENT's solitarios (identificadores no precedidos ni sucedidos 
     por algun operador matematico)
@@ -39,13 +39,13 @@ SLMO = r"\*|\/|\%"
 
 TLMO = r"\+|\-"
 
-SYMBOLS = TLMO + "|" + SLMO + "|" + FLMO + "|"
+SYMBOLS = TLMO + "|" + SLMO + "|" + FLMO
 
 
 
-def ONLYID():   return IDENT, _nor(re.compile(SYMBOLS))
+def ONLYID():   return [IDENT, COMPLEXID], _not(re.compile(SYMBOLS))
 
-def MATH():     return _not(ONLYID), SUM()
+def MATH():     return SUM()
 
 def SUM():      return PROD, 0, (re.compile(TLMO), SUM)
 
@@ -58,7 +58,7 @@ def MATHVAL():  return [ IDENT
                       ]
 
 
-def SIMPLEXP(): return [ MATH, IDENT ]
+def SIMPLEXP(): return [ ONLYID, MATH]
 
 
 

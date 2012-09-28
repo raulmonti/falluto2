@@ -7,6 +7,26 @@
 from pyPEG import Symbol
 
 
+class RongComparisonERROR(Exception):
+    def __init__(self, ast, t1, t2, mssg = ""):
+        Exception.__init__(self)
+        assert isinstance(ast, Symbol)
+        self.rep = ast
+        self.line = ast.__name__.line
+        self.t1 = t1
+        self.t2 = t2
+        self.message = mssg
+    def __unicode__(self):
+        error = "Rong comparison between " + self.t1 + " and " + self.t2 \
+              + " in line: " + self.line + "\n\n" + self.message
+        return unicode(error)
+    def __repr__(self):
+        return self.__unicode__()        
+    def __str__(self):
+        return self.__unicode__()        
+
+
+
 class RedeclaredError(Exception):
     def __init__(self, repeated, where):
         Exception.__init__(self)
@@ -66,13 +86,31 @@ class InvalidSymbolError(Exception):
 
 
 class MyTypeError(Exception):
-    def __init__(self, exp  = "", istype = "", nottype = "", iname = ""):
+    def __init__(self, exp  = None, istype = "", nottype = [], iname = ""):
         Exception.__init__(self)
-        self.error = exp + " is type " + istype + " and should be " + nottype \
+        self.error = repr(exp) + " is type " + istype \
+                   + " and should be of a type in " + repr(nottype) \
                    + ", while instansing " + iname
+        self.exp = exp
         self.istype = istype
         self.nottype = nottype
-        assert isinstance(s, Symbol)
+
+    def __unicode__(self):
+        return unicode(self.error)
+    def __repr__(self):
+        return self.__unicode__()        
+    def __str__(self):
+        return self.__unicode__()       
+
+
+class CiclicDeclarationError(Exception):
+    def __init__(self, inst = None):
+        Exception.__init__(self)
+        self.line = inst.line
+        self.iname = inst.name
+        self.error = "Cant use self variables to pass as "\
+                   + "context variable at instance " \
+                   + self.iname + " at line " + self.line
     def __unicode__(self):
         return unicode(self.error)
     def __repr__(self):
