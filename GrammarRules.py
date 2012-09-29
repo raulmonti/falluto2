@@ -9,43 +9,6 @@ from pyPEG import keyword, _and, _not, parseLine, parse
 from Debug import *
 
 
-#............................    TODO'S    .....................................
-debugTODO("Podria usar MATHFORM en vez de INT para los RANGE. Lo mismo " \
-        + "pasa en otro lados.")
-
-debugURGENT("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
-
-
-debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
-           + " G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) " \
-           + "U just(w))).")
-debugTODO("Definir todo esto de nuevo, si o si primero en hoja :S")
-
-debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
-
-debugURGENT("lo que dice aca abajo")
-"""
-    Notar que en la regla de NEXTASIGN, IDENT nunca va a matchear porque 
-    PROPFORM contiene a los matches de IDENT, y por lo tanto matchea antes. Sin 
-    embargo no quiere decir que el valor devuelto sea un formula proposicional 
-    (puede ser por ejemplo una variable que represente un valor entero y no un 
-    booleano).
-    Me parece que es un error en lo que estoy definiendo. No deberia definir
-    las cosas en base a significados semanticos como "formula proposional porque
-    es un valor booleano". Sin embargo hacerlo ayuda muchisimo a no tener que
-    revisar todo mas adelante.
-"""
-#...............................................................................
-
-
-
-
-
-################################################################################
-########          ########### ######       #######               ###############
-################################# ################## #################### ######
-
-
 
 # GRAMMAR is the grammar to parse
 def GRAMMAR():   return [SYSTEM] # Brackets so we don't ommit the big Symbol
