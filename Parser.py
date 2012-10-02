@@ -178,9 +178,9 @@ class Module(FallutoBaseElem):
 
     def parse(self, AST):
         assert AST != []
-        self.line = AST.__name__.line
         AST = AST.what # AST = [ name, contextvars, synchroacts, body]
         self.name = AST[0].what
+        self.line = AST[0].__name__.line
         for v in AST[1].what:
             self.contextVars.append(v.what)
         for a in AST[2].what:
@@ -198,7 +198,7 @@ class Module(FallutoBaseElem):
                     fault.parse(f)
                     self.faults.append(fault)
             elif elem.__name__ == "MODINIT":
-                debugYELLOW("Adding the next INIT to ths system: " + str(elem.what))
+                debugYELLOW("Adding the following INIT to ths system: " + str(elem.what))
                 self.init.append(elem.what)
             elif elem.__name__ == "MODTRANS":
                 #reset de nn count atribute for unamed trans 
@@ -296,12 +296,12 @@ class Fault(FallutoBaseElem):
                 self.pre = elem
             elif elem.__name__ == 'NEXTEXPR':
                 for e in elem.what:
-                    self.pos.append(e.what)
+                    self.pos.append(e)
             elif elem.__name__ == 'FAULTTYPE':                
                 elem = elem.what[0]
                 self.type = elem.__name__
                 for efect in elem.what:
-                    self.efects.append(efect.what)
+                    self.affects.append(efect)
             else:
                 raise SyntaxError(elem) #debug (no deberia pasar nunca)
     
@@ -313,9 +313,9 @@ class Fault(FallutoBaseElem):
         debugLBLUE("Parsed:" + repr(self))
 
     def __repr__(self):
-        string = "< Fault > " + self.name + " of type " + self.type + \
-            "\n\t@ PRE: " + repr(self.pre) + "\n\t@ POS: " + repr(self.pos) + \
-            "\n\t@ AFFECTS: " + repr(self.affects)
+        string = "< Fault > " + repr(self.name) + " of type " + repr(self.type)\
+               + "\n\t@ PRE: " + repr(self.pre) + "\n\t@ POS: "\
+               + repr(self.pos) + "\n\t@ AFFECTS: " + repr(self.affects)
         return string
 
 
