@@ -31,7 +31,7 @@ complexid = r"[a-zA-Z_]+\w*\.[a-zA-Z_]+\w*"
 
 
 formulasymbols = r""" \+ | \- | \* | \/ | \% |
-                      \= | \<\= | \>\= | \< | \> | \!\= |
+                      (?!\=\>)\= | \<\= | \>\= | \< | \> | \!\= |
                       \-\> | \<\-\> |
                       \& | \| | \!
                   """
@@ -93,7 +93,7 @@ def NEXTVAL():      return IDENT, "'", \
                            [ ( "=", [ ONLYID, BOOLPROP, MATH, NEXTREF]) \
                            , ("in", [ SET, RANGE])
                            ]
-def NEXTREF():      return IDENT, "'"
+def NEXTREF():      return [(IDENT, "'")]
 
 
 
@@ -212,7 +212,21 @@ def COMPASSION():   return keyword("COMPASSION") \
 
 
 
-#..........................    TESTING .........................................
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#..........................    TESTING   .......................................
 
 if __name__ == "__main__":
 
@@ -255,6 +269,8 @@ if __name__ == "__main__":
                                , MATH
                                , BOOLPROP
                                ]
+
+
 
     debugMAGENTA("If there is a file, test to match its content:")
     _file = fileinput.input()

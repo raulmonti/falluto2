@@ -90,4 +90,6 @@ debugTODO( "Mejorar el manejo de Excepciones :S colocar mas campos con valores"\
 
 
 
+debugTODO( "Poner corchetes del lado derecho de las producciones gramaticales" \
+         + " para evitar ambiguedad en los .what de los Symbols.")
 
