@@ -198,8 +198,8 @@ class Module(FallutoBaseElem):
                     fault.parse(f)
                     self.faults.append(fault)
             elif elem.__name__ == "MODINIT":
-                debugYELLOW("Adding the following INIT to ths system: " + str(elem.what))
-                self.init.append(elem.what)
+                debugYELLOW("Adding the following INIT to ths system: " + str(elem.what[0]))
+                self.init.append(elem.what[0])
             elif elem.__name__ == "MODTRANS":
                 #reset de nn count atribute for unamed trans 
                 Trans.nncount = 0
@@ -331,7 +331,6 @@ class Trans(FallutoBaseElem):
     
     def __init__ (self):
         FallutoBaseElem.__init__(self)
-        self.faults = []
         self.pre = None
         self.pos = []
     
@@ -341,7 +340,7 @@ class Trans(FallutoBaseElem):
         for elem in AST:
             if elem.__name__ == 'IDENT':
                 self.name = elem.what
-            elif elem.__name__ == 'SIMPLEXPR':
+            elif elem.__name__ == 'BOOLPROP':
                 self.pre = elem
             elif elem.__name__ == 'NEXTEXPR':
                 for v in elem.what:
@@ -362,7 +361,7 @@ class Trans(FallutoBaseElem):
         
     def __repr__(self):
         return "< trans >: " + repr(self.name) + ": PRE: " + repr(self.pre) + \
-               ": POS: " + repr(self.pos) + ": FAULTS: " + repr(self.faults)
+               ": POS: " + repr(self.pos)
 
 
 

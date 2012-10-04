@@ -69,6 +69,17 @@ class InstHasNoActionError(FallutoBaseException):
         self.error = "Error at line " + str(line) + ". Instance <<" + iname \
                    + ">> has no action named <<" + actname + ">>."
 
+
+class InstHasNoVarError(FallutoBaseException):
+    def __init__(self, iname, varname, line):
+        self.iname = iname
+        self.actname = actname
+        self.line = line
+        self.error = "Error at line " + str(line) + ". Instance <<" + iname \
+                   + ">> has no variable named <<" + varname + ">>."
+
+
+
 class WrongRangeError(FallutoBaseException):
     def __init__(self, name = "", line = -1):
         FallutoBaseException.__init__(self)
@@ -122,3 +133,28 @@ class InvalidNextAssignError(FallutoBaseException):
                    + " to next state of variable " + name + " of type " \
                    + type1 + ", in line " + str(line) \
                    + ", while instancing << " + iname + " >>."
+
+
+
+        
+class WrongTypeBoolError(FallutoBaseException):
+    def __init__(self, name, context, line, iname):
+        FallutoBaseException.__init__(self)
+        self.name = name
+        self.iname = iname
+        self.context = context
+        self.line = line
+        self.error = "Rong type for variable <<" + name\
+                           + ">> in boolean expresiong <<" + context + ">> "\
+                           + ", at line " + str(line) + " while instancing "\
+                           + iname + "."
+
+
+
+class NoInstanceError(FallutoBaseException):
+    def __init__(self, name, line):
+        FallutoBaseException.__init__(self)
+        self.name = name
+        self.line = line
+        self.error = "Error at line <<" + str(line) \
+                   + ">>. There is no instance named <<" + name + ">>."

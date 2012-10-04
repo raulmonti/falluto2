@@ -147,7 +147,9 @@ class SysTypeCheck(Types):
                     res = self.typetable[i][v]
                     self.typetable[inst.name][mod.contextVars[j]] = res
                 except (NameError, KeyError) as e:
-                    raise UndeclaredError(inst.params[j])
+                    raise UndeclaredError( inst.params[j].what\
+                                         , inst.line\
+                                         , "Nothing")
 
 
 
@@ -190,6 +192,9 @@ class SysTypeCheck(Types):
     """
     def Check(self):
         self.CheckFaults()
+        self.CheckInits()
+        self.CheckTrans()
+        self.CheckInstances()
                 
 
 
@@ -217,9 +222,8 @@ class SysTypeCheck(Types):
                 if fault.pre != None:
                     self.CheckBOOLPROP(fault.pre)
                 #check fault posconditions
-                if fault.pos != []:
-                    for nextval in fault.pos:
-                        self.CheckNextVal(nextval)
+                for nextval in fault.pos:
+                    self.CheckNextVal(nextval)
                 #check fault types
                 for elem in fault.affects:
                     if elem.what not in \
@@ -229,6 +233,51 @@ class SysTypeCheck(Types):
                                        + "type declaration. No transition "\
                                        + "named << " + elem.what + " >>.")
 
+
+    ########################################################################
+    def CheckInits(self):
+        
+        for inst in self.sys.instances.itervalues():
+            self.inst = inst
+            self.acceptEvents = False;
+
+            mod = self.sys.modules[inst.module]
+            self.CheckBOOLPROP(mod.init[0])
+
+
+    ########################################################################
+    def CheckTrans(self):
+        
+        for inst in self.sys.instances.itervalues():
+            self.inst = inst
+            self.acceptEvents = False;
+
+            mod = self.sys.modules[inst.module]
+            for trans in mod.trans:
+                if trans.pre != None:
+                    self.CheckBOOLPROP(trans.pre)
+                for nextval in trans.pos:
+                    self.CheckNextVal(nextval)
+
+
+    ########################################################################
+    def CheckInstances(self):
+        
+        for inst in self.sys.instances.itervalues():
+            mod = self.sys.modules[inst.module]
+            n = len(mod.contextVars)
+            assert n == len(inst.params[:n:])
+            for elem in inst.params[:n:]:
+                if elem.__name__ == "COMPLEXID":
+                    iname, vname = elem.what.split('.',1)
+                    try:
+                        instance = self.sys.instances[iname]
+                        vlist = [x.name for x in mod.localVars]
+                        if vname not in vlist:
+                            line = elem.__name__.line
+                            raise InstHasNoVarError(iname, vname, line)
+                    except Exception as e:
+                        raise NoInstanceError(iname, elem.__name__.line)
 
 
     ########################################################################
@@ -291,7 +340,10 @@ class SysTypeCheck(Types):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "BOOLPROP"
         l = len(AST.what)
-        self.CheckBOOLCOMP(AST.what[0])
+        try:
+            self.CheckBOOLCOMP(AST.what[0])
+        except MyTypeError as e:
+            raise WrongTypeBoolError(e.name,_str(AST),str(e.line),e.iname)
         if l > 1:
             self.CheckBOOLPROP(AST.what[2])
 
@@ -302,17 +354,29 @@ class SysTypeCheck(Types):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "BOOLCOMP"
         l = len(AST.what)
-        self.CheckBOOLFORM(AST.what[0])
+        try:
+            self.CheckBOOLFORM(AST.what[0])
+        except MyTypeError as e:
+            if l > 1:
+                raise WrongTypeBoolError(e.name,_str(AST),str(e.line),e.iname)
+            else:
+                raise e
         if l > 1:
             self.CheckBOOLCOMP(AST.what[2])
-        
+
 
     ########################################################################
     def CheckBOOLFORM(self, AST):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "BOOLFORM"
         l = len(AST.what)
-        self.CheckBOOLVAL(AST.what[0])
+        try:
+            self.CheckBOOLVAL(AST.what[0])
+        except MyTypeError as e:
+            if l > 1:
+                raise WrongTypeBoolError(e.name,_str(AST),str(e.line),e.iname)
+            else:
+                raise e
         if l > 1:
             self.CheckBOOLFORM(AST.what[2])
 
@@ -322,7 +386,9 @@ class SysTypeCheck(Types):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "BOOLVAL"
         l = len(AST.what)
-        if l > 1:
+        if l == 2:
+            self.CheckBOOLVAL(AST.what[1])
+        elif l == 3:
             self.CheckBOOLPROP(AST.what[1])
         else:
             assert isinstance(AST.what[0], Symbol)
@@ -372,10 +438,10 @@ class SysTypeCheck(Types):
     def CheckEvent(self, AST):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "EVENT"
-        if not self.acceptEvent:
+        if not self.acceptEvents:
             raise CantUseEventsError( _str(AST), AST.__name__.line)
         else:
-            cmpxId = AST.what[0].what[0]
+            cmpxId = AST.what[0].what[1]
             inst, act = cmpxId.split('.',1)
             if not act in self.ActionTable[inst]:
                 raise InstHasNoActionError(inst,act,AST.what[0].__name__.line)
