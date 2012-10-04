@@ -41,7 +41,7 @@ def COMPLEXID():    return re.compile(complexid)
 def INT():          return re.compile(r"\-?\d+")
 def BOOL():         return re.compile(r"\bFALSE\b|\bTRUE\b")
     # Only to be used in properties especification
-def EVENT():       return "just(", COMPLEXID, ")"
+def EVENT():       return re.compile(r"just\("), COMPLEXID, re.compile(r"\)")
     # for matching ids that don't belong to any formula
 def ONLYID():       return [COMPLEXID, IDENT], \
                            _not(re.compile(formulasymbols, re.X))
@@ -77,7 +77,7 @@ def BOOLPROP():     return BOOLCOMP, 0, (re.compile(r"\-\>|\<\-\>"), BOOLPROP)
 def BOOLCOMP():     return BOOLFORM, 0, (re.compile(r"\=|\!\="), BOOLCOMP)
 def BOOLFORM():     return BOOLVAL, 0, (re.compile(r"\&|\|"), BOOLFORM)
 def BOOLVAL():      return [ (re.compile(r"\("), BOOLPROP, re.compile(r"\)"))
-                           , (re.compile(r"\!"), BOOLPROP)
+                           , (re.compile(r"\!"), BOOLVAL)
                            , EVENT
                            , INCLUSION
                            , BOOL
@@ -154,7 +154,7 @@ def STOP():         return [("STOP", "(", IDENT, -1, (",", IDENT), ")"), "STOP"]
 
 # INSTANCES ####################################################################
 
-instparams = [ COMPLEXID, IDENT ]
+instparams = [ COMPLEXID, BOOL, INT ]
 
 def INSTANCE():     return keyword("INSTANCE"), IDENT, "=", IDENT \
                            , "(", PARAMLIST, ")"
