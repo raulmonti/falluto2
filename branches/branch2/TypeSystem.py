@@ -86,6 +86,20 @@ def _str(ast = []):
 
 
 
+################################################################################
+"""
+    pyPEG doesn't work correctly with first and last lines in the file. This
+    tries to fix the problem going through a list of possible line numbers and 
+    returning the first valid one.
+"""
+def GetLineNumber(linelist):
+    for elem in linelist:
+        if str(elem) != "":
+            return str(elem)
+
+    return "<Last line>"
+
+
 ################################################################################        
 class SysTypeCheck(Types):
 
@@ -98,19 +112,17 @@ class SysTypeCheck(Types):
         self.actionTable = {}
         self.typetable = {}
         self.sys = sys
-        try:
-            self.BuildTypeTable()
-        except Exception as e:
-            debugERROR(e)
-        try:
-            self.BuildActionTable()
-        except Exception as e:
-            debugERROR(e)
-
+        
 
     ########################################################################
     def BuildActionTable(self):
-        pass
+        for inst in self.sys.instances.itervalues():
+            self.actionTable[inst.name] = []
+            
+        for inst in self.sys.instances.itervalues():
+            mod = self.sys.modules[inst.module]
+            for act in mod.trans:
+                self.actionTable[inst.name].append(act.name)
 
 
     ########################################################################
@@ -169,7 +181,7 @@ class SysTypeCheck(Types):
         Search the type of the symbol in its instance context. If it isn't a
         valid symbol then it will raise UndeclaredError.
     """
-    def GetSymbolType(self, sname): #instance name and symbol name
+    def GetSymbolType(self, sname): #symbol name
         assert isinstance(sname, Symbol)
         name = sname.what
         if isInt(name):
@@ -177,12 +189,33 @@ class SysTypeCheck(Types):
         elif isBool(name):
             return Types.Bool
         else:
-            try:
-                res = self.typetable[self.inst.name][name]
-                return res
-            except:
-                raise InvalidSymbolError(name, sname.__name__.line, \
-                                         self.inst.name)
+            # if we have an instance context:
+            if self.inst != None:
+                try:
+                    res = self.typetable[self.inst.name][name]
+                    return res
+                except:
+                    raise InvalidSymbolError(name, sname.__name__.line, \
+                                             self.inst.name)
+            else:
+            # If we don't have one, for ex: in a specification declaration
+                if '.' in name:
+                    iname, vname = name.split('.',1)
+                    try:
+                        res = self.typetable[iname][vname]
+                        return res
+                    except:
+                        raise InstHasNoVarError( iname \
+                                               , vname \
+                                               , sname.__name__.line \
+                                               )
+                else:
+
+                    line = GetLineNumber([ sname.__name__.line \
+                                         , 
+                                         ])
+                    raise UndeclaredError(name, line, "None")
+
 
 
 
@@ -191,13 +224,108 @@ class SysTypeCheck(Types):
         Check everything we can from the system :D.
     """
     def Check(self):
-        self.CheckFaults()
-        self.CheckInits()
-        self.CheckTrans()
-        self.CheckInstances()
-                
+        try:
+            self.BuildTypeTable()
+            self.BuildActionTable()
+
+            self.CheckVarDeclaration()
+            self.CheckFaults()
+            self.CheckInits()
+            self.CheckTrans()
+            self.CheckInstances()
+            self.CheckSpecs()
+            self.CheckContraints()
+
+        except Exception as e:
+            debugRED(e)
+            raise FallutoCheckError(str(e))
 
 
+
+    ########################################################################
+    def CheckVarDeclaration(self):
+        for inst in self.sys.instances.itervalues():
+            mod = self.sys.modules[inst.module]
+            for var in mod.localVars:
+                if var.type == Types.Int:
+                    if int(var.domain[0].what) > int(var.domain[1].what):
+                        line = var.domain[0].__name__.line
+                        raise Exception( "Empty range in variable declaration "\
+                                       + "of " + var.name \
+                                       + " at line " + str(line) + ".")
+                    
+
+
+    ########################################################################
+    def CheckContraints(self):
+        self.acceptEvents = True      
+        self.inst = None
+        
+        for contr in self.sys.contraints:
+            for elem in contr.value:
+                self.CheckBOOLPROP(elem)                
+
+
+
+    ########################################################################
+    def CheckSpecs(self):
+        self.acceptEvents = True
+        self.inst = None
+        
+        for spec in self.sys.specifications:
+            spectype = spec.type
+            if spectype == "CTLSPEC":
+                self.CheckCTLEXP(spec.value)
+            elif spectype == "PROPERTIE":
+                if spec.value.__name__ == "NORMALBEHAIVIOUR":
+                    self.CheckCTLEXP(spec.value.what[0])
+                elif spec.value.__name__ == "FINITELYMANYFAULTS":
+                    self.CheckCTLEXP(spec.value.what[0])
+                elif spec.value.__name__ == "FINITELYMANYFAUL":
+                    for elem in spec.value.what[:-1:]:
+                        # check faults exist
+                        iname, fname = elem.what.split('.',1)
+                        inst = self.sys.instances[iname]
+                        mod = self.sys.modules[inst.module]
+                        if not fname in [x.name for x in mod.faults]:
+                            line = elem.__name__.line
+                            raise InstHasNoFaultError(iname,fname,line)
+                    self.CheckCTLEXP(spec.value[-1])
+
+
+
+    ########################################################################
+    def CheckCTLEXP(self, AST):
+        assert isinstance(AST, Symbol)
+        assert AST.__name__ == "CTLEXP"
+        
+        l = len(AST.what)
+        if l == 1:
+            self.CheckCTLVALUE(AST.what[0])
+        elif l == 3:
+            self.CheckCTLVALUE(AST.what[0])
+            self.CheckCTLEXP(AST.what[2])
+        elif l == 6:
+            self.CheckCTLEXP(AST.what[2])
+            self.CheckCTLEXP(AST.what[4])            
+        else:
+            assert False
+
+
+    ########################################################################
+    def CheckCTLVALUE(self, AST):
+        assert isinstance(AST, Symbol)
+        assert AST.__name__ == "CTLVALUE"
+        l = len(AST.what)
+        if l == 1:
+            self.CheckBOOLPROP(AST.what[0])
+        elif l == 2 or l == 3:
+            self.CheckCTLEXP(AST.what[1])            
+        else:
+            assert False
+        
+    
+    
     ########################################################################
     def CheckFaults(self):
     
@@ -406,6 +534,7 @@ class SysTypeCheck(Types):
                     t = self.GetSymbolType(symb)
                 except InvalidSymbolError as e:
                     raise UndeclaredError(e.name, e.line, e.iname)
+                assert t != None
                 if t != Types.Bool:
                     raise MyTypeError(symb.what, Types.types[t], 
                                       Types.types[Types.Bool], \
@@ -441,10 +570,17 @@ class SysTypeCheck(Types):
         if not self.acceptEvents:
             raise CantUseEventsError( _str(AST), AST.__name__.line)
         else:
-            cmpxId = AST.what[0].what[1]
+            cmpxId = AST.what[1].what
             inst, act = cmpxId.split('.',1)
-            if not act in self.ActionTable[inst]:
-                raise InstHasNoActionError(inst,act,AST.what[0].__name__.line)
+            try:
+                if not act in self.actionTable[inst]:
+                    raise InstHasNoActionError( inst \
+                                              , act
+                                              , AST.what[1].__name__.line
+                                              )
+            except KeyError as e:
+                raise NoInstanceError(inst, AST.what[1].__name__.line)
+
 
 
     ########################################################################
@@ -459,6 +595,8 @@ class SysTypeCheck(Types):
         else:
             assert False
 
+
+
     ########################################################################
     def CheckSET(self, AST):
         assert isinstance(AST, Symbol)
@@ -469,12 +607,14 @@ class SysTypeCheck(Types):
                 pass
                     
 
+
     ########################################################################
     def CheckRANGE(self, AST):
         assert isinstance(AST, Symbol)
         assert AST.__name__ == "RANGE"
         if int(AST.what[0]) > int(AST.what[1]):
             raise WrongRangeError(_str(AST), AST.__name__.line)
+
 
 
     ########################################################################
@@ -486,6 +626,8 @@ class SysTypeCheck(Types):
         if l > 1:
             self.CheckMATH(AST.what[2])
         
+
+
     ########################################################################
     def CheckPRODUCT(self, AST):
         assert isinstance(AST, Symbol)
@@ -494,6 +636,8 @@ class SysTypeCheck(Types):
         self.CheckMATHVAL(AST.what[0])
         if l > 1:
             self.CheckPRODUCT(AST.what[2])
+
+
 
     ########################################################################
     def CheckMATHVAL(self, AST):
@@ -528,8 +672,8 @@ if __name__ == "__main__":
     _file = fileinput.input()
     parser = Parser()
     _sys = parser.parse(_file)
-    colorPrint("debugGREEN", "Checking...")
     tcheck = SysTypeCheck(_sys)
+    colorPrint("debugGREEN", "Checking...")
     tcheck.Check()
     
 

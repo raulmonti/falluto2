@@ -71,13 +71,20 @@ class InstHasNoActionError(FallutoBaseException):
 
 
 class InstHasNoVarError(FallutoBaseException):
-    def __init__(self, iname, varname, line):
+    def __init__(self, iname, vname, line):
         self.iname = iname
-        self.actname = actname
+        self.vname = vname
         self.line = line
         self.error = "Error at line " + str(line) + ". Instance <<" + iname \
-                   + ">> has no variable named <<" + varname + ">>."
+                   + ">> has no variable named <<" + vname + ">>."
 
+class InstHasNoFaultError(FallutoBaseException):
+    def __init__(self, iname, fname, line):
+        self.iname = iname
+        self.fname = fname
+        self.line = line
+        self.error = "Error at line " + str(line) + ". Instance <<" + iname \
+                   + ">> has no variable named <<" + fname + ">>."
 
 
 class WrongRangeError(FallutoBaseException):
@@ -156,5 +163,11 @@ class NoInstanceError(FallutoBaseException):
         FallutoBaseException.__init__(self)
         self.name = name
         self.line = line
-        self.error = "Error at line <<" + str(line) \
-                   + ">>. There is no instance named <<" + name + ">>."
+        self.error = "Error at line " + str(line) \
+                   + ". There is no instance named <<" + name + ">>."
+
+
+class FallutoCheckError(FallutoBaseException):
+    def __init__(self, error):
+        FallutoBaseException.__init__(self)
+        self.error = str(error)

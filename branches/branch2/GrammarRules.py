@@ -50,9 +50,7 @@ def ONLYID():       return [COMPLEXID, IDENT], \
 # OTHERS #######################################################################
 def SET():          return "{", 0, ([IDENT, INT], -1, (r",", [IDENT, INT])), "}"
 def RANGE():        return INT, "..", INT
-def INCLUSION():    return [ ([IDENT, INT], re.compile(r"\bin\b"), SET) \
-                           , (INT, re.compile(r"\bin\b"), RANGE) \
-                           ]
+def INCLUSION():    return [ (IDENT, re.compile(r"\bin\b"), [SET, RANGE]) ]
 
 
 # MATH FORMULAS ################################################################
@@ -198,7 +196,8 @@ def PROPERTIE():        return [ NORMALBEHAIVIOUR \
 def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "(", CTLEXP, ")"
 def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "(", CTLEXP, ")"
 def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT") \
-                               , "(", IDENT, -1, (",", IDENT), ";" ,CTLEXP, ")"
+                               , "(", COMPLEXID, -1, (",", COMPLEXID) \
+                               , ";" ,CTLEXP, ")"
 
 
 

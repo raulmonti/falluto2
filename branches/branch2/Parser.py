@@ -403,7 +403,7 @@ class Specification(FallutoBaseElem):
         self.type = AST.__name__
         self.value = AST.what[0]
         
-        debugGREEN("Parsed: " + str(self))
+        debugGREEN("Parsed SPEC: " + str(self))
 
     def __repr__(self):
         return "< SPECIFICATION >" + " of type " + str(self.type) \
