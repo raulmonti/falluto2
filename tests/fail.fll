@@ -14,12 +14,14 @@ MODULE module1(ctxvar1; synact1):
 
 
 	VAR
+
 		var1: bool
 	        var2: {a,b,c}
         	var3: -11..132541
 
 	FAULT
-        fault1: 5+var3 > 7+var3 | FALSE & var1 => var1' = !var1 is STOP(act1)
+        fault1: 5+var3 > 7+var3 | FALSE & var1 => var1' = !( var1 in { a ,b })  is STOP(act1)
+	fault2: is BIZ(var3)
 	
 	INIT
 		(1+3 > var3) -> (var1 = TRUE) & (var1 = FALSE | var2 in {1,2})
@@ -33,7 +35,7 @@ ENDMODULE
 
 
 INSTANCE instance1 = module1(instance2.var1, sincroniza1)
-INSTANCE instance2 = module1(instance1.var1, sincroniza2)
+INSTANCE instance2 = module1(instance1, sincroniza2)
 
 
 NORMAL_BEHAIVIOUR( AX TRUE & just(instance2.act1))
