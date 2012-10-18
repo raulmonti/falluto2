@@ -34,11 +34,16 @@ def _cl(ast = []):
     ret = []
     if isinstance(ast, pyPEG.Symbol):
         ret += _cl(ast.what)
-    elif isinstance(ast, unicode):
+    elif isinstance(ast, unicode) or isinstance(ast, str):
         ret.append(unicode(ast))
     elif isinstance(ast, list):
         for x in ast:
             ret += _cl(x)
+    elif ast == None:
+        pass
+    else:
+        raise Exception("Not AST type: " + str(ast))
+
     return ret
 
 
@@ -238,6 +243,9 @@ class Module(ParserBaseElem):
         self.faults      = []
         self.init        = None
         self.transitions = []
+        Transition.count = 0
+        Contraint.count  = 0
+        Propertie.count  = 0
 
     def parse(self, AST):
         self.ast = AST
@@ -246,10 +254,10 @@ class Module(ParserBaseElem):
         self.line = AST[0].__name__.line
         
         for cv in AST[1].what:
-            self.contextvars.append(_str(cv))
+            self.contextvars.append(cv)
 
         for sa in AST[2].what:
-            self.synchroacts.append(_str(sa))
+            self.synchroacts.append(sa)
 
         AST = AST[3].what # [ 0, MODVAR, 0, MODFAULT, 0, MODINIT, 0, MODTRANS ]
         
@@ -266,7 +274,6 @@ class Module(ParserBaseElem):
                     self.faults.append(f)
             elif elem.__name__ == "MODINIT":
                 self.init = elem.what[0]
-                debugRED("Esto deberia ser un pyAST: " + repr(self.init))
             elif elem.__name__ == "MODTRANS":
                 for x in elem.what:
                     t = Transition()
@@ -275,7 +282,11 @@ class Module(ParserBaseElem):
             else:
                 assert False
                     
-
+    def __str__(self):
+        string = ""
+        for f in self.faults:
+            string += str(f) + "\n"
+        return string
 
 ################################################################################
 
@@ -394,26 +405,43 @@ class Fault(ParserBaseElem):
     def __init__(self):
         ParserBaseElem.__init__(self)
         self.pre     = None
-        self.pos     = None
+        self.pos     = []
         self.affects = []
 
     def parse(self, AST):
         AST = AST.what # [name, pre, pos, type]
-        self.name = _str(AST[0])
         self.line = AST[0].__name__.line
-        self.pre = AST[1]
-        self.pos = AST[2]
-        AST = AST[3]
-        self.type = AST.__name__
-        for x in AST.what:
-            self.affects.append(_str(x))
+        for x in AST:
+            if x.__name__ == "IDENT":
+                self.name = _str(x)
+            elif x.__name__ == "SIMPLEXPR":
+                self.pre = x
+            elif x.__name__ == "NEXTEXPR":
+                for elem in x.what:
+                    self.pos.append((elem.what[0], elem.what[1]))
+            elif x.__name__ in ["BIZ", "STOP", "TRANSIENT"]:
+                if x.__name__ == "BIZ":
+                    self.type = Types.Byzantine
+                elif x.__name__ == "STOP":
+                    self.type = Types.Stop
+                else:
+                    self.type = Types.Transient
+                for y in x.what:
+                    self.affects.append(_str(y))
 
     def __str__(self):
-        return ParserBaseElem.__str__(self)
+        string = "--> Fault \'" + str(self.name)
+        string += "\'\n @Type >> " + str(self.type)
+        string += "\n @Pre >> " + str(self.pre)
+        string += "\n @Pos >> " + str(self.pos)
+        string += "\n @Affects >>" + str(self.affects)
+        return string
 
 ################################################################################
 
 class Transition(ParserBaseElem):
+
+    count = 0
 
     def __init__(self):
         ParserBaseElem.__init__(self)
@@ -421,7 +449,6 @@ class Transition(ParserBaseElem):
         self.pos = None
 
     def parse(self, AST):
-        debugRED(AST)
         self.line = str(AST.__name__.line)
         AST = AST.what # [0, name, 0, pre, 0,pos]
         for elem in AST:
@@ -433,7 +460,10 @@ class Transition(ParserBaseElem):
                 self.pos = elem
             else:
                 assert False
-        
+        if self.name == "":
+            self.name = "NN" + str(Transition.count)
+            Transition.count += 1
+
     def __str__(self):
         return ParserBaseElem.__str__(self)
 ################################################################################
@@ -449,6 +479,6 @@ if __name__ == "__main__":
 
     _sys = parse(_file)
  
-    debugGREEN(_sys)
+    print str(_sys)
 
 

@@ -44,6 +44,9 @@ debugURGENT("lo que dice aca abajo")
 
 debugTODO("Queremos no determinismo en la declaracion de las nexexpr??")
 
+
+debugTODO("es Byzantine y NO bizantine :S")
+
 ################################################################################
 ########          ########### ######       #######               ###############
 ################################# ################## #################### ######
@@ -83,9 +86,10 @@ def SET():          return "{", 0, ([IDENT, INT, BOOL], -1, (r",", [IDENT, INT, 
 def RANGE():        return INT, "..", INT
 
 
-def INCLUSION():    return [ ([IDENT, INT], re.compile(r"\bin\b"), SET) \
-                           , (INT, re.compile(r"\bin\b"), RANGE) \
-                           ]
+def INCLUSION():    return [IDENT, COMPLEXID], re.compile(r"\bin\b"), [SET, RANGE]
+#def INCLUSION():    return [ ([IDENT, INT], re.compile(r"\bin\b"), SET) \
+#                           , (INT, re.compile(r"\bin\b"), RANGE) \
+#                           ]
 
 
 # Simple Expressions.
@@ -93,7 +97,7 @@ def INCLUSION():    return [ ([IDENT, INT], re.compile(r"\bin\b"), SET) \
 
 BINOP = r""" 
           \<\-\> | \-\> | \<\- |                #logical operators
-          \<\= | \>\= | \< | \> | \= | \!\= |   #comparison operators
+          \<\= | \>\= | \< | \> | (?!\=\>)\= | \!\= |   #comparison operators
           \+ | \- | \/ | \* | \% |              #math operators
           \& | \|                               #logical operators
          """
@@ -130,8 +134,6 @@ def NEXTREF():      return [(IDENT, "'")]
 
 
 
-
-
 # The whole system
 def SYSTEM(): return 0, OPTIONS , -1, [ MODULE
                                       , INSTANCE
@@ -140,20 +142,17 @@ def SYSTEM(): return 0, OPTIONS , -1, [ MODULE
 
 
 
-
-
-
 # Options
 def OPTIONS(): return keyword("OPTIONS"), -1, [ SYSNAME
                                               , CHECKDEADLOCK
-                                              , FAULTSYSFAIRDISABLE
+                                              , FAULTFAIRDISABLE
                                               , MODULEWFAIRDISABLE ], \
                       keyword("ENDOPTIONS")
                       
-def SYSNAME():              return [(re.compile("FLLNAME"), re.compile(r"[\w\.\d\_]*"))]
+def SYSNAME():              return [(re.compile(r"FLLNAME"), re.compile(r"[\w\.\d\_]*"))]
 def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
-def FAULTSYSFAIRDISABLE():  return [re.compile("FAULT_SYS_FAIR_DISABLE")]
-def MODULEWFAIRDISABLE():   return [re.compile("MODULE_WEAK_FAIR_DISABLE")]
+def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
+def MODULEWFAIRDISABLE():   return [re.compile(r"MODULE_WEAK_FAIR_DISABLE")]
 
 
 
@@ -306,7 +305,10 @@ def BOOLVAL():      return [ (re.compile(r"\("), BOOLEXP, re.compile(r"\)"))
                            , IDENT
                            ]
 
-
+def SYMBCOMPARISON(): return ( [IDENT, COMPLEXID]
+                            , re.compile(r"\=|\!\=")
+                            , [IDENT, COMPLEXID]
+                            )
 
 
 # TESTS ........................................................................
