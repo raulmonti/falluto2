@@ -388,11 +388,13 @@ class LocalVar(ParserBaseElem):
         elif AST.__name__ == "SET":
             self.type = Types.Symbol
             for x in AST.what:
-                self.domain.append(_str(x))
+                if not isinstance(x, unicode):
+                    self.domain.append(_str(x))
         elif AST.__name__ == "RANGE":
             self.type = Types.Int
             for x in AST.what:
-                self.domain.append(_str(x))
+                if not isinstance(x, unicode):
+                    self.domain.append(_str(x))
         else:
             assert False
 
