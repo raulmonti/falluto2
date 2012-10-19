@@ -120,6 +120,7 @@ def SIMPVALUE(): return [ (re.compile(r"\("), SIMPLEXPR, re.compile(r"\)"))
                         , INT
                         , INCLUSION
                         , BOOL
+                        , NEXTREF
                         , COMPLEXID
                         , IDENT
                         , EVENT # Should only be used in CONTRAINTS
@@ -289,6 +290,7 @@ def PRODUCT():  return MATHVAL, 0, (re.compile(r"\*|\/|\%"), PRODUCT)
 def MATHVAL():  return [ INT
                        , (re.compile(r"\("), MATHEXP, re.compile(r"\)"))
                        , (re.compile(r"\-"), MATHEXP)
+                       , NEXTREF
                        , IDENT
                        , COMPLEXID
                        ]
@@ -306,6 +308,7 @@ def BOOLVAL():      return [ (re.compile(r"\("), BOOLEXP, re.compile(r"\)"))
                            , INCLUSION
                            , BOOL
                            , COMPARISON
+                           , NEXTREF
                            , COMPLEXID
                            , IDENT
                            ]
