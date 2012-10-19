@@ -18,7 +18,7 @@ from Debug import *
 debugTODO("Podria usar MATHFORM en vez de INT para los RANGE. Lo mismo " \
         + "pasa en otro lados.")
 
-debugURGENT("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
+debugTODO("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
 
 
 debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
@@ -28,7 +28,7 @@ debugTODO("Definir todo esto de nuevo, si o si primero en hoja :S")
 
 debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
 
-debugURGENT("lo que dice aca abajo")
+debugTODO("lo que dice aca abajo")
 """
     Notar que en la regla de NEXTASIGN, IDENT nunca va a matchear porque 
     PROPFORM contiene a los matches de IDENT, y por lo tanto matchea antes. Sin 
@@ -46,6 +46,9 @@ debugTODO("Queremos no determinismo en la declaracion de las nexexpr??")
 
 
 debugTODO("es Byzantine y NO bizantine :S")
+
+
+debugTODO("Revisar si NuSMV permite hacer 'entero' in {Symbol1, Symbol2}")
 
 ################################################################################
 ########          ########### ######       #######               ###############
@@ -82,8 +85,10 @@ def EVENT():        return [(re.compile(r"just\(") \
                            ]
 
 # TODO podria agragar COMPLEXID en el SET
-def SET():          return "{", 0, ([IDENT, INT, BOOL], -1, (r",", [IDENT, INT, BOOL])), "}"
-def RANGE():        return INT, "..", INT
+def SET():          return re.compile(r"\{"), 0, ([IDENT, INT, BOOL] \
+                           , -1, (re.compile(r"\,") \
+                           , [IDENT, INT, BOOL])), re.compile(r"\}")
+def RANGE():        return INT, re.compile(r"\.\."), INT
 
 
 def INCLUSION():    return [IDENT, COMPLEXID], re.compile(r"\bin\b"), [SET, RANGE]

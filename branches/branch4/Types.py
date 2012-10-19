@@ -1,6 +1,7 @@
 class Types():
 
     # var types
+    Notype = -1
     Int = 0
     Bool = 1
     Symbol = 2

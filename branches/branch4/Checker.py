@@ -1,6 +1,7 @@
 import Parser
 import fileinput
 import Debug
+from Debug import debugCURRENT, debugERROR
 from Types import Types
 from Parser import _str, _cl
 from Exceptions import *
@@ -55,6 +56,8 @@ class Checker():
     def __init__(self):
         self.sys = None
         self.typetable = {}
+        self.setValuesTable = set([])
+        self.allowevents = False
     
     ########################################################################
     def clear(self):
@@ -66,6 +69,7 @@ class Checker():
         self.sys = sys
         self.checkRedeclared()
         self.buildTypeTable()
+        self.buildSetValuesTable()
         self.checkSystem()
 
 
@@ -119,14 +123,14 @@ class Checker():
     ########################################################################
     def buildTypeTable(self):
 
-        # first: declared variables
+        # Local declared variables
         for inst in self.sys.instances.itervalues():
             self.typetable[inst.name] = {}
             mod = self.sys.modules[inst.module]
             for var in mod.localvars:
                 self.typetable[inst.name][var.name] = var.type
                 
-        # second: context variables
+        # context variables
         for inst in self.sys.instances.itervalues():
             mod = self.sys.modules[inst.module]
             n = len(mod.contextvars)
@@ -154,10 +158,6 @@ class Checker():
                           + "> in <" + inst.name + "> instantiation" \
                           + ", at line <" + inst.params[i].__name__.line + ">." )
                 
-
-        Debug.debugRED("TYPE TABLE:\n\n" + repr(self.typetable))
-
-                
                 
     ########################################################################
     def getType(self, vname):
@@ -182,6 +182,15 @@ class Checker():
         
 
 #...............................................................................
+
+    ########################################################################
+    def buildSetValuesTable(self):
+        for m in self.sys.modules.itervalues():
+            for v in m.localvars:
+                if v.type == Types.Symbol:
+                    for x in v.domain:
+                        self.setValuesTable.add(x)
+
 
 
     ########################################################################
@@ -223,18 +232,59 @@ class Checker():
                           + "\' should be a boolean expression. " \
                           + "In fault declaration at line <" + fault.line \
                           + ">." )
+                
                 # poscondition
                 for elem in fault.pos:
-                    if not self.moduleHasVar(mod.name, _str(elem[0])):
+                    leftside =  _str(elem[0])
+                    rightside = _str(elem[1])
+                    if self.moduleHasVar(mod.name, leftside):
+                        tl = self.typetable[inst.name][leftside]
+                        tr = Types.Notype
+                        if elem[1].__name__ == "SIMPLEXPR":
+                            try:
+                                self.checkBoolExpresion(inst, rightside)
+                                tr = Types.Bool
+                            except BaseException:
+                                pass
+                            try:
+                                self.checkMathExpresion(inst, rightside)
+                                tr = Types.Int
+                            except BaseException:
+                                pass
+                        elif elem[1].__name__ == "NEXTREF":
+                            tr = self.getTypeFromTable(inst.name, rightside)
+                        elif elem[1].__name__ == "SET":
+                            self.checkSET(elem[1])
+                            tr = Types.Symbol
+                        elif elem[1].__name__ == "RANGE":
+                            if int(_str(elem[1].what[0])) > \
+                               int(_str(elem[1].what[2])):
+                                raise LethalException("Empty range in next" \
+                                      + " assignment \'" + _str(elem) \
+                                      + "\', at line <" + fault.line + ">.")
+                            tr = Types.Int
+                        else:
+                            assert False
+
+                        assert tr != Types.Notype
+
+                        # check correct types in assignment
+                        if tl != tr and elem[1].__name__ != "SET":
+                            tls = str(Types.Types[tl])
+                            trs = str(Types.Types[tr])
+                            line = str(elem[0].__name__.line)
+                            raise LethalException(unicode(" Wrong types \'" \
+                                  + tls \
+                                  + "\' and \'" + trs + "\' in assignment \'" \
+                                  + _str(elem[1]) + "\' to variable \'" \
+                                  + _str(elem[0]) + "\', at line <" \
+                                  + line + ">."))
+                        
+                    else:
                         raise LethalException( "Module <" + mod.name \
                                   + "> has no local variable named <" \
                                   + _str(elem[0]) \
                                   + ">. Error at line <" + fault.line + ">.")
-                    try:
-                        self.checkBoolExpresion(inst, _str(elem[1]))
-                    except Exception as e:
-                        Debug.debugRED(e)
-                        raise e
                 # affects
                 if fault.type == Types.Byzantine:
                     for v in fault.affects:
@@ -269,15 +319,27 @@ class Checker():
             _ast, _rest = pyPEG.parseLine(expr,BOOLEXP,[],True,COMMENT,True)
             if _rest != "":
                 raise NotBoolExpresionError(expr)
-            try:
-                self.typeCheck(inst, _ast)
-            except BaseException as e:
-                raise e
+
+            self.typeCheck(inst, _ast)
             
-        except BaseException as e:
-            Debug.debugERROR(repr(e))
+        except SyntaxError as e:
             raise NotBoolExpresionError(expr)
-    
+
+
+    ########################################################################
+    def checkMathExpresion(self, inst, expr):
+        try:
+            _ast, _rest = pyPEG.parseLine(expr,MATHEXP,[],True,COMMENT,True)
+            if _rest != "":
+                raise NotMathExpresionError(expr)
+
+            self.typeCheck(inst, _ast)
+            
+        except SyntaxError as e:
+            raise NotMathExpresionError(expr)
+        
+
+
 
 
 #............................ Type Checking ...................................#
@@ -339,12 +401,10 @@ class Checker():
             self.typeCheckBOOLVAL( inst, AST.what[1])
         elif l == 1:
             AST = AST.what[0]
-            Debug.debugMAGENTA("Should be a BOOLVAL: " + str(AST.what[0]))
 
 
             if AST.__name__ == "IDENT" or AST.__name__ == "COMPLEXID":
                 # this raises undeclared error if it doesn't find the variable
-                Debug.debugRED(AST)
                 t = self.getTypeFromTable( inst.name, _str(AST))
                 if not Types.Bool == t:
                     istype = Types.Types[t]
@@ -360,7 +420,7 @@ class Checker():
                     if not self.instanceHasTrans(iname, tname):
                         raise UndeclaredError(_str(AST.what[1]), -1)
 
-            elif AST.__name__ == "COMPARISSON":
+            elif AST.__name__ == "COMPARISON":
                 # Check if is a symbolic comparison rather 
                 # than a math comparison.
                 try:
@@ -380,8 +440,8 @@ class Checker():
                                                       , t1name, t2name)
                 except SyntaxError as e:
                     # then its a math comparison, we check it:
-                    self.typeCheckMATHEXP(AST.what[0])
-                    self.typeCheckMATHEXP(AST.what[2])
+                    self.typeCheckMATHEXP(inst, AST.what[0])
+                    self.typeCheckMATHEXP(inst, AST.what[2])
 
 
             elif AST.__name__ == "BOOL":
@@ -391,8 +451,7 @@ class Checker():
             elif AST.__name__ == "INCLUSION":
             
                 t = self.getTypeFromTable(inst.name, _str(AST.what[0]))
-
-                if AST.what[1].__name__ == "RANGE":
+                if AST.what[2].__name__ == "RANGE":
 
                     if t != Types.Int:
                         istype = Types.Types[t]
@@ -405,17 +464,70 @@ class Checker():
                     if int(domain[0]) > int(domain[1]):
                         raise EmptyRangeError(domain[0], domain[1])
                         
-                elif AST.what[1].__name__ == "SET":
-                    self.checkSET(AST.what[1])
+                elif AST.what[2].__name__ == "SET":
+                    self.checkSET(AST.what[2])
+            else:
+                debugERROR("Internal error, \'" + AST.__name__ + "\' is wrong.")
+                assert False
+        else:
+            assert False
 
+
+    #######################################################################
+    def typeCheckMATHEXP(self, inst, AST):
+        assert isinstance(AST, pyPEG.Symbol)
+        assert AST.__name__ == "MATHEXP"
+        l = len(AST.what)
+        self.typeCheckPRODUCT(inst, AST.what[0])
+        if l > 1:
+            self.typeCheckMATHEXP(inst, AST.what[2])
+
+
+    #######################################################################
+    def typeCheckPRODUCT(self, inst, AST):
+        assert isinstance(AST, pyPEG.Symbol)
+        assert AST.__name__ == "PRODUCT"
+        l = len(AST.what)
+        self.typeCheckMATHVAL(inst, AST.what[0])
+        if l > 1:
+            self.typeCheckPRODUCT(inst, AST.what[2])
+
+
+    #######################################################################
+    def typeCheckMATHVAL(self, inst, AST):
+        assert isinstance(AST, pyPEG.Symbol)
+        assert AST.__name__ == "MATHVAL"
+        l = len(AST.what)
+        if l == 3 or l == 3:
+            self.typeCheckMATHEXP(inst, AST.what[1])
+        elif l == 1:
+            AST = AST.what[0]
+            if AST.__name__ == "INT":
+                #OK THEN
+                pass
+            elif AST.__name__ == "IDENT" or AST.__name__ == "COMPLEXID":
+                t = self.getTypeFromTable(inst.name, _str(AST))
+                if t != Types.Int:
+                    istype = Types.Types[t]
+                    isnttype = Types.Types[Types.Int] # Pongo "Int" de una?
+                    raise WrongTypeError(_str(AST), istype, isnttype)
+            else:
+                debugERROR("Internal Error: \'" + _str(AST) + "\'.")
+                assert False
         else:
             assert False
 
 
     #######################################################################
     def checkSET(self, AST):
-        #TODO
-        pass
+        assert isinstance(AST, pyPEG.Symbol)
+        assert AST.__name__ == "SET"
+        for x in AST.what:
+            if x != ',' and x != '{' and x != '}':
+                assert isinstance(x, pyPEG.Symbol)
+                if x.__name__ == "IDENT":
+                    if not x.what[0] in self.setValuesTable:
+                        raise UndeclaredError(x.what[0])
 
 
     #######################################################################
@@ -448,7 +560,7 @@ if __name__ == "__main__":
 
     _sys = Parser.parse(_file)
  
-    Debug.colorPrint("debugGREEN", str(_sys))
+    #Debug.colorPrint("debugGREEN", str(_sys))
  
     Debug.colorPrint("debugGREEN", "\n\nChecking ...")
     
