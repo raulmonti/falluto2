@@ -1,7 +1,8 @@
+7 + 5 > algo * 3 -> verdadero | falso != !falso
 
 --4 = (algo | algo)
 
-math1  + math2 = math3 * ( math4 - math5 )  --OK
+--math1  + math2 = math3 * ( math4 - math5 )  --OK
 
 --math1 + math2 >= math3 * ( math4 - math5 ) -- OK
 
