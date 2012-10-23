@@ -24,12 +24,59 @@ Symbol(u'BOOLEXP', [
                                             
 ])
 
+////////////////////////////////////////////////////////////////////////////////
+
+
+(((7+5)>(algo*3))->(verdadero|(falso!=!falso)))
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-
-[Symbol(u'BOOLEXP', [Symbol(u'BOOLFORM', [Symbol(u'BOOLVAL', [Symbol(u'COMPARISON', [Symbol(u'MATHEXP', [Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [Symbol(u'IDENT', [u'math1'])])]), u'+', Symbol(u'MATHEXP', [Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [Symbol(u'IDENT', [u'math2'])])])])]), u'>=', Symbol(u'MATHEXP', [Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [Symbol(u'IDENT', [u'math3'])]), u'*', Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [u'(', Symbol(u'MATHEXP', [Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [Symbol(u'IDENT', [u'math4'])])]), u'-', Symbol(u'MATHEXP', [Symbol(u'PRODUCT', [Symbol(u'MATHVAL', [Symbol(u'IDENT', [u'math5'])])])])]), u')'])])])])])])])])]
+Symbol(u'LEVEL5', [
+    Symbol(u'LEVEL4', [
+        Symbol(u'LEVEL3', [
+            Symbol(u'LEVEL2', [
+                Symbol(u'LEVEL1', [
+                    Symbol(u'VALUE', [
+                        Symbol(u'INT', [u'7'])])])
+                , u'+'
+                , Symbol(u'LEVEL2', [
+                    Symbol(u'LEVEL1', [
+                        Symbol(u'VALUE', [
+                            Symbol(u'INT', [u'5'])])])])])
+            , u'>'
+            , Symbol(u'LEVEL3', [
+                Symbol(u'LEVEL2', [
+                    Symbol(u'LEVEL1', [
+                        Symbol(u'VALUE', [
+                            Symbol(u'IDENT', [u'algo'])])
+                        , u'*'
+                        , Symbol(u'LEVEL1', [
+                            Symbol(u'VALUE', [
+                                Symbol(u'INT', [u'3'])])])])])])])])
+    , u'->'
+    , Symbol(u'LEVEL5', [
+        Symbol(u'LEVEL4', [
+            Symbol(u'LEVEL3', [
+                Symbol(u'LEVEL2', [
+                    Symbol(u'LEVEL1', [
+                        Symbol(u'VALUE', [
+                            Symbol(u'IDENT', [u'verdadero'])])])])])
+            , u'|'
+            , Symbol(u'LEVEL4', [
+                Symbol(u'LEVEL3', [
+                    Symbol(u'LEVEL2', [
+                        Symbol(u'LEVEL1', [
+                            Symbol(u'VALUE', [
+                                Symbol(u'IDENT', [u'falso'])])])])
+                    , u'!='
+                    , Symbol(u'LEVEL3', [
+                        Symbol(u'LEVEL2', [
+                            Symbol(u'LEVEL1', [
+                                Symbol(u'VALUE', [
+                                    u'!', Symbol(u'VALUE', [
+                                        Symbol(u'IDENT', [u'falso'])])])])])])])])])])])
 
 
 
