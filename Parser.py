@@ -420,7 +420,7 @@ class Fault(ParserBaseElem):
                 self.pre = x
             elif x.__name__ == "NEXTEXPR":
                 for elem in x.what:
-                    self.pos.append((elem.what[0], elem.what[1]))
+                    self.pos.append(elem)
             elif x.__name__ in ["BIZ", "STOP", "TRANSIENT"]:
                 if x.__name__ == "BIZ":
                     self.type = Types.Byzantine

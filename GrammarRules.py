@@ -132,8 +132,8 @@ def SIMPVALUE(): return [ (re.compile(r"\("), SIMPLEXPR, re.compile(r"\)"))
 # Next expressions
 def NEXTEXPR():     return NEXTVAL, -1, ( ",", NEXTVAL)
 def NEXTVAL():      return IDENT, "'", \
-                           [ ( "=", [ SIMPLEXPR, NEXTREF]) \
-                           , ("in", [ SET, RANGE])
+                           [ (re.compile(r"\="), [ SIMPLEXPR, NEXTREF]) \
+                           , (re.compile(r"in"), [ SET, RANGE])
                            ]
 def NEXTREF():      return [(IDENT, "'")]
 

@@ -58,6 +58,7 @@ class Checker():
         self.typetable = {}
         self.setValuesTable = set([])
         self.allowevents = False
+        self.allownextref = False
     
     ########################################################################
     def clear(self):
@@ -120,6 +121,8 @@ class Checker():
 
 #........................ Type table building ..................................
 
+    #TODO agregar los dominios de variables de tipo Symbol a la tabla
+
     ########################################################################
     def buildTypeTable(self):
 
@@ -174,9 +177,9 @@ class Checker():
                 t = self.typetable[i][v]
                 return t
             except KeyError as e:
-                raise UndeclaredError(e.args[0], None)
+                raise UndeclaredError(e.args[0])
         else:
-            raise UndeclaredError(vname, None)
+            raise UndeclaredError(vname)
 
         assert False
         
@@ -234,57 +237,10 @@ class Checker():
                           + ">." )
                 
                 # poscondition
-                for elem in fault.pos:
-                    leftside =  _str(elem[0])
-                    rightside = _str(elem[1])
-                    if self.moduleHasVar(mod.name, leftside):
-                        tl = self.typetable[inst.name][leftside]
-                        tr = Types.Notype
-                        if elem[1].__name__ == "SIMPLEXPR":
-                            try:
-                                self.checkBoolExpresion(inst, rightside)
-                                tr = Types.Bool
-                            except BaseException:
-                                pass
-                            try:
-                                self.checkMathExpresion(inst, rightside)
-                                tr = Types.Int
-                            except BaseException:
-                                pass
-                        elif elem[1].__name__ == "NEXTREF":
-                            tr = self.getTypeFromTable(inst.name, rightside)
-                        elif elem[1].__name__ == "SET":
-                            self.checkSET(elem[1])
-                            tr = Types.Symbol
-                        elif elem[1].__name__ == "RANGE":
-                            if int(_str(elem[1].what[0])) > \
-                               int(_str(elem[1].what[2])):
-                                raise LethalException("Empty range in next" \
-                                      + " assignment \'" + _str(elem) \
-                                      + "\', at line <" + fault.line + ">.")
-                            tr = Types.Int
-                        else:
-                            assert False
-
-                        assert tr != Types.Notype
-
-                        # check correct types in assignment
-                        if tl != tr and elem[1].__name__ != "SET":
-                            tls = str(Types.Types[tl])
-                            trs = str(Types.Types[tr])
-                            line = str(elem[0].__name__.line)
-                            raise LethalException(unicode(" Wrong types \'" \
-                                  + tls \
-                                  + "\' and \'" + trs + "\' in assignment \'" \
-                                  + _str(elem[1]) + "\' to variable \'" \
-                                  + _str(elem[0]) + "\', at line <" \
-                                  + line + ">."))
-                        
-                    else:
-                        raise LethalException( "Module <" + mod.name \
-                                  + "> has no local variable named <" \
-                                  + _str(elem[0]) \
-                                  + ">. Error at line <" + fault.line + ">.")
+                self.allownexteref = True
+                for elem in fault.pos:                                        
+                    self.checkBoolExpresion(inst, _str(elem[1]))
+                self.allownexteref = False
                 # affects
                 if fault.type == Types.Byzantine:
                     for v in fault.affects:
@@ -418,7 +374,7 @@ class Checker():
                 else:
                     iname, tname = _str(AST.what[1]).split('.',1)
                     if not self.instanceHasTrans(iname, tname):
-                        raise UndeclaredError(_str(AST.what[1]), -1)
+                        raise UndeclaredError(_str(AST.what[1]))
 
             elif AST.__name__ == "COMPARISON":
                 # Check if is a symbolic comparison rather 
@@ -536,7 +492,7 @@ class Checker():
             t = self.typetable[iname][vname]
             return t
         except KeyError:
-            raise UndeclaredError(vname, -1)
+            raise UndeclaredError(vname)
 
 
 
@@ -568,3 +524,89 @@ if __name__ == "__main__":
 
     Debug.colorPrint("debugGREEN", "it's OK!")
 
+
+"""
+    def checkFaultSections(self):
+        for inst in self.sys.instances.itervalues():
+            mod = self.sys.modules[inst.module]
+            for fault in mod.faults:
+                # precondition
+                try:
+                    if _str(fault.pre) != "":
+                        self.checkBoolExpresion(inst, _str(fault.pre))
+                except NotBoolExpresionError as e:
+                    raise LethalException("\'" + _str(fault.pre) \
+                          + "\' should be a boolean expression. " \
+                          + "In fault declaration at line <" + fault.line \
+                          + ">." )
+                
+                # poscondition
+                self.allownexteref = True
+                for elem in fault.pos:
+                    leftside =  _str(elem[0])
+                    rightside = _str(elem[1])
+                    if self.moduleHasVar(mod.name, leftside):
+                        tl = self.typetable[inst.name][leftside]
+                        tr = Types.Notype
+                        if elem[1].__name__ == "SIMPLEXPR":
+                            try:
+                                self.checkBoolExpresion(inst, rightside)
+                                tr = Types.Bool
+                            except BaseException:
+                                pass
+                            try:
+                                self.checkMathExpresion(inst, rightside)
+                                tr = Types.Int
+                            except BaseException:
+                                pass
+                        elif elem[1].__name__ == "NEXTREF":
+                            tr = self.getTypeFromTable(inst.name, rightside)
+                        elif elem[1].__name__ == "SET":
+                            self.checkSET(elem[1])
+                            tr = Types.Symbol
+                        elif elem[1].__name__ == "RANGE":
+                            if int(_str(elem[1].what[0])) > \
+                               int(_str(elem[1].what[2])):
+                                raise LethalException("Empty range in next" \
+                                      + " assignment \'" + _str(elem) \
+                                      + "\', at line <" + fault.line + ">.")
+                            tr = Types.Int
+                        else:
+                            assert False
+
+                        assert tr != Types.Notype
+
+                        # check correct types in assignment
+                        if tl != tr and elem[1].__name__ != "SET":
+                            tls = str(Types.Types[tl])
+                            trs = str(Types.Types[tr])
+                            line = str(elem[0].__name__.line)
+                            raise LethalException(unicode(" Wrong types \'" \
+                                  + tls \
+                                  + "\' and \'" + trs + "\' in assignment \'" \
+                                  + _str(elem[1]) + "\' to variable \'" \
+                                  + _str(elem[0]) + "\', at line <" \
+                                  + line + ">."))
+                        
+                    else:
+                        raise LethalException( "Module <" + mod.name \
+                                  + "> has no local variable named <" \
+                                  + _str(elem[0]) \
+                                  + ">. Error at line <" + fault.line + ">.")
+
+                self.allownexteref = False
+                # affects
+                if fault.type == Types.Byzantine:
+                    for v in fault.affects:
+                        if not self.moduleHasVar(mod.name, v):
+                            raise LethalException( "Module <" + mod.name \
+                                  + "> has no local variable named <" + v \
+                                  + ">. Error at line <" + fault.line + ">.")
+
+                elif fault.type == Types.Stop:
+                    for t in fault.affects:
+                        if not self.moduleHasTrans(mod.name, t):
+                            raise LethalException( "Module <" + mod.name \
+                                  + "> has no transition named <" + t \
+                                  + ">. Error at line <" + fault.line + ">.")
+"""
