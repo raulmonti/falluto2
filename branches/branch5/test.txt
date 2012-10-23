@@ -1,0 +1,18 @@
+
+--4 = (algo | algo)
+
+math1  + math2 = math3 * ( math4 - math5 )  --OK
+
+--math1 + math2 >= math3 * ( math4 - math5 ) -- OK
+
+--math1 > math2				--OK
+
+--estoesunidentificadorpelado		--OK
+
+--(k) = algo 				--OK
+
+--k 					--OK
+
+--k = algo | algomas -> otro 		--OK
+
+--(d = a -> b) = (x | y) 		--OK
