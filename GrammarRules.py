@@ -145,7 +145,7 @@ def PROCTYPEBODY(): return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 
 
 def VAR():          return keyword("VAR"), -1, VARDECL
-def VARDECL():      return IDENT, ":", [ BOOLEAN, SET, RANGE]
+def VARDECL():      return IDENT, re.compile(r"\:"), [ BOOLEAN, SET, RANGE]
 def BOOLEAN():      return [keyword("bool")]
 
 
