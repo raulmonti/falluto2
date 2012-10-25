@@ -120,15 +120,15 @@ class System(ParserBaseElem):
                 p = Proctype()
                 p.parse(elem)
                 if p.name in self.proctypes:
-                    raise LethalException( "Redeclared proctype " + p.name \
+                    raise LethalE( "Redeclared proctype " + p.name \
                                          + " at line " + p.line + ".\n" )
                 self.proctypes[p.name] = p
             elif elem.__name__ == "INSTANCE":
                 i = Instance()
                 i.parse(elem)
                 if i.name in self.instances:
-                    raise LethalException( "Redeclared instance " + i.name \
-                                         + " at line " + i.line + ".\n" )
+                    raise LethalE( "Redeclared instance \'" + i.name \
+                                         + "\' at <" + i.line + ">.\n" )
                 self.instances[i.name] = i
             elif elem.__name__ == "SPECIFICATION":
                 p = Propertie()
@@ -258,20 +258,20 @@ class Instance(ParserBaseElem):
 
     def __init__(self):
         ParserBaseElem.__init__(self)
-        self.module = "" # string name of the module map for this instance
+        self.proctype = "" # string name of the proctype for this instance
     #.......................................................................
     def parse(self, AST):
-        AST = AST.what # [ name, module name, parameters list]
+        AST = AST.what # [ name, proctype name, parameters list]
         self.name = AST[0].what[0]
         self.line = AST[0].__name__.line
-        self.module = _str(AST[1])
+        self.proctype = _str(AST[1])
 
         for x in AST[2].what:
             self.params.append(x)
     #.......................................................................
     def __str__(self):
         string = "\n---> Instances " + str(self.name) 
-        string += " of proctype " + str(self.module)
+        string += " of proctype " + str(self.proctype)
         string += ", at line " + str(self.line)
         string += "; with parameters " + str(self.params)
         return string
@@ -385,7 +385,11 @@ class Fault(ParserBaseElem):
                 self.pre = x
             elif x.__name__ == "NEXTEXPR":
                 for elem in x.what:
-                    self.pos.append(elem)
+                    elem = elem.what
+                    nextref = elem[0]
+                    symbol = elem[1]
+                    expr = elem[2]
+                    self.pos.append([nextref, symbol, expr])
             elif x.__name__ in ["BIZ", "STOP", "TRANSIENT"]:
                 if x.__name__ == "BIZ":
                     self.type = Types.Byzantine
@@ -425,7 +429,11 @@ class Transition(ParserBaseElem):
                 self.pre = elem
             elif elem.__name__ == "NEXTEXPR":
                 for x in elem.what:
-                    self.pos.append(x)
+                    x = x.what
+                    nextref = x[0]
+                    symbol = x[1]
+                    expr = x[2]
+                    self.pos.append([nextref, symbol, expr])
             else:
                 assert False
 

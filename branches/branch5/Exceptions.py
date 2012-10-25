@@ -1,7 +1,12 @@
+from Types import *
+from Utils import _str, putBrackets
+
+
 ################################################################################
 class BaseException():
     def __init__(self):
         self.error = ""
+        self.cause = ""
     def __str__(self):
         return str(self.error)
     def __repr__(self):
@@ -11,11 +16,11 @@ class BaseException():
 
 
 ################################################################################
-class LethalException(BaseException):
+class LethalE(BaseException):
     def __init__(self, error):
         BaseException.__init__(self)
-        assert isinstance(error, unicode)
-        self.error = error
+        #assert isinstance(error, unicode)
+        self.error = str(error)
 
 
 ################################################################################
@@ -52,25 +57,36 @@ class WrongTypeError(BaseException):
 
 
 ################################################################################
-class EventNotAllowedError(BaseException):
-    def __init__(self):
+class EventNotAllowedE(BaseException):
+    def __init__(self, event):
         BaseException.__init__(self)
+        self.cause = _str(event)
 
 
 ################################################################################
-class WrongComparisonError(BaseException):
-    def __init__(self, vname1, tname1, vname2, tname2):
+class NextRefNotAllowedE(BaseException):
+    def __init__(self, nextref):
         BaseException.__init__(self)
-        self.var1 = vname1
-        self.var2 = vname2
-        self.type1 = tname1
-        self.type2 = tname2
-        self.error = "Wrong comparison between \'" \
-                   + str(vname1) + "\' of type < " + str(tname1) + " > and \'" \
-                   + str(vname2) + "\' of type < " + str(tname2) + " >."
+        self.cause = _str(nextref)
 
 
+################################################################################
+class WrongTFO(LethalE): #wrong types for operand
+    def __init__(self, t1, t2, operand, where, line):
+        t1s = ""
+        t2s = ""
+        exp = ""
+        try:
+            t1s = Types.Types[t1]
+            t2s = Types.Types[t2]
+            exp = putBrackets(where)
+        except:
+            pass
 
-
+        raise LethalE( "Wrong types <" + t1s + "> and <" + t2s \
+                     + "> for operand \'" + str(operand)
+                     + "\' in expresion \'" + exp + "\', at <" 
+                     + str(line) + ">.")
+################################################################################
 
 

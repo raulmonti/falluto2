@@ -94,7 +94,8 @@ def debugSOLVED(string):
 #
 
 def WARNING(string):
-    print '\033[' + debugColorDict["debugYELLOW"] + "WARNING: [" + str(lineno())  + "]:\n" + str(string) + '\033[1;m',
+    colorPrint("debugYELLOW","[WARNING]\t" + str(string), False)
+#    print '\033[' + debugColorDict["debugYELLOW"] + "WARNING: [" + str(lineno())  + "]:\n" + str(string) + '\033[1;m',
 
 
 def debugERROR(string):
