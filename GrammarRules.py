@@ -13,7 +13,7 @@ from pyPEG import *
 import pyPEG
 import re, fileinput
 from Debug import *
-from Utils import _cl, _str, putParenthesis
+from Utils import _cl, _str, putBrackets
 #
 #===============================================================================
 
@@ -84,10 +84,11 @@ def SET():          return re.compile(r"\{"), 0, ([IDENT, INT, BOOL] \
 
 def RANGE():        return INT, re.compile(r"\.\."), INT
 
-def INCLUSION():    return [IDENT], re.compile(r"\bin\b"), [SET, RANGE]
+def INCLUSION():    return IDENT, re.compile(r"\bin\b"), [SET, RANGE]
 
 
 # EXPRESION
+
 def EXPRESION(): return [LEVEL5]
 
 def VALUE():    return [ (re.compile(r"\("), LEVEL5, re.compile(r"\)"))
@@ -257,5 +258,5 @@ if __name__ == "__main__":
     debugLBLUE(_str(_ast))
 
     if len(_ast) and _ast[0].__name__ == EXPRESION:
-        debugRED(putParenthesis(_ast[0]))
+        debugRED(putBrackets(_ast[0]))
 

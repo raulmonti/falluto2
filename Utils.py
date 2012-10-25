@@ -49,7 +49,7 @@ def _str(ast = []):
 
 ################################################################################
 
-def putParenthesis(AST):
+def putBrackets(AST):
     """
         Devuelve un string con los elementos unicode de AST, colocando ademas
         parentesis segun presedencia de operadores. AST debe haber sido parseado
@@ -58,14 +58,14 @@ def putParenthesis(AST):
     if isinstance(AST, Symbol):
         if len(AST.what) == 3:
             if AST.what[0] == "(":
-                return putParenthesis(AST.what[1])
+                return putBrackets(AST.what[1])
             else:
-                return "(" + putParenthesis(AST.what[0]) + " " + AST.what[1] \
-                     + " " + putParenthesis(AST.what[2]) + ")"
+                return "(" + putBrackets(AST.what[0]) + " " + AST.what[1] \
+                     + " " + putBrackets(AST.what[2]) + ")"
         elif len(AST.what) == 1:
-            return putParenthesis(AST.what[0])
+            return putBrackets(AST.what[0])
         elif len(AST.what) == 2:
-            return AST.what[0] + putParenthesis(AST.what[1])
+            return AST.what[0] + putBrackets(AST.what[1])
         else:
             Debug.WARNING("Passing through: " + repr(AST) + "\n")
             return _str(AST)
@@ -73,4 +73,20 @@ def putParenthesis(AST):
         return AST
     else:
         raise TypeError(AST)
-   
+
+
+################################################################################
+def isBool(var):
+    return var == "TRUE" or var == "FALSE"
+
+
+################################################################################
+
+def isInt(var):
+    try:
+        int(var)
+        return True
+    except ValueError:
+        return False
+
+
