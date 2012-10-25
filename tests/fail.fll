@@ -21,10 +21,11 @@ PROCTYPE module1(ctxvar1; synact1):
 	    fault2: => var3' = 4  is BIZ(var3)
 	
 	INIT
-		(1+3 > var3) -> (var1 = TRUE) & (var1 = FALSE | var2 in {1,2})
+		4 + 7 > var3
+		//(1+3 > var3) -> (var1 = TRUE) & (var1 = FALSE | var2 in {1,2})
 
 	TRANS
-		[]: => var1' = !var1, var1' = (! var1 & var3 in {1,2, hola} )
+		[]: => var1' = !var1, var1' = (! var1' & var3 in {1,2, FALSE} )
 		[act1]:
                 [act2]:
 
@@ -36,7 +37,7 @@ INSTANCE instance2 = module1(instance1, sincroniza2)
 
 NORMAL_BEHAIVIOUR( AX TRUE & just(instance2.act1))
 
-CTLSPEC A [! EG TRUE & ! just(instance1.act1) U TRUE]
+CTLSPEC A [! EG TRUE & ! just(instance2.fault2) | instance2.var2 = a U TRUE]
 
 COMPASSION ( TRUE , TRUE != FALSE)
 

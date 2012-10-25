@@ -89,4 +89,73 @@ def isInt(var):
     except ValueError:
         return False
 
+################################################################################
+__bigLineNumber = "noFile:99999999"
+
+def lineMin(line1, line2):
+    """
+        Return the minimum between two pyPEG line numbers (of the form
+        'file:#'.
+    """    
+    int1 = int(line1.split(':',1)[1])
+    int2 = int(line2.split(':',1)[1])
+    if int1 < int2:
+        return line1
+    else:
+        return line2
+    
+    
+def getBestLineNumberForExpresion(expr):
+    """
+        The minimum line number in the expresion is usually the best option 
+        for the expresion's line.
+    """
+    line = __bigLineNumber
+    if isinstance(expr, unicode):
+        return __bigLineNumber
+    elif isinstance(expr, pyPEG.Symbol):
+        line = expr.__name__.line
+        return lineMin(line, getBestLineNumberForExpresion( expr.what))
+    elif isinstance(expr, list):
+        for elem in expr:
+            line = lineMin(line, getBestLineNumberForExpresion( elem))
+            return line
+    else:
+        raise TypeError(expr)
+        
+################################################################################
+
+__expresion = "EXPRESION" # name of the Expresions Symbols in the actual grammar
+
+def getExpresions(formula):
+    """
+        Get a list with the '__expresion' named pyPEG.Symbol objects found inside
+        'formula'.
+    """
+    result = []
+    if isinstance(formula, pyPEG.Symbol):
+        if formula.__name__ == __expresion:
+            result.append(formula)
+        else:
+            result += getExpresions(formula.what)
+    elif isinstance(formula, list):
+        for elem in formula:
+            result += getExpresions(elem)
+    elif isinstance(formula, unicode):
+        return []
+    else:
+        raise TypeError(formula)
+    return result
+################################################################################
+
+
+
+
+
+
+
+
+
+
+
 

@@ -93,11 +93,11 @@ def EXPRESION(): return [LEVEL5]
 
 def VALUE():    return [ (re.compile(r"\("), LEVEL5, re.compile(r"\)"))
                        , INCLUSION
+                       , NEXTREF
                        , IDENT
                        , INT
                        , BOOL
                        , EVENT
-                       , NEXTREF
                        , (re.compile(r"\!"), VALUE)
                        , (re.compile(r"\-"), VALUE)
                        ]

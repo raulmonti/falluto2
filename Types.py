@@ -12,6 +12,13 @@ class Types():
     Stop = 55
     Byzantine = 56
     
+    # Propertie types
+    Ctlspec = 100
+    Ltlspec = 105
+    Nb      = 110 #normal behaiviour
+    Fmf     = 115 #finitely many fault
+    Fmfs    = 120 #finitely many faults
+    
     Types = { 0:"Int"           # variables
             , 1:"Bool"
             , 2:"Symbol"
@@ -21,5 +28,14 @@ class Types():
             , 56:"Byzantine"
             }
 
+    propToType = { "NORMALBEHAIVIOUR":Nb
+                 , "FINMANYFAULTS":Fmfs
+                 , "FINMANYFAULT":Fmf
+                 , "CTLSPEC":Ctlspec
+                 , "LTLSPEC":Ltlspec
+                 }
+
+
     def __init__(self):
         pass
+

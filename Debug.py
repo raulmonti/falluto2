@@ -108,7 +108,8 @@ def debugTODO(string):
               + "]: " + str(string) + '\033[1;m'
     else:
         pass
-
+def debugWARNING(string):
+    print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG WARNING: [" + str(lineno())  + "]:\n" + str(string) + '\033[1;m',
 #
 # COLOR PRINTING ...............................................................
 #
