@@ -42,6 +42,8 @@ def Check(system):
 #TODO Devolver un error mas entendible cuando salta un eventsnotallowed o
 # nextrefnotallowed
 
+#TODO Buscar donde se active el event not allowed y asegurarse de desactivarlo
+#si ocurre una excepcion
 ################################################################################
 
 class Checker(object):
@@ -74,6 +76,7 @@ class Checker(object):
         self.buildTypeTable()
         self.checkInstancedProctypes()
         self.checkProperties()
+        self.checkContraints()
     #.......................................................................
     def checkRedeclared(self):
         """
@@ -203,7 +206,7 @@ class Checker(object):
                 if var.type == Types.Symbol:
                     for value in var.domain:
                         self.typetable[inst.name][value] = Types.Symbol
-                        self.typetable[self.globalinst.name][value] = Types.Symbol
+                        self.typetable[self.globalinst.name][value]=Types.Symbol
                 
         # context variables
         for inst in self.sys.instances.itervalues():
@@ -230,7 +233,7 @@ class Checker(object):
                     assert v in self.typetable[i]
                     self.typetable[inst.name][cvname] = self.typetable[i][v]
                 else:
-                    debugRED(param)
+                    debugERROR(param)
                     assert False
        
         # TODO mirar bien que estoy haciendo con los event 
@@ -369,17 +372,76 @@ class Checker(object):
             self.allownextrefs = False
     #.......................................................................
     def checkProperties(self):
+
+        for p in self.sys.properties.itervalues():
+            t = p.type
+            if t == Types.Ctlspec or t == Types.Ltlspec:
+                self.checkTimeLogicExp(p.formula)
+            elif t in [Types.Nb, Types.Fmfs, Types.Fmf]:
+                self.checkTimeLogicExp(p.formula)
+                for x in p.params:
+                    # for Types.Fmf type properties
+                    line = getBestLineNumberForExpresion(x)
+                    if '.' not in _str(x):
+
+                        raise LethalE("Bad fault name \'" + _str(x) \
+                                     + "\' for Finitely many fault" \
+                                     + " propertie at <" + line + ">.")
+                    else:
+                        i, f = _str(x).split('.',1)
+                        try:
+                            inst = self.sys.instances[i]
+                            pt = self.sys.proctypes[inst.proctype]
+                            if not f in [x.name for x in pt.faults]:
+                                raise LethalE( "Error at <" + line \
+                                             + ">. No fault named \'" \
+                                             + f + "\' in instance \'" \
+                                             + i + "\'.")
+                        except KeyError as e:
+                            raise LethalE( " Error at <" + line + ">. \'" \
+                                         + i \
+                                         + "\' doesn't name an instance.") 
+
+    #.......................................................................
+    def checkTimeLogicExp(self, expr):
+        assert isinstance(expr, pyPEG.Symbol)
+        assert expr.__name__ in ["CTLEXP", "LTLEXP"]
+
         self.allowevents = True
         try:
-            for p in self.sys.properties.itervalues():
-                t = p.type
-                if t == Types.Ctlspec:
-                    for exp in getExpresions(p.formula):
-                        t = self.getExpresionType(self.globalinst, exp) #TODO
+            for exp in getExpresions(expr):
+                t = self.getExpresionType(self.globalinst, exp)
+                if t != Types.Bool:
+                    exps = putBrackets(exp)
+                    line = getBestLineNumberForExpresion(exp)
+                    raise LethalE("Error at <" + line + ">. Expresions inside" \
+                                 +" time logic properties must be of type " \
+                                 +"bool, while \'" + exps + "\' is type " \
+                                 + Types.Types[t] + ".")
             self.allowevents = False
         except BaseException as e:
             self.allowevents = False
             raise e
+        
+    #.......................................................................
+    def checkContraints(self):
+        self.allowevents = True
+        try:
+            for c in self.sys.contraints.itervalues():
+                for exp in c.params:
+                    t = self.getExpresionType(self.globalinst, exp)
+                    if t != Types.Bool:
+                        exps = putBrackets(exp)
+                        line = getBestLineNumberForExpresion(exp)
+                        raise LethalE("Error at <" + line \
+                                     + ">. Expresions inside time" \
+                                     +" logic properties must be of type " \
+                                     +"bool, while \'" + exps + "\' is type " \
+                                     + Types.Types[t] + ".")
+        except BaseException as e:
+            self.allowevents = False
+            raise e
+    
     #.......................................................................
     def getTypeFromTable(self, inst, vname):
         try:
@@ -573,11 +635,14 @@ class Checker(object):
                 ept = self.sys.proctypes[einst.proctype]
                 elist=[x.name for x in ept.faults + ept.transitions]
                 if not ev in elist:
-                    raise KeyError(ev)
-            except Exception as e:
+                    raise LethalE("Error in event \'" + _str(ast) + "\', at <" \
+                                 + ast.__name__.line + ">. No event named \'" \
+                                 + ev + "\' in instance \'" + ei + "\'.")
+            except KeyError as e:
 
-                raise LethalE("Bad value for event \'" + _str(ast) \
-                         + "\' at <" + ast.__name__.line + ">.")
+                raise LethalE( "Error in event \'" + _str(ast) + "\', at <" \
+                             + ast.__name__.line + ">. \'" + ei \
+                             + "\' doesn't name an instance.")
             return Types.Bool
             
         assert False # never come out here

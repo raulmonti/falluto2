@@ -291,7 +291,7 @@ class Propertie(ParserBaseElem):
         self.line = AST.__name__.line
         self.type = Types.propToType[AST.__name__]
 
-        self.formula = AST.what[-1].what
+        self.formula = AST.what[-1]
         for f in AST.what[:-1:]:
             self.params.append(f)
  
