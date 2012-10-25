@@ -44,7 +44,7 @@ def _str(ast = []):
         string = str(lst[0])
     for element in lst[1::]:
         string += " " + str(element)
-    return string
+    return str(string)
 
 
 ################################################################################
@@ -90,13 +90,18 @@ def isInt(var):
         return False
 
 ################################################################################
-__bigLineNumber = "noFile:99999999"
+__bigLineNumber = "Can't find out line number. Check first and last line of your code."
 
 def lineMin(line1, line2):
     """
         Return the minimum between two pyPEG line numbers (of the form
         'file:#'.
-    """    
+    """
+    if not ':' in line1: # or line1 = __bigLineNumber: (__bigLineNumber hasn't ':')
+        return line2
+    if not ':' in line2: #or line2 = __bigLineNumber:
+        return line1
+    assert ':' in line1 and ':' in line2
     int1 = int(line1.split(':',1)[1])
     int2 = int(line2.split(':',1)[1])
     if int1 < int2:
@@ -115,7 +120,8 @@ def getBestLineNumberForExpresion(expr):
         return __bigLineNumber
     elif isinstance(expr, pyPEG.Symbol):
         line = expr.__name__.line
-        return lineMin(line, getBestLineNumberForExpresion( expr.what))
+        line = lineMin( line, getBestLineNumberForExpresion( expr.what))
+        return line
     elif isinstance(expr, list):
         for elem in expr:
             line = lineMin(line, getBestLineNumberForExpresion( elem))

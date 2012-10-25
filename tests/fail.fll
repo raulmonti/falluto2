@@ -43,4 +43,4 @@ COMPASSION ( TRUE , TRUE != FALSE)
 
 FAIRNESS just(instance1.act1) -> just(instance2.act1)
 
-FINITELY_MANY_FAULT(instance1.f1; G F TRUE)
+FINITELY_MANY_FAULT(instance1.fault1; G F TRUE)
