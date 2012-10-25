@@ -289,7 +289,7 @@ class Propertie(ParserBaseElem):
     def parse(self, AST):
         AST = AST.what[0]
         self.line = AST.__name__.line
-        self.type = AST.__name__
+        self.type = Types.propToType[AST.__name__]
 
         self.formula = AST.what[-1].what
         for f in AST.what[:-1:]:
@@ -398,7 +398,7 @@ class Fault(ParserBaseElem):
                 else:
                     self.type = Types.Transient
                 for y in x.what:
-                    self.affects.append(_str(y))
+                    self.affects.append(y)
     #.......................................................................
     def __str__(self):
         string = "--> Fault \'" + str(self.name)

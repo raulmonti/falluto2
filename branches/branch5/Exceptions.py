@@ -27,8 +27,8 @@ class LethalE(BaseException):
 class UndeclaredError(BaseException):
     def __init__(self, var):
         BaseException.__init__(self)
-        self.var = str(var)
-        self.error = "Undeclared variable \'" + self.var + "\'."
+        self.cause = str(var)
+        self.error = "Undeclared variable \'" + self.cause + "\'."
 
 
 ################################################################################

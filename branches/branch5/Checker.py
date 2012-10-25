@@ -8,7 +8,8 @@ import Debug
 from Exceptions import *
 import Exceptions
 from Types import *
-from Utils import _cl, _str, isBool, isInt, putBrackets
+from Utils import _cl, _str
+from Utils import *
 import Utils
 import fileinput
 #
@@ -35,16 +36,29 @@ def Check(system):
 
 #===============================================================================
 
+#TODO Aclarar que isntancia se esta checkeando al levantar una excepcion de 
+# tipos.
+
+#TODO Devolver un error mas entendible cuando salta un eventsnotallowed o
+# nextrefnotallowed
 
 ################################################################################
 
 class Checker(object):
     #.......................................................................
     def __init__(self):
-        self.sys           = None
-        self.typetable     = {}
-        self.allowevents   = False
-        self.allownextrefs = False
+        self.sys             = None
+        self.typetable       = {}
+        # symbvaluetable contains symbol values that have been declared 
+        # inside sets
+        self.symbvaluetable  = []
+        self.allowevents     = False
+        self.allownextrefs   = False
+        # We use this global instance to set the environment for expresions 
+        # outside proctypes declarations.
+        self.globalinst      = Parser.Instance()
+        self.globalinst.name = "Glob#inst"
+        
     
     #.......................................................................
     def clear(self):
@@ -59,6 +73,7 @@ class Checker(object):
         self.checkInstancesParams()
         self.buildTypeTable()
         self.checkInstancedProctypes()
+        self.checkProperties()
     #.......................................................................
     def checkRedeclared(self):
         """
@@ -176,15 +191,19 @@ class Checker(object):
         # Precondition: Instance parameters are well defined. 
         #               (use checkInstanceParameters method before this one)
 
+        self.typetable[self.globalinst.name] = {}
+
         # Local declared variables
         for inst in self.sys.instances.itervalues():
             self.typetable[inst.name] = {}
             pt = self.sys.proctypes[inst.proctype]
             for var in pt.localvars:
                 self.typetable[inst.name][var.name] = var.type
+                # simbol values 
                 if var.type == Types.Symbol:
                     for value in var.domain:
                         self.typetable[inst.name][value] = Types.Symbol
+                        self.typetable[self.globalinst.name][value] = Types.Symbol
                 
         # context variables
         for inst in self.sys.instances.itervalues():
@@ -213,6 +232,17 @@ class Checker(object):
                 else:
                     debugRED(param)
                     assert False
+       
+        # TODO mirar bien que estoy haciendo con los event 
+        # (siempre deberian ser complex ids)
+
+        # for global instance:
+        giname = self.globalinst.name
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            for v in pt.localvars:
+                vname = inst.name + '.' + v.name
+                self.typetable[giname][vname]=self.typetable[inst.name][v.name]
 
     #.......................................................................
     def checkInstancedProctypes(self):
@@ -220,48 +250,136 @@ class Checker(object):
             Check for consistency in proctypes, and its instanciations.
         """
         for inst in self.sys.instances.itervalues():
-            pt = self.sys.proctypes[inst.proctype]
+            self.checkVarSection(inst)
+            self.checkFaultSection(inst)
+            self.checkInitSection(inst)
+            self.checkTransSection(inst)
             
-            # VAR section
-            for v in pt.localvars:
-                if v.type == Types.Int:
-                    if v.domain[0] > v.domain[1]:
-                        raise LethalE( "Empty range in declaration of \'" \
-                                     + v.name + " at <" + v.line + ">.")
-            
-            # FAULT section
-            for f in pt.faults:
-                # pre
-                if f.pre != None:
-                    assert isinstance(f.pre, pyPEG.Symbol)
-                    assert f.pre.__name__ == "EXPRESION"
-                    t = self.getExpresionType(inst, f.pre)
-                    if t != Types.Bool:
-                        raise LethalE( "Error at <" + f.line 
-                                     + ">. Fault enable condition \'" 
-                                     + putBrackets(f.pre) 
-                                     + "\' should be Boolean type, but is " 
-                                     + Types.Types[t] + " type instead.")
-                # pos
-                for p in f.pos:
-                    nextref = p[0]
-                    nrname = _str(nextref)
-                    expr = p[2]
-                    exprname = _str(expr)
-                    
-                    t1 = self.getTypeFromTable(inst, nrname)
-                    t2 = self.getExpresionType(inst, expr)
-                    
-                    if (p[1] == '=' and t1 != t2) \
-                        or (p[1] == 'in' and t2 == Types.Int and t1 != t2):
-                        line = nextref.__name__.line
-                        raise LethalE( "Wrong types <" + Types.Types[t1] \
-                                     + "> (from \'" + nrname + "\') and <" \
-                                     + Types.Types[t2] + "> (from \'" \
-                                     + putBrackets(expr) \
-                                     + "\'), in next equation of variable \'" \
-                                     + nrname + "\' at <" + line + ">.") 
-                # type
+
+    #.......................................................................
+    def checkVarSection(self, inst):
+        pt = self.sys.proctypes[inst.proctype]
+        for v in pt.localvars:
+            if v.type == Types.Int:
+                if v.domain[0] > v.domain[1]:
+                    raise LethalE( "Empty range in declaration of \'" \
+                                 + v.name + " at <" + v.line + ">.")
+    #.......................................................................
+    def checkFaultSection(self, inst):
+        pt = self.sys.proctypes[inst.proctype]
+        for f in pt.faults:
+            # pre
+            if f.pre != None:
+                assert isinstance(f.pre, pyPEG.Symbol)
+                assert f.pre.__name__ == "EXPRESION"
+                t = self.getExpresionType(inst, f.pre)
+                if t != Types.Bool:
+                    raise LethalE( "Error at <" + f.line \
+                                 + ">. Fault enable condition \'" \
+                                 + putBrackets(f.pre) \
+                                 + "\' should be Boolean type, but is " \
+                                 + Types.Types[t] + " type instead.")
+            # pos
+            self.allownextrefs = True
+            for p in f.pos:
+                nextref = p[0]
+                nrname = _str(nextref)
+                expr = p[2]
+                exprname = _str(expr)
+                
+                t1 = self.getTypeFromTable(inst, nrname)
+                t2 = self.getExpresionType(inst, expr)
+                
+                if (p[1] == '=' and t1 != t2) \
+                    or (p[1] == 'in' and t2 == Types.Int and t1 != t2):
+                    line = nextref.__name__.line
+                    raise LethalE( "Wrong types <" + Types.Types[t1] \
+                                 + "> (from \'" + nrname + "\') and <" \
+                                 + Types.Types[t2] + "> (from \'" \
+                                 + putBrackets(expr) \
+                                 + "\'), in next equation of variable \'" \
+                                 + nrname + "\' at <" + line + ">.")
+            self.allownextrefs = False
+            # type
+            for a in f.affects:
+                sa = _str(a)
+                line = a.__name__.line
+                if f.type == Types.Byzantine:
+                    if not sa in [x.name for x in pt.localvars]:
+                        raise LethalE( "Undeclared variable \'" + sa \
+                                     + "\' as byzantine affected variable" \
+                                     + " for fault \'" + f.name + "\' at <" \
+                                     + line + ">.")
+                elif f.type == Types.Stop:
+                    if not sa in [x.name for x in pt.transitions]:
+                        raise LethalE( "Undeclared transition \'" + sa \
+                                     + "\' as Stop affected transition" \
+                                     + " for fault \'" + f.name + "\' at <" \
+                                     + line + ">.")
+                else:
+                    assert False
+    #.......................................................................
+    def checkInitSection(self, inst):
+        pt = self.sys.proctypes[inst.proctype]
+        if pt.init != None:
+            t = self.getExpresionType(inst, pt.init)
+            if t != Types.Bool:
+                line = getBestLineNumberForExpresion(pt.init)
+                raise LethalE( "Init formula at <" + line \
+                             + "> should be of Boolean type, but it's type " \
+                             + Types.Types[t] +" instead.")
+
+    #.......................................................................
+    def checkTransSection(self, inst):
+        pt = self.sys.proctypes[inst.proctype]
+        # We have already checked that there is no repeated transition name.
+        for tr in pt.transitions:
+                        # pre
+            if tr.pre != None:
+                assert isinstance(tr.pre, pyPEG.Symbol)
+                assert tr.pre.__name__ == "EXPRESION"
+                t = self.getExpresionType(inst, tr.pre)
+                if t != Types.Bool:
+                    line = getBestLineNumberForExpresion(tr.pre)
+                    raise LethalE( "Error at <" + line \
+                                 + ">. Tranisition enable condition \'" \
+                                 + putBrackets(tr.pre) \
+                                 + "\' should be Boolean type, but is " \
+                                 + Types.Types[t] + " type instead.")
+            # pos
+            self.allownextrefs = True
+            for p in tr.pos:
+                nextref = p[0]
+                nrname = _str(nextref)
+                expr = p[2]
+                exprname = _str(expr)
+                
+                t1 = self.getTypeFromTable(inst, nrname)
+                t2 = self.getExpresionType(inst, expr)
+                
+                if (p[1] == '=' and t1 != t2) \
+                    or (p[1] == 'in' and t2 == Types.Int and t1 != t2):
+                    line = nextref.__name__.line
+                    raise LethalE( "Wrong types <" + Types.Types[t1] \
+                                 + "> (from \'" + nrname + "\') and <" \
+                                 + Types.Types[t2] + "> (from \'" \
+                                 + putBrackets(expr) \
+                                 + "\'), in next equation of variable \'" \
+                                 + nrname + "\' at <" + line + ">.")
+            self.allownextrefs = False
+    #.......................................................................
+    def checkProperties(self):
+        self.allowevents = True
+        try:
+            for p in self.sys.properties.itervalues():
+                t = p.type
+                if t == Types.Ctlspec:
+                    for exp in getExpresions(p.formula):
+                        t = self.getExpresionType(self.globalinst, exp) #TODO
+            self.allowevents = False
+        except BaseException as e:
+            self.allowevents = False
+            raise e
     #.......................................................................
     def getTypeFromTable(self, inst, vname):
         try:
@@ -416,7 +534,11 @@ class Checker(object):
             elif value.__name__ == "BOOL":
                 return Types.Bool
             elif value.__name__ == "IDENT":
-                return self.getTypeFromTable(inst, _str(value))
+                try:
+                    return self.getTypeFromTable(inst, _str(value))
+                except UndeclaredError as e:
+                    line = value.__name__.line
+                    raise LethalE("Error at <" + line + ">. " + e.error)
             elif value.__name__ == "NEXTREF":
                 if not self.allownextrefs:
                     raise NextRefNotAllowedE(value)
@@ -427,37 +549,70 @@ class Checker(object):
                 if not self.allowevents:
                     raise EventNotAllowedE(value)
                 else:
-                    return self.getTypeFromTable(inst, _str(value))
-                assert False
+                    return self.getEventType(inst,value)
+                assert False # never come out here
             elif value.__name__ == "INCLUSION":
-                elem = value.what[0]
-                t = self.getTypeFromTable(inst, _str(elem)) 
-                _set = value.what[2]
-                if _set.__name__ == "SET":
-                    for x in _set.what:
-                        if isinstance(x,pyPEG.Symbol):
-                            if x.__name__ == "IDENT":
-                                #just to check if it exists.
-                                self.getTypeFromTable(inst, _str(x)) 
-                elif _set.__name__ == "RANGE":
-                    line = _set.__name__.line
-                    if int(_str(_set.what[0])) > int(_str(_set.what[2])):
-                        raise LethalE( "Empty range \'" + _str(_set) 
-                                     + "\' at <" + str(line) + ">.")
-                    if t != Types.Int:
-                        ts = Types.Types[t]
-                        raise LethalE( "Can't check inclusion of an element " \
-                                     + "of type <" + ts \
-                                     + "> in a range, in \'" + _str(value) \
-                                     + "\' at <" + line + ">.")
-                else:
-                    assert False
-                return Types.Bool
+                return self.getInclusionType(inst,value)
             else:
-                assert False
+                assert False # never come out here
         else:
-            assert False
-        assert False
+            assert False # never come out here
+        assert False # never come out here
+
+    #.......................................................................
+    def getEventType(self,inst,ast):
+        ev = ast.what[1]
+        sv = _str(ev)
+        if not '.' in sv:
+            raise LethalE( "Bad value for event \'" + _str(ast) \
+                         + "\' at <" + ast.__name__.line + ">.")
+        else:
+            ei,ev = sv.split('.', 1)
+            try:
+                einst = self.sys.instances[ei]
+                ept = self.sys.proctypes[einst.proctype]
+                elist=[x.name for x in ept.faults + ept.transitions]
+                if not ev in elist:
+                    raise KeyError(ev)
+            except Exception as e:
+
+                raise LethalE("Bad value for event \'" + _str(ast) \
+                         + "\' at <" + ast.__name__.line + ">.")
+            return Types.Bool
+            
+        assert False # never come out here
+    #.......................................................................
+    def getInclusionType(self,inst,ast):
+        assert isinstance(ast, pyPEG.Symbol)
+        assert ast.__name__ == "INCLUSION"
+        elem = ast.what[0]
+        t = self.getTypeFromTable(inst, _str(elem)) 
+        _set = ast.what[2]
+        if _set.__name__ == "SET":
+            for x in _set.what:
+                if isinstance(x,pyPEG.Symbol):
+                    if x.__name__ == "IDENT":
+                        #just to check if it exists.
+                        try:
+                            self.getTypeFromTable(inst, _str(x)) 
+                        except UndeclaredError as e:
+                            line = ast.__name__.line
+                            raise LethalE( "Error at <" + line \
+                                         + ">. " + e.error)
+        elif _set.__name__ == "RANGE":
+            line = _set.__name__.line
+            if int(_str(_set.what[0])) > int(_str(_set.what[2])):
+                raise LethalE( "Empty range \'" + _str(_set) 
+                             + "\' at <" + str(line) + ">.")
+            if t != Types.Int:
+                ts = Types.Types[t]
+                raise LethalE( "Can't check inclusion of an element " \
+                             + "of type <" + ts \
+                             + "> in a range, in \'" + _str(ast) \
+                             + "\' at <" + line + ">.")
+        else:
+            assert False # never come out here
+        return Types.Bool
     #.......................................................................
 
 ################################################################################
