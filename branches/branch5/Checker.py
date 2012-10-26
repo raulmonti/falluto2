@@ -682,6 +682,9 @@ class Checker(object):
 
 ################################################################################
 
+#TODO Checkear que se correspondan la cantidad de parametros de la instancia con
+# la cantidad de parametros de su proctype
+
 
 # TESTING ======================================================================
 
