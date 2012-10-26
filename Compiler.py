@@ -17,17 +17,13 @@ import Utils
 #===============================================================================
 
 # MODULE PLAIN API =============================================================
-
+# TODO Media al pedo la API???
 # Compile:
-#   .. system: Parser.System type object to compile
+#   .. system: Parser.System type object to compile.
+#   .. @ returns: A Compiler instance with the compiled system.
 def Compile(system):
     pass
     
-# Verify:
-#   .. compileSys:
-#   .. i:
-def Verify(compiledSys, i):
-    pass
 #===============================================================================
 
 
@@ -48,3 +44,8 @@ class Compiler(object):
     def compile(self, system):
         pass
     #.......................................................................
+    # VerifyPropertie:
+    #   .. i: propertie index
+    def VerifyPropertie(self, i):
+        pass
+
