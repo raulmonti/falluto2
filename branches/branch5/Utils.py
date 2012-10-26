@@ -154,9 +154,46 @@ def getExpresions(formula):
     return result
 ################################################################################
 
+class TabLevel():
+    """
+        Para definir el nivel de tabulado a partir del cual imprimir el output.
+        Para agregar n '\t's al tabulado hacemos Tablevel += n. Similarmente 
+        para restar hacemos -= n. str(Tablevel) devuelve el string con la
+        cantidad de \t elegidos.
+    """
+    def __init__(self):
+        self.level = 0
 
+    def __str__(self):
+        string = ""
+        for x in range(0,self.level):
+            string += '\t'
+        return string
 
+    def __add__(self, other):
+        if type(other) == int :
+            self.level += other
+            return self
+        else:
+            raise TypeError
 
+    def __sub__(self, other):
+        if type(other) == int :
+            self.level -= other
+            return self
+        else:
+            raise TypeError
+
+    def reset(self):
+        self.level = 0
+
+    def i(self):
+        self.level += 1
+
+    def d(self):
+        self.level -= 1
+
+################################################################################
 
 
 
