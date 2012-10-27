@@ -88,5 +88,18 @@ class WrongTFO(LethalE): #wrong types for operand
                      + "\' in expresion \'" + exp + "\', at <" 
                      + str(line) + ">.")
 ################################################################################
+class SysError():
+    def __init__(self):
+        self.error = ""
+    def __str__(self):
+        return str(self.error)
+    def __unicode__(self):
+        return unicode(self.error)
+    def __repr__(self):
+        return repr(self.error)
+################################################################################
 
+
+
+    
 
