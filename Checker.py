@@ -685,6 +685,9 @@ class Checker(object):
 #TODO Checkear que se correspondan la cantidad de parametros de la instancia con
 # la cantidad de parametros de su proctype
 
+#TODO Checkar empty instance dict
+
+#TODO Verificar que no se esta usando las contextvars en los nextAssigns
 
 # TESTING ======================================================================
 
