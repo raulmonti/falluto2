@@ -69,7 +69,7 @@ def putBrackets(AST):
         else:
             Debug.WARNING("Passing through: " + repr(AST) + "\n")
             return _str(AST)
-    elif isinstance(AST, unicode):
+    elif isinstance(AST, unicode) or isinstance(AST, str):
         return AST
     else:
         raise TypeError(AST)
