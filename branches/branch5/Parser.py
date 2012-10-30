@@ -23,7 +23,7 @@ from Utils import _cl, _str
 
 ################################################################################
 
-class ParserBaseElem():
+class ParserBaseElem(object):
     """
         Class to be enheritate when representing a parsed element.
         Los elementos interpretados por pyPEG llegan con la forma 
@@ -59,7 +59,7 @@ class ParserBaseElem():
              + " default __repr__(): " + str(self.name)
     #.......................................................................
     def __repr__(self):
-        return repr(str(self))
+        return object.__repr__(self) + " <" + self.name + "> "
     #.......................................................................
     def __unicode__(self):
         return unicode(str(self))
