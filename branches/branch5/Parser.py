@@ -174,10 +174,20 @@ class Option(ParserBaseElem):
     #.......................................................................
     def parse(self, AST):
         self.rawinput = AST
-        self.type = AST.__name__
         self.name = AST.what[0]
         self.params = AST.what[1::]
         self.line = AST.__name__.line
+        if AST.__name__ == "MODULEWFAIRDISABLE":
+            self.type = Types.WFDisable
+        elif AST.__name__ == "FAULTFAIRDISABLE":
+            self.type = Types.FFDisable
+        elif AST.__name__ == "CHECKDEADLOCK":
+            self.type = Types.Checkdk
+        elif AST.__name__ == "SYSNAME":
+            self.type = Types.Sysname
+        else:
+            debugWARNING("Bad option " + str(AST.__name__))
+            
      #.......................................................................
     def __str__(self):
         string = "\n---> Option " + str(self.name)

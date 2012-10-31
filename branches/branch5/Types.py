@@ -19,6 +19,13 @@ class Types():
     Fmf     = 115 #finitely many fault
     Fmfs    = 120 #finitely many faults
     
+    # Contraint types
+    WFDisable = 151
+    FFDisable = 155
+    Checkdk   = 165
+    Sysname   = 175
+    
+    
     Types = { 0:"Int"           # variables
             , 1:"Bool"
             , 2:"Symbol"
@@ -38,4 +45,5 @@ class Types():
 
     def __init__(self):
         pass
+
 

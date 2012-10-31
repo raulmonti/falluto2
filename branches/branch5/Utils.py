@@ -60,7 +60,7 @@ def putBrackets(AST):
             if AST.what[0] == "(":
                 return putBrackets(AST.what[1])
             else:
-                return "(" + putBrackets(AST.what[0]) + " " + AST.what[1] \
+                return "(" + putBrackets(AST.what[0]) + " " + _str(AST.what[1])\
                      + " " + putBrackets(AST.what[2]) + ")"
         elif len(AST.what) == 1:
             return putBrackets(AST.what[0])
@@ -74,6 +74,27 @@ def putBrackets(AST):
     else:
         raise TypeError(AST)
 
+
+################################################################################
+
+def putBracketsToFormula(AST):
+    """
+        Devuelve un string con los elementos unicode de AST, colocando ademas
+        parentesis segun presedencia de operadores a los subAST de tipo 
+        EXPRESION que se encuentren dentro de AST.
+    """
+    if isinstance(AST, Symbol):
+        if AST.__name__ == "EXPRESION":
+            return putBrackets(AST) + ' '
+        else:
+            string = ""
+            for elem in AST.what:
+                string += putBracketsToFormula(elem)
+            return string
+    elif isinstance(AST, unicode) or isinstance(AST, str):
+        return AST + ' '
+    else:
+        raise TypeError(AST)
 
 ################################################################################
 def isBool(var):
