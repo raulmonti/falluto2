@@ -33,3 +33,8 @@ debugTODO("""
             )
 
 debugTODO(" Permitir CTLSPECS en normal behaiviour y finitely ...")
+
+debugTODO( " Estoy aceptando -- como dos signos menos seguidos y en NuSMV eso" \
+           " es comentario y se rompe todo :S.")
+           
+debugTODO( "Permitir renombrar transiciones (COMPLICADISIMO PARA COMPILAR)")

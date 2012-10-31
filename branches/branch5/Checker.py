@@ -132,6 +132,8 @@ class Checker(object):
                                  + "\', at line \'" + t.line + "\'.")
                 tset.add(t.name)
 
+#TODO verificar interseccion vacia entre nombres de transiciones y de fallas
+
     #.......................................................................
     def checkInstancesParams(self):
         for inst in self.sys.instances.itervalues():
@@ -151,12 +153,12 @@ class Checker(object):
                     # is it a boolean, an integer, or an instance name?
                     if isBool(param) \
                     or isInt(param)  \
-                    or param in self.sys.instances:
+                    or param in [x.name for x in self.sys.instances.itervalues()]:
                         success = True
                 else:
                     # is it an instance variable?
                     iname, vname = param.split('.', 1)
-                    if iname in self.sys.instances:
+                    if iname in [x.name for x in self.sys.instances.itervalues()]:
                         i = self.sys.instances[iname]
                         pt = self.sys.proctypes[i.proctype]
                         if vname in [x.name for x in pt.localvars]:
@@ -358,10 +360,15 @@ class Checker(object):
                 exprname = _str(expr)
                 
                 t1 = self.getTypeFromTable(inst, nrname)
-                t2 = self.getExpresionType(inst, expr)
-                
+                if p[1] == "=":
+                    t2 = self.getExpresionType(inst, expr)
+                elif p[1] == "in":
+                    t2 = self.getSetOrRangeType(inst, expr)
+                else:
+                    assert False
+
                 if (p[1] == '=' and t1 != t2) \
-                    or (p[1] == 'in' and t2 == Types.Int and t1 != t2):
+                    or (p[1] == 'in' and t1 not in t2):
                     line = nextref.__name__.line
                     raise LethalE( "Wrong types <" + Types.Types[t1] \
                                  + "> (from \'" + nrname + "\') and <" \
@@ -370,6 +377,26 @@ class Checker(object):
                                  + "\'), in next equation of variable \'" \
                                  + nrname + "\' at <" + line + ">.")
             self.allownextrefs = False
+    #.......................................................................
+    def getSetOrRangeType(self, inst, expr):
+        assert isinstance(expr, pyPEG.Symbol)
+        assert expr.__name__ in ["RANGE", "SET"]
+        if expr.__name__ == "RANGE":
+            # TODO check empty range
+            return [Types.Int]
+        else:
+            ts = set([])
+            for elem in expr.what:
+                if isinstance(elem, pyPEG.Symbol) and elem.__name__ == "IDENT":
+                    ts.add(self.getTypeFromTable(inst.name, _str(elem)))
+                elif isBool(_str(elem)):
+                    ts.add(Types.Bool)
+                elif isInt(_str(elem)):
+                    ts.add(Types.Int)
+                else:
+                    #debugGREEN(elem)
+                    pass
+            return list(ts)
     #.......................................................................
     def checkProperties(self):
 

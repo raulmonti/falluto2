@@ -138,7 +138,7 @@ def MODULEWFAIRDISABLE():   return [re.compile(r"MODULE_WEAK_FAIR_DISABLE")]
 
 # Modules
 def PROCTYPE():     return keyword("PROCTYPE"), IDENT, "(", CTXVARS, \
-                           SYNCACTS, ")", ":", PROCTYPEBODY, \
+                           SYNCACTS, ")", PROCTYPEBODY, \
                            keyword("ENDPROCTYPE")
 def CTXVARS():      return 0, (IDENT, -1, (",", IDENT))
 def SYNCACTS():     return 0, (";", 0, ( IDENT, -1, (",", IDENT)))

@@ -71,9 +71,9 @@ class Compiler(object):
         assert isinstance(system, Parser.System)
         self.sys = system
         # fill tables
+        self.fillVarCompilationTable()
         self.fillSyncTransDict()
         self.fillTransCompilingDict()
-        self.fillVarCompilationTable()
         self.fillGTCTable()
         #        
         self.compileSystem()
@@ -135,7 +135,10 @@ class Compiler(object):
                 # else it's a boolean value or an integer
                 else:
                     assert isBool(siv) or isInt(siv)
-                    self.ctble[inst.name][scv] = self.compileBOOLorINT(siv)
+                    self.ctable[inst.name][scv] = self.compileBOOLorINT(siv)
+    #.......................................................................
+    def compileBOOLorINT(self, value):
+        return value
     #.......................................................................
     def fillSyncTransDict(self):
         stdict = {}
@@ -257,8 +260,21 @@ class Compiler(object):
         if not Types.FFDisable in \
             [x.type for x in self.sys.options.itervalues()]:
             self.buildFaultFairContraint()
+        if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
+            self.buildDkCheckContraint()
         for c in self.sys.contraints.itervalues():
             self.buildNormalContraint(c)
+        self.buildCTLvsLTLCompatibilityContraint()
+    #.......................................................................
+    def buildCTLvsLTLCompatibilityContraint(self):
+        self.save("\n")
+        self.save(self.comment("  @@ CTL vs LTL COMPATIBILITY CONTRAINT"))
+        self.save("FAIRNESS TRUE") 
+    #.......................................................................
+    def buildDkCheckContraint(self):
+        self.save("\n")
+        self.save(self.comment("  @@ DEADLOCK CHECK CONTRAINT"))
+        self.save("CTLSPEC AG " + Compiler.__actvar + " != " + Compiler.__dkact) 
     #.......................................................................
     def buildWeakFairContraint(self):
         # SYSTEM - MODULE FAIRNESS
@@ -404,7 +420,7 @@ class Compiler(object):
         self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
         self.save("VAR")
         self.tl.i()
-        # action variable
+        # ACTION VARIABLE
         lst = set([]) 
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
@@ -423,13 +439,13 @@ class Compiler(object):
             for f in pt.faults:
                 if f.type == Types.Byzantine:
                     lst.add(self.compileBizEffect(inst.name, f.name))
-            # deadlock action
-            lst.add(Compiler.__dkact)
+        # deadlock action
+        lst.add(Compiler.__dkact)
         # save
         self.save(Compiler.__actvar + ':' + self.compileSet(lst) + ';')
         self.varset.add(Compiler.__actvar)
 
-        # local variables
+        # LOCAL VARIABLES
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for var in pt.localvars:
@@ -456,7 +472,7 @@ class Compiler(object):
         self.save("INIT")
         self.tl.i()
         lst = []
-        flst = []
+        flst = ["TRUE"] # 'TRUE' so INIT never gets empty and NuSMV accepts it
         for inst in self.sys.instances.itervalues():
             pk = self.sys.proctypes[inst.proctype]
             # instance initialization
