@@ -9,7 +9,7 @@ CHECK_DEADLOCK
 ENDOPTIONS
 
 
-PROCTYPE module1(ctxvar1; synact1):
+PROCTYPE module1(ctxvar1; synact1)
 
 	VAR
             var1: bool
