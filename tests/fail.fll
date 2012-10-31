@@ -14,7 +14,7 @@ PROCTYPE module1(ctxvar1; synact1):
 	VAR
             var1: bool
             var2: {a,b,c}
-            var3: -11..132541
+            var3: -11..13
 
 	FAULT
             fault1: ctxvar1 & 5+var3 > 7+var3 | FALSE & var1  => var1' = !( var1 in {a,b,FALSE}) is STOP(act1)
@@ -36,7 +36,7 @@ ENDPROCTYPE
 INSTANCE instance1 = module1(instance2.var1, sincroniza1)
 INSTANCE instance2 = module1(instance1.var1, sincroniza1)
 
-NORMAL_BEHAIVIOUR( AX TRUE & just(instance2.act1))
+NORMAL_BEHAIVIOUR( G TRUE & just(instance2.act1))
 
 CTLSPEC A [! EG TRUE & ! just(instance2.fault2) | instance2.var2 = a U TRUE]
 

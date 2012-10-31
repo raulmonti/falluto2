@@ -21,3 +21,15 @@ debugTODO( "Controlar mejor las inclusiones (no se puede bool en symbolic set)"\
 
 debugTODO( "Poner parentesis a las expresiones compiladas, por las dudas NuSMV"\
          + " asocie de otra manera los operadores.")
+ 
+debugTODO("""         
+            WARNING *** The model contains COMPASSION declarations.        ***
+            WARNING *** Full fairness is not yet fully supported in NuSMV. ***
+            WARNING *** Currently, COMPASSION declarations are only        ***
+            WARNING *** supported for BDD-based LTL Model Checking.        ***
+            WARNING *** Results of CTL Model Checking and of Bounded       ***
+            WARNING *** Model Checking may be wrong.                       ***
+            """
+            )
+
+debugTODO(" Permitir CTLSPECS en normal behaiviour y finitely ...")
