@@ -110,12 +110,15 @@ class System(ParserBaseElem):
         for elem in ast.what:
             if elem.__name__ == "OPTIONS":
                 for opt in elem.what:
-                    o = Option()
-                    o.parse(opt)
-                    if o.name in self.options:
-                        WARNING( "Redeclared option \'" + o.name \
-                                + "\', using only last declaration.\n")
-                    self.options[o.name] = o
+                    if opt.__name__ == "SYSNAME":
+                        self.name = _str(opt.what)
+                    else:
+                        o = Option()
+                        o.parse(opt)
+                        if o.name in self.options:
+                            WARNING( "Redeclared option \'" + o.name \
+                                    + "\', using only last declaration.\n")
+                        self.options[o.name] = o
             elif elem.__name__ == "PROCTYPE":
                 p = Proctype()
                 p.parse(elem)

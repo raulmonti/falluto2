@@ -1,0 +1,81 @@
+--********** F A L L U T O 2.0 COMPILED SYSTEM FOR NuSMV **********
+
+
+MODULE main()
+
+	-- @@@ VARIABLES DECLARATION SECTION.
+	VAR
+		action#:{ bizE#instance2#fault2, trans#instance1#act2, synchro#sincroniza1, trans#instance1#NN0, fault#instance2#fault1, trans#instance2#act1, trans#instance1#act1, trans#instance2#act2, fault#instance1#fault1, fault#instance1#fault2, dk#action, bizE#instance1#fault2, trans#instance2#NN0, fault#instance2#fault2};
+		lvar#instance2#var1:boolean;
+		lvar#instance2#var2:{sv#a,sv#b,sv#c};
+		lvar#instance2#var3:-11..13;
+		lvar#instance1#var1:boolean;
+		lvar#instance1#var2:{sv#a,sv#b,sv#c};
+		lvar#instance1#var3:-11..13;
+		factive#instance2#fault1:boolean;
+		factive#instance2#fault2:boolean;
+		factive#instance1#fault1:boolean;
+		factive#instance1#fault2:boolean;
+	
+
+
+	-- @@@ INITIALIZATION SECTION.
+	INIT
+		(4 + 7 > lvar#instance2#var3 ) & 
+		(4 + 7 > lvar#instance1#var3 ) & 
+		((TRUE) & (factive#instance2#fault1 = FALSE) & (factive#instance2#fault2 = FALSE) & (factive#instance1#fault1 = FALSE) & (factive#instance1#fault2 = FALSE))
+	
+
+
+	-- @@@ TRANSITION SECTION.
+	TRANS
+		((next(action#) = trans#instance2#NN0) & (next(lvar#instance2#var1) = !lvar#instance2#var1 ) & (next(lvar#instance2#var1) = ( !lvar#instance2#var1 & lvar#instance2#var3 in { 1 , 2 , FALSE } ) ) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = trans#instance2#act1) & (factive#instance2#fault1 = FALSE) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = trans#instance2#act2) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = trans#instance1#NN0) & (next(lvar#instance1#var1) = !lvar#instance1#var1 ) & (next(lvar#instance1#var1) = ( !lvar#instance1#var1 & lvar#instance1#var3 in { 1 , 2 , FALSE } ) ) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = trans#instance1#act1) & (factive#instance1#fault1 = FALSE) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = trans#instance1#act2) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = synchro#sincroniza1) & (TRUE ) & (TRUE ) & (next(lvar#instance2#var3) = 7 ) & (next(lvar#instance1#var3) = 7 ) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = fault#instance2#fault1) & (lvar#instance1#var1 & 5 + lvar#instance2#var3 > 7 + lvar#instance2#var3 | FALSE & lvar#instance2#var1 ) & (next(lvar#instance2#var1) = !( lvar#instance2#var1 in { sv#a , sv#b , FALSE } ) ) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = fault#instance2#fault2) & (next(lvar#instance2#var3) = 4 ) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = fault#instance1#fault1) & (lvar#instance2#var1 & 5 + lvar#instance1#var3 > 7 + lvar#instance1#var3 | FALSE & lvar#instance1#var1 ) & (next(lvar#instance1#var1) = !( lvar#instance1#var1 in { sv#a , sv#b , FALSE } ) ) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = fault#instance1#fault2) & (next(lvar#instance1#var3) = 4 ) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = bizE#instance2#fault2) & (factive#instance2#fault2) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		((next(action#) = bizE#instance1#fault2) & (factive#instance1#fault2) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var2) = lvar#instance1#var2)) | 
+		(
+		--  @@ DEADLOCK TRANSITION
+		(next(action#) = dk#action) & (factive#instance2#fault1) & (factive#instance1#fault1) & ((!(TRUE )) | (!(TRUE ))) & (next(lvar#instance2#var1) = lvar#instance2#var1) & (next(lvar#instance2#var2) = lvar#instance2#var2) & (next(lvar#instance2#var3) = lvar#instance2#var3) & (next(factive#instance2#fault2) = factive#instance2#fault2) & (next(factive#instance2#fault1) = factive#instance2#fault1) & (next(factive#instance1#fault2) = factive#instance1#fault2) & (next(factive#instance1#fault1) = factive#instance1#fault1) & (next(lvar#instance1#var1) = lvar#instance1#var1) & (next(lvar#instance1#var3) = lvar#instance1#var3) & (next(lvar#instance1#var2) = lvar#instance1#var2))
+
+
+
+-- @@@ SYSTEM CONTRAINTS
+
+
+--  @@ MODULE FAIRNESS FOR instance2
+
+FAIRNESS ((!(factive#instance2#fault1 = FALSE)) & (!((TRUE ) & (TRUE )))) | (action# in { trans#instance2#NN0, trans#instance2#act1, trans#instance2#act2, synchro#sincroniza1})
+
+
+--  @@ MODULE FAIRNESS FOR instance1
+
+FAIRNESS ((!(factive#instance1#fault1 = FALSE)) & (!((TRUE ) & (TRUE )))) | (action# in { trans#instance1#NN0, trans#instance1#act1, trans#instance1#act2, synchro#sincroniza1})
+
+
+--  @@ FAULT SYSTEM FAIRNESS
+FAIRNESS (action# in { trans#instance1#act1, trans#instance1#act2, synchro#sincroniza1, trans#instance1#NN0, trans#instance2#act1, trans#instance2#act2, dk#action, trans#instance2#NN0})
+
+
+--  @@ DEADLOCK CHECK CONTRAINT
+CTLSPEC AG action# != dk#action
+
+
+--  @@ CONTRAINT: COMPASSION( TRUE, (TRUE != FALSE)
+COMPASSION (TRUE ,TRUE != FALSE )
+
+
+--  @@ CONTRAINT: FAIRNESS ((just( instance1.act1 )) -> (just( instance2.act1 )))
+FAIRNESS ( action#  =  trans#instance1#act1 ) -> ( action#  =  trans#instance2#act1 ) 
+
+
+--  @@ CTL vs LTL COMPATIBILITY CONTRAINT
+FAIRNESS TRUE

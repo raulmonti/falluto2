@@ -36,12 +36,12 @@ ENDPROCTYPE
 INSTANCE instance1 = module1(instance2.var1, sincroniza1)
 INSTANCE instance2 = module1(instance1.var1, sincroniza1)
 
-NORMAL_BEHAIVIOUR( G TRUE & just(instance2.act1))
+//NORMAL_BEHAIVIOUR( G TRUE & just(instance2.act1))
 
-CTLSPEC A [! EG TRUE & ! just(instance2.fault2) | instance2.var2 = a U TRUE]
+//CTLSPEC A [! EG TRUE & ! just(instance2.fault2) | instance2.var2 = a U TRUE]
 
 COMPASSION ( TRUE , TRUE != FALSE)
 
 FAIRNESS just(instance1.act1) -> just(instance2.act1)
 
-FINITELY_MANY_FAULT(instance1.fault1; G F TRUE)
+//FINITELY_MANY_FAULT(instance1.fault1; G F TRUE)
