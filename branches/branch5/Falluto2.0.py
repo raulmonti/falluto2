@@ -34,6 +34,8 @@ def check_output(command, shell = False, universal_newlines = True):
 #...............................................................................
 
 #TODO fecha en python para mostrar en el encabezado del programa
+#TODO usar http://docs.python.org/dev/library/argparse.html para el input
+#TODO fail.fll deberia caer en deadlock debido a la falla 3 que es de tipo STOP
 
 if __name__ == '__main__':
 
@@ -41,7 +43,33 @@ if __name__ == '__main__':
          + "HHHHHHHHHHHHHHHHHHHHHHHHHHH\nFaLLuTO " \
          + "2 . 0 : 31 Agosto 2012\n\n\033[1;m")
 
-    files = fileinput.input()
+    filename = None
+    savename = None
+
+    if len(sys.argv) < 2:
+        print "Error, se necesita el archivo de descripcion del sistema para correr Falluto2.0."
+        raise Exception
+    elif len(sys.argv) == 2:
+        filename = str(sys.argv[1])
+    else:
+        i = 1
+        while i < len(sys.argv):
+            if sys.argv[i] == '-s':
+                try:
+                    savename = sys.argv[i+1]
+                except:
+                    print "Error, falta parametro para opcion -s."
+                    raise Exception
+            elif sys.argv[i] == '-f':
+                try:
+                    filename = sys.argv[i+1]
+                except:
+                    print "Error, falta parametro para opcion -f."
+                    raise Exception
+            i+=2
+       
+
+    files = fileinput.input(filename)
 
     if not files:
         debugERROR("No input file!!! :S")
@@ -60,7 +88,7 @@ if __name__ == '__main__':
         #Checking the smv system descripition:
         colorPrint("debugYELLOW", "Checking system: " + sysname)        
         #get the smv system description
-        c.writeSysToFile(outputname,[])
+        c.writeSysToFile(outputname,[])    
         #debugCURRENT(outputfile)
         # Check the smv system description (raises subprocess.CalledProcessError
         # if NuSMV encounters that the descripton is incorrect).
@@ -68,14 +96,16 @@ if __name__ == '__main__':
         #debugCURRENT(output)
         colorPrint("debugGREEN", sysname + " is OK!\n\n")
 
+        if savename:
+            c.writeSysToFile(savename,None)
 
         for i in range(0, len(c.compiledproperties)):
             c.writeSysToFile(outputname,[i])
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
-            #debugCURRENT(output)
+            debugCURRENT(output)
             (res, rest) = parseLine(output, TraceInterpreter.SYS(), [], True, packrat=True)
-            debugGREEN(res)
+
             if rest != "":
                 debugERROR("Error al interpretar las trazas. No se pudo " \
                         + "interpretar lo que sigue:\n\n"  + rest)

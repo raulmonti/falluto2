@@ -13,6 +13,8 @@ import re
 from Debug import *
 from Config import *
 from Utils import TabLevel
+from Compiler import Compiler
+from Types import Types
 
 
 debugTODO("Que pasa cuando una synchro action sincroniza con mas de una "\
@@ -199,7 +201,7 @@ class TraceInterpreter():
         if not self.showaction:
             return
         # If it's a deadlock transition
-        if self.action == Names.dkaction:
+        if self.action == Compiler._dkact:
             if not self.sysdk:
                 # System has falled in deadlock (we don't show next state, and
                 # we advise the user.
@@ -209,14 +211,14 @@ class TraceInterpreter():
                 return
         
         # If it's a fault transition        
-        elif head == "lfault":
+        elif head == "fault":
             self.interpret_fault_action()
         
         
         elif head == "synchro":
             self.tprint(self.interpret_synchro_action())
             
-        elif head == "lact":
+        elif head == "trans":
             self.tprint(self.interpret_local_action())  
                       
         elif head == "bizE":
@@ -296,17 +298,18 @@ class TraceInterpreter():
     def interpret_fault_action(self):
         h,i,f = self.action.split("#",3)
         inst = self.sys.instances[i]
-        mod = self.sys.modules[inst.module]
-        for fault in mod.faults:
+        pt = self.sys.proctypes[inst.proctype]
+        for fault in pt.faults:
             if fault.name == f:
                 self.tprint("[action] Instance " + CB + i + CE + " fault " \
-                    + CB + f + CE + " of type " + fault.faulttype + ".", False)
-                if fault.faulttype == "STOP":
-                    if fault.efects == []:
+                    + CB + f + CE + " of type " + Types.Types[fault.type] \
+                    + ".", False)
+                if fault.type == Types.Stop:
+                    if fault.affects == []:
                         print "Stops all the instance"
                     else:
                         print "Stops transitions " \
-                            + str([str(x) for x in fault.efects]) \
+                            + str([str(x) for x in fault.affects]) \
                             + " from this module."
                 print ""
                 break
@@ -345,8 +348,8 @@ class TraceInterpreter():
             heads = [(vch[0].split("#", 1))[0],(vch[1].split("#", 1))[0]]
             
             # update action
-            if Names.actionvar in vch:
-                self.action = vch[0] if vch[0] != Names.actionvar else vch[1]
+            if Compiler._actvar in vch:
+                self.action = vch[0] if vch[0] != Compiler._actvar else vch[1]
             
             # update active faults
             elif "factive" in heads:
