@@ -55,6 +55,9 @@ class Compiler(object):
     __actvar = "action#"   #action variable 
     __dkact  = "dk#action" #deadlock action name (part of the actionvar domain)
     
+    _actvar = __actvar
+    _dkact  = __dkact
+    
 
     def __init__(self):
         self.compiledstring     = ""
@@ -176,6 +179,10 @@ class Compiler(object):
         self.buildProperties()
     #.......................................................................
     def buildProperties(self):
+    
+        if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
+            self.buildDkCheckPropertie()
+    
         for p in self.sys.properties.itervalues():
             formula = self.replaceEvents(p.formula)
             if p.type == Types.Ctlspec:
@@ -262,8 +269,6 @@ class Compiler(object):
         if not Types.FFDisable in \
             [x.type for x in self.sys.options.itervalues()]:
             self.buildFaultFairContraint()
-        if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
-            self.buildDkCheckContraint()
         for c in self.sys.contraints.itervalues():
             self.buildNormalContraint(c)
         self.buildCTLvsLTLCompatibilityContraint()
@@ -273,10 +278,9 @@ class Compiler(object):
         self.save(self.comment("  @@ CTL vs LTL COMPATIBILITY CONTRAINT"))
         self.save("FAIRNESS TRUE") 
     #.......................................................................
-    def buildDkCheckContraint(self):
-        self.save("\n")
-        self.save(self.comment("  @@ DEADLOCK CHECK CONTRAINT"))
-        self.save("CTLSPEC AG " + Compiler.__actvar + " != " + Compiler.__dkact) 
+    def buildDkCheckPropertie(self):
+        self.compiledproperties.append(("DEADLOCK CHECK", \
+            "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact))
     #.......................................................................
     def buildWeakFairContraint(self):
         # SYSTEM - MODULE FAIRNESS
@@ -375,7 +379,7 @@ class Compiler(object):
                         if f.affects == [] or trans.name in f.affects:
                             elst.append(\
                                 self.compileFaultActive(inst.name,f.name)\
-                                + " = " + False )
+                                + " = FALSE" )
                 # Transition enable condition
                 if trans.pre != None:
                     elst.append(self.compileAST(inst.name, trans.pre))
@@ -575,7 +579,7 @@ class Compiler(object):
                 if f.type == Types.Stop:
                     if f.affects == [] or trans.name in f.affects:
                         stlst.append( self.compileFaultActive(inst.name,f.name)\
-                                    + " = " + False )
+                                    + " = FALSE" )
             # Transition enable condition
             if trans.pre != None: #TODO pre = None se deberia traducir como TRUE
                 stlst.append(self.compileAST(inst.name, trans.pre))
@@ -622,6 +626,10 @@ class Compiler(object):
             vset.add(cref)
             ftlst.append( self.compileNextRef(cref) + ' ' + _str(p[1]) + ' ' \
                         + self.compileAST(inst.name, p[2]))
+        # fault activation var
+        fav = self.compileFaultActive(inst.name, f.name)
+        vset.add(fav)
+        ftlst.append(self.compileNextRef(fav))
         # Variables that wont change
         assert vset.issubset(self.varset)
         uvset = self.varset - vset
@@ -650,6 +658,7 @@ class Compiler(object):
         return self.symbolSeparatedTupleString(thistransvect,False,False)
     #.......................................................................
     def buildDeadLockTrans(self):
+        # TODO usar el mapa con precondiciones de las trans para esta transicion
         result = []
         # set action to dead lock
         result.append( "next(" + Compiler.__actvar + ") = " + Compiler.__dkact)
