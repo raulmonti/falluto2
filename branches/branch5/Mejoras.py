@@ -37,4 +37,7 @@ debugTODO(" Permitir CTLSPECS en normal behaiviour y finitely ...")
 debugTODO( " Estoy aceptando -- como dos signos menos seguidos y en NuSMV eso" \
            " es comentario y se rompe todo :S.")
            
-debugTODO( "Permitir renombrar transiciones (COMPLICADISIMO PARA COMPILAR)")
+debugTODO( """ Permitir renombrar transiciones, tener cuidado de no sincronizar 
+con estas transiciones, cambiar el nombre de las renombradas y hacer tabla de 
+renombrado por si hay un just(transicion renombrada) en algun lugar del sistema 
+de input.""")
