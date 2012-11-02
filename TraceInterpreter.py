@@ -271,16 +271,16 @@ class TraceInterpreter():
         sa_name = self.action.split("#",2)[1]
         string = "Synchronization action " +CB+ sa_name +CE+ " synchronizing: "
         flag = False
-        for iname in self.cosys.syncdict[sa_name]:
-            inst = self.sys.instances[iname]
-            mod = self.sys.modules[inst.module]
+        for iname,trans in self.cosys.syncdict[sa_name]:
+            inst = self.sys.instances[iname.name]
+            pt = self.sys.proctypes[inst.proctype]
             for i in range(0,len(inst.params)):
                 if inst.params[i] == sa_name:
-                    i -= len(mod.contextVars)
-                    act_name = mod.synchroActs[i]
+                    i -= len(pt.contextvars)
+                    act_name = pt.synchroacts[i]
                     if flag:
                         string += " | "
-                    string += iname + "[" + mod.name + "/" + act_name + "]"
+                    string += iname + "[" + pt.name + "/" + act_name + "]"
                     break
             flag = True
         return string
