@@ -412,6 +412,8 @@ class Fault(ParserBaseElem):
                     self.type = Types.Transient
                 for y in x.what:
                     self.affects.append(y)
+        if self.pre == None or self.pre == "":
+            self.pre = u"TRUE"
     #.......................................................................
     def __str__(self):
         string = "--> Fault \'" + str(self.name)
@@ -450,6 +452,8 @@ class Transition(ParserBaseElem):
             else:
                 assert False
 
+        if self.pre == None or self.pre == "":
+            self.pre = u"TRUE"
     #.......................................................................
     def __str__(self):
         return ParserBaseElem.__str__(self)

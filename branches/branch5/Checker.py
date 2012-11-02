@@ -133,7 +133,7 @@ class Checker(object):
                 tset.add(t.name)
 
 #TODO verificar interseccion vacia entre nombres de transiciones y de fallas
-
+#TODO verificar no mas de una sincronizacion con mismo nombre en cada inst
     #.......................................................................
     def checkInstancesParams(self):
         for inst in self.sys.instances.itervalues():

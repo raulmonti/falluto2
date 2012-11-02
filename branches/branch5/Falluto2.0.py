@@ -41,14 +41,14 @@ if __name__ == '__main__':
 
     print( "\033[1;94m\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"\
          + "HHHHHHHHHHHHHHHHHHHHHHHHHHH\nFaLLuTO " \
-         + "2 . 0 : 31 Agosto 2012\n\n\033[1;m")
+         + "2 . 0 : 31 Agosto 2012\n\033[1;m")
 
     filename = None
     savename = None
 
     if len(sys.argv) < 2:
         print "Error, se necesita el archivo de descripcion del sistema para correr Falluto2.0."
-        raise Exception
+        sys.exit(2)
     elif len(sys.argv) == 2:
         filename = str(sys.argv[1])
     else:
@@ -59,13 +59,13 @@ if __name__ == '__main__':
                     savename = sys.argv[i+1]
                 except:
                     print "Error, falta parametro para opcion -s."
-                    raise Exception
+                    sys.exit(2)
             elif sys.argv[i] == '-f':
                 try:
                     filename = sys.argv[i+1]
                 except:
                     print "Error, falta parametro para opcion -f."
-                    raise Exception
+                    sys.exit(2)
             i+=2
        
 
@@ -79,11 +79,11 @@ if __name__ == '__main__':
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
         debugYELLOW("Parsing input...")
-        sys = Parser.parse(files)
+        msys = Parser.parse(files)
         debugYELLOW("Compiling the input system...")
-        c.compile(sys)                        
+        c.compile(msys)                        
         
-        sysname = sys.name if sys.name != "" else "No Name System"
+        sysname = msys.name if msys.name != "" else "No Name System"
         
         #Checking the smv system descripition:
         colorPrint("debugYELLOW", "Checking system: " + sysname)        
@@ -117,3 +117,4 @@ if __name__ == '__main__':
         debugERROR("NUSMV: el archivo es erroneo. La salida es la que "\
             + "sige:\n\n" + str(e.cmd))
 
+    sys.exit(0)
