@@ -37,11 +37,16 @@ def Compile(system):
 
 
 
-
 # THE COMPILER =================================================================
 
 class Compiler(object):
     """
+        Compiler objects allow you to compile a Falluto2.0 system parsed by 
+        the parse function in the Parser.py module into a valid NuSMV system 
+        description. The system must be correct in order to succed, use the 
+        Checker.py module to check system correctness.
+        The saveToFile method in this class allows you to save the compiled 
+        system into a file in order to check it with NuSMV.
     """
 
     # 
@@ -54,54 +59,54 @@ class Compiler(object):
     # Some names for the compiled system
     __actvar = "action#"   #action variable 
     __dkact  = "dk#action" #deadlock action name (part of the actionvar domain)
-    
+    # to export
     _actvar = __actvar
     _dkact  = __dkact
     
 
+    #.......................................................................
     def __init__(self):
-        self.compiledstring     = ""
-        self.compiledproperties = []
+        self.compiledstring     = "" # String with the compiled system
+        self.compiledproperties = [] # Read buildProperties() method
 
         self.sys                = None
         self.tl                 = TabLevel()
 
         self.ctable             = {}    # 3 levels map: inst->var->compiledVar
         self.varset             = set([])   # all program variables set.
-        self.syncdict           = {}
+        self.syncdict           = {}    # read method fillSyncTransDict()
         self.transdict          = {}    # read method fillTransCompilingDict
         self.gtctable           = {}    # read method fillGTCTable
+
+
+
     #.......................................................................
     def compile(self, system):
         assert isinstance(system, Parser.System)
         self.sys = system
+        
         # fill tables
         self.fillVarCompilationTable()
         self.fillSyncTransDict()
         self.fillTransCompilingDict()
         self.fillGTCTable()
-        #        
+
+        # compile the system and save it in self.compiledstring
         self.compileSystem()
-    #.......................................................................
-    def fillGTCTable(self):
-        """ 
-            Fill the transitions global compilation table. This table is used
-            to compile events in propositional formulas of properties and
-            contraints.
-        """
-        for inst in self.sys.instances.itervalues():
-            pt = self.sys.proctypes[inst.proctype]
-            for f in pt.faults:
-                self.gtctable[inst.name + '.' + f.name] \
-                    = self.compileFaultActionVar(inst.name, f.name)
-            # Normal transitions have already been compiled into self.transdict
-            for t in pt.transitions:
-                self.gtctable[inst.name + '.' + t.name] \
-                    = self.transdict[inst.name][t.name][0]
+
+
+
+# TODO commitatomico usando instancias como varibles de contexto
     #.......................................................................
     def fillVarCompilationTable(self):
-        # local vars
+        """
+            ctble is a 2 level map: inst name -> var name -> compiled var name
+        """
+        # Compiler.__glinst replace the instance 'namespace' for varibales
+        # outside instances name spaces (for example in properties declarations)
         self.ctable[Compiler.__glinst] = {}
+
+        # local vars
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             self.ctable[inst.name] = {}
@@ -112,7 +117,7 @@ class Compiler(object):
                 self.ctable[Compiler.__glinst][inst.name + '.' + lv.name] = \
                     self.ctable[inst.name][lv.name]
                 if lv.type == Types.Symbol:
-                    # Symbol values
+                    # Symbol values (the ones declared inside symbol sets)
                     for x in lv.domain:
                         self.ctable[inst.name][x] = self.compileSymbValue(x)
                         # global instance again
@@ -141,27 +146,127 @@ class Compiler(object):
                 else:
                     assert isBool(siv) or isInt(siv)
                     self.ctable[inst.name][scv] = self.compileBOOLorINT(siv)
-    #.......................................................................
-    def compileBOOLorINT(self, value):
-        return value
+
+
+
     #.......................................................................
     def fillSyncTransDict(self):
-        stdict = {}
+        """
+            Fill self.syncdict map with synchro names as keys and a list with 
+            the sincronized actions as value.
+        """
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             n = len(pt.contextvars)
             i = 0
+            # for each synchro action
             for stname in [_str(x) for x in inst.params[n::]]:
-                # get the real transition:
+                # get synchronized action name from the proctype
                 ptstname = _str(pt.synchroacts[i])
                 for t in pt.transitions:
-                    if t.name == ptstname:                        
+                    if t.name == ptstname:
                         try:
-                            stdict[stname].append( (inst, t) )
+                            self.syncdict[stname].append( (inst, t) )
                         except:
-                            stdict[stname] = [ (inst, t) ]
+                            self.syncdict[stname] = [ (inst, t) ]
+                        break
                 i += 1
-        self.syncdict = stdict
+
+
+
+    #.......................................................................
+    def fillTransCompilingDict(self):
+        """
+            Fill in self.transdict
+            self.transdict is a 3 level dict:
+            self.transdict[inst_name] \
+                [uncompiled_trans_name] \
+                    [(compiled_trans_name, trans_enable_condition)]
+        """
+        #TODO eliminate duplicated code in this method by using auxiliar methods
+        # Get synchronous transitions compiled name and enable conditions only
+        # once.
+        auxdict = {}
+        for sname, slst in self.syncdict.iteritems():
+            elst = [] # enable conditions list
+            for inst,trans in slst:
+                pt = self.sys.proctypes[inst.proctype]
+                # STOP faults that disable this transitions
+                for f in pt.faults:
+                    if f.type == Types.Stop:
+                        if f.affects == [] or \
+                            trans.name in [_str(x) for x in f.affects]:
+                            elst.append(self.neg(\
+                                self.compileFaultActive(inst.name,f.name)))
+                # Transition enable condition
+                assert trans.pre != None
+                elst.append(self.compileAST(inst.name, trans.pre))
+
+            tcname = self.compileSynchroAct(sname)
+            econd = self.symbolSeparatedTupleString(elst)
+            assert elst != [] and econd != ""
+#            assert elst != [] or econd == ""
+            auxdict[sname] = (tcname, econd)
+
+        # Instances faulty normal transitions
+        for inst in self.sys.instances.itervalues():
+            self.transdict[inst.name] = {}
+            pt = self.sys.proctypes[inst.proctype]
+            #TODO faults
+            for t in pt.transitions:
+                elst = []
+                # not synchronized transitions
+                if not t.name in [_str(x) for x in pt.synchroacts]:
+                    # STOP faults that disable this transitions
+                    for f in [x for x in pt.faults if x.type == Types.Stop]:
+                        if f.affects == [] or \
+                            t.name in [_str(x) for x in f.affects]:
+                            elst.append(self.neg(
+                                self.compileFaultActive(inst.name, f.name)))
+                    # Transition enable condition
+                    assert t.pre != None
+                    elst.append(self.compileAST(inst.name, t.pre))
+
+                    tcname = self.compileAction(inst.name, t.name)
+                    econd = self.symbolSeparatedTupleString(elst)
+                    assert elst != [] and econd != ""
+                    self.transdict[inst.name][t.name] = (tcname, econd)
+                else:
+                    # It's a synchro. Match to corresponding in auxdict
+                    n = len(pt.contextvars)
+                    i = 0
+                    while t.name != _str(pt.synchroacts[i]):
+                        i += 1
+                    stname = _str(inst.params[n+i])
+                    self.transdict[inst.name][t.name] = auxdict[stname]
+        #TODO usar este diccionario en la construccion de la transsection
+
+
+
+    #.......................................................................
+    def fillGTCTable(self):
+        """ 
+            @  Fill the transitions global compilation table. This table is used
+            to compile events in propositional formulas of properties and
+            contraints. It maps the name of normal and faulty transitions as you
+            find it outside proctypes declarations, into the correct compiled 
+            value.
+            
+            @  self.gtctable is a dictionary: fault/trans name -> compiledvalue
+        """
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            # Faulty transitions
+            for f in pt.faults:
+                self.gtctable[inst.name + '.' + f.name] \
+                    = self.compileFaultActionVar(inst.name, f.name)
+            # Normal transitions have already been compiled into self.transdict
+            for t in pt.transitions:
+                self.gtctable[inst.name + '.' + t.name] \
+                    = self.transdict[inst.name][t.name][0]
+
+
+
     #.......................................................................
     def compileSystem(self):
         """
@@ -177,6 +282,61 @@ class Compiler(object):
         self.buildContraints()
         # build properties and queue them into the propertie vector
         self.buildProperties()
+
+
+
+    #.......................................................................
+    def buildVarSection(self):
+        self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
+        self.save("VAR")
+        self.tl.i()
+        # ACTION VARIABLE
+        lst = set([]) 
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            # faults
+            for fault in pt.faults:
+                lst.add(self.compileFaultActionVar(inst.name, fault.name))
+            # transitions
+            for act in pt.transitions:
+                if not act.name in [_str(x) for x in pt.synchroacts]:
+                    lst.add(self.compileAction(inst.name, act.name))
+            n = len(pt.contextvars)
+            # Synchro actions
+            for act in [_str(x) for x in inst.params[n::]]:
+                lst.add(self.compileSynchroAct(act))
+            # BIZ effects
+            for f in pt.faults:
+                if f.type == Types.Byzantine:
+                    lst.add(self.compileBizEffect(inst.name, f.name))
+        # deadlock action
+        lst.add(Compiler.__dkact)
+        # save
+        self.save(Compiler.__actvar + ':' + self.compileSet(lst) + ';')
+        self.varset.add(Compiler.__actvar)
+
+        # LOCAL VARIABLES
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            for var in pt.localvars:
+                vname = self.ctable[inst.name][var.name]
+                if var.type == Types.Bool:
+                    self.save(vname + ":boolean;")
+                else:
+                    self.save(self.compileAST( inst.name, var.rawinput \
+                                             , False) + ';')
+                self.varset.add(vname)
+        # fault activity variables
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            for f in [x for x in pt.faults if x.type != Types.Transient]:
+                name = self.compileFaultActive(inst.name, f.name)
+                self.save( name + ":boolean;")
+                self.varset.add(name)
+        self.tl.d()
+
+
+
     #.......................................................................
     def buildProperties(self):
     
@@ -199,6 +359,9 @@ class Compiler(object):
                 self.compiledproperties.append(self.compileFmfPropertie(p))
             else:
                 debugERROR("bad type for propertie: " + p.type)
+
+
+
     #.......................................................................
     def compileNbPropertie(self, p):
         """
@@ -359,69 +522,7 @@ class Compiler(object):
         else:
             debugWARNING("Bad type for contraint <" + c.type + ">.")
     #.......................................................................
-    def fillTransCompilingDict(self):
-        """
-            Fill in self.transdict.
-            self.transdict is a 3 level dict:
-            self.transdict[inst_name] \
-                [uncompiled_trans_name] \
-                    [(compiled_trans_name, trans_enable_condition)]
-        """
-        # Synchronous transitions
-        self.transdict[Compiler.__glinst] = {}
-        for st in self.syncdict.iteritems():
-            elst = []
-            for inst,trans in st[1]:
-                pt = self.sys.proctypes[inst.proctype]
-                # STOP faults that disable this transitions
-                for f in pt.faults:
-                    if f.type == Types.Stop:
-                        if f.affects == [] or trans.name in f.affects:
-                            elst.append(\
-                                self.compileFaultActive(inst.name,f.name)\
-                                + " = FALSE" )
-                # Transition enable condition
-                if trans.pre != None:
-                    elst.append(self.compileAST(inst.name, trans.pre))
 
-            tcname = self.compileSynchroAct(st[0])
-            econd = self.symbolSeparatedTupleString(elst)
-            assert elst != [] or econd == ""
-            self.transdict[Compiler.__glinst][st[0]] = (tcname, econd)
-
-        # Common transitions
-        for inst in self.sys.instances.itervalues():
-            self.transdict[inst.name] = {}
-            pt = self.sys.proctypes[inst.proctype]
-            for t in pt.transitions:
-                elst = []
-                if not t.name in [_str(x) for x in pt.synchroacts]:
-                    # STOP faults that disable this transitions
-                    for f in [x for x in pt.faults if x.type == Types.Stop]:
-                        if f.affects == [] or \
-                            t.name in [_str(x) for x in f.affects]:
-                            elst.append( \
-                                self.compileFaultActive(inst.name, f.name) + \
-                                " = FALSE")
-                    # Transition enable condition
-                    if t.pre != None:
-                        elst.append(self.compileAST(inst.name, t.pre))
-
-                    tcname = self.compileAction(inst.name, t.name)
-                    econd = self.symbolSeparatedTupleString(elst)
-                    assert elst != [] or econd == ""
-                    self.transdict[inst.name][t.name] = (tcname, econd)
-                else:
-                    # It's a synchro. Match to the corresponding global synchro
-                    n = len(pt.contextvars)
-                    i = 0
-                    while t.name != _str(pt.synchroacts[i]):
-                        i += 1
-                    stname = _str(inst.params[n+i])
-                    self.transdict[inst.name][t.name] = \
-                        self.transdict[Compiler.__glinst][stname]
-        #TODO usar este diccionario en la construccion de la transsection
-    #.......................................................................
     def buildVarSection(self):
         self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
         self.save("VAR")
@@ -465,7 +566,7 @@ class Compiler(object):
         # fault activity variables
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
-            for f in pt.faults:
+            for f in [x for x in pt.faults if x.type != Types.Transient]:
                 name = self.compileFaultActive(inst.name, f.name)
                 self.save( name + ":boolean;")
                 self.varset.add(name)
@@ -484,7 +585,7 @@ class Compiler(object):
             # instance initialization
             lst.append(self.compileAST(inst.name, pk.init, True))
             # faults activation var initialization
-            for fault in pk.faults:
+            for fault in [x for x in pk.faults if x.type != Types.Transient]:
                 flst.append( self.compileFaultActive(inst.name,fault.name) \
                             + " = FALSE")
         lst.append(self.symbolSeparatedTupleString(flst, False, False))
@@ -610,6 +711,9 @@ class Compiler(object):
                     + self.compileFaultActionVar(inst.name, f.name))
 
         # PRECONDITIONS
+        # Not to be active if diferent from transient
+        if f.type != Types.Transient:
+            ftlst.append(self.neg(self.compileFaultActive(inst.name,f.name)))
         # STOP faults that disable this transitions
         for fault in pt.faults:
             if fault.type == Types.Stop and  fault.affects == []:
@@ -627,9 +731,10 @@ class Compiler(object):
             ftlst.append( self.compileNextRef(cref) + ' ' + _str(p[1]) + ' ' \
                         + self.compileAST(inst.name, p[2]))
         # fault activation var
-        fav = self.compileFaultActive(inst.name, f.name)
-        vset.add(fav)
-        ftlst.append(self.compileNextRef(fav))
+        if f.type != Types.Transient:
+            fav = self.compileFaultActive(inst.name, f.name)
+            vset.add(fav)
+            ftlst.append(self.compileNextRef(fav))
         # Variables that wont change
         assert vset.issubset(self.varset)
         uvset = self.varset - vset
@@ -879,6 +984,8 @@ class Compiler(object):
     def compileTransitionName(self, iname, tname):
         return "trans#" + iname + '#' + tname
     #.......................................................................
+    def compileBOOLorINT(self, value):
+        return _str(value)
     #.......................................................................
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

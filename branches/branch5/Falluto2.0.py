@@ -16,6 +16,7 @@ import Checker
 import Compiler
 import TraceInterpreter
 import Mejoras #DEBUGTODO__=True en Config.py para ver los debugs de este modulo
+import NewTraceInterpreter
 #
 #===============================================================================
 
@@ -67,28 +68,27 @@ if __name__ == '__main__':
                     print "Error, falta parametro para opcion -f."
                     sys.exit(2)
             i+=2
-       
 
     files = fileinput.input(filename)
 
     if not files:
         debugERROR("No input file!!! :S")
 
-    outputname = "temp/output.smv"        
+    outputname = "temp/output.smv"
     try:
         c = Compiler.Compiler()
-        t = TraceInterpreter.TraceInterpreter()
+        t = NewTraceInterpreter.TraceInterpreter()
         debugYELLOW("Parsing input...")
         msys = Parser.parse(files)
         debugYELLOW("Compiling the input system...")
-        c.compile(msys)                        
-        
+        c.compile(msys)
+
         sysname = msys.name if msys.name != "" else "No Name System"
-        
+
         #Checking the smv system descripition:
-        colorPrint("debugYELLOW", "Checking system: " + sysname)        
+        colorPrint("debugYELLOW", "Checking system: " + sysname)
         #get the smv system description
-        c.writeSysToFile(outputname,[])    
+        c.writeSysToFile(outputname,[])
         #debugCURRENT(outputfile)
         # Check the smv system description (raises subprocess.CalledProcessError
         # if NuSMV encounters that the descripton is incorrect).
@@ -104,12 +104,8 @@ if __name__ == '__main__':
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
             debugCURRENT(output)
-            (res, rest) = parseLine(output, TraceInterpreter.SYS(), [], True, packrat=True)
 
-            if rest != "":
-                debugERROR("Error al interpretar las trazas. No se pudo " \
-                        + "interpretar lo que sigue:\n\n"  + rest)
-            t.interpret(res, c, i)
+            t.interpret(c,output, i, False)
   
     except subprocess.CalledProcessError, e:
         debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\
