@@ -242,7 +242,10 @@ class Proctype(ParserBaseElem):
                     f.parse(x)
                     self.faults.append(f)
             elif elem.__name__ == "INIT":
-                self.init = elem.what[0]
+                if elem.what != []:
+                    self.init = elem.what[0]
+                else:
+                    self.init = "TRUE"
             elif elem.__name__ == "TRANS":
                 for x in elem.what:
                     t = Transition()

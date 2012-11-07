@@ -227,10 +227,10 @@ def LTLVAL():       return [ EXPRESION
 
 # common properties
 
-def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "(", [LTLEXP], ")" #[CTLEXP, LTLEXP], ")"
-def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "(", [LTLEXP], ")" #[CTLEXP, LTLEXP], ")"
+def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "->", [LTLEXP]  #[CTLEXP, LTLEXP], ")"
+def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "->", [LTLEXP] #[CTLEXP, LTLEXP], ")"
 def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT") \
-                               , "(", IDENT, -1, (",", IDENT), ";" ,[LTLEXP], ")" #[CTLEXP, LTLEXP], ")"
+                               , "(", IDENT, -1, (",", IDENT), ")", "->", [LTLEXP], #[CTLEXP, LTLEXP], ")"
 
 
 

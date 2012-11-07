@@ -44,6 +44,8 @@ def Check(system):
 
 #TODO Buscar donde se active el event not allowed y asegurarse de desactivarlo
 #si ocurre una excepcion
+
+#TODO Verificar que las acciones dentro de los eventos en verdad existan
 ################################################################################
 
 class Checker(object):

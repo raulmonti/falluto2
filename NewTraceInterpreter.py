@@ -8,19 +8,22 @@
 
 
 import pyPEG
-from pyPEG import keyword, _and, _not, ignore
+from pyPEG import keyword, _and, _not, ignore, parseLine
 import re
 from Debug import *
 from Config import *
-from Utils import TabLevel
+from Utils import TabLevel, _str, _cl
 from Compiler import Compiler
 from Types import Types
+import os
 
 
 debugTODO("Que pasa cuando una synchro action sincroniza con mas de una "\
         + "accion de un mismo modulo, como saber con cual sincronizo?")
 
 #TODO ver como da nusmv el output cuando hay mas de un modulo para sacar ideas
+#TODO opcion para mostrar todas las variables en cada estado
+
 
 #===============================================================================
 class SpecificationResult():
@@ -34,34 +37,34 @@ class SpecificationResult():
         pass
         
 
-
-
-
 #===============================================================================        
-""" For printig whith colors :D 
-    Put CR|CB|CG|CY before the text you want to color, and CE after it.
+
+"""
+CS = TraceInterpreter.CS
+CE = TraceInterpreter.CE
+CR = TraceInterpreter.CR
+CB = TraceInterpreter.CB
+CG = TraceInterpreter.CG
+CY = TraceInterpreter.CY
 """
 
-CS = '\033['
-CE = '\033[1;m'
-CR = CS + '1;31m' #red start printing
-CB = CS + '1;94m' #blue start printing
-CG = CS + '1;32m' #green start printing
-CY = CS + '1;33m' #yellow start printing
 
 
-
-#===============================================================================        
-
-string_state_start = \
-"--|-------------------------------------------------------------------------->"
+string_state_start = "--|----------------->"
 string_state_end = string_state_start
 
 string_spec_end = \
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
+# For printig whith colors :D 
+# Put CR|CB|CG|CY before the text you want to color, and CE after it.
+
+COLOR__ = False
+
+
+
 class TraceInterpreter():
-    
+
     def __init__(self):
         self.tab = TabLevel()
         self.showstate = True
@@ -71,42 +74,75 @@ class TraceInterpreter():
         self.activefaults = []
         self.cosys = None
         self.sys = None
+        self.ignoreaction = False
+        self.CS = ""
+        self.CE = ""    #end color
+        self.CR = ""    #red start printing
+        self.CB = ""    #blue start printing
+        self.CG = ""    #green start printing
+        self.CY = ""    #yellow start printing
 
+    #.......................................................................
     def tprint(self, string, enter = True):
         if enter:
             print str(self.tab) + string
         else:
             print str(self.tab) + string,
-            
-    def interpret(self, ast, cosys, specindex):
+    #.......................................................................
+    def interpret(self, cosys, trace, specindex, color = False):
+
+        if not color:
+            self.CS = ""
+            self.CE = ""
+            self.CR = ""
+            self.CB = ""
+            self.CG = ""
+            self.CY = ""
+        else:
+            self.CS = '\033['
+            self.CE = '\033[1;m'
+            self.CR = self.CS + '1;31m'
+            self.CB = self.CS + '1;94m'
+            self.CG = self.CS + '1;32m'
+            self.CY = self.CS + '1;33m'
+
         self.cosys = cosys
         self.sys = cosys.sys
 
+        (ast, rest) = parseLine(trace, RESULT(), [], True, packrat=True)
+
+        debugRED(ast)
+        if rest != "":
+            debugERROR( "Error al interpretar las trazas. No se pudo " \
+                      + "interpretar lo que sigue:\n\n"  + rest)
+            os._exit(1)
+        debugGREEN(ast)
 
         specrepr = cosys.compiledproperties[specindex][0]
-        #no hace falta este for, deberia ser una unica especification
         for sp in ast:
             if sp.__name__ == "TRUESPEC":
-                print CG + "|+|\tSpecification " + CE + CY + str(specrepr) \
-                    + CE + CG  + " is true\n\n" + CE
-
+                print self.CG + "|+|\tSpecification " + self.CE + self.CY \
+                    + str(specrepr) + self.CE + self.CG  + " is true\n\n" \
+                    + self.CE
 
             elif sp.__name__ == "FALSESPEC":
-                print CR + "|-|\tSpecification " + CE + CY + str(specrepr) \
-                    + CE + CR  + " is false\n\n" + CE \
+                print self.CR + "|-|\tSpecification " + self.CE + self.CY \
+                    + str(specrepr) \
+                    + self.CE + self.CR  + " is false\n\n" + self.CE \
                     + "\tas demonstrated by the following execution sequence:\n"
                 self.tab.i()
                 self.interpret_trace(sp.what[1])
                 self.tab.d()
-    
+
             elif sp.__name__ == "WARNING":
-                self.tprint(CR \
-                      + "@@@@@@@@@  WARNING FOR NEXT TEST CASE: @@@@@@@@@\n"\
-                      + self.interpret_warning(sp) + CE)
-            
+                self.tprint(self.CR \
+                      + "<<<<  WARNING FOR NEXT TEST CASE: >>>>\n"\
+                      + self.interpret_warning(sp) + self.CE)
+            elif sp.__name__ == "NUSMVHEADER":
+                pass # we don't do nothing with the header 
             else:
                 raise TypeError(sp.__name__)
-    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #.......................................................................
 
 
 
@@ -116,34 +152,29 @@ class TraceInterpreter():
         Interpret the NuSMV warning and return the string representing the
         interpretation.
     """
+    #TODO ocultar warnings como 'WARNING: single-value variable 'action#' has been stored as a constant'
     def interpret_warning(self, ast):
         return str(ast.what)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-
-
-
-
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     def interpret_trace(self, ast):
         ast = ast.what
-        self.showaction = False          # so we don't show the first action
+        self.ignoreaction = True          # so we don't show the first action
         self.stateN = 0
         for state in ast:
             #interpret state
             if state.__name__ == "STATE":
                 self.interpret_state(state)
             if state.__name__ == "STATELOOP":
-                self.tprint( CR + "\n\t<<<<<<<<<<<<<<<<<<<<  ...  Loop starts" \
-                        + " here  ...  >>>>>>>>>>>>>>>>>>>>\n\n" +CE)
+                print self.CR + "\n>> Loop starts here <<\n" + self.CE
                 for st in state.what:
                     self.interpret_state(st)
 
-        self.tprint(CR + string_spec_end + CE)
+        self.tprint(self.CR + string_spec_end + self.CE)
         print "\n\n"
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 
 
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -160,36 +191,28 @@ class TraceInterpreter():
         varchs = self.get_var_changes(state[1::])
 
         # Show the action that brought us to this state
-        self.interpret_action()
+        trans = self.interpret_action()
+        if trans != None and trans != "":
+            print "\n... " + trans + "\n"
 
-        self.tab.i()
         # Show the state
         if self.showstate:
             # Show the new state
             print "" #just a neline in the output
-            self.tprint(CY+string_state_start+CE)
-            self.tprint(CY + "  |" + CE, False)
-            print "\t-> State: " + str(self.stateN) + " <-"
-            self.tprint(CY + "  |" + CE)
-            self.tprint(CY + "  |" + CE, False)
-            print "\tCHANGES FROM LAST STATE:"
-            self.tprint(CY + "  |\n" + CE, False)
+            #self.tprint(self.CY+string_state_start+self.CE)
+            print "---> State: " + str(self.stateN) + " <---"
           
             #now we show the changes in this new state:
             for vch in varchs:
-                self.tprint(CY + "  |" + CE, False)
-                print "\t" + self.interpret_local_var(vch)
+                print "  " + self.interpret_var(vch)
 
-            self.tprint(CY+string_state_end+CE)
+            #self.tprint(self.CY+string_state_end+self.CE)
             print ""
             self.stateN += 1
 
-        self.tab.d()
         # To start showing actions after the first state has past:
-        self.showaction = True 
+        self.ignoreaction = False 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
-
 
 
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -198,38 +221,40 @@ class TraceInterpreter():
     """
     def interpret_action(self):
        
-        head = self.action.split("#",1)[0]
-        if not self.showaction:
+        if self.ignoreaction:
             return
+
+        head = self.action.split("#",1)[0]
+
         # If it's a deadlock transition
         if self.action == Compiler._dkact:
             if not self.sysdk:
                 # System has falled in deadlock (we don't show next state, and
                 # we advise the user.
-                self.tprint(CR+ "System falled in deadlock !!!!\n" + CE)
                 self.showstate = False
                 self.sysdk = True
-                return
+                return self.CR+"System falled in deadlock !!!!"+self.CE
         
-        # If it's a fault transition        
-        elif head == "fault":
-            self.interpret_fault_action()
-        
-        
-        elif head == "synchro":
-            self.tprint(self.interpret_synchro_action())
-            
-        elif head == "trans":
-            self.tprint(self.interpret_local_action())  
-                      
-        elif head == "bizE":
-            self.tprint(self.interpret_biz_efect_action())
-              
         else:
-            raise TypeError("Unknown variable head: " + head)
+            # If it's a fault transition
+            self.showstate = True
+            self.sysdk = False
+
+            if head == "fault":
+                return self.interpret_fault_action()
+            
+            elif head == "synchro":
+                return self.interpret_synchro_action()
+                
+            elif head == "trans":
+                return self.interpret_local_action()
+                          
+            elif head == "bizE":
+                return self.interpret_biz_efect_action()
+                  
+            else:
+                raise TypeError("Unknown variable head: " + head)
         
-        self.showstate = True
-        self.sysdk = False
 
 
 
@@ -241,11 +266,8 @@ class TraceInterpreter():
     """
     def interpret_biz_efect_action(self):
         nothing, inst, name = self.action.split("#",2)
-        return "Bizantine efect action from bizantine fault " + CB + \
-            name + CE + " of instance " + CB + inst + CE
-
-
-
+        return "[bizEffect] " + self.CY + inst + self.CE + " / " \
+               + self.CB + name + self.CE
 
 
 
@@ -256,9 +278,8 @@ class TraceInterpreter():
         @ uses: self.action to get the local action ocurrence.
     """
     def interpret_local_action(self):
-        la = self.action.split("#",1)[1]
-        lainst, laname = la.split("#",1)
-        return "Local action " +CB+ laname +CE+ " of instance " +CB+ lainst +CE
+        nothing, lainst, laname = self.action.split("#",3)
+        return "[action] "+self.CY+lainst+self.CE+" \ "+self.CB+laname+self.CE
 
 
 
@@ -270,21 +291,15 @@ class TraceInterpreter():
     """
     def interpret_synchro_action(self):
         sa_name = self.action.split("#",2)[1]
-        string = "Synchronization action " +CB+ sa_name +CE+ " synchronizing: "
+        string = "[Synchro] " + self.CB + sa_name + self.CE + " ["
         flag = False
-        for iname,trans in self.cosys.syncdict[sa_name]:
-            inst = self.sys.instances[iname.name]
-            pt = self.sys.proctypes[inst.proctype]
-            for i in range(0,len(inst.params)):
-                if inst.params[i] == sa_name:
-                    i -= len(pt.contextvars)
-                    act_name = pt.synchroacts[i]
-                    if flag:
-                        string += " | "
-                    string += iname + "[" + pt.name + "/" + act_name + "]"
-                    break
+
+        for inst,trans in self.cosys.syncdict[sa_name]:
+            if flag:
+                string += " || "
+            string += inst.name + "/" + trans.name
             flag = True
-        return string
+        return string + "]"
 
 
 
@@ -295,26 +310,22 @@ class TraceInterpreter():
         a fault.
         @ uses: self.action to get the fault ocurrence.
     """
-    debugTODO("Deberua devolver el string y no imprimirlo")
+
     def interpret_fault_action(self):
         h,i,f = self.action.split("#",3)
         inst = self.sys.instances[i]
         pt = self.sys.proctypes[inst.proctype]
+        res = ""
         for fault in pt.faults:
             if fault.name == f:
-                self.tprint("[action] Instance " + CB + i + CE + " fault " \
-                    + CB + f + CE + " of type " + Types.Types[fault.type] \
-                    + ".", False)
+                res += "[fault] " + self.CY + i + self.CE + " / " +  self.CB \
+                    + f + self.CE + " / " + Types.Types[fault.type]
                 if fault.type == Types.Stop:
-                    if fault.affects == []:
-                        print "Stops all the instance"
-                    else:
-                        print "Stops transitions " \
-                            + str([str(x) for x in fault.affects]) \
-                            + " from this module."
-                print ""
+                    if fault.affects != []:
+                        res += " "+ str([_str(x) for x in fault.affects])
                 break
 
+        return res
 
 
 
@@ -323,12 +334,16 @@ class TraceInterpreter():
         Get the string corresponding to the representetaion of a local variable
         state.
     """
-    def interpret_local_var(self, lvar):
+    def interpret_var(self, lvar):
         h,i,v = lvar[0].split("#",3)
-        return "* Instance " + CB + i + CE + " local var " + CB + v + CE \
-                + CY + " = " + CE + CG + str(lvar[1]) + CE 
-
-
+        
+        # if its a symbol value:
+        val = str(lvar[1])
+        if '#' in val:
+            val = val.split('#',1)[1]
+        
+        return self.CB + i + self.CE + " " + self.CB + v + self.CE \
+                + self.CY + " = " + self.CE + self.CG + str(val) + self.CE 
 
 
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -387,10 +402,16 @@ class TraceInterpreter():
     Lenguaje PyPEG para interpretar las trazas
 """
 
-def SYS():          return -1, ignore(r"(?!--|\*\*\*\*\*\*\*\*   WARNING   \*\*\*\*\*\*\*\*).*\n"), -1, \
-                           [WARNING, TRUESPEC, FALSESPEC]
-def WARNING():      return re.compile(r"((?!\*\*\*\*\*\*\*\* END WARNING \*\*\*\*\*\*\*\*).*\n)*\*\*\*\*\*\*\*\* END WARNING \*\*\*\*\*\*\*\*")
+def RESULT():   return  NUSMVHEADER, -1, [WARNING, TRUESPEC, FALSESPEC]
+    
+def NUSMVHEADER():  return 11, re.compile(r".*\n")
+
+def ELSE():     return -1, re.compile(r".*\n")
+
+def WARNING():  return re.compile(r"((?!--|\n).*\n)+")
+
 def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("true")
+
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
 def TRACE():        return -1, ignore(r"(?!->).*\n"), -1 , STATE, -1, STATELOOP
 def STATE():        return "->", "State:", re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
