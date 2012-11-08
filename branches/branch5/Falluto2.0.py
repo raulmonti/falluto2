@@ -105,7 +105,7 @@ if __name__ == '__main__':
             output = check_output(["NuSMV", os.path.abspath(outputname)])
             debugCURRENT(output)
 
-            t.interpret(c,output, i, False)
+            t.interpret(c,output, i, True)
   
     except subprocess.CalledProcessError, e:
         debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\
