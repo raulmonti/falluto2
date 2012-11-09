@@ -241,6 +241,7 @@ class Checker(object):
             for i in range(0,n):
                 param = _str(inst.params[i])
                 cvname = _str(pt.contextvars[i])
+
                 
                 if isBool(param):
                     self.typetable[inst.name][cvname] = Types.Bool
@@ -250,8 +251,8 @@ class Checker(object):
                     # The ith contextvar in inst is a reference to another 
                     # instance.
                     i = self.sys.instances[param]
-                    pt = self.sys.proctypes[i.proctype]
-                    for v in pt.localvars:
+                    ptt = self.sys.proctypes[i.proctype]
+                    for v in ptt.localvars:
                         vname = cvname + "." + v.name
                         self.typetable[inst.name][vname] = v.type
                 elif '.' in param:
@@ -259,7 +260,6 @@ class Checker(object):
                     assert v in self.typetable[i]
                     self.typetable[inst.name][cvname] = self.typetable[i][v]
                 else:
-                    debugERROR(param)
                     assert False
 
         # for global instance:

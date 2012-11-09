@@ -99,7 +99,7 @@ def OPTIONS(): return keyword("OPTIONS"), -1, [ SYSNAME
                                               , MODULEWFAIRDISABLE ], \
                       keyword("ENDOPTIONS")
                       
-def SYSNAME():              return [("FLLNAME", re.compile(r"[\w\.\d\_]*"))]
+def SYSNAME():              return [("SYSNAME", re.compile(r"[\w\.\d\_]*"))]
 def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
 def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
 def MODULEWFAIRDISABLE():   return [re.compile(r"MODULE_WEAK_FAIR_DISABLE")]
