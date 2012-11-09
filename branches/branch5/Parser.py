@@ -13,10 +13,21 @@ from Config import *
 from Exceptions import *
 from Types import Types
 import pyPEG
-from GrammarRules import GRAMMAR, COMMENT
+from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
 from Utils import _cl, _str
+import Utils
 #
+#===============================================================================
+
+# Auxiliary functions
+
+def getTrueExpresion():
+    string = "TRUE"
+    ast = pyPEG.parseLine(string, EXPRESION,[],True,COMMENT)
+    return ast[0][0]
+
+
 #===============================================================================
 
 
@@ -81,7 +92,9 @@ def parse( _file):
 
     return _res
 
-
+    # TODO copiar el archivo a uno nuevo al cual le agregamos la linea  
+    # '//Line to avoid problems with pyPEG line count.' para que pyPEG cuente 
+    # bien la ultima linea del codigo original.
 
 ################################################################################
 
@@ -245,7 +258,9 @@ class Proctype(ParserBaseElem):
                 if elem.what != []:
                     self.init = elem.what[0]
                 else:
-                    self.init = "TRUE"
+                    self.init = getTrueExpresion()
+                    self.init.__name__.file = elem.__name__.file
+                    self.init.__name__.line = elem.__name__.line
             elif elem.__name__ == "TRANS":
                 for x in elem.what:
                     t = Transition()
@@ -406,8 +421,8 @@ class Fault(ParserBaseElem):
                     symbol = elem[1]
                     expr = elem[2]
                     self.pos.append([nextref, symbol, expr])
-            elif x.__name__ in ["BIZ", "STOP", "TRANSIENT"]:
-                if x.__name__ == "BIZ":
+            elif x.__name__ in ["BYZ", "STOP", "TRANSIENT"]:
+                if x.__name__ == "BYZ":
                     self.type = Types.Byzantine
                 elif x.__name__ == "STOP":
                     self.type = Types.Stop
@@ -416,7 +431,9 @@ class Fault(ParserBaseElem):
                 for y in x.what:
                     self.affects.append(y)
         if self.pre == None or self.pre == "":
-            self.pre = u"TRUE"
+            self.pre = getTrueExpresion()
+            self.pre.file = AST[0].__name__.file
+            self.pre.line = AST[0].__name__.line
     #.......................................................................
     def __str__(self):
         string = "--> Fault \'" + str(self.name)
@@ -456,7 +473,9 @@ class Transition(ParserBaseElem):
                 assert False
 
         if self.pre == None or self.pre == "":
-            self.pre = u"TRUE"
+            self.pre = getTrueExpresion()
+            self.pre.file = AST[0].__name__.file
+            self.pre.line = AST[0].__name__.line
     #.......................................................................
     def __str__(self):
         return ParserBaseElem.__str__(self)

@@ -111,7 +111,7 @@ def isInt(var):
         return False
 
 ################################################################################
-__bigLineNumber = "Can't find out line number. Check first and last line of your code."
+__bigLineNumber = "Can't find out line number. Check first and last line of your falluto system specification."
 
 def lineMin(line1, line2):
     """
@@ -215,11 +215,4 @@ class TabLevel():
         self.level -= 1
 
 ################################################################################
-
-
-
-
-
-
-
 

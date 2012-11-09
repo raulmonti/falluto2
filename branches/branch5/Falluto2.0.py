@@ -16,12 +16,11 @@ import Checker
 import Compiler
 import TraceInterpreter
 import Mejoras #DEBUGTODO__=True en Config.py para ver los debugs de este modulo
-import NewTraceInterpreter
+from datetime import datetime
+import argparse
 #
 #===============================================================================
 
-
-debugTODO("Capturar el WARNING de espacio de estados inciales vacio")
 
 #...............................................................................
 def check_output(command, shell = False, universal_newlines = True):
@@ -34,42 +33,30 @@ def check_output(command, shell = False, universal_newlines = True):
     return output[0]
 #...............................................................................
 
-#TODO fecha en python para mostrar en el encabezado del programa
-#TODO usar http://docs.python.org/dev/library/argparse.html para el input
-#TODO fail.fll deberia caer en deadlock debido a la falla 3 que es de tipo STOP
 
+#...............................................................................
+def parseInput():
+    parser = \
+    argparse.ArgumentParser(prog='Falluto2.0', description='Falluto 2.0 Model Checker Using NuSMV')
+    parser.add_argument('--version', action='version', version='%(prog)s version 0.0')
+    parser.add_argument('filename', help='Input file path, where the description of the system has been written.')
+    parser.add_argument('-s','--s', '-save', help='Path of the file to be written with the NuSMV compiled model of the system.', dest='save', metavar='path')
+    parser.add_argument('-co', help='Color output.', action='store_true', dest='color')
+    return parser.parse_args()
+
+#...............................................................................
+
+#===============================================================================
 if __name__ == '__main__':
 
-    print( "\033[1;94m\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"\
-         + "HHHHHHHHHHHHHHHHHHHHHHHHHHH\nFaLLuTO " \
-         + "2 . 0 : 31 Agosto 2012\n\033[1;m")
+    args = parseInput()
 
-    filename = None
-    savename = None
+    print( "\033[1;94m\n******************************************************"\
+         + "*************************\n** FaLLuTO " \
+         + "2.0\n** " + str(datetime.today()) + "\n\033[1;m")
 
-    if len(sys.argv) < 2:
-        print "Error, se necesita el archivo de descripcion del sistema para correr Falluto2.0."
-        sys.exit(2)
-    elif len(sys.argv) == 2:
-        filename = str(sys.argv[1])
-    else:
-        i = 1
-        while i < len(sys.argv):
-            if sys.argv[i] == '-s':
-                try:
-                    savename = sys.argv[i+1]
-                except:
-                    print "Error, falta parametro para opcion -s."
-                    sys.exit(2)
-            elif sys.argv[i] == '-f':
-                try:
-                    filename = sys.argv[i+1]
-                except:
-                    print "Error, falta parametro para opcion -f."
-                    sys.exit(2)
-            i+=2
-
-    files = fileinput.input(filename)
+    
+    files = fileinput.input(args.filename)
 
     if not files:
         debugERROR("No input file!!! :S")
@@ -77,9 +64,11 @@ if __name__ == '__main__':
     outputname = "temp/output.smv"
     try:
         c = Compiler.Compiler()
-        t = NewTraceInterpreter.TraceInterpreter()
+        t = TraceInterpreter.TraceInterpreter()
         debugYELLOW("Parsing input...")
         msys = Parser.parse(files)
+        debugYELLOW("Checking system...")
+        Checker.Check(msys)
         debugYELLOW("Compiling the input system...")
         c.compile(msys)
 
@@ -96,16 +85,18 @@ if __name__ == '__main__':
         #debugCURRENT(output)
         colorPrint("debugGREEN", sysname + " is OK!\n\n")
 
-        if savename:
-            c.writeSysToFile(savename,None)
+        if args.save:
+            c.writeSysToFile(args.save,None)
 
         for i in range(0, len(c.compiledproperties)):
             c.writeSysToFile(outputname,[i])
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
             debugCURRENT(output)
-
-            t.interpret(c,output, i, True)
+            _color = False
+            if args.color:
+                _color = True
+            t.interpret(c,output, i, _color)
   
     except subprocess.CalledProcessError, e:
         debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\

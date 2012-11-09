@@ -5,6 +5,9 @@
 import inspect, sys
 from Config import *
 
+
+# TODO limpiar este modulo porque esta lleno de basura que no sirve.
+
 def lineno():
     frame = inspect.currentframe()
     frame = frame.f_back.f_back

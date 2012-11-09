@@ -17,44 +17,13 @@ from Utils import _cl, _str, putBrackets
 #
 #===============================================================================
 
-debugTODO("Podria usar MATHFORM en vez de INT para los RANGE. Lo mismo " \
-        + "pasa en otro lados.")
-
-debugTODO("Usar CTL en vez de LTL ya que es mucho mas rapido de chequear")
-
-debugTODO("Revisar todo este modulo, packrat por se clava con la ltlspec"  \
-           + " G ( just(w) -> X ((just(r) -> X (sys.value = sys.output)) " \
-           + "U just(w))).")
-debugTODO("Definir todo esto de nuevo, si o si primero en hoja :S")
-
-debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
-
-debugTODO("lo que dice aca abajo")
-"""
-    Notar que en la regla de NEXTASIGN, IDENT nunca va a matchear porque 
-    PROPFORM contiene a los matches de IDENT, y por lo tanto matchea antes. Sin 
-    embargo no quiere decir que el valor devuelto sea un formula proposicional 
-    (puede ser por ejemplo una variable que represente un valor entero y no un 
-    booleano).
-    Me parece que es un error en lo que estoy definiendo. No deberia definir
-    las cosas en base a significados semanticos como "formula proposional porque
-    es un valor booleano". Sin embargo hacerlo ayuda muchisimo a no tener que
-    revisar todo mas adelante.
-"""
-
-debugTODO("Queremos no determinismo en la declaracion de las nexexpr??")
-
-debugTODO("es Byzantine y NO bizantine :S")
-
-debugTODO("Revisar si NuSMV permite hacer 'entero' in {Symbol1, Symbol2}")
-
 
 ################################################################################
 
 # GRAMMAR is the grammar to parse
 def GRAMMAR():   return [SYSTEM] # Brackets so we don't ommit the big Symbol
 # And for comments
-def COMMENT():  return [re.compile(r"//.*"), re.compile("/\*.*?\*/", re.S)]
+def COMMENT():  return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
 
 
 # IDENTIFIERS
@@ -151,9 +120,9 @@ def BOOLEAN():      return [keyword("bool")]
 
 
 def FAULT():        return keyword("FAULT"), -1, FAULTDECL
-def FAULTDECL():    return NAME, ":", 0, EXPRESION, \
-                           0, ("=>", NEXTEXPR), keyword("is"), [BIZ, STOP, TRANSIENT]
-def BIZ():          return keyword("BIZ"), "(", IDENT, -1, (",", IDENT), ")"
+def FAULTDECL():    return NAME, ":", 0, (0, EXPRESION, \
+                           "=>", 0, NEXTEXPR), keyword("is"), [BYZ, STOP, TRANSIENT]
+def BYZ():          return keyword("BYZ"), "(", IDENT, -1, (",", IDENT), ")"
 def TRANSIENT():    return [keyword("TRANSIENT")]
 def STOP():         return [(keyword("STOP"), "(", IDENT, -1, (",", IDENT), ")"), keyword("STOP")]
 
@@ -227,10 +196,10 @@ def LTLVAL():       return [ EXPRESION
 
 # common properties
 
-def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "->", [LTLEXP]  #[CTLEXP, LTLEXP], ")"
-def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "->", [LTLEXP] #[CTLEXP, LTLEXP], ")"
+def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "->", [CTLEXP, LTLEXP]
+def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "->", LTLEXP
 def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT") \
-                               , "(", IDENT, -1, (",", IDENT), ")", "->", [LTLEXP], #[CTLEXP, LTLEXP], ")"
+                               , "(", IDENT, -1, (",", IDENT), ")", "->", LTLEXP
 
 
 

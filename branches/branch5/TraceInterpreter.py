@@ -107,6 +107,7 @@ class TraceInterpreter():
         self.sys = cosys.sys
 
         (ast, rest) = parseLine(trace, RESULT(), [], True, packrat=True)
+        debugGREEN(ast)
 
         if rest != "":
             debugERROR( "Error al interpretar las trazas. No se pudo " \
@@ -130,9 +131,11 @@ class TraceInterpreter():
                 self.tab.d()
 
             elif sp.__name__ == "WARNING":
-                self.tprint(self.CR \
-                      + "<<<<  WARNING FOR NEXT TEST CASE: >>>>\n"\
-                      + self.interpret_warning(sp) + self.CE)
+                warning = self.interpret_warning(sp)
+                if warning != "":
+                    self.tprint(self.CR \
+                          + "<<<<  WARNING FOR NEXT TEST CASE: >>>>\n"\
+                          + warning + self.CE)
             elif sp.__name__ == "NUSMVHEADER":
                 pass # we don't do nothing with the header 
             else:
@@ -143,10 +146,11 @@ class TraceInterpreter():
         Interpret the NuSMV warning and return the string representing the
         interpretation.
     """
-    #TODO ocultar warnings como 'WARNING: single-value variable 'action#' has been stored as a constant'
     def interpret_warning(self, ast):
-        return str(ast.what)
-
+        if 'single-value variable' in str(ast.what):
+            return ""
+        else:
+            return str(ast.what)
 
     #.......................................................................
     def interpret_trace(self, ast):
@@ -158,7 +162,7 @@ class TraceInterpreter():
             if state.__name__ == "STATE":
                 self.interpret_state(state)
             if state.__name__ == "STATELOOP":
-                print self.CR + "\n>> Loop starts here <<\n" + self.CE
+                print self.CG + "\n>> Loop starts here <<\n" + self.CE
                 for st in state.what:
                     self.interpret_state(st)
 
@@ -237,8 +241,8 @@ class TraceInterpreter():
             elif head == "trans":
                 return self.interpret_local_action()
                           
-            elif head == "bizE":
-                return self.interpret_biz_efect_action()
+            elif head == "byzE":
+                return self.interpret_byz_efect_action()
                   
             else:
                 raise TypeError("Unknown variable head: " + head)
@@ -249,12 +253,12 @@ class TraceInterpreter():
     #.......................................................................
     """
         Get the string correponding to the representation of the ocurrence of
-        a bizantine efect action.
-        @ uses: self.action to get the bizantine efect action ocurrence.
+        a byzantine efect action.
+        @ uses: self.action to get the byzantine efect action ocurrence.
     """
-    def interpret_biz_efect_action(self):
+    def interpret_byz_efect_action(self):
         nothing, inst, name = self.action.split("#",2)
-        return "[bizEffect] " + self.CY + inst + self.CE + " / " \
+        return "[byzEffect] " + self.CY + inst + self.CE + " / " \
                + self.CB + name + self.CE
 
 
@@ -369,8 +373,6 @@ class TraceInterpreter():
 
 
 
-
-
     #.......................................................................
     """
         Orders a varchange (a list of two elements representing the value that 
@@ -401,7 +403,7 @@ def WARNING():  return re.compile(r"((?!--|\n).*\n)+")
 def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("true")
 
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
-def TRACE():        return -1, ignore(r"(?!->).*\n"), -1 , STATE, -1, STATELOOP
+def TRACE():        return -1, ignore(r"(?!->|--\ Loop).*\n"), -1 , [STATE, STATELOOP]
 def STATE():        return "->", "State:", re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
 def VARCHANGE():    return re.compile(r"[a-zA-Z0-9\#\_]*"), "=", re.compile(r"[a-zA-Z0-9\#\_]*")
 def STATELOOP():    return "--", "Loop", "starts", "here", -1, STATE
