@@ -20,11 +20,8 @@ import Mejoras
 #
 #===============================================================================
 
-#TODO Hacer que no se rompa cuando las secciones estan vacias
-
-
+""" TODO BORRAR EN EL CASO DE QUE NUNCA LA USE
 # MODULE PLAIN API =============================================================
-# TODO Media al pedo la API???
 # Compile:
 #   .. system: Parser.System type object to compile.
 #   .. @ returns: A Compiler instance with the compiled system.
@@ -34,8 +31,9 @@ def Compile(system):
     return _cmp
 
 #===============================================================================
+"""
 
-
+# TODO probar commitatomico usando instancias como varibles de contexto
 
 # THE COMPILER =================================================================
 
@@ -95,8 +93,6 @@ class Compiler(object):
         self.compileSystem()
 
 
-
-# TODO commitatomico usando instancias como varibles de contexto
     #.......................................................................
     def fillVarCompilationTable(self):
         """
@@ -184,6 +180,7 @@ class Compiler(object):
                     [(compiled_trans_name, trans_enable_condition)]
         """
         #TODO eliminate duplicated code in this method by using auxiliar methods
+
         # Get synchronous transitions compiled name and enable conditions only
         # once.
         auxdict = {}
@@ -305,10 +302,10 @@ class Compiler(object):
             # Synchro actions
             for act in [_str(x) for x in inst.params[n::]]:
                 lst.add(self.compileSynchroAct(act))
-            # BIZ effects
+            # BYZ effects
             for f in pt.faults:
                 if f.type == Types.Byzantine:
-                    lst.add(self.compileBizEffect(inst.name, f.name))
+                    lst.add(self.compileByzEffect(inst.name, f.name))
         # deadlock action
         lst.add(Compiler.__dkact)
         # save
@@ -370,15 +367,24 @@ class Compiler(object):
         We want to know if 'prop' is guaranteed if we walk only over normal 
         traces where faults don't accur.
         """
-        strprop = "LTLSPEC "
+        if p.formula.__name__ == "CTLEXP":
+            strprop = "CTLSPEC"
+        elif p.formula.__name__ == "LTLEXP":
+            strprop = "LTLSPEC "
+        else:
+            assert False
         faults = []
         for i in self.sys.instances.itervalues():
             pt = self.sys.proctypes[i.proctype]
             for f in pt.faults:
                 faults.append(self.compileFaultActionVar(i.name, f.name))
         if faults != []:
-            strprop += "( G ! (" + Compiler.__actvar + " in " \
-                  + self.compileSet(faults) + " ) ) -> "
+            if p.formula.__name__ == "CTLEXP":
+                strprop += "( AG ! (" + Compiler.__actvar + " in " \
+                      + self.compileSet(faults) + " ) ) -> "
+            else: # p.formula.__name__ = "LTLEXP"
+                strprop += "( G ! (" + Compiler.__actvar + " in " \
+                      + self.compileSet(faults) + " ) ) -> "
         formula = self.replaceEvents(p.formula)
         strprop += self.compileAST(Compiler.__glinst, formula)
                   
@@ -542,10 +548,10 @@ class Compiler(object):
             # Synchro actions
             for act in [_str(x) for x in inst.params[n::]]:
                 lst.add(self.compileSynchroAct(act))
-            # BIZ effects
+            # BYZ effects
             for f in pt.faults:
                 if f.type == Types.Byzantine:
-                    lst.add(self.compileBizEffect(inst.name, f.name))
+                    lst.add(self.compileByzEffect(inst.name, f.name))
         # deadlock action
         lst.add(Compiler.__dkact)
         # save
@@ -613,7 +619,7 @@ class Compiler(object):
             pt = self.sys.proctypes[inst.proctype]
             for f in pt.faults:
                 tlst.append(self.buildFaultTransition(inst,pt,f))
-        # biz effects transitions
+        # byz effects transitions
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for f in [x for x in pt.faults if x.type == Types.Byzantine]:
@@ -682,7 +688,8 @@ class Compiler(object):
                         stlst.append( self.compileFaultActive(inst.name,f.name)\
                                     + " = FALSE" )
             # Transition enable condition
-            if trans.pre != None: #TODO pre = None se deberia traducir como TRUE
+            assert trans.pre != None
+            if trans.pre != None:
                 stlst.append(self.compileAST(inst.name, trans.pre))
                 
         # POSTCONDITIONS
@@ -748,9 +755,9 @@ class Compiler(object):
         exceptSet = set([])
         # set action to this transition
         thistransvect.append("next(" + Compiler.__actvar + ") = " +\
-            self.compileBizEffect(inst.name, f.name))
+            self.compileByzEffect(inst.name, f.name))
         exceptSet.add(Compiler.__actvar)
-        # Biz fault must be active
+        # Byz fault must be active
         thistransvect.append(self.compileFaultActive(inst.name,f.name))
         for e in f.affects:
             #con agregarlas a la lista de excepcion ya me aseguro de que no se
@@ -925,8 +932,8 @@ class Compiler(object):
     def compileSynchroAct(self, saname):
         return "synchro#" + saname
     #.......................................................................
-    def compileBizEffect(self, iname, fname):
-        return "bizE#" + iname + '#' + fname
+    def compileByzEffect(self, iname, fname):
+        return "byzE#" + iname + '#' + fname
     #.......................................................................
     def compileSet(self, _set):
         lst = list(_set)

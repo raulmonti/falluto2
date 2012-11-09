@@ -7,6 +7,7 @@ class BaseException():
     def __init__(self):
         self.error = ""
         self.cause = ""
+        self.where = ""
     def __str__(self):
         return str(self.error)
     def __repr__(self):

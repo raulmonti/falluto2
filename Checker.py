@@ -36,16 +36,9 @@ def Check(system):
 
 #===============================================================================
 
-#TODO Aclarar que isntancia se esta checkeando al levantar una excepcion de 
+# TODO Aclarar que instancia se esta checkeando al levantar una excepcion de 
 # tipos.
 
-#TODO Devolver un error mas entendible cuando salta un eventsnotallowed o
-# nextrefnotallowed
-
-#TODO Buscar donde se active el event not allowed y asegurarse de desactivarlo
-#si ocurre una excepcion
-
-#TODO Verificar que las acciones dentro de los eventos en verdad existan
 ################################################################################
 
 class Checker(object):
@@ -134,14 +127,43 @@ class Checker(object):
                                  + "\', at line \'" + t.line + "\'.")
                 tset.add(t.name)
 
-#TODO verificar interseccion vacia entre nombres de transiciones y de fallas
-#TODO verificar no mas de una sincronizacion con mismo nombre en cada inst
+
+            s = fset.intersection(tset)
+            l = list(s)
+            if l != []:
+                raise LethalE( "Error in proctype <" + pt.name \
+                             + ">. Fault and transition with same name: <" \
+                             + l[0] + ">.")
+
+
     #.......................................................................
     def checkInstancesParams(self):
+        if self.sys.instances == {}:
+            WARNING("No instances declared in input file.\n")
+    
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             n = len(pt.contextvars)
+            m = len(pt.synchroacts)
             
+            # check same number of parameters
+            if n+m != len(inst.params):
+                raise LethalE("Incorrect number of parameters for instance <" \
+                             + inst.name + "> at <" + inst.line + ">.")
+
+            # check synchronization
+            lst = []
+            for p in inst.params[n::]:
+                ps = _str(p)
+                if ps not in lst:
+                    lst.append(ps)
+                else:
+                    raise LethalE("Error concerning to synchronization name <" \
+                                 + ps + "> in instanciation of <" + inst.name \
+                                 + "> at <" + inst.line + ">. Can't " \
+                                 + "synchronice between two transitions of "\
+                                 + "the same instance.")
+
             # Context variables
             
             # TODO vale la pena agregar valores de tipo Symbol en el dominio de
@@ -239,9 +261,6 @@ class Checker(object):
                 else:
                     debugERROR(param)
                     assert False
-       
-        # TODO mirar bien que estoy haciendo con los event 
-        # (siempre deberian ser complex ids)
 
         # for global instance:
         giname = self.globalinst.name
@@ -293,6 +312,14 @@ class Checker(object):
                 nrname = _str(nextref)
                 expr = p[2]
                 exprname = _str(expr)
+                
+                # expr must be a local declared var
+                if not nrname in [x.name for x in pt.localvars]:
+                    raise LethalE("Error at <" + expr.__name__.line \
+                        + ">. Only local declared variables are allowed to be" \
+                        + " used in next expresions. \'" + nrname \
+                        + "\' isn't a local declared variable in proctype \'" \
+                        + pt.name + "\'.")
                 
                 t1 = self.getTypeFromTable(inst, nrname)
                 t2 = self.getExpresionType(inst, expr)
@@ -361,6 +388,15 @@ class Checker(object):
                 expr = p[2]
                 exprname = _str(expr)
                 
+                # expr must be a local declared var
+                if not nrname in [x.name for x in pt.localvars]:
+                    raise LethalE("Error at <" + expr.__name__.line \
+                        + ">. Only local declared variables are allowed to be" \
+                        + " used in next expresions. \'" + nrname \
+                        + "\' isn't a local declared variable in proctype \'" \
+                        + pt.name + "\'.")
+                
+                
                 t1 = self.getTypeFromTable(inst, nrname)
                 if p[1] == "=":
                     t2 = self.getExpresionType(inst, expr)
@@ -384,7 +420,9 @@ class Checker(object):
         assert isinstance(expr, pyPEG.Symbol)
         assert expr.__name__ in ["RANGE", "SET"]
         if expr.__name__ == "RANGE":
-            # TODO check empty range
+            if int(_str(expr.what[0])) > int(_str(expr.what[2])):
+                raise LethalE( "Empty range \'" + _str(expr) 
+                             + "\' at <" + str(line) + ">.")
             return [Types.Int]
         else:
             ts = set([])
@@ -396,12 +434,10 @@ class Checker(object):
                 elif isInt(_str(elem)):
                     ts.add(Types.Int)
                 else:
-                    #debugGREEN(elem)
                     pass
             return list(ts)
     #.......................................................................
     def checkProperties(self):
-
         for p in self.sys.properties.itervalues():
             t = p.type
             if t == Types.Ctlspec or t == Types.Ltlspec:
@@ -412,7 +448,6 @@ class Checker(object):
                     # for Types.Fmf type properties
                     line = getBestLineNumberForExpresion(x)
                     if '.' not in _str(x):
-
                         raise LethalE("Bad fault name \'" + _str(x) \
                                      + "\' for Finitely many fault" \
                                      + " propertie at <" + line + ">.")
@@ -435,7 +470,6 @@ class Checker(object):
     def checkTimeLogicExp(self, expr):
         assert isinstance(expr, pyPEG.Symbol)
         assert expr.__name__ in ["CTLEXP", "LTLEXP"]
-
         self.allowevents = True
         try:
             for exp in getExpresions(expr):
@@ -462,6 +496,7 @@ class Checker(object):
                     if t != Types.Bool:
                         exps = putBrackets(exp)
                         line = getBestLineNumberForExpresion(exp)
+                        self.allowevents = False
                         raise LethalE("Error at <" + line \
                                      + ">. Expresions inside time" \
                                      +" logic properties must be of type " \
@@ -632,13 +667,28 @@ class Checker(object):
                     raise LethalE("Error at <" + line + ">. " + e.error)
             elif value.__name__ == "NEXTREF":
                 if not self.allownextrefs:
-                    raise NextRefNotAllowedE(value)
+                    #raise NextRefNotAllowedE(value)
+                    raise LethalE( "Error with <" + _str(value) + "'> at <" \
+                                 + value.__name__.line \
+                                 + ">. Next references aren't allowed here.")
                 else:
+                    # value must be a local declared var
+                    values = _str(value)
+                    pt = self.sys.proctypes[inst.proctype]
+                    if not values in [x.name for x in pt.localvars]:
+                        raise LethalE("Error at <" + expr.__name__.line \
+                            + ">. Only local declared variables are allowed to be" \
+                            + " used in next expresions. \'" + values \
+                            + "\' isn't a local declared variable in proctype \'" \
+                            + pt.name + "\'.")
                     return self.getTypeFromTable(inst, _str(value))
                 assert False
             elif value.__name__ == "EVENT":
                 if not self.allowevents:
-                    raise EventNotAllowedE(value)
+                    #raise EventNotAllowedE(value)
+                    raise LethalE( "Error with <" + _str(value) \
+                                 + "> at <" + value.__name__.line \
+                                 + ">. Events aren't allowed here.")
                 else:
                     return self.getEventType(inst,value)
                 assert False # never come out here
@@ -652,6 +702,8 @@ class Checker(object):
 
     #.......................................................................
     def getEventType(self,inst,ast):
+        assert isinstance(ast, pyPEG.Symbol)
+        assert ast.__name__ == "EVENT"
         ev = ast.what[1]
         sv = _str(ev)
         if not '.' in sv:
@@ -664,13 +716,14 @@ class Checker(object):
                 ept = self.sys.proctypes[einst.proctype]
                 elist=[x.name for x in ept.faults + ept.transitions]
                 if not ev in elist:
+                    line = getBestLineNumberForExpresion(ast)
                     raise LethalE("Error in event \'" + _str(ast) + "\', at <" \
-                                 + ast.__name__.line + ">. No event named \'" \
+                                 + line + ">. No event named \'" \
                                  + ev + "\' in instance \'" + ei + "\'.")
             except KeyError as e:
-
+                line = getBestLineNumberForExpresion(ast)
                 raise LethalE( "Error in event \'" + _str(ast) + "\', at <" \
-                             + ast.__name__.line + ">. \'" + ei \
+                             + line + ">. \'" + ei \
                              + "\' doesn't name an instance.")
             return Types.Bool
             
@@ -711,12 +764,7 @@ class Checker(object):
 
 ################################################################################
 
-#TODO Checkear que se correspondan la cantidad de parametros de la instancia con
-# la cantidad de parametros de su proctype
-
-#TODO Checkar empty instance dict
-
-#TODO Verificar que no se esta usando las contextvars en los nextAssigns
+#TODO levantar excepcion por falta de instancias si es correcto hacerlo.
 
 # TESTING ======================================================================
 

@@ -16,28 +16,15 @@ debugTODO( "Levantar warning cuando dos asignaciones a una misma next ref en " \
          + "una postcondiciones hacen o pueden hacer imposible la transicion " \
          + "o la ocurrencia de la falla o lo que sea.")
 
-debugTODO( "Controlar mejor las inclusiones (no se puede bool en symbolic set)"\
-         + "por ejemplo, mientras que en falluto lo estamos aceptando")
-
 debugTODO( "Poner parentesis a las expresiones compiladas, por las dudas NuSMV"\
          + " asocie de otra manera los operadores.")
- 
-debugTODO("""         
-            WARNING *** The model contains COMPASSION declarations.        ***
-            WARNING *** Full fairness is not yet fully supported in NuSMV. ***
-            WARNING *** Currently, COMPASSION declarations are only        ***
-            WARNING *** supported for BDD-based LTL Model Checking.        ***
-            WARNING *** Results of CTL Model Checking and of Bounded       ***
-            WARNING *** Model Checking may be wrong.                       ***
-            """
-            )
 
-debugTODO(" Permitir CTLSPECS en normal behaiviour y finitely ...")
-
-debugTODO( " Estoy aceptando -- como dos signos menos seguidos y en NuSMV eso" \
-           " es comentario y se rompe todo :S.")
            
 debugTODO( """ Permitir renombrar transiciones, tener cuidado de no sincronizar 
 con estas transiciones, cambiar el nombre de las renombradas y hacer tabla de 
 renombrado por si hay un just(transicion renombrada) en algun lugar del sistema 
 de input.""")
+
+debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
+
+debugTODO("Averiguar sobre line-wrapped para que se vea mejor la salida")
