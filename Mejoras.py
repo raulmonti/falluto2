@@ -28,3 +28,5 @@ de input.""")
 debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
 
 debugTODO("Averiguar sobre line-wrapped para que se vea mejor la salida")
+
+debugTODO("instances weak fairness en instancias en particular y no en todas")
