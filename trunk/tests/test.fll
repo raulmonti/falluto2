@@ -1,0 +1,20 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE proc(c ;trans1, trans2)
+	VAR
+		a:bool
+		b:2..5
+	FAULT
+		f1: 4 > -1 & FALSE & b in 1..10 => a' = TRUE is TRANSIENT
+	INIT
+	TRANS
+		[trans9]:
+ENDPROCTYPE
+
+INSTANCE inst1 = proc(TRUE,a,b)
+
+NORMAL_BEHAIVIOUR -> X TRUE
+
+--LTLSPEC F just(inst1.trans1)
