@@ -65,17 +65,17 @@ if __name__ == '__main__':
     try:
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
-        debugYELLOW("Parsing input...")
+        #debugYELLOW("Parsing input...")
         msys = Parser.parse(files)
-        debugYELLOW("Checking system...")
+        #debugYELLOW("Checking system...")
         Checker.Check(msys)
-        debugYELLOW("Compiling the input system...")
+        #debugYELLOW("Compiling the input system...")
         c.compile(msys)
 
         sysname = msys.name if msys.name != "" else "No Name System"
 
         #Checking the smv system descripition:
-        colorPrint("debugYELLOW", "Checking system: " + sysname)
+        colorPrint("debugYELLOW", "** Checking system: " + sysname)
         #get the smv system description
         c.writeSysToFile(outputname,[])
         #debugCURRENT(outputfile)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         # if NuSMV encounters that the descripton is incorrect).
         output = check_output(["NuSMV", os.path.abspath(outputname)])
         #debugCURRENT(output)
-        colorPrint("debugGREEN", sysname + " is OK!\n\n")
+        colorPrint("debugGREEN", "** " + sysname + " is OK!\n\n")
 
         if args.save:
             c.writeSysToFile(args.save,None)
@@ -92,7 +92,6 @@ if __name__ == '__main__':
             c.writeSysToFile(outputname,[i])
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
-            debugCURRENT(output)
             _color = False
             if args.color:
                 _color = True

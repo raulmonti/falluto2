@@ -107,7 +107,6 @@ class TraceInterpreter():
         self.sys = cosys.sys
 
         (ast, rest) = parseLine(trace, RESULT(), [], True, packrat=True)
-        debugGREEN(ast)
 
         if rest != "":
             debugERROR( "Error al interpretar las trazas. No se pudo " \
