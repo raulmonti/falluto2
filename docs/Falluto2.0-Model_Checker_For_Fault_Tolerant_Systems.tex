@@ -1,0 +1,269 @@
+\documentclass[titlepage, 12pt]{book}
+\usepackage[spanish]{babel}
+
+\pagestyle{plain}
+\title{Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}
+\author{Raul Monti}
+\date{Diciembre 2012}
+
+
+
+\begin{document}
+
+%TODO cambiar las palabras entre []
+%TODO rellenar los '...'
+\maketitle
+
+\newpage
+ACA VA EL RESUMEN
+\newpage
+ABSTRACT
+\newpage
+AGRADECIMIENTOS
+
+\newpage
+\tableofcontents
+
+\newpage
+\chapter{Introducci\'on}
+\label{introduccion}
+
+Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes actividades, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocaciona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como se es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes [perdidas] monetarias y hasta llegar a ocacionar la perdida de vidas humanas.\\
+
+Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional\cite{faultInjection} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.\\
+Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especific\'on plantea) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.\\
+
+Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas conputacionales, es conveniente comprobar la correctitud de los sistemas tolerantes a fallas.
+El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dificil y \emph{propenso a errores}: la combianaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que [genera una gran demanda] a la capacidad intelectual del dise\~nador humano\cite{SteinerRushby}.\\
+En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los diseñadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on.\\ La examinaci\'on autim\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}\\
+
+En ciencias de la computacion \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si la el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
+El reducido nivel de interacci\'on con el usuario de este m\'etodo es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad des ser usad por individuos no expertos.\cite{RuysBrinksma}\\
+%TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
+Sin embargo es preciso modelar el sistema y definir las propiedades, lidiando mientras tanto con el principal problema del Model Checking: \emph{la explosi\'on de estados} debido al incremento exponencial de los mismos a ra\'iz de la introducci\'on de variables en la especificaci\'on del sistema.\\
+
+Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando asi la nosiva explosi\'on de estados al momento de la verificaci\'on.
+
+Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV\cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errors evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo.\\ Este trabajo se presenta como extensi\'on tanto del trabajo realizado por Edgardo Hammes\cite{Falluto1} como del realizado por Nicol\'as Bordenabe\cite{Offbeat}.
+%TODO seguir hablando del trabajo y poner la distribucion de los temas en el trabajo.
+
+
+\chapter{Model Checking}
+		
+		\section{El proceso de Model Checking}
+				- BDD ... SAT\\
+		\section{NuSMV}
+			- NuSMV como funciona, capacidades, ventajas de haberlo elegido.
+
+
+\chapter{Tolerancia a fallas}
+			- Leer algun paper a cerca de eso y rellenar aca.
+
+\chapter{Conocimientos previos}
+			- Con falluto queremos poder escribir un modelo que en nuestra cabeza normalmente esta abstra\'ido a
+			sistemas de transiciones etiquetadas y estructuras de Kripke. Queremos adem\'as hacerlo de manera declarativa en
+			cuanto a la inserci\'on de fallas, sin tener que implementar la funcionalidad de las mismas.\\
+			\section{LTS}
+			\section{Kripke Structures}
+
+
+\chapter{El lenguaje de Falluto2.0}
+			\section{Lenguaje general}
+				- Como logra 'describir claramente la red de automatas' de manera intuitiva.
+			\section{Inserci\'on de fallas}
+			
+\chapter{Compilaci\'on de Falluto2.0}
+			\section{transiciones normales y transiciones de falla}
+			\section{fairness}
+			\section{propiedades comunes}
+
+\chapter{Casos de estudio}
+			\section{Commit at\'omico}
+			\section{Ej\'ercitos bizantinos ?}
+			\section{Fil\'osofos comensales ?}
+			\section{Falla bizantina ?}
+			\section{Elecci\'on de lider ?}
+			\section{Protocolos lamport}
+			\section{Feedback de contacto de Naza}
+			\section{Red satelital ultra secreta?}
+
+
+\chapter{Conclusi\'on}
+
+\chapter{Ap\'endice A - Manual de Falluto2.0}
+
+\chapter{Ap\'endice B - Sint\'axis formal de Falluto2.0}
+
+\chapter{Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}
+
+
+
+
+\chapter{extra}
+	- falencias de falluto??? 
+	- fallas por omisi\'on de input.
+	- recuperci\'on de fallas por parte del usuario.
+
+
+
+
+%
+%\section{\textbf{NuSMV}}
+%
+%NuSMV\cite{NuSMVBibl} es un model checker simb\'olico originado en la reingenieria, reimplementaci\'on
+%y extensi\'on of CMU SMV. Usamos su segunda versi\'on la cual implementa tanto t\'ecnicas
+%de \textbf{model checking simb\'olico basado en BDD}, como  t\'ecnicas de model checking
+%basadas en \textbf{satisfactibilidad proposisional (SAT)}.
+%Cada una de estas t\'ecnicas sulen ser \'utiles para resolver diferentes tipos
+%de problemas y por lo tanto pueden considerarse complementarias.\\
+%
+%El c\'odigo de \emph{NuSMV} se distribuye bajo licencia LGPL-2.1 la cual permite el 
+%uso gratuito del software por parte de cualquier persona interesada asi como a 
+%contribuir con el desarrollo del mismo. La adopci\'on de esta licencia ha permitido la
+%contribuci\'on al proyecto por parte de numerosos \'ambitos cient\'ificos asi como
+%industriales.\\
+%
+%El proyecto de software libre NuSMV apunta a crear una base com\'un para
+%el estudio y comparaci\'on de diferentes t\'ecnicas de model checkin simb\'olico.\\
+%
+%\begin{itemize}
+%
+%
+%\item%
+%\textbf{Funcionalidades:}\\
+%
+%\emph{NUSMV} permite la representaci\'on de sistemas finitos tanto s\'incronos
+%como as\'incronos, aunque estos \'ultimos estan deprecados en las versiones superiores
+%a la 2.5.0., y al an\'alisis de especificaciones expresadas en CTL (l\'ogica de \'arbol
+%computacional) y LTL (l\'ogica temporal lineal).
+%
+%
+%\item%
+%\textbf{Arquitectura:}\\
+%
+%
+%\item%
+%\textbf{Qualidades de la implementacion:}\\
+%
+%\emph{NUSMV} esta escrito en ANSI C, y es compatible con POSIX. \emph{NUSMV} usa un avanzado
+%paquete de BDD desarollado en Colorado University, y provee una interf\'az general para
+%linking con avanzados resolvedores SAT. Esto produce que NUSMV sea muy robusto, portable,
+%eficiente, y facil de entender por personas fuera del equipo de desarrollo.\\
+%\\
+%
+%
+%\end{itemize}
+%
+%
+%\section{Por qu\'e NuSMV?}
+%
+%Porque nos da un gran control sobre la eficiencia del checkeo del modelo. Esto se debe
+%a que ... (Preguntar bien a Pedro o leer mucho para entender :D)
+%
+%
+%\chapter{Falluto 2.0}
+%
+%\section{Objetivos}
+%\begin{itemize}
+%\item%
+%Ocultar al usuario las complejidades de tener que definir un sistema usando una herramienta
+%con la complejidad de NuSMV.
+%\item
+%Ocultar las complejidades de definir de manera funcional el comportamiento de fallas,
+%presentando una sintaxis declarativa para la especificaci\'on de las mismas.
+%\end{itemize}
+%
+%\section{Implementaci\'on de Falluto 2.0}
+%
+%Falluto 2.0 esta escrito en Python\cite{Python}. Python es un Lenguaje de programación interpretado cuya filosof\'ia hace hincapi\'e en una sintaxis limpia que favorezca un c\'odigo legible.
+%Se trata de un lenguaje de programaci\'on multiparadigma ya que soporta orientaci\'on a objetos, programaci\'on imperativa y, en menor medida, programaci\'on funcional. Es un lenguaje interpretado, usa tipado din\'amico, es fuertemente tipado y es multiplataforma. Posee una muy completa librer\'ia estadar.
+%Es administrado por la Python Software Foundation. Posee una licencia de c\'odigo abierto, denominada Python Software Foundation License,1 que es compatible con la Licencia p\'ublica general de GNU a partir de la versión 2.1.1, e incompatible en ciertas versiones anteriores.
+%
+%
+%\subsubsection{A cerca del valor inicial de actvar\#}
+%
+%Notar que el valor inicial de esta variable no tiene significado alguno en el
+%sistema ya que representa la acci\'{o}n que se realiz\'{o} en el estado anterior para 
+%transitar hasta el actual. Dado que el estado actual es el inicial, osea no hubo
+%estado anterior, esta variable no representa nada en este momento. Sin embargo
+%es importante darle un valor correcto para que no afecte la verificaci\'{o}n de
+%propiedades en el sistema smv resultante.\\
+%
+%\noindent Las opciones para su valor inicial son:\\
+%\begin{enumerate}
+%
+%\item%
+%    Un valor incial espec\'{i}fico, que solo se use en este caso.
+%\item%
+%    Cualquier valor dentro de su dominio.
+%\end{enumerate}
+%
+%
+%
+%
+%
+%
+%\section{Parsing expresion grammars}
+%
+%
+%Most language syntax theory and practice is based on generative
+%systems, such as regular expressions and context-free grammars, in
+%which a language is defined formally by a set of rules applied recursively
+%to generate strings of the language. A recognition-based
+%system, in contrast, defines a language in terms of rules or predicates
+%that decide whether or not a given string is in the language.
+%The power of generative grammars to express
+%ambiguity is crucial to their original purpose of modelling
+%natural languages, but this very power makes it unnecessarily difficult
+%both to express and to parse machine-oriented languages using
+%CFGs. Parsing Expression Grammars (PEGs) provide an alternative,
+%recognition-based formal foundation for describing machineoriented
+%syntax, which solves the ambiguity problem by not introducing
+%ambiguity in the first place. Where CFGs express nondeterministic
+%choice between alternatives, PEGs instead use prioritized
+%choice. PEGs address frequently felt expressiveness limitations of
+%CFGs and REs, simplifying syntax definitions and making it unnecessary
+%to separate their lexical and hierarchical components. A
+%linear-time parser can be built for any PEG, avoiding both the complexity
+%and fickleness of LR parsers and the inefficiency of generalized
+%CFG parsing. While PEGs provide a rich set of operators for
+%constructing grammars, they are reducible to two minimal recognition
+%schemas developed around 1970, TS/TDPL and gTS/GTDPL.\cite{PEG}
+%
+%
+%
+%
+
+\newpage % Bibliography goes in new page
+
+\begin{thebibliography}{99}
+
+\bibitem{faultInjection} Fault injection: a method for validating computer-system dependability
+Clark, J.A.; Pradhan, D.K. June.1995 
+
+\bibitem{SteinerRushby} Steiner-etal:DSN04; Wilfried Steiner and John Rushby and Maria Sorea and Holger Pfeifer; Model Checking a Fault-Tolerant Startup Algorithm: From Design Exploration To Exhaustive Fault Simulation; The International Conference on Dependable Systems and Networks, IEEE Computer Society, Florence, Italy, june, 2004
+
+\bibitem{RuysBrinksma} Model Checking: Verification or Debugging?; Theo C. Ruys and Ed Brinksma; Faculty of Computer Science, University of Twente. P.O. Box 217, 7500 AE Enschede, The Netherlands.
+
+\bibitem{NuSMV} NuSMV 2.5 User Manual. Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren,
+Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev. http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf
+
+\bibitem{Falluto1} Falluto: Un model checker para la verificaci\'on de sistemas tolerantes a fallas; Edgardo E. Hames; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; C\'ordoba, 14 de diciembre de 2009.
+
+\bibitem{Offbeat} Offbeat: Una extensi\'on de PRISM para el an\'alisis de sistemas temporizados tolerantes a fallas; Nicolás Emilio Bordenabe; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; 28 de Marzo de 2011
+
+
+
+
+\bibitem{Python} Python; http://en.wikipedia.org/wiki/Python\_(programming\_language)
+
+\bibitem{PEG} Parsing Expression Grammars: A Recognition-Based Syntactic Foundation. Bryan Ford. Massachusetts Institute of Technology; Cambridge, MA
+
+
+\end{thebibliography}
+
+
+
+
+
+\end{document}

@@ -1,0 +1,30 @@
+\select@language {spanish}
+\contentsline {chapter}{\numberline {1}Introducci\'on}{7}
+\contentsline {chapter}{\numberline {2}Model Checking}{11}
+\contentsline {section}{\numberline {2.1}El proceso de Model Checking}{11}
+\contentsline {section}{\numberline {2.2}NuSMV}{11}
+\contentsline {chapter}{\numberline {3}Tolerancia a fallas}{13}
+\contentsline {chapter}{\numberline {4}Conocimientos previos}{15}
+\contentsline {section}{\numberline {4.1}LTS}{15}
+\contentsline {section}{\numberline {4.2}Kripke Structures}{15}
+\contentsline {chapter}{\numberline {5}El lenguaje de Falluto2.0}{17}
+\contentsline {section}{\numberline {5.1}Lenguaje general}{17}
+\contentsline {section}{\numberline {5.2}Inserci\'on de fallas}{17}
+\contentsline {chapter}{\numberline {6}Compilaci\'on de Falluto2.0}{19}
+\contentsline {section}{\numberline {6.1}transiciones normales y transiciones de falla}{19}
+\contentsline {section}{\numberline {6.2}fairness}{19}
+\contentsline {section}{\numberline {6.3}propiedades comunes}{19}
+\contentsline {chapter}{\numberline {7}Casos de estudio}{21}
+\contentsline {section}{\numberline {7.1}Commit at\'omico}{21}
+\contentsline {section}{\numberline {7.2}Ej\'ercitos bizantinos ?}{21}
+\contentsline {section}{\numberline {7.3}Fil\'osofos comensales ?}{21}
+\contentsline {section}{\numberline {7.4}Falla bizantina ?}{21}
+\contentsline {section}{\numberline {7.5}Elecci\'on de lider ?}{21}
+\contentsline {section}{\numberline {7.6}Protocolos lamport}{21}
+\contentsline {section}{\numberline {7.7}Feedback de contacto de Naza}{21}
+\contentsline {section}{\numberline {7.8}Red satelital ultra secreta?}{21}
+\contentsline {chapter}{\numberline {8}Conclusi\'on}{23}
+\contentsline {chapter}{\numberline {9}Ap\'endice A - Manual de Falluto2.0}{25}
+\contentsline {chapter}{\numberline {10}Ap\'endice B - Sint\'axis formal de Falluto2.0}{27}
+\contentsline {chapter}{\numberline {11}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{29}
+\contentsline {chapter}{\numberline {12}extra}{31}

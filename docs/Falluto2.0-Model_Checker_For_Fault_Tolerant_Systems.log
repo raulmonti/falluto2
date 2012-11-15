@@ -1,0 +1,208 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  14 NOV 2012 21:08
+entering extended mode
+ %&-line parsing enabled.
+**Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
+(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+(/usr/share/texmf-texlive/tex/latex/base/book.cls
+Document Class: book 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/bk12.clo
+File: bk12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/share/texmf-texlive/tex/generic/babel/babel.sty
+Package: babel 2008/07/06 v3.8l The Babel package
+
+(/usr/share/texmf-texlive/tex/generic/babel/spanish.ldf
+Language: spanish.ldf 2009/01/02 v5.0h Spanish support from the babel system
+
+(/usr/share/texmf-texlive/tex/generic/babel/babel.def
+File: babel.def 2008/07/06 v3.8l Babel common definitions
+\babel@savecnt=\count88
+\U@D=\dimen103
+)
+
+Package babel Warning: No hyphenation patterns were loaded for
+(babel)                the language `Spanish'
+(babel)                I will use the patterns loaded for \language=0 instead.
+
+\l@spanish = a dialect from \language0
+\es@datefmt=\count89
+\es@quottoks=\toks14
+\es@quotdepth=\count90
+Package babel Info: Making " an active character on input line 492.
+Package babel Info: Making . an active character on input line 585.
+Package babel Info: Making < an active character on input line 630.
+Package babel Info: Making > an active character on input line 630.
+)) (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
+\openout1 = `Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 15.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 15.
+ [1
+
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
+(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 4.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 4.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 4.
+ [5
+
+])
+\tf@toc=\write3
+\openout3 = `Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.toc'.
+
+ [6]
+Cap\'{\i }tulo 1.
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--35
+
+ []
+
+[7
+
+]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ± in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 36--39
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 40--44
+
+ []
+
+[8] [9] [10
+
+]
+Cap\'{\i }tulo 2.
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--55
+
+ []
+
+[11] [12
+
+]
+Cap\'{\i }tulo 3.
+[13] [14
+
+]
+Cap\'{\i }tulo 4.
+
+Underfull \hbox (badness 10000) in paragraph at lines 63--66
+
+ []
+
+[15] [16
+
+]
+Cap\'{\i }tulo 5.
+[17] [18
+
+]
+Cap\'{\i }tulo 6.
+[19] [20
+
+]
+Cap\'{\i }tulo 7.
+[21] [22
+
+]
+Cap\'{\i }tulo 8.
+[23] [24
+
+]
+Cap\'{\i }tulo 9.
+[25] [26
+
+]
+Cap\'{\i }tulo 10.
+[27] [28
+
+]
+Cap\'{\i }tulo 11.
+[29] [30
+
+]
+Cap\'{\i }tulo 12.
+[31] [32
+
+]
+Underfull \hbox (badness 2951) in paragraph at lines 248--250
+[]\OT1/cmr/m/n/12 NuSMV 2.5 Us-er Man-u-al. Rober-to Cava-da, Alessan-dro Cimat
+-
+ []
+
+
+Underfull \hbox (badness 4229) in paragraph at lines 248--250
+\OT1/cmr/m/n/12 ti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivet-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--250
+\OT1/cmr/m/n/12 ti, Mar-co Pi-s-tore, Mar-co Roveri and An-drei Tchalt-sev.
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+[33] [34] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux) ) 
+Here is how much of TeX's memory you used:
+ 887 strings out of 495061
+ 10803 string characters out of 1182621
+ 68199 words of memory out of 3000000
+ 4125 multiletter control sequences out of 15000+50000
+ 9454 words of font info for 33 fonts, out of 3000000 for 9000
+ 28 hyphenation exceptions out of 8191
+ 24i,6n,27p,985b,305s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/sh
+are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-t
+exlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts
+/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/publi
+c/amsfonts/cm/cmti12.pfb>
+Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (34 p
+ages, 91318 bytes).
+PDF statistics:
+ 127 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
