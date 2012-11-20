@@ -87,7 +87,8 @@ def NEXTASSIGN():   return NEXTREF, \
 
 
 # SYSTEM SINTAX
-def SYSTEM(): return 0, OPTIONS , -1, [ PROCTYPE
+def SYSTEM(): return 0, OPTIONS , -1, [ DEFINE
+                                      , PROCTYPE
                                       , INSTANCE
                                       , SPECIFICATION
                                       , CONTRAINT ]
@@ -104,8 +105,10 @@ def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
 def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
 def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
+# Defines
+def DEFINE():       return keyword("DEFINE"), IDENT, ":=", EXPRESION
 
-# Modules
+# Proctypes
 def PROCTYPE():     return keyword("PROCTYPE"), IDENT, "(", CTXVARS, \
                            SYNCACTS, ")", PROCTYPEBODY, \
                            keyword("ENDPROCTYPE")

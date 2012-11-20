@@ -104,11 +104,13 @@ class System(ParserBaseElem):
     """
     def __init__(self):
         ParserBaseElem.__init__(self)
+        self.defines    = {}
         self.proctypes  = {}
         self.instances  = {}
         self.properties = {}
         self.contraints = {}
         self.options    = {}
+
 
     #.......................................................................
     def clear(self):
@@ -132,6 +134,11 @@ class System(ParserBaseElem):
                             WARNING( "Redeclared option \'" + o.name \
                                     + "\', using only last declaration.\n")
                         self.options[o.name] = o
+            elif elem.__name__ == "DEFINE":
+                d = Define()
+                d.parse(elem)
+                d.name = "define" + str(len(self.defines))
+                self.defines[d.name] = d
             elif elem.__name__ == "PROCTYPE":
                 p = Proctype()
                 p.parse(elem)
@@ -214,6 +221,20 @@ class Option(ParserBaseElem):
     #.......................................................................
 
 
+################################################################################
+class Define(ParserBaseElem):
+    def __init__(self):
+        ParserBaseElem.__init__(self)
+
+    def parse(self,ast):
+        self.line = Utils.getBestLineNumberForExpresion(ast)
+        self.dname = ast.what[0]
+        self.dvalue = ast.what[1]
+        
+        debugRED(self.line)
+        debugRED(self.dname)
+        debugRED(self.dvalue)
+        
 ################################################################################
 
 class Proctype(ParserBaseElem):
