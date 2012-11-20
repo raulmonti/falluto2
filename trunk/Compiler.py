@@ -143,7 +143,20 @@ class Compiler(object):
                     assert isBool(siv) or isInt(siv)
                     self.ctable[inst.name][scv] = self.compileBOOLorINT(siv)
 
-
+        # DEFINEs
+        for d in self.sys.defines.itervalues():
+            dname = _str(d.dname)
+            compd = self.compileDefine(dname)
+            self.ctable[Compiler.__glinst][dname] = compd
+            
+            for inst in self.sys.instances.itervalues():
+                iname = inst.name
+                try:
+                    aux = self.ctable[iname][dname]
+                except:
+                    self.ctable[iname][dname] = compd
+            
+            
 
     #.......................................................................
     def fillSyncTransDict(self):
@@ -272,6 +285,7 @@ class Compiler(object):
         self.save(self.comment(Compiler.FILEHEADER), False, True)
         self.save("MODULE main()\n")
         self.tl.i()
+        self.buildDefines()
         self.buildVarSection()
         self.buildInitSection()
         self.buildTransSection()
@@ -281,9 +295,18 @@ class Compiler(object):
         self.buildProperties()
 
 
+    #.......................................................................
+    def buildDefines(self):
+        self.save(self.comment( " @@@ DEFINITIONS." ))
+        for d in self.sys.defines.itervalues():
+            cdname = self.compileDefine(_str(d.dname))
+            self.save( "DEFINE " + cdname + " := " \
+                     + self.compileAST(Compiler.__glinst, d.dvalue) + ";")
+
 
     #.......................................................................
     def buildVarSection(self):
+        self.save("\n\n")
         self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
         self.save("VAR")
         self.tl.i()
@@ -528,7 +551,7 @@ class Compiler(object):
         else:
             debugWARNING("Bad type for contraint <" + c.type + ">.")
     #.......................................................................
-
+    """
     def buildVarSection(self):
         self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
         self.save("VAR")
@@ -577,7 +600,7 @@ class Compiler(object):
                 self.save( name + ":boolean;")
                 self.varset.add(name)
         self.tl.d()
-
+    """
     #.......................................................................
     def buildInitSection(self):
         self.save("\n\n")
@@ -994,7 +1017,8 @@ class Compiler(object):
     def compileBOOLorINT(self, value):
         return _str(value)
     #.......................................................................
-
+    def compileDefine(self, name):
+        return "def#" + str(name)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 

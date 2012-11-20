@@ -216,3 +216,32 @@ class TabLevel():
 
 ################################################################################
 
+
+
+def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
+                                 symb = '&'):
+    parentopen = ""
+    parentclose = ""
+    amperson = " " + symb + " "
+    if parent:
+        parentopen = "("
+        parentclose = ")"
+    if enter:
+        amperson = amperson + "\n" + tl
+
+    marray = []
+    for elem in array:
+        if str(elem) != "":
+            marray.append(elem)
+    if marray == []:
+        return ""
+    elif len(marray) == 1:
+        return str(marray[0])
+    else:
+        string = parentopen + "(" + str(marray[0]) + ")"
+        for elem in marray[1::]:
+            string += amperson + "(" + str(elem) + ")"
+        string += parentclose
+        return string
+        
+################################################################################

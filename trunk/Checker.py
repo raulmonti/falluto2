@@ -41,7 +41,9 @@ def Check(system):
 
 ################################################################################
 
+
 class Checker(object):
+
     #.......................................................................
     def __init__(self):
         self.sys             = None
@@ -55,8 +57,11 @@ class Checker(object):
         # outside proctypes declarations.
         self.globalinst      = Parser.Instance()
         self.globalinst.name = "Glob#inst"
-        
-    
+        # for dfs algorithms
+        self.visited = {}
+        self.stack = []
+
+
     #.......................................................................
     def clear(self):
         self.__init__()        
@@ -72,6 +77,7 @@ class Checker(object):
         self.checkInstancedProctypes()
         self.checkProperties()
         self.checkContraints()
+    #    self.checkDefines()
     #.......................................................................
     def checkRedeclared(self):
         """
@@ -233,7 +239,7 @@ class Checker(object):
                     for value in var.domain:
                         self.typetable[inst.name][value] = Types.Symbol
                         self.typetable[self.globalinst.name][value]=Types.Symbol
-                
+
         # context variables
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
@@ -242,7 +248,6 @@ class Checker(object):
                 param = _str(inst.params[i])
                 cvname = _str(pt.contextvars[i])
 
-                
                 if isBool(param):
                     self.typetable[inst.name][cvname] = Types.Bool
                 elif isInt(param):
@@ -270,6 +275,107 @@ class Checker(object):
                 vname = inst.name + '.' + v.name
                 self.typetable[giname][vname]=self.typetable[inst.name][v.name]
 
+        # define variables, check them and add them to the type table
+        self.checkDefines()
+
+    #.......................................................................
+    def checkDefines(self):
+
+        defines = []
+        for d in self.sys.defines.itervalues():
+            dname = _str(d.dname)
+            if dname in defines:
+                line = d.line
+                raise LethalE( "Redeclared define name \'" + dname \
+                             + "\' at <" + line + ">.")
+            else:
+                defines.append(dname)
+
+        adj = {}
+        ss = set([])
+        for d in self.sys.defines.itervalues():
+            dname = _str(d.dname)
+            debugGREEN(_cl(d.dvalue))
+            debugLBLUE(defines)
+            adj[dname] = [x for x in _cl(d.dvalue) if x in defines]
+            ss = ss.union(set(adj[dname]))
+
+        ss = ss.intersection(set(defines))
+        cy = self.hasCycleDfs(adj, list(ss))
+        if cy != []:
+            raise LethalE( "Circular dependence in DEFINES declaration: " \
+                         + symbolSeparatedTupleString(cy, symb = ',') + ".")
+
+        self.fillDefinesTypes(adj)
+
+    #.......................................................................
+
+
+    def hasCycleDfs(self, adj, leafs):
+        self.stack = []
+        self.visited = {}
+        for d in adj:
+            self.visited[d] = False
+        """
+        for d in leafs:
+            if not self.visited[d]:
+                try:
+                    dfs(adj,d)
+                except Exception:
+                    return self.stack
+        """            
+        for e,v in self.visited.iteritems():
+            if not v:
+                try:
+                    self.cycleDfs(adj,e)
+                except Exception:
+                    return self.stack
+        # its acyclic:
+        return []
+
+    #.......................................................................
+    def cycleDfs(self, adj, r):
+        for a in adj[r]:
+            if a in self.stack:
+                raise Exception(self.stack)
+            else:
+                self.stack.append(a)
+            self.cycleDfs(adj, a)
+        self.stack = self.stack[:-1:]
+
+
+    #.......................................................................
+    def fillDefinesTypes(self, adj):
+        self.visited = {}
+        for d in self.sys.defines.itervalues():
+            dname = _str(d.dname)
+            self.visited[dname] = False
+        for d,v in self.visited.iteritems():
+            if not v:
+                self.fillTypesDfs(adj,d)
+
+    #.......................................................................
+    def fillTypesDfs(self, adj, r):
+
+        for a in adj[r]:
+            if not self.visited[a]:
+                self.fillTypesDfs(adj,a)
+
+        for d in self.sys.defines.itervalues():
+            dname = _str(d.dname)
+            if  dname == r:
+                t = self.getExpresionType(self.globalinst, d.dvalue)
+                self.typetable[self.globalinst.name][dname] = t
+
+                for inst in self.sys.instances.itervalues():
+                    try:
+                        # local vars have precedence over defines
+                        tt = self.typetable[inst.name][dname]
+                    except:
+                        self.typetable[inst.name][dname] = t
+                self.visited[r] = True
+                break
+
     #.......................................................................
     def checkInstancedProctypes(self):
         """
@@ -290,6 +396,8 @@ class Checker(object):
                 if v.domain[0] > v.domain[1]:
                     raise LethalE( "Empty range in declaration of \'" \
                                  + v.name + " at <" + v.line + ">.")
+
+
     #.......................................................................
     def checkFaultSection(self, inst):
         pt = self.sys.proctypes[inst.proctype]
@@ -505,6 +613,18 @@ class Checker(object):
         except BaseException as e:
             self.allowevents = False
             raise e
+
+    #.......................................................................
+    #def CheckDefines(self):
+    #    for d in self.sys.defines.itervalues():
+    #        name = _str(d.dname)
+    #        if '.' in name:
+    #            raise LethalE( "Error in definition at <" + d.line \
+    #                         + ">. Bad name \'" + name 
+    #                         + "\' for DEFINE expresion.")
+    #        t = self.getExpresionType(self.globalinst, d.dvalue)
+            
+
     
     #.......................................................................
     def getTypeFromTable(self, inst, vname):
@@ -676,7 +796,7 @@ class Checker(object):
                     values = _str(value)
                     pt = self.sys.proctypes[inst.proctype]
                     if not values in [x.name for x in pt.localvars]:
-                        raise LethalE("Error at <" + expr.__name__.line \
+                        raise LethalE("Error at <" + value.__name__.line \
                             + ">. Only local declared variables are allowed to be" \
                             + " used in next expresions. \'" + values \
                             + "\' isn't a local declared variable in proctype \'" \

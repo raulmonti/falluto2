@@ -1,12 +1,20 @@
 OPTIONS
 
-FLLNAME test
+SYSNAME test
 
 CHECK_DEADLOCK
 
 CHECK_DEADLOCK
 
 ENDOPTIONS
+
+
+DEFINE dvar := instance1.var1 | instance2.var1 -> FALSE
+
+DEFINE dvar2 := dvar3
+
+DEFINE dvar3 := dvar | FALSE
+
 
 
 PROCTYPE module1(ctxvar1; synact1)
@@ -17,8 +25,8 @@ PROCTYPE module1(ctxvar1; synact1)
         var3: -11..13
 
 	FAULT
-        fault1: ctxvar1 & 5+var3 > 7+var3 | FALSE & var1  => var1' = !( var1 in {a,b,FALSE}) is STOP(act1)
-	    fault2: => var3' = 4  is BYZ(var3)
+        fault1: ctxvar1 & 5+var3 > 7+var3 | FALSE | dvar & var1  => var1' = !( var1 in {a,b,FALSE}) is STOP(act1)
+	    fault2: => var3' = 4 & dvar3' = FALSE  is BYZ(var3)
         fault3: is STOP
 	
 	INIT
@@ -28,7 +36,7 @@ PROCTYPE module1(ctxvar1; synact1)
 	TRANS
 		[]: => var1' = !var1, var1' = (! var1' & var3 in {1,2, FALSE} )
 		[act1]:
-        [act2]:
+   	        [act2]:
 		[synact1]: TRUE => var3' = 7
 
 ENDPROCTYPE
