@@ -20,7 +20,8 @@ import os
 
 #TODO ver como da nusmv el output cuando hay mas de un modulo para sacar ideas
 #TODO opcion para mostrar todas las variables en cada estado
-
+#TODO revisar por que a veces no muestra el deadlock (fijarse si al principio
+# guarda el valor de dkaction mas alla de no mostrarlo).
 
 #===============================================================================
 class SpecificationResult():
@@ -269,8 +270,8 @@ class TraceInterpreter():
         @ uses: self.action to get the local action ocurrence.
     """
     def interpret_local_action(self):
-        nothing, lainst, laname = self.action.split("#",3)
-        return "[action] "+self.CY+lainst+self.CE+" \ "+self.CB+laname+self.CE
+        nothing, lainst, laname = self.action.split("#",2)
+        return "[action] "+self.CY+lainst+self.CE+" / "+self.CB+laname+self.CE
 
 
 
@@ -282,6 +283,7 @@ class TraceInterpreter():
     """
     def interpret_synchro_action(self):
         sa_name = self.action.split("#",2)[1]
+        return "[Synchro] " + self.CB + sa_name + self.CE 
         string = "[Synchro] " + self.CB + sa_name + self.CE + " ["
         flag = False
 

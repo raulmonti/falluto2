@@ -26,7 +26,7 @@ PROCTYPE module1(ctxvar1; synact1)
 
 	FAULT
         fault1: ctxvar1 & 5+var3 > 7+var3 | FALSE | dvar & var1  => var1' = !( var1 in {a,b,FALSE}) is STOP(act1)
-	    fault2: => var3' = 4 & dvar3' = FALSE  is BYZ(var3)
+	    fault2: => var3' = 4  is BYZ(var3)
         fault3: is STOP
 	
 	INIT
@@ -38,6 +38,7 @@ PROCTYPE module1(ctxvar1; synact1)
 		[act1]:
    	        [act2]:
 		[synact1]: TRUE => var3' = 7
+		[]:
 
 ENDPROCTYPE
 

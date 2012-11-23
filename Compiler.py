@@ -72,11 +72,11 @@ class Compiler(object):
 
         self.ctable             = {}    # 3 levels map: inst->var->compiledVar
         self.varset             = set([])   # all program variables set.
-        self.syncdict           = {}    # read method fillSyncTransDict()
-        self.transdict          = {}    # read method fillTransCompilingDict
+        self.syncToTrans        = {}    # read method fillSyncTransDict()
         self.gtctable           = {}    # read method fillGTCTable
-
-
+        self.transdict          = {}    # read method fillTransCompilingDict
+        self.synchroMap         = {}    # read method fillTransCompilingDict
+        self.synchroDict        = {}    # read method fillTransCompilingDict
 
     #.......................................................................
     def compile(self, system):
@@ -84,8 +84,9 @@ class Compiler(object):
         self.sys = system
         
         # fill tables
-        self.fillVarCompilationTable()
         self.fillSyncTransDict()
+        self.fillVarSet()
+        self.fillVarCompilationTable()
         self.fillTransCompilingDict()
         self.fillGTCTable()
 
@@ -94,12 +95,29 @@ class Compiler(object):
 
 
     #.......................................................................
+    # Llenar un 'set' con todas los nombres de variables del programa compilado
+    def fillVarSet(self):
+        self.varset.add(Compiler.__actvar)
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            
+            for f in [x for x in pt.faults if x.type != Types.Transient]:
+                self.varset.add(self.compileFaultActive(inst.name, f.name))
+            
+            for var in pt.localvars:
+               self.varset.add(self.compileLocalVar(inst.name, var.name))
+        # synchro program counters
+        for stname in self.syncToTrans.iterkeys():
+            self.varset.add(self.compileSPC(stname))
+
+
+    #.......................................................................
     def fillVarCompilationTable(self):
         """
             ctble is a 2 level map: inst name -> var name -> compiled var name
         """
-        # Compiler.__glinst replace the instance 'namespace' for varibales
-        # outside instances name spaces (for example in properties declarations)
+        # Compiler.__glinst is the 'namespace' for varibales outside
+        # instances name spaces (for example in properties declarations)
         self.ctable[Compiler.__glinst] = {}
 
         # local vars
@@ -155,104 +173,169 @@ class Compiler(object):
                     aux = self.ctable[iname][dname]
                 except:
                     self.ctable[iname][dname] = compd
-            
-            
+
 
     #.......................................................................
     def fillSyncTransDict(self):
         """
-            Fill self.syncdict map with synchro names as keys and a list with 
-            the sincronized actions as value.
+            @ NOT COMPILED NAMES
+             
+            @ Fill self.syncToTrans map with synchro names as keys and a list, 
+            with the sincronized trransitions for each instance, as value.
         """
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             n = len(pt.contextvars)
             i = 0
             # for each synchro action
-            for stname in [_str(x) for x in inst.params[n::]]:
+            for sname in [_str(x) for x in inst.params[n::]]:
+                try:
+                    table = self.syncToTrans[sname]
+                except:
+                    self.syncToTrans[sname] = {}
+
                 # get synchronized action name from the proctype
                 ptstname = _str(pt.synchroacts[i])
                 for t in pt.transitions:
                     if t.name == ptstname:
                         try:
-                            self.syncdict[stname].append( (inst, t) )
+                            self.syncToTrans[sname][inst.name].append(t)
                         except:
-                            self.syncdict[stname] = [ (inst, t) ]
-                        break
+                            self.syncToTrans[sname][inst.name] = [t]
                 i += 1
 
 
-
+#TODO get best value for each spc variable
     #.......................................................................
     def fillTransCompilingDict(self):
         """
             Fill in self.transdict
-            self.transdict is a 3 level dict:
-            self.transdict[inst_name] \
-                [uncompiled_trans_name] \
-                    [(compiled_trans_name, trans_enable_condition)]
+            self.transdict is a 2 level dict:
+            self.transdict[iname][tname] \
+                 -> (trans_compiled_name, [trans_enable_conditions], \
+                        [trans_postconditions])
+            @ trans_postcondition doesn't include action next value.
         """
-        #TODO eliminate duplicated code in this method by using auxiliar methods
 
-        # Get synchronous transitions compiled name and enable conditions only
-        # once.
-        auxdict = {}
-        for sname, slst in self.syncdict.iteritems():
-            elst = [] # enable conditions list
-            for inst,trans in slst:
-                pt = self.sys.proctypes[inst.proctype]
-                # STOP faults that disable this transitions
-                for f in pt.faults:
-                    if f.type == Types.Stop:
-                        if f.affects == [] or \
-                            trans.name in [_str(x) for x in f.affects]:
-                            elst.append(self.neg(\
-                                self.compileFaultActive(inst.name,f.name)))
-                # Transition enable condition
-                assert trans.pre != None
-                elst.append(self.compileAST(inst.name, trans.pre))
-
-            tcname = self.compileSynchroAct(sname)
-            econd = self.symbolSeparatedTupleString(elst)
-            assert elst != [] and econd != ""
-#            assert elst != [] or econd == ""
-            auxdict[sname] = (tcname, econd)
-
-        # Instances faulty normal transitions
+        # not synchronised transitions
         for inst in self.sys.instances.itervalues():
-            self.transdict[inst.name] = {}
+            iname = inst.name
+            self.transdict[iname] = {}
             pt = self.sys.proctypes[inst.proctype]
-            #TODO faults
             for t in pt.transitions:
+                self.transdict[iname][t.name] = {}
+                if not t.name in pt.synchroacts:
+                    
+                    # ENABLE CONDITION:
+                    elst = self.getPreList(iname, t)
+                    
+                    # POSCONDITION
+                    plst, vset = self.getPosList(iname, t)
+                    vset.add(Compiler.__actvar)
+                    uvset = self.varset - vset
+                    for v in uvset:
+                        plst.append(self.compileNextRef(v) + ' = ' + v)
+                    
+                    #ADD TO DICT
+                    tcname = self.compileAction(iname, t.name)
+                    self.transdict[iname][t.name] = \
+                        (tcname, elst, plst)
+
+        # Synchronised transitions
+        for (stname,slst) in self.syncToTrans.iteritems():
+            self.synchroDict[stname] = {}
+            # Each element in the cartesian product represent a possible 
+            # escenary of synchronization between instances that synchronice 
+            # through stname. Each scenary is distinguished by the synchro
+            # program counter (spc variable).
+            cp = self.synchroCartesianProduct(slst)
+            csname = self.compileSynchroAct(stname)
+            self.synchroMap[stname] = {}
+            for iname in slst.iterkeys():
+                assert not iname in self.synchroMap[stname]
+                self.synchroMap[stname][iname] = {}
+
+            spc = 0 # syncrho program counter
+            for e in cp:
                 elst = []
-                # not synchronized transitions
-                if not t.name in [_str(x) for x in pt.synchroacts]:
-                    # STOP faults that disable this transitions
-                    for f in [x for x in pt.faults if x.type == Types.Stop]:
-                        if f.affects == [] or \
-                            t.name in [_str(x) for x in f.affects]:
-                            elst.append(self.neg(
-                                self.compileFaultActive(inst.name, f.name)))
-                    # Transition enable condition
-                    assert t.pre != None
-                    elst.append(self.compileAST(inst.name, t.pre))
-
-                    tcname = self.compileAction(inst.name, t.name)
-                    econd = self.symbolSeparatedTupleString(elst)
-                    assert elst != [] and econd != ""
-                    self.transdict[inst.name][t.name] = (tcname, econd)
-                else:
-                    # It's a synchro. Match to corresponding in auxdict
-                    n = len(pt.contextvars)
-                    i = 0
-                    while t.name != _str(pt.synchroacts[i]):
-                        i += 1
-                    stname = _str(inst.params[n+i])
-                    self.transdict[inst.name][t.name] = auxdict[stname]
-        #TODO usar este diccionario en la construccion de la transsection
-
+                plst = []
+                vset = set([Compiler.__actvar, self.compileSPC(stname)])
+                for iname, t in e:
+                    # save information to map 
+                    self.synchroMap[stname][iname][spc] = t
+                    elst += self.getPreList(iname,t)
+                    auxplst, auxvset = self.getPosList(iname, t)
+                    plst += auxplst
+                    vset.union(auxvset)
+                
+                uvset = self.varset - vset
+                
+                # Add unchanged variables to post-condition
+                for v in uvset:
+                    plst.append(self.compileNextRef(v) + ' = ' + v)
+                
+                # Add synchro program counter to post-condition
+                plst.append(self.compileNextRef(self.compileSPC(stname)) \
+                    + " = " + str(spc))
+                
+                # ADD TO DICT
+                self.synchroDict[stname][spc] = (csname,elst,plst)
+                
+                spc += 1
 
 
+    #.......................................................................
+    def synchroCartesianProduct(self, llst):
+        """
+            @ NOT COMPILED VALUES
+            @ Build a cartesian product from each value in the self.syncToTrans
+            map, (should be passed as llst).
+        """
+        result = [[]]
+        for i,tl in llst.iteritems():
+            aux = []
+            for t in tl:
+                for r in result:
+                    aux.append( r + [(i,t)])
+            result = aux
+        return result
+
+
+    #.......................................................................
+    def getPreList(self, iname, trans):
+        inst = self.sys.instances[iname]
+        pt = self.sys.proctypes[inst.proctype]
+        elst = []
+
+        # STOP faults that disable this transitions
+        for f in [x for x in pt.faults if x.type == Types.Stop]:
+            if f.affects == [] or \
+                trans.name in [_str(x) for x in f.affects]:
+                elst.append(self.neg(
+                    self.compileFaultActive(inst.name, f.name)))
+        # Transition enable condition
+        assert trans.pre != None
+        elst.append(self.compileAST(inst.name, trans.pre))
+        
+        return elst
+        
+
+    #.......................................................................
+    def getPosList(self, iname, trans):
+        plst = []
+        changed = set([])
+        # Transition postcondition
+        for p in trans.pos:
+            cref = self.compileLocalVar(iname, _str(p[0]))
+            changed.add(cref)
+            plst.append( self.compileNextRef(cref) \
+                         + ' ' + _str(p[1]) + ' ' \
+                         + self.compileAST(iname, p[2]))
+        # Variables that wont change
+        assert changed.issubset(self.varset)
+        return plst, changed
+    
+        
     #.......................................................................
     def fillGTCTable(self):
         """ 
@@ -270,12 +353,15 @@ class Compiler(object):
             for f in pt.faults:
                 self.gtctable[inst.name + '.' + f.name] \
                     = self.compileFaultActionVar(inst.name, f.name)
-            # Normal transitions have already been compiled into self.transdict
+            # Normal not synchronous transitions
             for t in pt.transitions:
-                self.gtctable[inst.name + '.' + t.name] \
-                    = self.transdict[inst.name][t.name][0]
+                if not t.name in [_str(x) for x in pt.synchroacts]:
+                    self.gtctable[inst.name + '.' + t.name] \
+                        = self.transdict[inst.name][t.name][0]
 
-
+        # Normal synchronous transitions
+        for stname in self.syncToTrans.iterkeys():
+            self.gtctable[stname] = self.compileSynchroAct(stname)
 
     #.......................................................................
     def compileSystem(self):
@@ -333,7 +419,6 @@ class Compiler(object):
         lst.add(Compiler.__dkact)
         # save
         self.save(Compiler.__actvar + ':' + self.compileSet(lst) + ';')
-        self.varset.add(Compiler.__actvar)
 
         # LOCAL VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -345,16 +430,26 @@ class Compiler(object):
                 else:
                     self.save(self.compileAST( inst.name, var.rawinput \
                                              , False) + ';')
-                self.varset.add(vname)
-        # fault activity variables
+
+
+        # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
+            debugRED("ENTRA")
             pt = self.sys.proctypes[inst.proctype]
             for f in [x for x in pt.faults if x.type != Types.Transient]:
                 name = self.compileFaultActive(inst.name, f.name)
                 self.save( name + ":boolean;")
-                self.varset.add(name)
-        self.tl.d()
 
+
+        # SYNCHRO ACTION COUNTERs
+        for st in self.syncToTrans.iteritems():
+            stname = st[0]
+            count = 1
+            for l in st[1].itervalues():
+                count *= len(l)
+            self.save(self.compileSPC(stname) + " : 0.." + str(count) + ";")
+
+        self.tl.d()
 
 
     #.......................................................................
@@ -473,6 +568,10 @@ class Compiler(object):
     def buildDkCheckPropertie(self):
         self.compiledproperties.append(("DEADLOCK CHECK", \
             "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact))
+
+
+# TODO revisar que pasa con la sincronizacion cuando no se usa la variable de 
+# sincronizacion en el proctype mas alla de tenerla como parametro.
     #.......................................................................
     def buildWeakFairContraint(self):
         # SYSTEM - MODULE FAIRNESS
@@ -490,29 +589,64 @@ class Compiler(object):
             self.save("\n")
             self.save(self.comment("  @@ MODULE FAIRNESS FOR "+inst.name+"\n"))
             actVec = []
+            dkVec = []
             pt = self.sys.proctypes[inst.proctype]
 
-            # put transition names into the list
+            # not synchro transition
+            slst = [_str(x) for x in pt.synchroacts]
             for t in pt.transitions:
-                actVec.append(self.transdict[inst.name][t.name][0])
+                if not t.name in slst:
+                    # put names into the list
+                    actVec.append(self.transdict[inst.name][t.name][0])
+                    # transitions pre negations (module deadlock condition)
+                    pre = self.transdict[inst.name][t.name][1]
+                    assert pre != []
+                    dkVec.append(self.getPreNegation(pre))    
+                    
+            # synchro transition 
+            n = len(pt.contextvars)
+            i = 0
+            for stname in inst.params[n::]:
+                stname = _str(stname)
+                sa = _str(pt.synchroacts[i])
+                debugGREEN(sa)
+                debugRED([t.name for t in pt.transitions])
+                
+                if sa in [t.name for t in pt.transitions]:
+                    # put names into the list
+                    actVec.append(self.compileSynchroAct(stname))
+                    # transitions pre negations (module deadlock condition)
+                    ss = self.synchroDict[stname]
+                    auxvec = []
+                    # all the possible synchronizations must be blocked
+                    for e in ss.itervalues():
+                        pre = e[1]
+                        assert pre != []
+                        auxvec.append(self.getPreNegation(pre))
+                    dkVec.append(self.symbolSeparatedTupleString(auxvec))
 
             #if module hasn't got any actions:
             if actVec == []:
                 continue
             
-            # transitions pre negations (module deadlock condition)
-            dkVec = []
-            for t in pt.transitions:
-                pre = self.transdict[inst.name][t.name][1]
-                if pre != "":
-                    dkVec.append(self.neg(pre))
-                           
             dkString = self.symbolSeparatedTupleString( dkVec, False, False)
 
             actString = Compiler.__actvar + " in " + self.compileSet(actVec)
 
             self.save("FAIRNESS " + (self.symbolSeparatedTupleString( \
                 [dkString, actString], False, False, '|')))
+
+
+
+    #.......................................................................
+    def getPreNegation(self, prelst):
+        prevec = []
+        for p in prelst:
+            prevec.append(self.neg(p))
+        return self.symbolSeparatedTupleString(prevec, False, False, amp = '|')
+    
+
+
     #.......................................................................
     def buildFaultFairContraint(self):
         # FAULT - SYSTEM FAIRNESS
@@ -527,9 +661,17 @@ class Compiler(object):
         for i in self.sys.instances.itervalues():
             pt = self.sys.proctypes[i.proctype]
             for t in pt.transitions:
-                actionset.add(self.transdict[i.name][t.name][0])
+                if t.name not in [_str(x) for x in pt.synchroacts]:
+                    actionset.add(self.transdict[i.name][t.name][0])
+
+        for e in self.syncToTrans.iterkeys():
+            actionset.add(self.compileSynchroAct(e))
+
         self.save( "FAIRNESS (" + Compiler.__actvar + " in " + \
                   self.compileSet(list(actionset)) + ")")
+
+
+
     #.......................................................................
     def buildNormalContraint(self, c):
         self.save("\n")
@@ -635,7 +777,7 @@ class Compiler(object):
                 if not trans.name in [_str(x) for x in pt.synchroacts]:
                     tlst.append(self.buildCommonTrans(inst,pt,trans))
         # synchro transitions
-        for trans in self.syncdict.iteritems():
+        for trans in self.syncToTrans.iterkeys():
             tlst.append(self.buildSynchroTrans(trans))
         # fault ocurrence transitions
         for inst in self.sys.instances.itervalues():
@@ -655,81 +797,41 @@ class Compiler(object):
         # Save transitions section
         self.save(self.symbolSeparatedTupleString(tlst, False, True, '|'))
         self.tl.d()
+
+
     #.......................................................................
     def buildCommonTrans(self, inst, pt, t):
+    
+        tcname, pre, pos = self.transdict[inst.name][t.name]
+    
         tlst = []
-        # ACTION
-        vset = set([])
         # set next action to this transition
-        vset.add(Compiler.__actvar)
-        tlst.append( self.compileNextRef(Compiler.__actvar) + " = " \
-                    + self.compileTransitionName(inst.name,t.name))
+        tlst.append( self.compileNextRef(Compiler.__actvar) + " = " + tcname)
 
-        # PRECONDITIONS
-        # STOP faults that disable this transitions
-        for f in pt.faults:
-            if f.type == Types.Stop:
-                if f.affects == [] or t.name in [_str(x) for x in f.affects]:
-                    tlst.append(self.compileFaultActive(inst.name, f.name) + \
-                        " = FALSE")
-        # Transition enable condition
-        if t.pre != None:
-            tlst.append(self.compileAST(inst.name, t.pre))
+        # pre and pos conditions
+        tlst += pre + pos
 
-        # POSTCONDITIONS
-        # Transition postcondition
-        for p in t.pos:
-            cref = self.compileLocalVar(inst.name, _str(p[0]))
-            vset.add(cref)
-            tlst.append( self.compileNextRef(cref) + ' ' + _str(p[1]) + ' ' \
-                        + self.compileAST(inst.name, p[2]))
-        # Variables that wont change
-        assert vset.issubset(self.varset)
-        uvset = self.varset - vset
-        for v in uvset:
-            tlst.append(self.compileNextRef(v) + ' = ' + v)
-        # RETURN
         return self.symbolSeparatedTupleString(tlst, False, False)
+
+
     #.......................................................................
     def buildSynchroTrans(self, strans):
-        # strans = (strans name, [(inst0,trans0)...(instn,transn)])
-        stlst = []
-        # ACTION
-        vset = set([])
-        # set next action to this transition
-        vset.add(Compiler.__actvar)
-        stlst.append(self.compileNextRef(Compiler.__actvar) + " = " \
-                    + self.compileSynchroAct(strans[0]))
+    
+        result = []
+        sync = self.synchroDict[strans]
+        for spc, (cname, pre, pos) in sync.iteritems():
+            stlst = []
+            # set next action to this transition
+            stlst.append(self.compileNextRef(Compiler.__actvar) + " = " + cname)
 
-        # PRECONDITIONS
-        for inst,trans in strans[1]:
-            pt = self.sys.proctypes[inst.proctype]
-            # STOP faults that disable this transitions
-            for f in pt.faults:
-                if f.type == Types.Stop:
-                    if f.affects == [] or trans.name in f.affects:
-                        stlst.append( self.compileFaultActive(inst.name,f.name)\
-                                    + " = FALSE" )
-            # Transition enable condition
-            assert trans.pre != None
-            if trans.pre != None:
-                stlst.append(self.compileAST(inst.name, trans.pre))
-                
-        # POSTCONDITIONS
-        # Transition postcondition
-        for inst,trans in strans[1]:
-            for p in trans.pos:
-                cref = self.compileLocalVar(inst.name, _str(p[0]))
-                vset.add(cref)
-                stlst.append( self.compileNextRef(cref) + ' '+ _str(p[1])+ ' ' \
-                           + self.compileAST(inst.name, p[2]))
-        # Variables that wont change        
-        assert vset.issubset(self.varset)
-        uvset = self.varset - vset
-        for v in uvset:
-            stlst.append(self.compileNextRef(v) + ' = ' + v)
+            stlst += pre + pos
+            
+            result.append(self.symbolSeparatedTupleString(stlst, False, False))
         # RETURN
-        return self.symbolSeparatedTupleString(stlst, False, False)
+        return self.symbolSeparatedTupleString(result, False, True, amp = '|')
+        
+
+
     #.......................................................................    
     def buildFaultTransition(self, inst, pt, f):
         ftlst = []
@@ -791,6 +893,8 @@ class Compiler(object):
         for v in self.varset - exceptSet:
             thistransvect.append("next(" + v + ") = " + v)
         return self.symbolSeparatedTupleString(thistransvect,False,False)
+
+
     #.......................................................................
     def buildDeadLockTrans(self):
         # TODO usar el mapa con precondiciones de las trans para esta transicion
@@ -800,28 +904,23 @@ class Compiler(object):
 
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
-
             # negation of local transitions preconditions
             for trans in pt.transitions:
-                if not trans.name in [_str(x) for x in pt.synchroacts]:
-                    tvect = []
-                    if trans.pre != None:
-                        tvect.append( \
-                            self.neg(self.compileAST(inst.name,trans.pre)))
-                    for sf in self.getStopFaultsForAction(inst,trans):
-                        tvect.append(self.compileFaultActive(inst.name,sf.name))
-                    result.append(self.symbolSeparatedTupleString( \
-                        tvect, False, False, '|'))
+                tvect = []
+                for p in self.transdict[inst.name][trans.name][1]:
+                    tvect.append(self.neg(p))                    
+                result.append( self.symbolSeparatedTupleString( \
+                               tvect, False, False, '|'))
 
         # negation of synchro transitions preconditions
-        for (sync , tlist) in self.syncdict.iteritems():
-            syncvect = []
-            for (inst,t) in tlist:
-                syncvect.append(self.neg(self.compileAST(inst.name,t.pre)))
-                for f in self.getStopFaultsForAction(inst, t):
-                    syncvect.append(self.compileFaultActive(inst.name,f.name))
-            result.append(self.symbolSeparatedTupleString(syncvect, \
-                False, False, '|'))
+        for sync in self.synchroDict.itervalues():
+            for cs, pre, pos in sync.itervalues():
+                syncvect = []
+                for p in pre:
+                    syncvect.append(self.neg(p))
+            
+                result.append(self.symbolSeparatedTupleString(syncvect, \
+                    False, False, '|'))
         
         # nothing else changes
         for v in self.varset - set([Compiler.__actvar]):
@@ -948,9 +1047,14 @@ class Compiler(object):
     #.......................................................................
     def compileFaultActionVar(self, iname, fname):
         return "fault#" + iname + '#' + fname
+        
+    # TODO las dos de abajo hacen lo mismo :S
     #.......................................................................
     def compileAction(self, iname, actname):
         return "trans#" + iname + "#" + actname
+    #.......................................................................
+    def compileTransitionName(self, iname, tname):
+        return "trans#" + iname + '#' + tname
     #.......................................................................
     def compileSynchroAct(self, saname):
         return "synchro#" + saname
@@ -1000,7 +1104,11 @@ class Compiler(object):
             try:
                 string += self.ctable[iname][x] + sp
             except:
-                string += x
+                # TODO feo parche :s
+                if x == '%':
+                    string += "mod"
+                else:
+                    string += x
                 if x != '!' and x != '-':
                     string += sp
         return string
@@ -1011,14 +1119,14 @@ class Compiler(object):
     def compileNextRef(self, ref):
         return "next(" + ref + ")"
     #.......................................................................
-    def compileTransitionName(self, iname, tname):
-        return "trans#" + iname + '#' + tname
-    #.......................................................................
     def compileBOOLorINT(self, value):
         return _str(value)
     #.......................................................................
     def compileDefine(self, name):
         return "def#" + str(name)
+    #.......................................................................
+    def compileSPC(self, stname):
+        return "spc#" + stname
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 

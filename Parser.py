@@ -230,10 +230,7 @@ class Define(ParserBaseElem):
         self.line = Utils.getBestLineNumberForExpresion(ast)
         self.dname = ast.what[0]
         self.dvalue = ast.what[1]
-        
-        debugRED(self.line)
-        debugRED(self.dname)
-        debugRED(self.dvalue)
+
         
 ################################################################################
 
@@ -288,7 +285,7 @@ class Proctype(ParserBaseElem):
                     t.parse(x)
                     if t.name == "":
                         # Is a transition without name, we give it one.
-                        t.name = "NN" + str(self.transitioncount)
+                        t.name = "NN#" + str(self.transitioncount)
                         self.transitioncount += 1
                     self.transitions.append(t)
             else:
@@ -476,7 +473,9 @@ class Transition(ParserBaseElem):
         self.pos = []
     #.......................................................................
     def parse(self, AST):
-        self.line = str(AST.__name__.line)
+        line = str(AST.__name__.line)
+        mfile = str(AST.__name__.file)
+        self.line = line
         AST = AST.what # [0, name, 0, pre, 0,pos]
         for elem in AST:
             if elem.__name__ == "NAME":
@@ -495,8 +494,9 @@ class Transition(ParserBaseElem):
 
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
-            self.pre.file = AST[0].__name__.file
-            self.pre.line = AST[0].__name__.line
+            self.pre.file = mfile
+            self.pre.line = line
+
     #.......................................................................
     def __str__(self):
         return ParserBaseElem.__str__(self)
