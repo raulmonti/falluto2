@@ -1,4 +1,7 @@
 #===============================================================================
+# Module Checker.py
+# Author Raul Monti
+#
 #===============================================================================
 #
 from Parser import *
@@ -37,7 +40,10 @@ def Check(system):
 #===============================================================================
 
 # TODO Aclarar que instancia se esta checkeando al levantar una excepcion de 
-# tipos.
+# tipos. Quizas deberia distinguirse entre errores de tipado 'sintactico' y 
+# aquellos que surgen de un erroneo pasaje de variables de contexto.
+
+#TODO eliminar codigo basura (el que esta comentado y no sirve)
 
 ################################################################################
 
@@ -125,14 +131,15 @@ class Checker(object):
                 fset.add(f.name)
 
             # REDECLARED TRANSITIONS
-            tset = set([])
+            tset = set([x.name for x in pt.transitions])
+            """
             for t in pt.transitions:
                 if t.name in tset:
                     raise LethalE( "Redeclared transition \'" + t.name \
                                  + "\' in proctype \'" + pt.name \
                                  + "\', at line \'" + t.line + "\'.")
                 tset.add(t.name)
-
+            """
 
             s = fset.intersection(tset)
             l = list(s)
@@ -158,6 +165,7 @@ class Checker(object):
                              + inst.name + "> at <" + inst.line + ">.")
 
             # check synchronization
+            """
             lst = []
             for p in inst.params[n::]:
                 ps = _str(p)
@@ -169,7 +177,7 @@ class Checker(object):
                                  + "> at <" + inst.line + ">. Can't " \
                                  + "synchronice between two transitions of "\
                                  + "the same instance.")
-
+            """
             # Context variables
             
             # TODO vale la pena agregar valores de tipo Symbol en el dominio de
@@ -820,6 +828,18 @@ class Checker(object):
             assert False # never come out here
         assert False # never come out here
 
+
+    #.......................................................................
+    def getSynchroNamesList(self):
+        _set = set([])
+        for inst in self.sys.instances.itervalues():
+            pt = self.sys.proctypes[inst.proctype]
+            n = len(pt.contextvars)
+            for e in inst.params[n::]:
+                _set.add(_str(e))
+        return list(_set)
+
+
     #.......................................................................
     def getEventType(self,inst,ast):
         assert isinstance(ast, pyPEG.Symbol)
@@ -827,14 +847,22 @@ class Checker(object):
         ev = ast.what[1]
         sv = _str(ev)
         if not '.' in sv:
-            raise LethalE( "Bad value for event \'" + _str(ast) \
-                         + "\' at <" + ast.__name__.line + ">.")
+
+            lst = self.getSynchroNamesList()
+            if sv in lst:
+                return Types.Bool
+               
+            line = getBestLineNumberForExpresion(ast)
+            raise LethalE( "Error at <" + line + ">. There is no event" \
+                         + " called \'" + _str(ast) + "\'.")               
         else:
             ei,ev = sv.split('.', 1)
             try:
                 einst = self.sys.instances[ei]
                 ept = self.sys.proctypes[einst.proctype]
-                elist=[x.name for x in ept.faults + ept.transitions]
+                salst = [_str(x) for x in ept.synchroacts]
+                elist = [ x.name for x in ept.faults + ept.transitions \
+                          if x.name not in salst]
                 if not ev in elist:
                     line = getBestLineNumberForExpresion(ast)
                     raise LethalE("Error in event \'" + _str(ast) + "\', at <" \

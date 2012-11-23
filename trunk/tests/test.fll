@@ -2,19 +2,24 @@ OPTIONS
 CHECK_DEADLOCK
 ENDOPTIONS
 
-PROCTYPE proc(c ;trans1, trans2)
+PROCTYPE proc(;a, b)
 	VAR
-		a:bool
-		b:2..5
+		x:bool
+		y:2..5
 	FAULT
-		f1: 4 > -1 & FALSE & b in 1..10 => a' = TRUE is TRANSIENT
+		--f1: 4 > -1 & FALSE & y in 1..10 => x' = TRUE is TRANSIENT
 	INIT
 	TRANS
-		[trans9]:
+		[a]: x => y' = 2
+		[a]: => x' = !x
+		[b]: !x => y' = 5
 ENDPROCTYPE
 
-INSTANCE inst1 = proc(TRUE,a,b)
+INSTANCE inst1 = proc(s1,s1)
+INSTANCE inst2 = proc(s1,s2)
 
-NORMAL_BEHAIVIOUR -> X TRUE
+--NORMAL_BEHAIVIOUR -> X TRUE
 
 --LTLSPEC F just(inst1.trans1)
+
+LTLSPEC X inst1.x -> F G inst2.y > 3 -> just(s1)

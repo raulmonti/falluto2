@@ -92,6 +92,7 @@ if __name__ == '__main__':
             c.writeSysToFile(outputname,[i])
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
+            debugCURRENT(output)
             _color = False
             if args.color:
                 _color = True
