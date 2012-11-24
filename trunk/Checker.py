@@ -303,8 +303,6 @@ class Checker(object):
         ss = set([])
         for d in self.sys.defines.itervalues():
             dname = _str(d.dname)
-            debugGREEN(_cl(d.dvalue))
-            debugLBLUE(defines)
             adj[dname] = [x for x in _cl(d.dvalue) if x in defines]
             ss = ss.union(set(adj[dname]))
 

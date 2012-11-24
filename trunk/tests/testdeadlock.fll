@@ -14,3 +14,6 @@ PROCTYPE proc()
 ENDPROCTYPE
 
 INSTANCE inst = proc()
+INSTANCE inst2 = proc()
+INSTANCE inst4 = proc()
+INSTANCE inst3 = proc()

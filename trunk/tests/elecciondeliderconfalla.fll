@@ -1,9 +1,9 @@
 OPTIONS
 
-//FLLNAME Eleccion_De_Lider
+--FLLNAME Eleccion_De_Lider
 CHECK_DEADLOCK
-//FAULT_SYS_FAIR_DISABLE
-//MODULE_WEAK_FAIR_DISABLE
+--FAULT_SYS_FAIR_DISABLE
+--MODULE_WEAK_FAIR_DISABLE
 
 
 ENDOPTIONS
@@ -18,7 +18,7 @@ PROCTYPE Process(myId, idMenos1, maxIMenos1, distIMenos1)
 		dist: 0..4
 
 	FAULT
-		falla: is BIZ(maxid,dist)
+		falla: is BYZ(maxid,dist)
 
 	INIT
 		id = myId
