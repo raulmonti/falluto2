@@ -15,7 +15,7 @@ from Types import Types
 import pyPEG
 from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
-from Utils import _cl, _str
+from Utils import _cl, _str, getBestLineNumberForExpresion
 import Utils
 #
 #===============================================================================
@@ -286,6 +286,7 @@ class Proctype(ParserBaseElem):
                     if t.name == "":
                         # Is a transition without name, we give it one.
                         t.name = "NN#" + str(self.transitioncount)
+                        t.pc = self.transitioncount
                         self.transitioncount += 1
                     self.transitions.append(t)
             else:
@@ -312,7 +313,7 @@ class Instance(ParserBaseElem):
     def parse(self, AST):
         AST = AST.what # [ name, proctype name, parameters list]
         self.name = AST[0].what[0]
-        self.line = AST[0].__name__.line
+        self.line = getBestLineNumberForExpresion(AST)
         self.proctype = _str(AST[1])
 
         for x in AST[2].what:
@@ -471,6 +472,7 @@ class Transition(ParserBaseElem):
         ParserBaseElem.__init__(self)
         self.pre = None
         self.pos = []
+        self.pc = 0 # program counter number used for compilation
     #.......................................................................
     def parse(self, AST):
         line = str(AST.__name__.line)

@@ -1,6 +1,6 @@
 OPTIONS
-FAULT_FAIR_DISABLE
-INST_WEAK_FAIR_DISABLE
+--FAULT_FAIR_DISABLE
+--INST_WEAK_FAIR_DISABLE
 CHECK_DEADLOCK
 ENDOPTIONS
 
@@ -12,10 +12,14 @@ PROCTYPE proc()
 	INIT
 		var1 = TRUE
 	TRANS
-		[t1]: 3 < 5 => var1' = ! var1
+		[t1]:
 ENDPROCTYPE
 
 INSTANCE inst1 = proc()
 INSTANCE inst2 = proc()
 
 LTLSPEC G F just(inst1.t1)
+
+LTLSPEC G F just(inst1.t1) & G F just(inst2.t1)
+
+LTLSPEC G F just(inst1.t1) | G F just(inst2.t1)
