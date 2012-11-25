@@ -60,12 +60,12 @@ def putBrackets(AST):
             if AST.what[0] == "(":
                 return putBrackets(AST.what[1])
             else:
-                return "(" + putBrackets(AST.what[0]) + " " + _str(AST.what[1])\
-                     + " " + putBrackets(AST.what[2]) + ")"
+                return " ( " + putBrackets(AST.what[0]) + " " + _str(AST.what[1])\
+                     + " " + putBrackets(AST.what[2]) + " ) "
         elif len(AST.what) == 1:
             return putBrackets(AST.what[0])
         elif len(AST.what) == 2:
-            return AST.what[0] + putBrackets(AST.what[1])
+            return AST.what[0] + " " + putBrackets(AST.what[1])
         else:
             Debug.WARNING("Passing through: " + repr(AST) + "\n")
             return _str(AST)
@@ -74,7 +74,9 @@ def putBrackets(AST):
     else:
         raise TypeError(AST)
 
-
+################################################################################
+def putBracketsAsList(AST):
+    return putBrackets(AST).split()
 ################################################################################
 
 def putBracketsToFormula(AST):

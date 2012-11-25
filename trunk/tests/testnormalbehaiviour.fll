@@ -28,3 +28,8 @@ FAIRNESS just(inst.fault2)
 LTLSPEC G F just(inst.fault2)
 
 FINITELY_MANY_FAULTS -> F just(inst.trans1)
+
+LTLSPEC F G ! just(inst.fault2)
+
+FINITELY_MANY_FAULTS -> F G ! just(inst.fault2)
+
