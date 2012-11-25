@@ -67,7 +67,7 @@ def putBrackets(AST):
         elif len(AST.what) == 2:
             return AST.what[0] + " " + putBrackets(AST.what[1])
         else:
-            Debug.WARNING("Passing through: " + repr(AST) + "\n")
+            Debug.debugWARNING("Passing through: " + repr(AST) + "\n")
             return _str(AST)
     elif isinstance(AST, unicode) or isinstance(AST, str):
         return AST

@@ -283,14 +283,18 @@ class TraceInterpreter():
     """
     def interpret_synchro_action(self):
         sa_name = self.action.split("#",2)[1]
-        return "[Synchro] " + self.CB + sa_name + self.CE 
         string = "[Synchro] " + self.CB + sa_name + self.CE + " ["
         flag = False
 
-        for inst,trans in self.cosys.syncdict[sa_name]:
+        _set = set([])
+        for iname, lst in self.cosys.syncToTrans[sa_name].iteritems():
+            for t in lst:
+                _set.add((iname, t.name))
+                
+        for (iname,tname) in _set:
             if flag:
                 string += " || "
-            string += inst.name + "/" + trans.name
+            string += iname + "/" + tname
             flag = True
         return string + "]"
 
