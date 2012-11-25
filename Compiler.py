@@ -33,6 +33,8 @@ def Compile(system):
 #===============================================================================
 """
 
+# TODO problema con ! var in {,,,}
+
 # TODO probar commitatomico usando instancias como varibles de contexto
 
 # THE COMPILER =================================================================
@@ -437,7 +439,7 @@ class Compiler(object):
                     self.save(vname + ":boolean;")
                 else:
                     self.save(self.compileAST( inst.name, var.rawinput \
-                                             , False) + ';')
+                                             , False, pb = False) + ';')
 
         # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -548,7 +550,7 @@ class Compiler(object):
             ("FINITELY_MANY_FAULT (" \
             + self.symbolSeparatedTupleString( \
             [_str(x) for x in p.params], False, False, ',') \
-            + ';' + putBracketsToFormula(p.formula), strprop)
+            + ';' + putBracketsToFormula(p.formula) + ")", strprop)
     #.......................................................................
     def buildContraints(self):
         self.save("\n\n")
@@ -1046,7 +1048,12 @@ class Compiler(object):
         assert False #never come out here
             
     #.......................................................................
-    def compileAST(self, iname, ast, space = True):
+    def compileAST(self, iname, ast, space = True, pb = True):
+        if ast == None:
+            return ""
+        if pb:
+            debugRED(putBracketsAsList(ast))
+            ast = putBracketsAsList(ast)
         sp = ""
         if space:
             sp = " "
