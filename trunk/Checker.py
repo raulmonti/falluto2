@@ -539,16 +539,17 @@ class Checker(object):
                              + "\' at <" + str(line) + ">.")
             return [Types.Int]
         else:
+            # expr.__name__ == "SET"
             ts = set([])
             for elem in expr.what:
                 if isinstance(elem, pyPEG.Symbol) and elem.__name__ == "IDENT":
-                    ts.add(self.getTypeFromTable(inst.name, _str(elem)))
+                    ts.add(self.tryToGetType(inst, elem, expr))
                 elif isBool(_str(elem)):
                     ts.add(Types.Bool)
                 elif isInt(_str(elem)):
                     ts.add(Types.Int)
                 else:
-                    pass
+                    assert False
             return list(ts)
     #.......................................................................
     def checkProperties(self):
@@ -692,6 +693,9 @@ class Checker(object):
         else:
             assert False
         assert False # never come out here
+
+
+
     #.......................................................................
     def getLevel3Type(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
@@ -786,11 +790,7 @@ class Checker(object):
             elif value.__name__ == "BOOL":
                 return Types.Bool
             elif value.__name__ == "IDENT":
-                try:
-                    return self.getTypeFromTable(inst, _str(value))
-                except UndeclaredError as e:
-                    line = value.__name__.line
-                    raise LethalE("Error at <" + line + ">. " + e.error)
+                return self.tryToGetType(inst, value, ast)
             elif value.__name__ == "NEXTREF":
                 if not self.allownextrefs:
                     #raise NextRefNotAllowedE(value)
@@ -851,7 +851,7 @@ class Checker(object):
                 return Types.Bool
                
             line = getBestLineNumberForExpresion(ast)
-            raise LethalE( "Error at <" + line + ">. There is no event" \
+            raise LethalE( "Error at <" + line + ">. There can't be no event" \
                          + " called \'" + _str(ast) + "\'.")               
         else:
             ei,ev = sv.split('.', 1)
@@ -874,24 +874,33 @@ class Checker(object):
             return Types.Bool
             
         assert False # never come out here
+
+    #.......................................................................
+    def tryToGetType(self, inst, elem, context):
+        name = _str(elem)
+        ctxt = _str(context)
+        line = getBestLineNumberForExpresion(elem)
+        try:
+            t = self.getTypeFromTable(inst, name)
+            return t
+        except UndeclaredError:
+            raise LethalE( "Undeclared variable \'" + name + "\' at <" \
+                         + line + ">, inside expresion \'" + ctxt + "\'.")
+
     #.......................................................................
     def getInclusionType(self,inst,ast):
         assert isinstance(ast, pyPEG.Symbol)
         assert ast.__name__ == "INCLUSION"
         elem = ast.what[0]
-        t = self.getTypeFromTable(inst, _str(elem)) 
+        t = self.tryToGetType(inst, elem, ast)
+
         _set = ast.what[2]
         if _set.__name__ == "SET":
             for x in _set.what:
                 if isinstance(x,pyPEG.Symbol):
                     if x.__name__ == "IDENT":
-                        #just to check if it exists.
-                        try:
-                            self.getTypeFromTable(inst, _str(x)) 
-                        except UndeclaredError as e:
-                            line = ast.__name__.line
-                            raise LethalE( "Error at <" + line \
-                                         + ">. " + e.error)
+                        self.tryToGetType(inst, x, ast)
+
         elif _set.__name__ == "RANGE":
             line = _set.__name__.line
             if int(_str(_set.what[0])) > int(_str(_set.what[2])):

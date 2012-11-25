@@ -97,11 +97,11 @@ def debugSOLVED(string):
 #
 
 def WARNING(string):
-    colorPrint("debugYELLOW","[WARNING]\t" + str(string), False)
+    colorPrint("debugYELLOW","[WARNING]\t" + str(string), True)
 
 def debugERROR(string):
     print '\033[' + debugColorDict["debugRED"] + "ERROR: [" + str(lineno()) \
-          + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+          + "]: " + debugStart + str(string) + debugEnd + '\033[1;m\n'
 
 def debugTODO(string):
     if DEBUGTODO__:
@@ -110,8 +110,11 @@ def debugTODO(string):
     else:
         pass
 def debugWARNING(string):
-    print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG WARNING: [" \
-    + str(lineno())  + "]:\n" + str(string) + '\033[1;m',
+    if DEBUG__:
+        print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG WARNING: [" \
+        + str(lineno())  + "]:\n" + str(string) + '\033[1;m\n',
+    else:
+        pass
 #
 # COLOR PRINTING ...............................................................
 #
