@@ -277,10 +277,10 @@ class Compiler(object):
                     elst += self.getPreList(iname,t)
                     auxplst, auxvset = self.getPosList(iname, t)
                     plst += auxplst
-                    vset.union(auxvset)
+                    vset = vset.union(auxvset)
 
                 uvset = self.varset - vset
-                
+
                 # Add unchanged variables to post-condition
                 for v in uvset:
                     plst.append(self.compileNextRef(v) + ' = ' + v)
@@ -452,7 +452,7 @@ class Compiler(object):
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             self.save(self.compileIPC(inst.name) \
-                + " : 0.." + str(max(pt.transitioncount-1,0)) + ";")
+                + " : 0.." + str(max(len(pt.transitions)-1,0)) + ";")
 
         self.tl.d()
 
@@ -563,9 +563,10 @@ class Compiler(object):
             self.buildFaultFairContraint()
         for c in self.sys.contraints.itervalues():
             self.buildNormalContraint(c)
-        self.buildCTLvsLTLCompatibilityContraint()
+        #self.buildCTLvsLTLCompatibilityContraint()
     #.......................................................................
     def buildCTLvsLTLCompatibilityContraint(self):
+        # @ deprecated ( we hace deadlock transition )
         self.save("\n")
         self.save(self.comment("  @@ CTL vs LTL COMPATIBILITY CONTRAINT"))
         self.save("FAIRNESS TRUE") 
@@ -1052,7 +1053,6 @@ class Compiler(object):
         if ast == None:
             return ""
         if pb:
-            debugRED(putBracketsAsList(ast))
             ast = putBracketsAsList(ast)
         sp = ""
         if space:

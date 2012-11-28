@@ -286,8 +286,8 @@ class Proctype(ParserBaseElem):
                     if t.name == "":
                         # Is a transition without name, we give it one.
                         t.name = "NN#" + str(self.transitioncount)
-                        t.pc = self.transitioncount
                         self.transitioncount += 1
+                    t.pc = len(self.transitions)
                     self.transitions.append(t)
             else:
                 assert False
