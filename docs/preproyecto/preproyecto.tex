@@ -1,0 +1,203 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+\usepackage[spanish]{babel}
+\usepackage{paralist}
+
+\newcommand{\falluto}{\textsc{Falluto}}
+
+\begin{document}
+
+\section{T\'\i{}tulo}
+%
+
+\begin{quote}
+  \setlength{\parsep}{1ex}\raggedright\large\sl%
+  Revisi\'on y extensi\'on de un model checker para la
+  verificaci\'on autom\'atica de sistemas tolerantes a fallas
+\end{quote}
+
+\section{Introducci\'on}
+ 
+
+Un aspecto fundamental para el buen funcionamiento de los distintos
+sistemas basados en computadoras (desde peque\~nos sistemas embebidos
+a grandes sistemas distribuidos) es el de poder tolerar fallas que
+puedan producirse ya sea como consecuencia de la ejecuci\'on misma del
+sistema (ej. una divisi\'on por cero) o de agentes externos al sistema
+(ej. la p\'erdida de un mensaje de comunicaci\'on).
+%
+La tolerancia a estas fallas implica que el sistema afectado pueda
+recuperarse del efecto que \'esta produce y continuar con su normal
+ejecuci\'on.
+
+Un sistema tolerante a fallas es un sistema que incrementa su
+confiabilidad respecto a uno que no lo es.
+%
+O al menos deber\'\i{}a.
+%
+La incorporaci\'on de la tolerancia a falla en un sistema no es algo
+que se logra por mera redundancia de m\'odulos.
+%
+Un ejemplo paradigm\'atico de un sistema cuyo m\'odulo de tolerancia a
+falla no tuvo ning\'un efecto ocurri\'o en el primer lanzamiento del
+Ariane~5, el cual no tuvo un desenlace exitoso~\cite{ariane}.
+
+Como cualquier sistema, los sistemas tolerantes a fallas tambi\'en
+deben ser verificados.
+%
+En estos casos, no s\'olo se debe verificar que el sistema preserva
+las propiedades de \emph{safety} y \emph{liveness} deseadas, sino
+tambi\'en que lo hace a\'un en presencia de fallas.
+%
+Se han realizado muchos intentos para la verificaci\'on formal de
+sistemas tolerantes a fallas, pero la mayor\'\i{}a de los casos se basa
+en la incorporaci\'on expl\'\i{}cita del modelado de la falla dentro
+del modelo del sistema de una manera ad-hoc.
+%
+Esta t\'ecnica carece de metodolog\'\i{}a definida y como tal puede
+introducir errores en el modelo a verificar.
+
+La incorporaci\'on de las fallas y su tratamiento dentro de un modelo
+formal requiere, entonces, un nuevo marco de especificaci\'on, ya sea
+para modelar el sistema como para especificar los requerimientos.
+%
+
+En este trabajo nos enfocaremos en la verificaci\'on autom\'atica de
+sistemas tolerantes a fallas siguiendo el enfoque presentado por el
+\emph{model checking}.
+%
+Model checking~\cite{CGP99,BK2008} es una t\'ecnica de verificaci\'on
+que, dado el modelo del sistema bajo estudio y la propiedad requerida,
+permite decidir autom\'aticamente si la propiedad es satisfecha o no.
+
+Un primer enfoque a esta soluci\'on fue planteado en~\cite{Hames2009}.
+En este trabajo
+\begin{inparaenum}[(1)]
+\item%
+  se introdujo una extensi\'on al lenguaje de NuSMV, denominado
+  \falluto, de manera tal de permitir expresar la inyecci\'on de falla
+  de manera modular y declarativa, y
+\item%
+  se implement\'o un \emph{front end} que compilaba esta extensi\'on
+  de NuSMV a NuSMV puro y, de producirse un contraejemplo, lo re
+  interpretaba en el modelo orginal.
+\end{inparaenum}
+
+Este primer trabajo presenta resultados interesantes pero
+preliminares.  Hay varios aspectos a revisar:
+%
+\begin{enumerate}
+\item%
+  el sublenguaje de NuSMV que forma parte de \falluto\ es
+  cr\'\i{}ptico y no permite identificar claramente las transiciones
+  de cada m\'odulo;
+\item
+  m\'as a\'un, este mismo sublenguaje est\'a bajo consideraci\'on para
+  entrar en obsolescencia en cuyo caso dejar\'\i{}a de ser mantenido
+  en el model checker NuSMV;
+\item%
+  la extensi\'on de \falluto\ correspondiente a la inyecci\'on de
+  fallas contiene instrucciones redundantes y ambiguas;
+\item%
+  si bien el lenguaje de modelado contempla las caracter\'\i{}sticas
+  necesarias para modelar fallas, la l\'ogica de especificaci\'on es
+  una l\'ogica temporal tradicional (LTL).
+\end{enumerate}
+
+
+\section{Objetivos}
+
+Este proyecto persigue, entonces, los siguientes objetivos:
+
+\begin{enumerate}
+\item%
+  La definici\'on de un lenguaje de modelado de sistemas e inyecci\'on
+  de fallas que contemple las falencias de \falluto\ y los
+  inconvenientes antes mencionado.
+\item%
+  La definici\'on de una l\'ogica de especificaci\'on que permita
+  hablar apropiadamente de tolerancia a fallas.
+\item%
+  La implementaci\'on de un \emph{front end} para NuSMV que permita la
+  verificaci\'on de propiedades dadas en la nueva l\'ogica en modelos
+  dados en el nuevo lenguaje.
+\end{enumerate}
+
+
+
+
+
+\section{Metodolog\'\i{}a}
+
+Para la definici\'on del lenguaje de modelado utilizaremos como punto
+de partida los conceptos definidos en~\cite{AG1993}
+y~\cite{Gartner1998}, que dan un primer paso en la identificaci\'on del
+modelado de fallas separ\'andolo del modelo normativo.  El lenguaje
+debe describir claramente redes de aut\'omatas con lo cual se deber\'a
+parecer m\'as al lenguaje de PRISM~\cite{thesis:parker,prism} que a
+NuSMV (aunque sin considerar los saltos probabilistas). Se busca, en
+este sentido, una articulaci\'on con el lenguaje definido
+en~\cite{Bordenabe2011}.  Tambi\'en ser\'a de gran importancia el
+trabajo~\cite{Hames2009} que ya diera un claro primer paso en la
+definici\'on de un lenguaje para la especificaci\'on de fallas.
+
+Para la definici\'on de la l\'ogica de especificaci\'on, se
+estudiar\'a la l\'ogica dCTL~\cite{CastroEtAl2011}, definida
+especialmente para especificar propiedades que expresen tolerancia a
+fallas.  Dado su expresividad, se analizar\'a qu\'e subconjunto es
+expresable en las l\'ogicas que manipula NuSMV (estas son, CTL, LTL y
+PSL).  En base a este estudio se concluir\'a cu\'al es la mejor manera
+de proceder con la l\'ogica de especificaci\'on, teniendo en cuenta el
+balance entre expresividad y simplicidad del lenguaje respecto de su
+complejidad de an\'alisis.
+
+Finalmente, se construir\'a el \emph{front end} para NuSMV que realice
+la verificaci\'on de propiedades en la l\'ogica dise\~nada sobre
+modelos descriptos en el lenguaje tambi\'en dise\~nado en este
+contexto.  Para ello se utilizar\'a el conocimiento adquirido en el
+desarrollo del model checker \falluto~\cite{Hames2009}, en particular
+lo relacionado al estudio de fairness de fallas.
+
+
+
+\section{Plan de trabajo}
+
+Las tareas ha realizar a lo largo de este proyecto incluyen:
+%
+\begin{enumerate}
+\item%
+  Revisi\'on bibliogr\'afica, en particular:
+  \begin{compactenum}
+  \item%
+    Estudio del model checker NuSMV.
+  \item%
+    Estudio del model checker \falluto.
+  \item%
+    Estudio del lenguaje de modelado de
+    \textsc{Offbeat}~\cite{Bordenabe2011}.
+  \item%
+    Estudio de la l\'ogica dCTL.
+  \end{compactenum}
+\item%
+  Definici\'on del lenguaje de especificaci\'on de comportamiento de
+  sistemas tolerantes a fallas
+\item%
+  Definici\'on de la l\'ogica de especificaci\'on de propiedades de
+  tolerancia a fallas.
+\item%
+  Construcci\'on del \emph{front end} para NuSMV.
+\item%
+  Documentaci\'on del software realizado.
+\item%
+  Escritura del manuscrito del trabajo especial.
+\end{enumerate}
+
+
+
+\bibliographystyle{plain}
+\bibliography{biblio}
+
+
+\end{document}
+

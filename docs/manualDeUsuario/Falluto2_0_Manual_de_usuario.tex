@@ -1,0 +1,338 @@
+\documentclass[titlepage, 12pt]{book}
+\usepackage[spanish]{babel}
+
+\usepackage{array}
+
+
+\pagestyle{plain}
+\title{Falluto2.0 \\ Manual de usuario.}
+\author{Raul Monti}
+\date{Diciembre 2012}
+
+
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\tableofcontents
+
+\chapter{Modelado de sistemas en Falluto}
+En este cap\'itulo encontrar\'as c\'omo modelar el comportamiento de un sistema en Falluto2.0, c\'omo especificar propiedades sobre el mismo y c\'omo definir restricciones sobre el proceso de verificaci\'on de de estas.
+Por convenci\'on los archivos de texto en donde definimos nuestros sistemas son terminados en '.fll'. (ejemplo.fll ser\'ia un nombre de archivo para verificaci\'on con Falluto2.0).\\
+\indent Encontrar\'as un ejemplo de una archivo '.fll' en el Apendice 1.
+
+\section{Proctypes}
+Los Proctypes definen el comportamiento de los distintos procesos intervinientes en el sistema a modelar. Cada proctype podr\'a ser instanciado un n\'umero arbitrario de veces para en efecto definir los procesos actuantes.
+Los Proctypes son delimitados con las palabras claves PROCTYPE y ENDPROCTYPE.
+Diagrama de un PROCTYPE:\\\\
+\textbf{PROCTYPE} \textit{name} ( CONTEXTO ; SINCRONIZACI\'ON )\\
+\indent PROCTYPE-BODY\\
+\textbf{ENDPROCTYPE}\\\\
+donde:\\
+\begin{itemize}
+\item \emph{name} es el nombre del proctype (debe ser \'unico entre los proctypes)\\
+\item CONTEXTO es una lista de variables de contexto:
+\begin{center} variable-de-contexto-1, ..., variable-de-contexto-n\\ \end{center}
+\item SINCRONIZACI\'ON es una lista de nombres de acciones de sincronizaci\'on:
+\begin{center} accion-de-sincronizaci\'on-1, ..., accion-de-sincronizaci\'on-m\\ \end{center}
+\item PROCTYPE-BODY es el cuerpo del proctype constitu\'ido por las secciones \emph{VAR}, \emph{INIT}, \emph{FAULT} y \emph{TRANS}
+\end{itemize}
+
+\noindent A continuaci\'on definimos cada secci\'on del PROCTYPE-BODY\\\\
+\textbf{VAR}\\
+\indent En esta secci\'on declaramos las variables del proctype. Existen 3 tipos de variables en Falluto2.0:
+\begin{itemize}
+\item Variables booleanas
+las declaramos de esta manera: \begin{center} nombre: bool \end{center}
+por ejemplo var1: bool
+\item Variables enteras
+las declaramos de esta manera: \begin{center} nombre: Entero..Entero \end{center}
+por ejemplo var1: -10..5
+\item Variables Symb\'olicas
+las declaramos de esta manera: \begin{center} nombre: \{lista de palabras y numeros\} \end{center}
+por ejemplo var1:\{-1,a,b,casa,45\}\\
+\end{itemize}
+
+\noindent \textbf{FAULT}\\
+\indent En esta secci\'on declaramos las fallas que afectan a cada instancia del proctype. Cada falla es declarada de la siguiente manera:
+
+\begin{center}nombre : [precondici\'on] =$>$ [postcondici\'on] is Type \end{center}
+donde:
+\begin{itemize}
+\item \textit{nombre} es una palabra que defiene el nombre de la falla
+\item \textit{precondici\'on} es una f\'ormula booleana sobre el estado actual de las variables del sistema que define una condici\'on para la habilitaci\'on de la ocurrencia de esta falla. Es decir esta transici\'on de falla puede ocurrir si esta f\'ormula es verdadera en el estado actual.
+\item \textit{postcondici\'on} es una lista de next-valores indicando cambios en las variables del sistema debido a la ocurrencia de esta falla. Estos cambios quedaran plagados en el estado resultante de tomar esta transici\'on.
+\item \textit{Type} define el tipo de la falla. Hay tres tipos posibles: STOP, BYZ, TRANSIENT. Los dos primeros definen fallas de caracter permanente (solo ocurren una vez y su efecto dura hasta el 'infinito'). No as\'i las fallas de tipo TRANSIENT que pueden ocurrir un n\'umero indeterminado de veces, y cuyo efecto es instantaneo.\\
+\end{itemize}
+Veamos cada uno de estos tipos de falla:\\
+
+	Las fallas de tipo \textbf{STOP} detienen transiciones definidas en el proctype. Debemos para ello identificar que transiciones deseamos que detenga. Por ejemplo:
+\begin{center}falla: \textit{pre} =$>$ \textit{pos} is STOP(trans1, trans2)\end{center}
+una vez que ocurre deshabilita para siempre las transiciones trans1 y trans2 de la instancia correspondiente.
+\begin{center}falla: \textit{pre} =$>$ \textit{pos} is STOP\end{center}
+una vez que ocurre deshabilita para siempre todas las transiciones de la instancia correspondiente.\\
+
+Las fallas de tipo \textbf{BYZ} (Byzantine) provocan efectos bizantinos sobre variables de estado del proctype. Estos efectos se van dando a lo largo de toda la ejecuci\'on del sistema a partir de que ocurre la falla. Para ello debemos definir que variables afectan. Por ejemplo:
+\begin{center}falla: \textit{pre} =$>$ \textit{pos} is BYZ(var1, var2, var9) \end{center}
+provoca efectos bizantinos sobre las variables var1, var2 y var9 de cada instancia cuyo proctype tenga declarada esta falla.\\
+
+Por \'ultimo las fallas de tipo \textbf{TRANSIENT} solo tienen el efecto definido por la post condidici\'on que les corresponda.
+Por ejemplo:
+\begin{center}falla: \textit{pre} =$>$ var1' = FALSE, var2' = 7 is TRANSIENT\end{center}
+es una falla que puede ocurrir una cantidad indefinida de veces durante la ejecuci\'on del sistema, siempre que se de su precondici\'on descripta por la f\'ormula booleana \textit{pre}. Su efecto ser\'a el de cambiar el valor de var1 a FALSE y el de var2 a 7 en el estado resultante a esta transici\'on de falla.\\
+
+
+\noindent \textbf{INIT}\\
+\indent En esta secci\'on definimos el estado inicial correspondiente a las instancias de este proctype. Para ello simplemente armamos una f\'ormula booleana que represente este estado.\\
+
+\noindent \textbf{TRANS}\\
+\indent Esta secci\'on es en la cual definimos las transiciones buenas del proctype. Cada transici\'on se define de la siguiente manera:
+\begin{center}[nombre]: pre =$>$ pos\end{center}
+Tanto nombre como pre y pos son opcionales. De nuevo \textit{pre} es una f\'ormula booleana sobre el estado actual de las variables del sistema que representa la condici\'on de habilitaci\'on para esta transici\'on; \textit{pos} es una lista de efectos de la transici\'on (en forma de asiganaciones a next-valores); y nombre simplemente le da un \textit{nombre} a la transici\'on (\'util para interpretar contraejemplos, e indispensable para la sincronizaci\'on).\\
+
+
+\section{Instansiaci\'on}
+
+Instanciamos cada proctype usando la palabra clave INSTANCE de la siguiente manera:
+\begin{center}INSTANCE nombre = nombre-proctype(lista de par\'ametros)\end{center}
+\subsection{Variables de contexto}
+Notamos que en la declaraci\'on de un proctype, podemos definir par\'ametros del mismo. Estos par\'ametros se dividen en dos secciones separadas por el s\'imbolo ';'. En la primera secci\'on es donde definimos par\'ametros para variables de contexto. Las variables de contexto son variables a las que el proctype podr\'a tener acceso solo en forma de lectura. En el momento de instanciaci\'on deberemos definir estos parametros. Podemos pasar como variables de contexto en la instanciaci\'on cualquiera de los siguientes objetos:
+\begin{itemize}
+\item Valores booleanos o enteros.
+\item Variables de otras instancias\\ 
+(de la forma nombre-de-instancia.nombre-de-variables)
+\item Instancias (pasando como par\'ametro el nombre de las mismas)
+\end{itemize}
+
+\subsection{Sincronizaci\'on}
+La segunda secci\'on en los par\'ametros de un proctype (la secci\'on que esta despu\'es del s\'imbolo ';') es utilizada para llevar a cabo la sincronizaci\'on entre las distintas instancias. Toda transici\'on dentro de la secci\'on TRANS del proctype, cuyo nombre se correponda con alguno de los nombres en la secci\'on de sincronizaci\'on, ser\'a sincronizada seg\'un se lo defina en la instanciaci\'on. Notar que no es posible sincronizar fallas (se supone que no decidimos sobre la ocurrencia de fallas).
+Para sincronizar transiciones entre 2 o mas instancias es suficiente pasar un mismo nombre de sincronizaci\'on en los par\'ametros correspondientes a la hora de la instanciaci\'on.
+Por ejemplo:\\
+\newpage
+\noindent PROCTYPE proc(;trans1, trans2)\\
+\indent	VAR ...\\
+\indent	FAULT ...\\
+\indent	INIT ...\\
+\indent	TRANS\\
+\indent\indent		[trans1]\\
+\indent\indent		[trans2]\\
+\indent\indent		[trans2]\\
+\indent\indent		...\\
+ENDPROCTYPE\\
+
+\noindent INSTANCE inst1 = proc(sync1, sync1)\\
+INSTANCE inst2 = proc(sync1, sync2)\\
+
+En este caso las transiciones trans1 y trans2 de la instancia inst1 sincronizan con la transici\'on trans1 de la instancia inst2.\\
+
+\section{Restricciones de fairness}
+\subsection{Fairness y Compassion}
+
+Podemos definir restricciones de fairness incondicional (G F propiedad) de la siguiente manera:
+\begin{center}FAIRNESS q\end{center}
+donde q es una formula booleana sobre el estado del sistema.\\
+
+Podemos definir as\'i tambi\'en restricciones de strong fairness\\ (G F p -$>$ G F q) de la siguiente manera:
+\begin{center}COMPASSION(p,q)\end{center}
+donde p y q son formulas booleanas sobre el estado del sistema.\\
+
+
+\subsection{Fairness por defecto}
+Por defecto Falluto trabaja sobre 2 condiciones de fairness: 
+\begin{itemize}
+\item Fairness de fallas con respecto al sistema. Esta condici\'on restringe a revisar solo aquellas trazas de ejecuci\'on donde las transiciones de falla no sean las \'unicas transiciones que ocurran. Osea evita aquellas situaciones en las que las fallas se ponen de acuerdo para apoderarse de la ejecuci\'on del sistema. (G F transici\'on-buena)
+\item Weak fairness para instancias. Esta condici\'on restringe a la verificaci\'on de propiedades solo sobre trazas en las que si una instancia cualquiera esta siempre habilitada para realiazar una transici\'on buena entonces siempre eventualmente sea atendida. (G habilitada -> G F atendida)
+\end{itemize}
+Ambas restricciones pueden ser deshabilitadas dentro de la secci\'on de opciones del modelado usando las palabras\\ $FAULT\_FAIR\_DISABLE$ e $INST\_WEAK\_FAIR\_DISABLE$ respectivamente.
+
+\section{Especificaci\'on de propiedades}
+Podemos especificar las propiedades a verificar sobre nuestro sistema utilizando Linear Time Logic (LTL) y Computing Tree Logic (CTL), de alguna de las siguientes maneras:
+
+\begin{center}LTLSPEC f\'ormula\end{center}
+donde \textit{f\'ormula} es una f\'ormula LTL v\'alida (ver cap\'itulo \ref{sintaxisFormal}) sobre las trazas del sistema.
+
+\begin{center}CTLSPEC formula\end{center}
+donde \textit{f\'ormula} es una f\'ormula CTL v\'alida (ver cap\'itulo \ref{sintaxisFormal}) sobre las trazas del sistema.
+
+\section{Propiedades y Fairness, sobre fallas}
+Dentro de la especificaci\'on de propiedades y la definici\'on de restricciones, podemos hablar sobre la ocurrencia de las diferentes transiciones del sistema (entre ellas las fallas) usando los eventos. Un evento se describe como sigue:
+\begin{center}just($nombre\_de\_la\_transicion$)\end{center}
+Los eventos representan en cada estado del sistema la transici\'on que se produjo para llegar al estado. Por ejemplo la linea 'FAIRNESS just(sync-trans1)' estar\'ia definiendo una restricci\'on de fairness incondicional sobre la ocurrencia de la transici\'on llamada 'sync-trans1' (osea pide restringirse a ejecuciones en las que siempre eventualmente suceda la transici\'on llamada 'sync-trans1')
+
+Falluto presenta as\'i tambi\'en un conjunto de meta-propiedades para armar propiedades sobre escenarios com\'unes concernientes a la ocurrencia de fallas. Estas meta-propiedades son:
+\begin{itemize}
+\item $FINITELY\_MANY\_FAULTS -> q$: para verificar si q se cumple bajo al suposici\'on de que en cierto momento de la ejecuci\'on dejan de ocurrir fallas en el sistema.
+\item $FINITELY\_MANY\_FAULT(f1, f2, ..., fn) -> q$: para verificar si q se cumple bajo al suposici\'on de que en cierto momento de la ejecuci\'on dejan de ocurrir en el sistema las fallas f1, f2, ..., fn.
+\item $NORMAL\_BEHAIVIOUR -> p$: para verificar si p se cumple bajo la suposici\'on de que no ocurren fallas durante la ejecuci\'on del sistema, osea el sistema avanza solo mediante transiciones buenas.
+\end{itemize}
+En estas meta-propiedades \textit{p} puede ser una propiedad especificada en LTL o CTL, mientras que \textit{q} solo puede ser especificada en LTL.
+
+\chapter{Modo de uso}
+Uso sobre UNIX: (probado en Ubuntu)\\
+
+Para usar Falluto2.0 debemos tener instalado NuSMV en tu sistema, y el mismo debe ser accesible mediante la variable de entorno PATH. Dentro del codigo fuente de Falluto encontramos el script python llamado Falluto2.0. Lo corremos usando python en nuestra consola, y le pasamos los siguientes par\'ametros:\\
+
+\noindent usage: Falluto2.0 [-h] [--version] [-s path] [-co] filename\\
+
+\noindent positional arguments:\\
+\indent filename~~~~~~~~~~~~~~ Input file path, where the description of the system\\
+\indent~~~~~~~~~~~~~~~~~~~~~~~~~ has been written.\\
+
+\noindent optional arguments:\\
+\indent  -h, --help~~~~~~~~~~~~show this help message and exit\\
+\indent  --version~~~~~~~~~~~~~show program's version number and exit\\
+\indent  -s path, --s path, -save path\\
+\indent  ~~~~~~~~~~~~~~~~~~~~~~~~~Path of the file to be written with the NuSMV compiled\\
+\indent  ~~~~~~~~~~~~~~~~~~~~~~model of the system.\\
+\indent  -co~~~~~~~~~~~~~~~~~~~Color output.\\
+
+
+\chapter{Sint\'axis formal de Falluto}
+\label{sintaxisFormal}
+
+A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en terminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico, y a los s\'imbolos y puntuaciones entre comillas.\\
+
+\textbf{Palabras reservadas de Falluto2.0:}\\
+
+
+
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / \\
+		  				  & SYSNAME / just / is / FAIRNESS / COMPASSION / \\
+						  &	U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y /\\
+						  &	PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS /\\
+				          &	INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX /\\
+						  &	EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE /\\
+					  	  &	in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS /\\
+   				          &	LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION/\\
+   				          & NORMAL\_BAHAIVIOUR\\
+\end{tabular}
+~\\
+
+\textbf{Algunas producciones simples:}\\
+
+Identificadores pueden contener '.' para indicar pertenencia a un objeto ( por ejemplo instancia.variable ). Nombres en cambio no.\\
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+IDENT $\longleftarrow$ & ! \verb|RESERVED| [a-zA-Z\_]("."[a-zA-Z0-9\_]+)?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+NAME $\longleftarrow$ & ! \verb|RESERVED| [a-zA-Z\_][a-zA-Z0..9\_]*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+INT $\longleftarrow$ & -? ( [0] / [1-9][0-9]* )
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+BOOL $\longleftarrow$ & TRUE / FALSE
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+EVENT $\longleftarrow$ & just( \verb|IDENT| )
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+NEXTREF $\longleftarrow$ & \verb|IDENT| '
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+RANGE $\longleftarrow$ & \verb|INT| ".." \verb|INT|
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+SET $\longleftarrow$ & "\{" (\verb|IDENT| / \verb|INT| / \verb|BOOL|) ("," (\verb|IDENT| / \verb|INT| / \verb|BOOL|))* "\}"
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+INCLUSION $\longleftarrow$ & \verb|IDENT| in (\verb|SET| / \verb|RANGE|)
+\end{tabular}
+~\\\\\\
+
+\textbf{Expresiones:}\\
+
+\noindent \begin{tabular}{>{\bfseries}l>{\itshape}l}
+EXPRESION $\longleftarrow$ & \verb|PROP|
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+PROP $\longleftarrow$ & \verb|CONJ| ( ('$->$' / '$<->$') \verb|PROP| ) ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+CONJ $\longleftarrow$ & \verb|COMP| ( ('$|$' / '$\&$') \verb|CONJ| ) ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+COMP $\longleftarrow$ & \verb|PROD| ( ('$<=$' / '$>=$' / '$\>>$' / '$\<<$' / '$!=$' / '$=$') \verb|CONJ| ) ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+PROD $\longleftarrow$ & \verb|SUM| ( ('$*$' / '$\div$' / '$\%$' ) \verb|PROD| ) ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+SUM $\longleftarrow$ & \verb|VALUE| ( ('$+$' / '$-$' ) \verb|SUM| ) ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+VALUE $\longleftarrow$  & ( '(' \verb|PROP| ')' / \verb|INCLUSION| / \verb|NEXTREF| / \verb|IDENT| / \verb|INT| /\\
+						&  \verb|BOOL| / \verb|EVENT| / ! \verb|VALUE| / - \verb|VALUE| ) \\
+\end{tabular}
+
+%def EXPRESION(): return [LEVEL5]
+%
+%def VALUE():    return [ (re.compile(r"\("), LEVEL5, re.compile(r"\)"))
+%                       , INCLUSION
+%                       , NEXTREF
+%                       , IDENT
+%                       , INT
+%                       , BOOL
+%                       , EVENT
+%                       , (re.compile(r"\!"), VALUE)
+%                       , (re.compile(r"\-"), VALUE)
+%                       ]
+%
+%def LEVEL1():   return [ ( VALUE, 0, ( re.compile(r"\*|\/|\%"), LEVEL1)) ]
+%def LEVEL2():   return [ ( LEVEL1, 0, ( re.compile(r"\+|\-"), LEVEL2)) ]
+%def LEVEL3():   return [ ( LEVEL2, 0, ( re.compile(r"(?!\=\>)\=|\!\=|\>\=|\<\=|\<|\>"), LEVEL3)) ]
+%def LEVEL4():   return [ ( LEVEL3, 0, ( re.compile(r"\||\&"), LEVEL4)) ]
+%def LEVEL5():   return [ ( LEVEL4, 0, ( re.compile(r"\-\>|\<\-\>"), LEVEL5)) ]
+%
+%
+%
+%def NEXTEXPR():     return NEXTASSIGN, -1, ( ",", NEXTASSIGN)
+%def NEXTASSIGN():   return NEXTREF, \
+%                            [ (re.compile(r"\="), EXPRESION)
+%                            , (re.compile(r"in"), [ SET, RANGE])
+%                            ]
+
+
+%\begin{tabular}{>{\bfseries}l>{\itshape}l}
+%NAME $\longleftarrow$ &
+%\end{tabular}
+\chapter{Ap\'endice A - Ejemplo de modelado}
+\label{ejemploModelado}
+\end{document}
+
+
+
+%\begin{tabular}{l>{\bfseries}l>{\itshape}l}
+%first column & second  & columns \\
+%default & bold & asfa\\
+%\end{tabular}
+
+
+%\begin{tabbing}
+%\noindent \textit{RESERVED}\quad \= $<$--- \quad \= in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS /\\
+%					    \>              \> SYSNAME / just / is / FAIRNESS / COMPASSION /\\
+%					    \>			    \> U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y /\\
+%					    \>			    \> PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS /\\
+%					    \>              \> INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX /\\
+%					    \>			    \> EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE /\\
+%					    \>			    \> in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS /\\
+%   					    \>			    \> LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION
+%\end{tabbing}
