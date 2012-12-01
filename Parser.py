@@ -230,10 +230,7 @@ class Define(ParserBaseElem):
         self.line = Utils.getBestLineNumberForExpresion(ast)
         self.dname = ast.what[0]
         self.dvalue = ast.what[1]
-        
-        debugRED(self.line)
-        debugRED(self.dname)
-        debugRED(self.dvalue)
+
         
 ################################################################################
 
