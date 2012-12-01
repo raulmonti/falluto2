@@ -160,6 +160,7 @@ def SPECIFICATION():    return [ CTLSPEC \
 
 
 # ctl
+# TODO agregar las palabras reservadas EG EF etc...
 CTLUNOP = r"""
                 \! | \bEG\b | \bEX\b | \bEF\b | \bAG\b | \bAX\b | \bAF\b
            """
