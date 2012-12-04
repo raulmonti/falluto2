@@ -243,6 +243,10 @@ NEXTREF $\longleftarrow$ & \verb|IDENT| '
 RANGE $\longleftarrow$ & \verb|INT| ".." \verb|INT|
 \end{tabular}
 ~\\\\
+\begin{tabular}{>{\bfseries}ll}
+BOOLEAN $\longleftarrow$ & \textit{bool}
+\end{tabular}
+~\\\\
 \begin{tabular}{>{\bfseries}l>{\itshape}l}
 SET $\longleftarrow$ & "\{" (\verb|IDENT| / \verb|INT| / \verb|BOOL|) ("," (\verb|IDENT| / \verb|INT| / \verb|BOOL|))* "\}"
 \end{tabular}
@@ -282,38 +286,132 @@ SUM $\longleftarrow$ & \verb|VALUE| ( ('$+$' / '$-$' ) \verb|SUM| ) ?
 VALUE $\longleftarrow$  & ( '(' \verb|PROP| ')' / \verb|INCLUSION| / \verb|NEXTREF| / \verb|IDENT| / \verb|INT| /\\
 						&  \verb|BOOL| / \verb|EVENT| / ! \verb|VALUE| / - \verb|VALUE| ) \\
 \end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+NEXTLIST $\longleftarrow$  & \verb|NEXTASSIGN| (',' \verb|NEXTASSIGN|)*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}l>{\itshape}l}
+NEXTASSIGN $\longleftarrow$  & \verb|NEXTREF| ( $'='$ \verb|EXPRESION| / $"in"$ ( \verb|SET| / \verb|RANGE| ) )
+\end{tabular}
+~\\\\
 
-%def EXPRESION(): return [LEVEL5]
-%
-%def VALUE():    return [ (re.compile(r"\("), LEVEL5, re.compile(r"\)"))
-%                       , INCLUSION
-%                       , NEXTREF
-%                       , IDENT
-%                       , INT
-%                       , BOOL
-%                       , EVENT
-%                       , (re.compile(r"\!"), VALUE)
-%                       , (re.compile(r"\-"), VALUE)
-%                       ]
-%
-%def LEVEL1():   return [ ( VALUE, 0, ( re.compile(r"\*|\/|\%"), LEVEL1)) ]
-%def LEVEL2():   return [ ( LEVEL1, 0, ( re.compile(r"\+|\-"), LEVEL2)) ]
-%def LEVEL3():   return [ ( LEVEL2, 0, ( re.compile(r"(?!\=\>)\=|\!\=|\>\=|\<\=|\<|\>"), LEVEL3)) ]
-%def LEVEL4():   return [ ( LEVEL3, 0, ( re.compile(r"\||\&"), LEVEL4)) ]
-%def LEVEL5():   return [ ( LEVEL4, 0, ( re.compile(r"\-\>|\<\-\>"), LEVEL5)) ]
-%
-%
-%
-%def NEXTEXPR():     return NEXTASSIGN, -1, ( ",", NEXTASSIGN)
-%def NEXTASSIGN():   return NEXTREF, \
-%                            [ (re.compile(r"\="), EXPRESION)
-%                            , (re.compile(r"in"), [ SET, RANGE])
-%                            ]
+Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos dentro de la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
+
+\noindent \begin{tabular}{>{\bfseries}ll}
+SYSTEM $\longleftarrow$ & OPTIONS ? ( DEFINE / PROCTYPE / INSTANCE /\\
+						&  SPECIFICATION / CONTRAINT ) *
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+OPTIONS $\longleftarrow$ & \textit{OPTIONS} ( SYSNAME [a-z0-9A-Z$\_$.]* / \textit{CHECK\_DEADLOCK} /\\ 
+                         & \textit{FAULT\_FAIR\_DISABLE} / \textit{INST\_WEAK\_FAIR\_DISABLE} )* \\
+                         & \textit{ENDOPTIONS}
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+DEFINE $\longleftarrow$ & \textit{DEFINE} IDENT $":="$  EXPRESION
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+PROCTYPE $\longleftarrow$ & \textit{PROCTYPE} IDENT '(' CTXVARS ? SYNCACTS ? ')' \\
+						  & PROCTYPEBODY \textit{ENDPROCTYPE}
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+CTXVARS $\longleftarrow$ & IDENT (',' IDENT)*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+SYNCACTS $\longleftarrow$ & ';' IDENT (',' IDENT)*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+PROCTYPEBODY $\longleftarrow$ & VAR ? FAULT ? INIT ? TRANS ?
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+VAR $\longleftarrow$ & \textit{VAR} VARDECL*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+VARDECL $\longleftarrow$ & IDENT ':' (BOOLEAN / SET / RANGE)
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+FAULT $\longleftarrow$ & \textit{FAULT} FAULTDECL*
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+FAULTDECL $\longleftarrow$ & NAME ':' (EXPRESION ? $"=>"$ NEXTEXPR ?) ? \\
+						   & \textit{is} (BYZ / STOP / TRANSIENT)
+\end{tabular}
+~\\\\
+\begin{tabular}{>{\bfseries}ll}
+BYZ $\longleftarrow$ & \textit{BYZ} '(' IDENT (',' IDENT)*, ')'\\\\
+TRANSIENT $\longleftarrow$ & \textit{TRANSIENT}\\\\
+STOP $\longleftarrow$ & \textit{STOP} ( '(' IDENT, (',' IDENT)* ')' ) ?\\\\
+INIT $\longleftarrow$ & \textit{INIT} EXPRESION ?\\\\
+TRANS $\longleftarrow$ & \textit{TRANS} TRANSDECL*\\\\
+TRANSDECL $\longleftarrow$ & '[' NAME? ']' ':' EXPRESION? ( $"=>"$ NEXTEXPR )?
+\end{tabular}
+~\\\\
 
 
-%\begin{tabular}{>{\bfseries}l>{\itshape}l}
-%NAME $\longleftarrow$ &
-%\end{tabular}
+Para la instanciaci\'on tenemos las siguientes reglas:\\\\
+
+\noindent\begin{tabular}{>{\bfseries}ll}
+INSTANCE $\longleftarrow$ & \textit{INSTANCE} NAME '=' NAME '(' INSTPARAMS ')'\\\\
+INSTPARAMS $\longleftarrow$ & ( (IDENT / INT / BOOL) (',' (IDENT / INT / BOOL) )* ) ?
+\end{tabular}
+~\\\\
+
+Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado:\\\\
+
+\noindent\begin{tabular}{>{\bfseries}lll}
+SPEC & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR /\\
+	 &	 			    & FINMANYFAULTS / FINMANYFAULT\\\\
+CTLSPEC & $\longleftarrow$ &\textit{CTLSPEC} CTLEXP\\\\
+CTLEXP & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP /\\
+         &               & (\textit{A} / \textit{E}) '[' CTLEXP \textit{U} CTLEXP ']' /\\
+         &               & CTLVALUE\\\\
+CTLBINOP & $\longleftarrow$ & '\&' / '$|$' / \textit{xor} / \textit{xnor} / $"->"$ / $"<->"$\\\\
+CTLVALUE & $\longleftarrow$ & CTLUNOP CTLEXP /\\
+         &                  & '(' CTLEXP ')' /\\
+         &                  & EXPRESION\\\\
+CTLUNOP & $\longleftarrow$ & \textit{$'!'$ / EG / EX / EF / AG / AX / AF}\\\\
+LTLSPEC & $\longleftarrow$ & \textit{LTLSPEC} LTLEXP\\\\
+LTLEXP & $\longleftarrow$ & LTLBOP / LTLUOP\\\\
+LTLBOP & $\longleftarrow$ & LTLUOP LTLBINOPS LTLEXP\\\\
+LTLUOP & $\longleftarrow$ & LTLUNOPS* LTLVAL\\\\
+LTLVAL & $\longleftarrow$ & EXPRESION / '(' LTLEXP ')'\\\\
+LTLUNOPS & $\longleftarrow$ & \textit{$!$ / G / X / F / H / O / Z / Y}\\\\
+LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\&'$ / $"<->"$ / $"->"$}\\
+\end{tabular}
+~\\\\
+\newpage
+\textbf{Meta-propiedades de Falluto2.0:}\\
+
+\noindent \begin{tabular}{>{\bfseries}lll}
+NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ \\
+			     & & (CTLEXP / LTLEXP)\\\\
+FINMANYFAULTS & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULTS} $"->"$ LTLEXP\\\\
+FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} \\ 
+			 & & '(' IDENT (',' IDENT)* ')' $"->"$ LTLEXP\\
+\end{tabular}
+~\\\\
+
+Reglas para especificaci\'on de restricciones de fairness:\\\\
+
+\noindent \begin{tabular}{>{\bfseries}lll}
+CONTRAINT & $\longleftarrow$ & FAIRNESS / COMPASSION\\\\
+FAIRNESS & $\longleftarrow$ & \textit{FAIRNESS} EXPRESION\\\\
+COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION ')'\\
+\end{tabular}
+~\\\\
+
+
+
 \chapter{Ap\'endice A - Ejemplo de modelado}
 \label{ejemploModelado}
 \end{document}
