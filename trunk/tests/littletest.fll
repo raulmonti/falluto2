@@ -9,7 +9,7 @@ PROCTYPE module(; transfer)
 
 	FAULT
 --		f1:                       is STOP(On)
---		f2: file = 9 =>           is BYZ(file)
+		f2: file = 9 =>           is BYZ(file)
 --		f3: 	     => file' = 0 is TRANSIENT
 	INIT
 		!on & file = 0

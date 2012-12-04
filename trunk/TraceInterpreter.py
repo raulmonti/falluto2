@@ -221,11 +221,11 @@ class TraceInterpreter():
         # If it's a deadlock transition
         if self.action == Compiler._dkact:
             if not self.sysdk:
-                # System has falled in deadlock (we don't show next state, and
+                # System has fell in deadlock (we don't show next state, and
                 # we advise the user.
                 self.showstate = False
                 self.sysdk = True
-                return self.CR+"System falled in deadlock !!!!"+self.CE
+                return self.CR+"System fell in deadlock !!!!"+self.CE
         
         else:
             # If it's a fault transition

@@ -4,60 +4,62 @@ ENDOPTIONS
 
 
 PROCTYPE RegularVoter(coo, v0, v1, v2)
-	
-	VAR
-		phase: 0..2
-		d: bool
-		up: bool
+    
+    VAR
+        phase: 0..2
+        d: bool
+        up: bool
 
-	FAULT
-		crash: is STOP
-	
-	INIT
-		phase = 0 & up = TRUE
+    FAULT
+        crash: is STOP
+    
+    INIT
+        phase = 0 & up = TRUE
 
-	TRANS
-		[vote]: phase = 0 & coo.up & coo.phase = 1 => d' in {TRUE, FALSE}, phase' = 1
-		[abort]: phase = 0 & !coo.up => phase' = 2, d' = FALSE
-		[decide0]: phase < 2 & coo.phase = 2 => phase' = 2, d' = coo.d
-		[decide1]: phase < 2 & v0.phase = 2 => phase' = 2, d' = v0.d
-		[decide2]: phase < 2 & v1.phase = 2 => phase' = 2, d' = v1.d
-		[decide3]: phase < 2 & v2.phase = 2 => phase' = 2, d' = v2.d
-		--[crash]: => up' = FALSE
+    TRANS
+        [vote]: phase = 0 & coo.up & coo.phase = 1 => d' in {TRUE, FALSE}, phase' = 1
+        [abort]: phase = 0 & !coo.up => phase' = 2, d' = FALSE
+        [decide0]: phase < 2 & coo.phase = 2 => phase' = 2, d' = coo.d
+        [decide1]: phase < 2 & v0.phase = 2 => phase' = 2, d' = v0.d
+        [decide2]: phase < 2 & v1.phase = 2 => phase' = 2, d' = v1.d
+        [decide3]: phase < 2 & v2.phase = 2 => phase' = 2, d' = v2.d
+        --[crash]: => up' = FALSE
 
 ENDPROCTYPE
 
 
 PROCTYPE Coordinator(v0, v1, v2, v3)
 
-	VAR
+    VAR
         phase   : 0..2
         d       : bool
         up      : bool
 
-	
-	FAULT 
+    
+    FAULT 
         crash: is STOP
 
-	INIT
-		phase = 0 & up = TRUE
+    INIT
+        phase = 0 & up = TRUE
 
-	TRANS
-		[vote]: 	phase = 0 => phase' = 1, d' in { TRUE, FALSE }
-		[decide0]: 	phase = 1 
-				& v0.up & v0.d & v0.phase = 1 
-				& v1.up & v1.d & v1.phase = 1
-				& v2.up & v2.d & v2.phase = 1
-				& v3.up & v3.d & v3.phase = 1
-				=> phase' = 2, d' = TRUE
-		[decide1]: 	phase = 1 
-			    | (!v0.up | (v0.phase >= 1 & !v0.d)) 
-				| (!v1.up | (v1.phase >= 1 & !v1.d)) 
-				| (!v2.up | (v2.phase >= 1 & !v2.d)) 
-				| (!v3.up | (v3.phase >= 1 & !v3.d))
-				=> phase' = 2, d' = FALSE
-		--[crash]: => up' = FALSE
+    TRANS
+        [vote]:     phase = 0 => phase' = 1, d' in { TRUE, FALSE }
+        [decide0]:     phase = 1 
+                & v0.up & v0.d & v0.phase = 1 
+                & v1.up & v1.d & v1.phase = 1
+                & v2.up & v2.d & v2.phase = 1
+                & v3.up & v3.d & v3.phase = 1
+                => phase' = 2, d' = TRUE
+        [decide1]:     phase = 1 
+                | (!v0.up | (v0.phase >= 1 & !v0.d)) 
+                | (!v1.up | (v1.phase >= 1 & !v1.d)) 
+                | (!v2.up | (v2.phase >= 1 & !v2.d)) 
+                | (!v3.up | (v3.phase >= 1 & !v3.d))
+                => phase' = 2, d' = FALSE
+        --[crash]: => up' = FALSE
 ENDPROCTYPE
+
+
 
 INSTANCE coord = Coordinator(voter0, voter1, voter2, voter3)
 INSTANCE voter0 = RegularVoter(coord, voter1, voter2, voter3)
@@ -70,5 +72,5 @@ INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
 LTLSPEC G ( (coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d)) )
 &
 (( coord.phase = 0 | coord.phase = 1 |  (coord.phase = 2 & !coord.d)) -> 
-	(((voter0.phase != 2 | !voter0.d) & (voter1.phase != 2 | !voter1.d) & (voter2.phase != 2 | !voter2.d) & (voter3.phase != 2 | !voter3.d) )))
+    (((voter0.phase != 2 | !voter0.d) & (voter1.phase != 2 | !voter1.d) & (voter2.phase != 2 | !voter2.d) & (voter3.phase != 2 | !voter3.d) )))
 
