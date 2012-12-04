@@ -17,29 +17,30 @@ ENDOPTIONS
 
 PROCTYPE proctype1( contextvar1, contextvar2; synchroact1, synchroact2)
 
-	VAR
-		var1: bool
-		var2: -1..8
-		var3: { symb1, symb2, symb3 }
+    VAR
+        var1: bool
+        var2: -1..8
+        var3: { symb1, symb2, symb3 }
 
-	FAULT
-		fault1: var1 => var1' = FALSE is TRANSIENT
-		fault2: var2 > 2 & !var1 => is STOP
-		fault3:	=> is STOP(synchroact1)
-		fault4: var3 in {symb2, symb3, FALSE} => is BYZ(var2)
+    FAULT
+        fault1: var1 => var1' = FALSE is TRANSIENT
+        fault2: var2 > 2 & !var1 => is STOP
+        fault3:    => is STOP(synchroact1)
+        fault4: var3 in {symb2, symb3, FALSE} => is BYZ(var2)
 
-	INIT
-		var1 = (TRUE | 0 > var2) & var2 in 0..5 & var3 = symb3
+    INIT
+        var1 = (TRUE | 0 > var2) & var2 in 0..5 & var3 = symb3
 
-	TRANS
-		[synchroact1]:
-		[synchroact2]:
-		[synchroact2]: 
-		[]: contextvar1 != contextvar2     =>     var3' = symb3, var1' = !var1 | contextvar2 != 7
-		[]: ! contextvar1 in 1..2
-		[trans1]:
-		[trans1]:
-		[trans2]:
+    TRANS
+        [synchroact1]:
+        [synchroact2]:
+        [synchroact2]: 
+        []: contextvar1 != contextvar2 =>
+            var3' = symb3, var1' = !var1 | contextvar2 != 7
+        []: ! contextvar1 in 1..2
+        [trans1]:
+        [trans1]:
+        [trans2]:
 
 ENDPROCTYPE
 

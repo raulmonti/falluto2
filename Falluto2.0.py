@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 #===============================================================================
 # Modulo: Falluto2.0.py (modulo principal del proyecto)
 # Autor: Raul Monti
