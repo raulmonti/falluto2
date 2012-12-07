@@ -132,15 +132,6 @@ class Checker(object):
 
             # REDECLARED TRANSITIONS
             tset = set([x.name for x in pt.transitions])
-            """
-            for t in pt.transitions:
-                if t.name in tset:
-                    raise LethalE( "Redeclared transition \'" + t.name \
-                                 + "\' in proctype \'" + pt.name \
-                                 + "\', at line \'" + t.line + "\'.")
-                tset.add(t.name)
-            """
-
             s = fset.intersection(tset)
             l = list(s)
             if l != []:
@@ -164,20 +155,6 @@ class Checker(object):
                 raise LethalE("Incorrect number of parameters for instance <" \
                              + inst.name + "> at <" + inst.line + ">.")
 
-            # check synchronization
-            """
-            lst = []
-            for p in inst.params[n::]:
-                ps = _str(p)
-                if ps not in lst:
-                    lst.append(ps)
-                else:
-                    raise LethalE("Error concerning to synchronization name <" \
-                                 + ps + "> in instanciation of <" + inst.name \
-                                 + "> at <" + inst.line + ">. Can't " \
-                                 + "synchronice between two transitions of "\
-                                 + "the same instance.")
-            """
             # Context variables
             
             # TODO vale la pena agregar valores de tipo Symbol en el dominio de
@@ -206,6 +183,7 @@ class Checker(object):
                     raise LethalE( "Undefined or bad parameter \'" \
                                  + param + "\' in instance \'" + inst.name \
                                  + "\' declaration at <" + inst.line + ">.")
+
             # Synchro actions
             # Can't have '.' in the names, to avoid collision with instance
             # actions.
@@ -228,6 +206,7 @@ class Checker(object):
                                  + "\' declaration at <" + inst.line \
                                  + ">. Can't use an integer value as a " \
                                  + "synchronous action name.")
+
 
     #.......................................................................
     def buildTypeTable(self):
@@ -289,6 +268,9 @@ class Checker(object):
     #.......................................................................
     def checkDefines(self):
 
+        # look for redeclared define names
+        # TODO los nombres de defines pueden chocar con los de tipos enumerados
+        # solucionar para que eso no ocurra.
         defines = []
         for d in self.sys.defines.itervalues():
             dname = _str(d.dname)
@@ -299,6 +281,7 @@ class Checker(object):
             else:
                 defines.append(dname)
 
+        # check for circular dependence in definitions
         adj = {}
         ss = set([])
         for d in self.sys.defines.itervalues():
@@ -314,9 +297,8 @@ class Checker(object):
 
         self.fillDefinesTypes(adj)
 
-    #.......................................................................
 
-
+    #....................................
     def hasCycleDfs(self, adj, leafs):
         self.stack = []
         self.visited = {}
@@ -339,7 +321,7 @@ class Checker(object):
         # its acyclic:
         return []
 
-    #.......................................................................
+    #....................................
     def cycleDfs(self, adj, r):
         for a in adj[r]:
             if a in self.stack:
@@ -360,7 +342,8 @@ class Checker(object):
             if not v:
                 self.fillTypesDfs(adj,d)
 
-    #.......................................................................
+
+    #....................................
     def fillTypesDfs(self, adj, r):
 
         for a in adj[r]:
@@ -371,6 +354,7 @@ class Checker(object):
             dname = _str(d.dname)
             if  dname == r:
                 t = self.getExpresionType(self.globalinst, d.dvalue)
+                # TODO dname puede estar pisando un nombre de tipo enumerado
                 self.typetable[self.globalinst.name][dname] = t
 
                 for inst in self.sys.instances.itervalues():
@@ -396,6 +380,7 @@ class Checker(object):
 
     #.......................................................................
     def checkVarSection(self, inst):
+        # Solo reviso rango vacio para enteros
         pt = self.sys.proctypes[inst.proctype]
         for v in pt.localvars:
             if v.type == Types.Int:
@@ -423,7 +408,7 @@ class Checker(object):
             self.allownextrefs = True
             for p in f.pos:
                 nextref = p[0]
-                nrname = _str(nextref)
+                nrname = _str(nextref).split(" ")[0]
                 expr = p[2]
                 exprname = _str(expr)
                 
@@ -431,7 +416,7 @@ class Checker(object):
                 if not nrname in [x.name for x in pt.localvars]:
                     raise LethalE("Error at <" + expr.__name__.line \
                         + ">. Only local declared variables are allowed to be" \
-                        + " used in next expresions. \'" + nrname \
+                        + " used in next expresions. \'" + _str(nextref) \
                         + "\' isn't a local declared variable in proctype \'" \
                         + pt.name + "\'.")
                 
@@ -466,6 +451,15 @@ class Checker(object):
                                      + line + ">.")
                 else:
                     assert False
+
+    #.......................................................................
+    # TODO al dope esto, si es que no agrego mas utilidad
+    def getName(self, ast):
+        assert isinstance(ast, pyPEG.Symbol)
+        if ast.__name__ == "NEXTREF":
+            return _str(ast).split(" ")[0]
+
+
     #.......................................................................
     def checkInitSection(self, inst):
         pt = self.sys.proctypes[inst.proctype]
@@ -498,7 +492,7 @@ class Checker(object):
             self.allownextrefs = True
             for p in tr.pos:
                 nextref = p[0]
-                nrname = _str(nextref)
+                nrname = _str(nextref).split(" ")[0]
                 expr = p[2]
                 exprname = _str(expr)
                 
@@ -529,6 +523,8 @@ class Checker(object):
                                  + "\'), in next equation of variable \'" \
                                  + nrname + "\' at <" + line + ">.")
             self.allownextrefs = False
+
+
     #.......................................................................
     def getSetOrRangeType(self, inst, expr):
         assert isinstance(expr, pyPEG.Symbol)
@@ -551,6 +547,7 @@ class Checker(object):
                 else:
                     assert False
             return list(ts)
+
     #.......................................................................
     def checkProperties(self):
         for p in self.sys.properties.itervalues():
@@ -621,18 +618,7 @@ class Checker(object):
             self.allowevents = False
             raise e
 
-    #.......................................................................
-    #def CheckDefines(self):
-    #    for d in self.sys.defines.itervalues():
-    #        name = _str(d.dname)
-    #        if '.' in name:
-    #            raise LethalE( "Error in definition at <" + d.line \
-    #                         + ">. Bad name \'" + name 
-    #                         + "\' for DEFINE expresion.")
-    #        t = self.getExpresionType(self.globalinst, d.dvalue)
-            
 
-    
     #.......................................................................
     def getTypeFromTable(self, inst, vname):
         try:
@@ -799,7 +785,7 @@ class Checker(object):
                                  + ">. Next references aren't allowed here.")
                 else:
                     # value must be a local declared var
-                    values = _str(value)
+                    values = _str(value).split(" ")[0]
                     pt = self.sys.proctypes[inst.proctype]
                     if not values in [x.name for x in pt.localvars]:
                         raise LethalE("Error at <" + value.__name__.line \
@@ -820,11 +806,110 @@ class Checker(object):
                 assert False # never come out here
             elif value.__name__ == "INCLUSION":
                 return self.getInclusionType(inst,value)
+            elif value.__name__ == "SUBSCRIPT":
+                return self.getSubscriptType(inst, value)
             else:
                 assert False # never come out here
         else:
             assert False # never come out here
         assert False # never come out here
+
+    #.......................................................................
+    def getSubscriptType(self, inst, subs):
+        assert isinstance(subs, pyPEG.Symbol)
+        assert subs.__name__ == "SUBSCRIPT"
+        line = getBestLineNumberForExpresion(subs)
+        #subs.what = IDENT, re.compile(r" "), [IDENT,INT], re.compile(r"]")
+        arr, dum1, idx, dum2 = _str(subs).split(" ")
+        try:
+            array = self.getVarDeclaration(inst, arr)
+        except:
+            raise LethalE("Undeclared variable \'"+arr+"\' at <"+line+">.")
+        if not array.isarray:
+            raise LethalE( "Error at line <"+line+"> Can't subscribe to \'"\
+                         + _str(subs).split(" ")[0] \
+                         + "\' because it is not an array.")
+        ub = int(array.range[1])
+        lb = int(array.range[0])
+        l = 0
+        u = 0
+        if array == None:
+            raise LethalE("Undeclared variable \'"+arr+"\' at <"+line+">.")
+        try:
+            index = int(idx)
+            l = int(idx)
+            u = l
+        except:
+            try:
+                index = self.getVarDeclaration(inst, idx)
+                t = self.getTypeFromTable(inst, idx)
+                if t != Types.Int:
+                    raise LethalE("Invalid type \'"+Types.Types[t]\
+                                 +"\' for subscription index. At <"+line\
+                                 +">, inside \'"+_str(subs)+"\'.")
+                u = int(index.domain[1])
+                l = int(index.domain[0])
+            except:
+                raise LethalE("Undeclared variable \'"+idx+"\' at <"+line+">.")
+
+        if u > ub or l < lb:
+            raise LethalE("Subscription out of range at <"+line+">, inside \'"\
+                         +_str(subs)+"\'.")
+        
+        return self.tryToGetType(inst, subs, subs)
+
+    #.......................................................................
+    def getVarDeclaration(self, inst, varname):
+        debugRED(inst)
+        debugGREEN(varname)
+        if inst.name == "Glob#inst":
+            if not '.' in varname:
+                raise UndeclaredError(varname)
+            else:
+                iname, vname = varname.split(".")
+                try:
+                    inst = self.sys.instances[iname]
+                    return self.getVarDeclaration(inst,vname)
+                except:
+                    raise UndeclaredError(varname)
+
+
+        
+        pt = self.sys.proctypes[inst.proctype]
+        
+        #is it a local declared variable?:
+        lst = [x for x in pt.localvars if x.name == varname]
+        if lst != []:
+            assert len(lst) == 1
+            return lst[0] 
+
+        # is it a context variable?:        
+        ctxname = varname
+        vname = ""
+        if '.' in varname:
+            ctxname, vname = varname.split(".",1)
+
+        i = 0
+        for x in pt.contextvars:
+            if _str(x) == ctxname:
+                break
+            i += 1
+        
+        # can't find the varname in this instance        
+        if i == len(pt.contextvars):
+            raise UndeclaredError(varname)
+
+        instanced = _str(inst.params[i], False)
+        # instanced is an instance name
+        if vname != "":
+            newinst = self.sys.instances[instanced]
+            return self.getVarDeclaration(newinst, vname)
+
+        # instanced is an variable name
+        assert "." in instanced
+        newiname, newvname = instanced.split(".",1)
+        newinst = self.sys.instances[newiname]
+        return self.getVarDeclaration(newinst, newvname)
 
 
     #.......................................................................
@@ -877,11 +962,12 @@ class Checker(object):
 
     #.......................................................................
     def tryToGetType(self, inst, elem, context):
-        name = _str(elem)
+        name = _str(elem).split(" ")[0] #split in case its a SUBSCRIPT
+        debugGREEN(name)
         ctxt = _str(context)
         line = getBestLineNumberForExpresion(elem)
         try:
-            t = self.getTypeFromTable(inst, name)
+            t = self.getTypeFromTable(inst, unicode(name))
             return t
         except UndeclaredError:
             raise LethalE( "Undeclared variable \'" + name + "\' at <" \

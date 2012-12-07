@@ -52,7 +52,7 @@ string_state_start = "--|----------------->"
 string_state_end = string_state_start
 
 string_spec_end = \
-"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+"\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 # For printig whith colors :D 
 # Put CR|CB|CG|CY before the text you want to color, and CE after it.
@@ -110,6 +110,7 @@ class TraceInterpreter():
         (ast, rest) = parseLine(trace, RESULT(), [], True, packrat=True)
 
         if rest != "":
+            debugCURRENT(ast)
             debugERROR( "Error al interpretar las trazas. No se pudo " \
                       + "interpretar lo que sigue:\n\n"  + rest)
             os._exit(1)
@@ -225,7 +226,7 @@ class TraceInterpreter():
                 # we advise the user.
                 self.showstate = False
                 self.sysdk = True
-                return self.CR+"System fell in deadlock !!!!"+self.CE
+                return self.CR+ self.sys.name + " fell in deadlock !!!!"+self.CE
         
         else:
             # If it's a fault transition
@@ -410,7 +411,16 @@ def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
 def TRACE():        return -1, ignore(r"(?!->|--\ Loop).*\n"), -1 , [STATE, STATELOOP]
 def STATE():        return "->", "State:", re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
-def VARCHANGE():    return re.compile(r"[a-zA-Z0-9\#\_]*"), "=", re.compile(r"[a-zA-Z0-9\#\_]*")
+def VARCHANGE():    return re.compile(r"[\w\d\#\_]*(\[.*\])?"), "=", re.compile(r"\-?[a-zA-Z0-9\#\_]*")
 def STATELOOP():    return "--", "Loop", "starts", "here", -1, STATE
+
+
+
+
+
+
+
+
+
 
 

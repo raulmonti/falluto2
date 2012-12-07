@@ -5,6 +5,7 @@ class Types():
     Int = 0
     Bool = 1
     Symbol = 2
+    Array = 3
     #Reference = 3
     
     # fault types
@@ -29,7 +30,7 @@ class Types():
     Types = { 0:"Int"           # variables
             , 1:"Bool"
             , 2:"Symbol"
-            , 3:"Reference"
+            , 3:"Array"
             , 54:"Transient"    # faults
             , 55:"Stop"
             , 56:"Byzantine"

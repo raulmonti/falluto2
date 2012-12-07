@@ -95,7 +95,7 @@ if __name__ == '__main__':
             c.writeSysToFile(outputname,[i])
 
             output = check_output(["NuSMV", os.path.abspath(outputname)])
-#            debugCURRENT(output)
+            debugCURRENT(output)
             _color = False
             if args.color:
                 _color = True
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             + "mandar mail a raul para que lo arregle\n")
         debugERROR("NUSMV: el archivo es erroneo. La salida es la que "\
             + "sige:\n\n" + str(e.cmd))
-    except LethalE as e:
-        colorPrint("debugRED", "ERROR:\t" + e.error)
+#    except LethalE as e:
+#        colorPrint("debugRED", "ERROR:\t" + e.error)
 
     sys.exit(0)

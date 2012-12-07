@@ -1,0 +1,68 @@
+--********** F A L L U T O 2.0 COMPILED SYSTEM FOR NuSMV **********
+
+
+MODULE main()
+
+	-- @@@ DEFINITIONS.
+	
+
+
+	-- @@@ VARIABLES DECLARATION SECTION.
+	VAR
+		action#:{ synchro#s2, dk#action, fault#inst1#f1, synchro#s1, fault#inst2#f1};
+		lvar#inst1#x:boolean;
+		lvar#inst1#y : -1 .. 1 ;
+		lvar#inst1#z : array -2 .. 2 of { sv#l , sv#m , sv#n } ;
+		lvar#inst2#x:boolean;
+		lvar#inst2#y : -1 .. 1 ;
+		lvar#inst2#z : array -2 .. 2 of { sv#l , sv#m , sv#n } ;
+		ipc#inst1 : 0..2;
+		ipc#inst2 : 0..2;
+	
+
+
+	-- @@@ INITIALIZATION SECTION.
+	INIT
+		(TRUE ) & 
+		(TRUE ) & 
+		(TRUE)
+	
+
+
+	-- @@@ TRANSITION SECTION.
+	TRANS
+		((next(action#) = synchro#s2) & (( ( lvar#inst2#z [ 1 ] = sv#n ) & !lvar#inst2#x ) ) & (next(lvar#inst2#y) = 5 ) & (next(lvar#inst2#z[0]) = sv#m ) & (next(ipc#inst2) = 2) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(ipc#inst1) = ipc#inst1) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0])) | 
+		(((next(action#) = synchro#s1) & (lvar#inst1#x ) & (lvar#inst2#x ) & (next(lvar#inst1#y) = 2 ) & (next(ipc#inst1) = 0) & (next(lvar#inst2#y) = 2 ) & (next(ipc#inst2) = 0) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0])) | 
+		((next(action#) = synchro#s1) & (TRUE ) & (lvar#inst2#x ) & (next(lvar#inst1#x) = !lvar#inst1#x ) & (next(ipc#inst1) = 1) & (next(lvar#inst2#y) = 2 ) & (next(ipc#inst2) = 0) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0])) | 
+		((next(action#) = synchro#s1) & (( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) ) & (lvar#inst2#x ) & (next(lvar#inst1#y) = 5 ) & (next(lvar#inst1#z[0]) = sv#m ) & (next(ipc#inst1) = 2) & (next(lvar#inst2#y) = 2 ) & (next(ipc#inst2) = 0) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1])) | 
+		((next(action#) = synchro#s1) & (lvar#inst1#x ) & (TRUE ) & (next(lvar#inst1#y) = 2 ) & (next(ipc#inst1) = 0) & (next(lvar#inst2#x) = !lvar#inst2#x ) & (next(ipc#inst2) = 1) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0])) | 
+		((next(action#) = synchro#s1) & (TRUE ) & (TRUE ) & (next(lvar#inst1#x) = !lvar#inst1#x ) & (next(ipc#inst1) = 1) & (next(lvar#inst2#x) = !lvar#inst2#x ) & (next(ipc#inst2) = 1) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0])) | 
+		((next(action#) = synchro#s1) & (( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) ) & (TRUE ) & (next(lvar#inst1#y) = 5 ) & (next(lvar#inst1#z[0]) = sv#m ) & (next(ipc#inst1) = 2) & (next(lvar#inst2#x) = !lvar#inst2#x ) & (next(ipc#inst2) = 1) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]))) | 
+		((next(action#) = fault#inst1#f1) & (( ( lvar#inst1#z [ lvar#inst1#y ] = sv#n ) & ( ( 4 > -1 ) & ( FALSE & ( lvar#inst1#y in ( 1 .. 10 ) ) ) ) ) ) & (next(lvar#inst1#x) = TRUE ) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(ipc#inst2) = ipc#inst2) & (next(ipc#inst1) = ipc#inst1) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1])) | 
+		((next(action#) = fault#inst2#f1) & (( ( lvar#inst2#z [ lvar#inst2#y ] = sv#n ) & ( ( 4 > -1 ) & ( FALSE & ( lvar#inst2#y in ( 1 .. 10 ) ) ) ) ) ) & (next(lvar#inst2#x) = TRUE ) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(ipc#inst2) = ipc#inst2) & (next(ipc#inst1) = ipc#inst1) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1])) | 
+		(
+		--  @@ DEADLOCK TRANSITION
+		(next(action#) = dk#action) & (!(( ( lvar#inst2#z [ 1 ] = sv#n ) & !lvar#inst2#x ) )) & ((!(lvar#inst1#x )) | (!(lvar#inst2#x ))) & ((!(TRUE )) | (!(lvar#inst2#x ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(lvar#inst2#x ))) & ((!(lvar#inst1#x )) | (!(TRUE ))) & ((!(TRUE )) | (!(TRUE ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(TRUE ))) & (next(lvar#inst1#z[-2]) = lvar#inst1#z[-2]) & (next(lvar#inst2#y) = lvar#inst2#y) & (next(lvar#inst1#z[0]) = lvar#inst1#z[0]) & (next(lvar#inst1#z[1]) = lvar#inst1#z[1]) & (next(lvar#inst2#z[2]) = lvar#inst2#z[2]) & (next(lvar#inst2#z[0]) = lvar#inst2#z[0]) & (next(lvar#inst2#z[1]) = lvar#inst2#z[1]) & (next(lvar#inst1#z[2]) = lvar#inst1#z[2]) & (next(lvar#inst1#x) = lvar#inst1#x) & (next(lvar#inst1#y) = lvar#inst1#y) & (next(lvar#inst2#x) = lvar#inst2#x) & (next(ipc#inst2) = ipc#inst2) & (next(ipc#inst1) = ipc#inst1) & (next(lvar#inst2#z[-2]) = lvar#inst2#z[-2]) & (next(lvar#inst1#z[-1]) = lvar#inst1#z[-1]) & (next(lvar#inst2#z[-1]) = lvar#inst2#z[-1]))
+
+
+
+-- @@@ SYSTEM CONTRAINTS
+
+
+--  @@ MODULE FAIRNESS FOR inst1
+
+FAIRNESS ((((!(lvar#inst1#x )) | (!(lvar#inst2#x ))) & ((!(TRUE )) | (!(lvar#inst2#x ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(lvar#inst2#x ))) & ((!(lvar#inst1#x )) | (!(TRUE ))) & ((!(TRUE )) | (!(TRUE ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(TRUE )))) & (((!(lvar#inst1#x )) | (!(lvar#inst2#x ))) & ((!(TRUE )) | (!(lvar#inst2#x ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(lvar#inst2#x ))) & ((!(lvar#inst1#x )) | (!(TRUE ))) & ((!(TRUE )) | (!(TRUE ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(TRUE ))))) | (action# in { synchro#s1, synchro#s1})
+
+
+--  @@ MODULE FAIRNESS FOR inst2
+
+FAIRNESS ((((!(lvar#inst1#x )) | (!(lvar#inst2#x ))) & ((!(TRUE )) | (!(lvar#inst2#x ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(lvar#inst2#x ))) & ((!(lvar#inst1#x )) | (!(TRUE ))) & ((!(TRUE )) | (!(TRUE ))) & ((!(( ( lvar#inst1#z [ 1 ] = sv#n ) & !lvar#inst1#x ) )) | (!(TRUE )))) & (!(( ( lvar#inst2#z [ 1 ] = sv#n ) & !lvar#inst2#x ) ))) | (action# in { synchro#s1, synchro#s2})
+
+
+--  @@ FAULT SYSTEM FAIRNESS
+FAIRNESS (action# in { synchro#s2, dk#action, synchro#s1})
+
+-- @@@ PROPERTIES 
+
+--  @@ PROPERTIE: LTLSPEC F  ( just( s2 ) )  
+LTLSPEC F ( action# = synchro#s2 ) 

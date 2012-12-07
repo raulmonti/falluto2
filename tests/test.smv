@@ -1,0 +1,12 @@
+MODULE main()
+
+	VAR
+		a:array -1..2 of boolean;
+		b:1..3;
+	INIT
+		b = 1
+	TRANS
+		next(a [ b ]) = TRUE & next(b) = 1 & next(a[0]) in {a[1]}
+
+
+LTLSPEC F b = 3

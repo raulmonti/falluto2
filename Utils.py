@@ -30,20 +30,23 @@ def _cl(ast = []):
 
 ################################################################################
 
-def _str(ast = []):
+def _str(ast = [], sp = True):
     """
         Devuelve un string formado por los elementos de tipo unicode que estan 
-        dentro del AST separados entre ellos por espacios simples. 'ast' debe 
+        dentro del AST separados entre ellos por espacios (si 'sp'). 'ast' debe 
         haber sido contruido por la funcion parse o parseLine del modulo pyPEG 
         o debe ser una subseccion del mismo, siempre y cuando sea de tipo 
         Symbol, list o unicode.
     """
+    spp = ""
+    if sp:
+        spp = " "
     lst = _cl(ast)
     string = ""
     if lst != []:
         string = str(lst[0])
     for element in lst[1::]:
-        string += " " + str(element)
+        string += spp + str(element)
     return str(string)
 
 
