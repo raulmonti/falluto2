@@ -1,0 +1,31 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE module(; transfer)
+	VAR
+		on : bool
+		file : 0..9
+
+	FAULT
+--		f1:                       is STOP(On)
+		f2: file = 9 =>           is BYZ(file)
+--		f3: 	     => file' = 0 is TRANSIENT
+	INIT
+		!on & file = 0
+	TRANS
+		[transfer]: on => file' = (file + 1) % 10
+		[On]: !on => on' = TRUE
+		[Off]: on & file = 9 => on' = FALSE
+ENDPROCTYPE
+
+INSTANCE mod1 = module(sync)
+INSTANCE mod2 = module(sync)
+
+LTLSPEC G F mod1.file = 9
+
+LTLSPEC G mod1.file = mod2.file
+
+CTLSPEC AG mod1.file = mod2.file
+
+--FAIRNESS just(sync)

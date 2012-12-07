@@ -1,0 +1,26 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE proc(r;a, b)
+	VAR
+		x:bool
+		y:-1..1
+		z:array -2..2 of {l,m,n}
+	FAULT
+		f1: z[y] = n & 4 > -1 & FALSE & y in 1..10 => x' = TRUE is TRANSIENT
+	INIT
+	TRANS
+		[a]: x => y' = 2
+		[a]: => x' = !x
+		[b]: z[1] = n & !x => y' = 5, z[0]' = m 
+ENDPROCTYPE
+
+INSTANCE inst1 = proc(inst2.z,s1,s1)
+INSTANCE inst2 = proc(inst1.x,s1,s2)
+
+NORMAL_BEHAIVIOUR -> X TRUE
+
+LTLSPEC F just(s2)
+
+LTLSPEC X inst1.x -> F G inst2.y > 3 -> just(s1) | inst1.z[1] = l

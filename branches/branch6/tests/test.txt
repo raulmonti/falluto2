@@ -1,0 +1,1 @@
+array0..9of{a,b,c}
