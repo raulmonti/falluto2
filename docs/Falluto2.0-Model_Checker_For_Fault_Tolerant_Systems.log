@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  14 NOV 2012 21:46
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  9 DEC 2012 17:10
 entering extended mode
  %&-line parsing enabled.
 **Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
@@ -87,27 +87,24 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [6]
 Cap\'{\i }tulo 1.
 
-Underfull \hbox (badness 10000) in paragraph at lines 31--32
+Underfull \hbox (badness 10000) in paragraph at lines 34--35
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 33--35
+Underfull \hbox (badness 10000) in paragraph at lines 36--38
 
  []
 
 [7
 
 ]
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ± in font cmr12!
-
-Underfull \hbox (badness 10000) in paragraph at lines 36--39
+Underfull \hbox (badness 10000) in paragraph at lines 39--42
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 40--44
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
 
  []
 
@@ -116,93 +113,153 @@ Underfull \hbox (badness 10000) in paragraph at lines 40--44
 ]
 Cap\'{\i }tulo 2.
 
-Underfull \hbox (badness 10000) in paragraph at lines 54--55
+Underfull \hbox (badness 10000) in paragraph at lines 69--70
 
  []
 
-[11] [12
+
+Underfull \hbox (badness 10000) in paragraph at lines 74--76
+
+ []
+
+
+Underfull \vbox (badness 3271) has occurred while \output is active []
+
+ [11]
+Underfull \hbox (badness 10000) in paragraph at lines 81--82
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 83--84
+
+ []
+
+[12] [13] [14
 
 ]
 Cap\'{\i }tulo 3.
-[13] [14
-
-]
-Cap\'{\i }tulo 4.
-
-Underfull \hbox (badness 10000) in paragraph at lines 63--66
+[15]
+Underfull \hbox (badness 10000) in paragraph at lines 110--112
 
  []
 
-[15] [16
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 116--117
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--119
+
+ []
+
+[16]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmti12!
+Missing character: There is no ³ in font cmti12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 137--139
+
+ []
+
+[17]
+Overfull \hbox (22.18277pt too wide) in paragraph at lines 140--141
+[]\OT1/cmr/bx/n/12 Model check-ing \OT1/cmr/m/n/12 es un m^^Seto-do au-tom^^Sat
+ico para la ver-i-fi-caci^^Son de propiedades
+ []
+
+[18]
+Cap\'{\i }tulo 4.
+[19
+
+] [20
 
 ]
 Cap\'{\i }tulo 5.
-[17] [18
-
-]
-Cap\'{\i }tulo 6.
-[19] [20
-
-]
-Cap\'{\i }tulo 7.
 [21] [22
 
 ]
-Cap\'{\i }tulo 8.
+Cap\'{\i }tulo 6.
 [23] [24
 
 ]
-Cap\'{\i }tulo 9.
+Cap\'{\i }tulo 7.
 [25] [26
 
 ]
-Cap\'{\i }tulo 10.
+Cap\'{\i }tulo 8.
 [27] [28
 
 ]
-Cap\'{\i }tulo 11.
+Cap\'{\i }tulo 9.
 [29] [30
 
 ]
-Cap\'{\i }tulo 12.
-[31] [32
-
-]
-Underfull \hbox (badness 2951) in paragraph at lines 248--250
+Underfull \hbox (badness 2951) in paragraph at lines 320--322
 []\OT1/cmr/m/n/12 NuSMV 2.5 Us-er Man-u-al. Rober-to Cava-da, Alessan-dro Cimat
 -
  []
 
 
-Underfull \hbox (badness 4229) in paragraph at lines 248--250
+Underfull \hbox (badness 4229) in paragraph at lines 320--322
 \OT1/cmr/m/n/12 ti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivet-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 248--250
+Underfull \hbox (badness 10000) in paragraph at lines 320--322
 \OT1/cmr/m/n/12 ti, Mar-co Pi-s-tore, Mar-co Roveri and An-drei Tchalt-sev.
  []
 
+[31]
 Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-[33] [34] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux) ) 
+Missing character: There is no „ in font cmr12!
+
+Underfull \hbox (badness 1881) in paragraph at lines 331--333
+[]\OT1/cmr/m/n/12 Fundamentals of Fault-Tolerant Dis-tribut-ed Com-put-ing in A
+syn-
+ []
+
+
+Underfull \hbox (badness 1189) in paragraph at lines 336--337
+[]\OT1/cmr/m/n/12 Understanding fault tol-er-ant dis-tribut-ed sys-tems. Flavin
+ Cris-tian.
+ []
+
+[32] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux) ) 
 Here is how much of TeX's memory you used:
- 887 strings out of 495061
- 10803 string characters out of 1182621
+ 907 strings out of 495061
+ 11038 string characters out of 1182621
  68199 words of memory out of 3000000
- 4125 multiletter control sequences out of 15000+50000
- 9454 words of font info for 33 fonts, out of 3000000 for 9000
+ 4145 multiletter control sequences out of 15000+50000
+ 9761 words of font info for 34 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 24i,6n,27p,985b,305s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/sh
-are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-t
-exlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts
-/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/publi
-c/amsfonts/cm/cmti12.pfb>
-Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (34 p
-ages, 91318 bytes).
+ 24i,6n,27p,979b,328s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/t
+exmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texliv
+e/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/typ
+e1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-texlive/fonts/type1/public/am
+sfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cm
+r17.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr
+/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texm
+f-texlive/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (32 p
+ages, 140194 bytes).
 PDF statistics:
- 127 PDF objects out of 1000 (max. 8388607)
+ 137 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

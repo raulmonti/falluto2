@@ -25,57 +25,129 @@ AGRADECIMIENTOS
 \tableofcontents
 
 \newpage
+
+
+
 \chapter{Introducci\'on}
 \label{introduccion}
 
-Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes actividades, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocaciona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como se es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes [perdidas] monetarias y hasta llegar a ocacionar la perdida de vidas humanas.\\
+Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes tareas, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocasiona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes [perdidas] monetarias y hasta llegar a ocasionar la [perdida] de vidas humanas.\\
 
 Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional\cite{faultInjection} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.\\
 Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especific\'on plantea) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.\\
 
-Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas conputacionales, es conveniente comprobar la correctitud de los sistemas tolerantes a fallas.
+Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas computacionales, es conveniente comprobar la correctitud de los sistemas tolerantes a fallas.
 El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dificil y \emph{propenso a errores}: la combianaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que [genera una gran demanda] a la capacidad intelectual del dise\~nador humano\cite{SteinerRushby}.\\
-En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los diseñadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on.\\ La examinaci\'on autim\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}\\
+En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on.\\ La examinaci\'on autim\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}\\
 
-En ciencias de la computacion \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si la el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
+En ciencias de la computaci\'on \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si la el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
 El reducido nivel de interacci\'on con el usuario de este m\'etodo es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad des ser usad por individuos no expertos.\cite{RuysBrinksma}\\
 %TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
 Sin embargo es preciso modelar el sistema y definir las propiedades, lidiando mientras tanto con el principal problema del Model Checking: \emph{la explosi\'on de estados} debido al incremento exponencial de los mismos a ra\'iz de la introducci\'on de variables en la especificaci\'on del sistema.\\
 
-Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando asi la nosiva explosi\'on de estados al momento de la verificaci\'on.
+Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando as\'i la nociva explosi\'on de estados al momento de la verificaci\'on.
 
-Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV\cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errors evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo.\\ Este trabajo se presenta como extensi\'on tanto del trabajo realizado por Edgardo Hammes\cite{Falluto1} como del realizado por Nicol\'as Bordenabe\cite{Offbeat}.
+Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV\cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errors evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo.\\Este trabajo se presenta como extensi\'on tanto del trabajo realizado por Edgardo Hammes\cite{Falluto1} como del realizado por Nicol\'as Bordenabe\cite{Offbeat}.
 %TODO seguir hablando del trabajo y poner la distribucion de los temas en el trabajo.
 
 
-\chapter{Model Checking}
-		
-		\section{El proceso de Model Checking}
-				- BDD ... SAT\\
-		\section{NuSMV}
-			- NuSMV como funciona, capacidades, ventajas de haberlo elegido.
+
+
+
 
 
 \chapter{Tolerancia a fallas}
-			- Leer algun paper a cerca de eso y rellenar aca.
 
-\chapter{Conocimientos previos}
-			- Con falluto queremos poder escribir un modelo que en nuestra cabeza normalmente esta abstra\'ido a
-			sistemas de transiciones etiquetadas y estructuras de Kripke. Queremos adem\'as hacerlo de manera declarativa en
-			cuanto a la inserci\'on de fallas, sin tener que implementar la funcionalidad de las mismas.\\
-			\section{LTS}
-			\section{Kripke Structures}
+Mejorar la confiabilidad del sistema (el grado de confianza que se puede poner 
+de manera justificada sobre el sistema) es usualmente presentado como el 
+principal beneficio de la tolerancia a fallas. <Normalmente la confiabilidad es 
+definida estad\'isticamente, indicando la probabilidad de que el sistema sea 
+funcional y provea el servicio esperado en un alg\'un momento espec\'ifico. >?
+\cite{Felix}
+
+\section{Fallas}
+Intuitivamente, y dentro del contexto que nos competen, podemos definir a una falla como una desviaci\'on de su funci\'on esperada en una componente de hardware o software. Estas fallas pueden ocurrir en cualquier etapa de la evoluci\'on del sistema computacional en cuesti\'on -especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, e instalaci\'on- y durante toda su vida operacional.\cite{FaultInject}\\
+
+Una definici\'on ligeramente m\'as formal nos sugiere definir el termino 'falla' basado en la observaci\'on de que los sistemas cambian su estado como resultado de dos clases de eventos muy similares: operaciones normales de sistema y ocurrencia de fallas. Por lo tanto, un falla puede ser modelada como una no deseada (pero sin embargo posible) transici\'on de estado en un proceso.\cite{Felix}
+
+\section{Sistemas tolerantes a fallas}
+Existen sistemas dise\~nados para ser tolerantes a fallas: ellos o bien exhiben un bien definido comportamiento ante fallas cuando estas ocurren, o bien enmascaran la falla de la componente al usuario, es decir contin\'uan proveyendo su servicio est\'andar especificado a pesar de la ocurrencia de las fallas en la componente.\cite{Cristian}
+Podemos entonces decir de manera vaga que la tolerancia a fallas es la habilidad que posee un sistema de comportarse de una manera bien definida ante la ocurrencia de una falla. En el momento de dise\~nar la tolerancia a fallas, un primer prerrequisito es especificar la clase de falla que ser\'a tolerada. Tradicionalmente esto se lograba usando como base alguno de los modelos de fallas est\'andares (crash, fail-stop, etc...), sin embargo puede hacerse de manera mas concisa especificando clases de fallas. El siguiente paso es enriquecer el sistema bajo consideraci\'on con componentes o conceptos que provean protecci\'on contra las fallas de una clase espec\'ifica.\cite{FaultInject}\\
+
+En este trabajo podremos distinguir dos clases de fallas en particular. Un primer grupo de fallas es de tipo \textbf{permanente}: \'estas com\'unmente representan fallas reales causadas por problemas irreversibles en la componente. Una vez que una falla permanente ocurre, permanece activa y afectando al sistema durante el resto de su ejecuci\'on. Por otro lado, un segundo grupo de fallas se caracteriza por ser de duraci\'on instant\'anea. Afectan el estado del sistema en los puntos particulares de se ejecuci\'on en los cuales estas fallas ocurren, sin tener efectos permanentes sobre el mismo. Las mismas pueden repetirse indefinidamente durante la ejecuci\'on del sistema, permaneciendo activas solo en el momento en que afectan al sistema. Diremos que estas fallas son de clase \textbf{transient}.
 
 
-\chapter{El lenguaje de Falluto2.0}
-			\section{Lenguaje general}
-				- Como logra 'describir claramente la red de automatas' de manera intuitiva.
-			\section{Inserci\'on de fallas}
-			
-\chapter{Compilaci\'on de Falluto2.0}
-			\section{transiciones normales y transiciones de falla}
-			\section{fairness}
-			\section{propiedades comunes}
+\section{Conclusi\'on}
+En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones buenas del sistema y transiciones debido a fallas, ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo.\\
+
+Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transient}.\\
+
+Por \'ultimo, nos ocuparemos del modelado del sistema en general y nos centraremos en la inyecci\'on de las fallas en el mismo. No nos detendremos sin embargo en temas espec\'ificos al dise\~no de la tolerancia a las fallas.
+
+
+
+
+
+
+\chapter{Model Checking}
+
+En el dise\~no de software y hardware de sistemas complejos, se consume mas tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, para proveer de t\'ecnicas de verificaci\'on mas afectivas y reducir el tiempo invertido en aplicarlas.\cite{prinMC}\\
+\indent El \textbf{Model Checking} es un m\'etodo formal para la verificaci\'on exhaustiva de sistemas finitos. Logra esta verificaci\'on explorando todos los estados posibles del sistema con la intenci\'on de verificar la veracidad de una propiedad sobre el mismo.\\
+\indent En este cap\'itulo comenzaremos revisando algunos conceptos b\'asicos para entender el funcionamiento de los \textit{model checkers} (programas utilizados para la verificaci\'on mediante \textit{model checking}, y concluiremos presentando el proceso de \textit{model checking} junto con algunas caracter\'isticas de este m\'etodo.
+
+
+
+\section{Sistemas de transici\'on}
+
+\subsection{Labelled transition systems - LTS}
+Llamamos sistema de transiciones etiquetadas a un concepto de maquina abstracta usada en parte para el modelado de sistemas computacionales concurrentes. Este sistema de representaci\'on est\'a compuesto por un conjunto de estados, un conjunto de etiquetas o nombres, y una relaci\'on ternaria explicando las transiciones etiquetadas desde un estado hacia otro del sistema.\\
+Formalmente podemos decir que un LTS es una tres-upla \textbf{M = (S,L,R)} donde:
+\begin{itemize}
+\item S es un conjunto (de estados)
+\item L es un conjunto de etiquetas (nombres de transiciones)
+\item \mbox{R $\subseteq$ S x L x S es una relaci\'on ternaria (de transiciones etiquetadas)}
+\end{itemize}
+Notemos entonces que si s1 y s2 son elementos en S, l es un nombre en L, y (s1,l,s2) pertenece a R, entonces estamos indicando que existe una transici\'on con nombre l desde el estado s1 al estado s2.\\
+As\'i podemos modelar sistemas computacionales tomando cada elemento en S como un estado particular del sistema y definiendo relaciones etiquetadas entre los mismos para representar el comportamiento del sistema.\\
+
+En particular nos interesa para este trabajo la capacidad que nos otorga este formalismo para representar sincronizaci\'on entre acciones de distintas componentes del sistema. En la figura \cite{} podemos ver dos componentes ambas con su representaci\'on LTS. Podemos a partir de ellas definir un sistema concurrente sincronizado en el cual las transiciones con de igual nombre en cada componente deben ser ejecutadas de manera sincronizada. Vemos el sistema resultante en la figura \cite{}.
+
+\subsection{Estructuras de Kripke}
+En model checking usamos un tipo de grafos de transición de estados llamados \textit{Structuras de Kripke} para intuitivamente captar el comportamiento del sistema a modelar. Una \textit{estructura de Kripke} consiste en un conjunto de estados, un conjunto de transiciones entre esos estados, y una función que etiqueta cada estado con un conjunto de propiedades que son verdaderas en este estado. Los caminos en estas estructuras modelan la ejecución del sistema\cite{Clark}. Estas estructuras son lo suficientemente expresivas como para captar aspectos de lógicas temporales tales como (LTL y CTL) que interesan a la verificación de sistemas vía model checking.\\
+
+Formalmente podemos definir una estructura de Kripke como sigue\cite{Clark}:\\
+
+Sea AP un conjunto de proposiciones at\'omicas. Una estructura de Kripke M sobre AP es una cuatro-upla (S,$S_0$,R,L) tal que:
+\begin{enumerate}
+\item S es un conjunto finito de estados.
+\item $S_0$ $\subseteq$ S es un conjunto de estados inciales.
+\item R $\subseteq$ S x S es una relaci\'on de transici\'on que debe ser total, es decir, para cada estado s $\in$ S hay un estado s' $\in$ S tal que R(s,s').
+\item L : S x $2^{AP}$ es una funci\'on que etiqueta cada estado con el conjunto de proposiciones atómicas verdaderas en ese estado.
+\end{enumerate}
+Una $[traza/camino]$ en la estructura M desde el estado s es una secuencia infinita $\pi = s_0s_1s_2...$ tal que $s_0$ = s y $R(s_i,s_{i+1})$ vale para todo i $\geq$ 0.\\
+
+Notemos que podemos traducir la representación LTS de un sistema a una representaci\'on en Estructuras de Kripke de la siguiente manera. Sea $M_1 = (S_1, R_1, L_1)$ un sistema descripto en LTS, entonces construimos su descripci\'on $M_2 = (S_2,S_0,R_2,L_2)$ en terminos de estructuras de Kripke sobre AP de la siguiente manera:
+\begin{itemize}
+%TODO explicar lo que está en el pizarrón
+\item Por cada $e_i$ etiqueta en $L_1$ agregamos a AP la proposici\'on \textit{acción = $e_i$}
+\item Por cada tres-upla (s,l,s') en $R_1$, agregamos la tupla (s,s') 
+\end{itemize}
+
+\section{Caracter\'isticas del Model Checking}
+Existen diferentes m\'etodos para la verificaci\'on de sistemas complejos, entre ellos podemos destacar como principales la simulaci\'on, el testing, la verificaci\'on deductiva, y el model checking\cite{Clark}. Tanto la simulaci\'on como el testing comprenden realizar experimentos antes de desplegar el sistema en el campo. Mientras que en el caso de la \textit{simulaci\'on} se trabaja sobre una abstracci\'on o modelo del sistema, en el \textit{testing} se trabaja sobre el [producto real]. En cuanto a costo-eficiencia, estos m\'etodos pueden ser ventajosos para detectar gran cantidad de errores. Sin embargo, revisar todas las posibles interacciones y potenciales errores usando simulaci\'on y testing es raramente posible.\\
+El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axiomas y reglas para probar la correctitud del sistema. Este m\'etodo si bien posee la ventaja de poder probar correctitud sobre sistemas de estados infinitos no es muy utilizado fuera de casos cr\'iticos. Esto se debe a que requiere de gran cantidad de tiempo y de la conducci\'on por parte de expertos en el campo del razonamiento l\'ogico.\\
+
+\textbf{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
+
+\begin{itemize}
+\item Gran parte de su proceso es autom\'atico, por lo cual no requiere de personal experto en campos de la matem\'atica para llevar a cabo las tareas de verificaci\'on.
+
+\item Es exhaustivo con respecto al conjunto de estados del sistema.
+
+\item Ofrece clara evidencia del problema en el caso de encontrar que la propiedad deseada sobre el sistema no se cumpla.
+\end{itemize}
+
+
 
 \chapter{Casos de estudio}
 			\section{Commit at\'omico}
@@ -175,9 +247,9 @@ Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orient
 %
 %\section{Implementaci\'on de Falluto 2.0}
 %
-%Falluto 2.0 esta escrito en Python\cite{Python}. Python es un Lenguaje de programación interpretado cuya filosof\'ia hace hincapi\'e en una sintaxis limpia que favorezca un c\'odigo legible.
+%Falluto 2.0 esta escrito en Python\cite{Python}. Python es un Lenguaje de programaci\'on interpretado cuya filosof\'ia hace hincapi\'e en una sintaxis limpia que favorezca un c\'odigo legible.
 %Se trata de un lenguaje de programaci\'on multiparadigma ya que soporta orientaci\'on a objetos, programaci\'on imperativa y, en menor medida, programaci\'on funcional. Es un lenguaje interpretado, usa tipado din\'amico, es fuertemente tipado y es multiplataforma. Posee una muy completa librer\'ia estadar.
-%Es administrado por la Python Software Foundation. Posee una licencia de c\'odigo abierto, denominada Python Software Foundation License,1 que es compatible con la Licencia p\'ublica general de GNU a partir de la versión 2.1.1, e incompatible en ciertas versiones anteriores.
+%Es administrado por la Python Software Foundation. Posee una licencia de c\'odigo abierto, denominada Python Software Foundation License,1 que es compatible con la Licencia p\'ublica general de GNU a partir de la versi\'on 2.1.1, e incompatible en ciertas versiones anteriores.
 %
 %
 %\subsubsection{A cerca del valor inicial de actvar\#}
@@ -250,14 +322,23 @@ Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev. http://nusm
 
 \bibitem{Falluto1} Falluto: Un model checker para la verificaci\'on de sistemas tolerantes a fallas; Edgardo E. Hames; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; C\'ordoba, 14 de diciembre de 2009.
 
-\bibitem{Offbeat} Offbeat: Una extensi\'on de PRISM para el an\'alisis de sistemas temporizados tolerantes a fallas; Nicolás Emilio Bordenabe; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; 28 de Marzo de 2011
-
-
-
+\bibitem{Offbeat} Offbeat: Una extensi\'on de PRISM para el an\'alisis de sistemas temporizados tolerantes a fallas; Nicol\'as Emilio Bordenabe; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; 28 de Marzo de 2011
 
 \bibitem{Python} Python; http://en.wikipedia.org/wiki/Python\_(programming\_language)
 
 \bibitem{PEG} Parsing Expression Grammars: A Recognition-Based Syntactic Foundation. Bryan Ford. Massachusetts Institute of Technology; Cambridge, MA
+
+\bibitem{Felix} Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments. FELIX C. GÄRTNER,
+Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
+
+\bibitem{FaultInject} Fault Injection. A Method For Validating Fomputer-System Dependability. Jeffrey A. Clark Mitre Corporation, Dhiraj K. Pradhan Texas A\&M University. June 1995
+
+\bibitem{Cristian} Understanding fault tolerant distributed systems. Flavin Cristian. COMMUNICATIONS OF THE ACM, February 1991, Vol.34, No.2
+
+\bibitem{prinMC} Principles of model checking. Christel Baier and Joost-Pieter Katoen. The MIT Press Cambridge, Massachusetts
+London, England
+
+\bibitem{Clark} Edmund M. Clarke, Orna Grumberg, David E. Long: Model checking. NATO ASI DPD 1996: 305-349
 
 
 \end{thebibliography}
