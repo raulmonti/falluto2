@@ -52,15 +52,14 @@ def EVENT():        return [(re.compile(r"just\(") \
 def NEWLINE():      return re.compile('\n')
 # el _not en la definición de SUBSCRIPT evita que exista newline entre el 
 # nombre del arreglo y el símbolo '[' de la subscripción.
-def SUBSCRIPT():    return _not(re.compile(r"""[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?
-                                           [ \t\r\f\v]*[\n]""", re.X)) \
-                           , IDENT, re.compile(r"\["), [IDENT, INT] \
+#def SUBSCRIPT():    return _not(re.compile(r"""[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?
+#                                           [ \t\r\f\v]*[\n]""", re.X)) \
+#                           , IDENT, re.compile(r"\["), [IDENT, INT] \
+#                           , re.compile(r"\]")
+
+def SUBSCRIPT():    return IDENT, re.compile(r"\["), [IDENT, INT] \
                            , re.compile(r"\]")
 
-#def SUBSCRIPT():    return pyPEG._not(RESERVED), \
-#                           re.compile(r"""[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?
-#                                      \[([a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?
-#                                      |((-)?\d+))\]""",re.X)
 
 def NEXTREF():      return [([SUBSCRIPT,IDENT], "'")]
 def SET():          return re.compile(r"\{"), 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
@@ -154,7 +153,7 @@ def INIT():         return keyword("INIT"), 0, EXPRESION
 
 def TRANS():        return keyword("TRANS"), -1, TRANSDECL
 def TRANSDECL():    return "[", 0, NAME, "]", ":" \
-                            , 0, EXPRESION, 0, ("=>", NEXTEXPR)
+                            , 0, EXPRESION, 0, ("=>", NEXTEXPR), ";"
 
 
 
