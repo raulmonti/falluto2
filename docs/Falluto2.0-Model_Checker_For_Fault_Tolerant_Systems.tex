@@ -235,8 +235,12 @@ Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los
 
 \section{Representaci\'on de f\'ormulas l\'ogicas en BDD}
 
-
-
+Muchos model checker, como es el caso de NuSMV, representan las fórmulas booleanas resultantes del modelado usando \textit{Diagramas de decisión binaria ordenados (OBDD)}. Los OBDD permiten una eficiente y compacta representación de las funciones booleanas a diferencia de otras estructuras como las tablas de verdad o estructuras representando la forma normal conjuntiva.
+Podemos definir a los BDD como un subconjunto de grafos dirigidos acíclicos con las siguientes características:
+\begin{itemize}
+\item
+\item
+\end{itemize}
 
 
 
@@ -327,9 +331,9 @@ El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axi
 \item Ofrece clara evidencia del problema en el caso de encontrar que la propiedad deseada sobre el sistema no se cumpla.
 \end{itemize}
 
-Sin embargo model checking sufre del problema de explsi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe preservar la no satisfactibilidad de las propiedades a verificar, en el caso que esta exista. Como vemos este proceso de abstracci\'on y refinamiento requiere muchas veces de personal experto, y es una de las barreras a superar si se desea lograr que el model checking se convierta enteramente en una herramienta \text{``push-button''}.
+Sin embargo model checking sufre del problema de explsi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe preservar la no satisfactibilidad de las propiedades a verificar, en el caso que esta exista. Como vemos este proceso de abstracci\'on y refinamiento requiere muchas veces de personal experto, y es una de las barreras a superar si se desea lograr que el model checking se convierta enteramente en una herramienta \text{``push-button''}.\\
 
-Christel Baier y Joost-Pieter Katoen en su libro "Principles of model checking" \cite{baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema:
+Christel Baier y Joost-Pieter Katoen en su libro "Principles of model checking" \cite{Baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema:
 
 \begin{enumerate}
 \item Fase de modelado:
@@ -354,15 +358,23 @@ Ejecutar el model cheker para verificar la validez de una propiedad sobre el sis
 \end{enumerate}
 
 
-
-
 \begin{figure}[H]
   \centering
-    \includegraphics{Imagenes/ltsakripke.pdf}
-  \caption{}
+    \includegraphics{Imagenes/procesoMC4.pdf}
+  \caption{El proceso de Model Checking}
   \label{ltsakripke}
 \end{figure}
-~\\\\
+~\\
+
+
+En la fase de modelado podemos distinguir entonces por un lado el modelado del sistema y por otro la especificación de las propiedades. El modelado del sistema si bien algunas veces suele ser una simple compilación al lenguaje de modelado específico de la herramienta de model checkin, otras veces puede requerir depuración del modelo para eliminar características innecesarias que puedan ocasionar una explosión de estados a tal grado de agotarse la memoria. Por otro lado podemos destacar como asunto importante en la etapa de especificación de propiedades el hecho de lograr completitud sobre las características deseadas del sistema. Es decir que es esencial en esta etapa lograr expresar en las propiedades el conjunto completo de características que se desea que el sistema posea.\\
+
+La fase de ejecución usualmente es automática y solo consta de proveer al model checker con el modelado del sistema y la especificación de una propiedad para que el mismo decida sobre su validez.\\
+
+Por último, es en la fase de análisis donde podemos decidir ya sobre el resultado de la verificación. Se pueden presentar varios escenarios: por un lado puede que el proceso de verificación no se haya completado debido al agotamiento de memoria, en tal caso se deberá recurrir al refinamiento del sistema para conseguir disminuir la explosión de estados, o bien se deberá usar un equipo de mayor potencial en el caso de que ya no se logre llegar a un refinamiento significativo. Puede ser el caso de que todas las propiedades hayan sido validadas por el model checker, lo que indicaría que el modelo del sistema cumple con las características expresadas en la especificación de las propiedades. Por último puede suceder que una o mas propiedades hayan sido refutadas. En este usualmente un contraejemplo otorgado por la herramienta nos permite identificar el problema, el cual puede haber sido causado por una mal modelado del sistema, una falla en la especificación, o simplemente porque en efecto el sistema no cumple con la característica deseada.\\
+
+Es importante tomar en cuenta que el éxito de la verificación depende fuertemente de la correctitud en el modelado del sistema y la especificación de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto también puede ser causa de una especificación incompleta o errónea de las características a verificar.\\
+
 
 
 
@@ -562,6 +574,7 @@ London, England
 
 \bibitem{Clarke} Edmund M. Clarke, Orna Grumberg, David E. Long: Model checking. NATO ASI DPD 1996: 305-349
 
+\bibitem{Baier} Christel Baier and Joost-Pieter Katoen. 2008. Principles of Model Checking (Representation and Mind Series). The MIT Press.
 
 \end{thebibliography}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  17 DEC 2012 16:07
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  17 DEC 2012 20:11
 entering extended mode
  %&-line parsing enabled.
 **Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
@@ -158,7 +158,11 @@ Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
 \TX@cols=\count105
 \TX@ftn=\toks24
 )
-(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
+(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux
+
+LaTeX Warning: Label `ltsakripke' multiply defined.
+
+)
 \openout1 = `Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -173,8 +177,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
 LaTeX Font Info:    ... okay on input line 14.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
 LaTeX Font Info:    ... okay on input line 14.
-
-(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+ (/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count106
 \scratchdimen=\dimen122
@@ -429,38 +432,121 @@ ico para la ver-i-fi-caci^^Son de propiedades
 
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ± in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 330--331
+
+ []
+
 [25]
-
-LaTeX Warning: Citation `baier' on page 26 undefined on input line 332.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 341--343
 
  []
 
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ± in font cmr12!
-File: Imagenes/ltsakripke.pdf Graphic file (type pdf)
-<use Imagenes/ltsakripke.pdf>
-Overfull \hbox (11.49901pt too wide) in paragraph at lines 361--362
+<Imagenes/procesoMC4.pdf, id=98, 401.5pt x 301.125pt>
+File: Imagenes/procesoMC4.pdf Graphic file (type pdf)
+
+<use Imagenes/procesoMC4.pdf>
+Overfull \hbox (11.49901pt too wide) in paragraph at lines 359--360
  [][] 
  []
 
 [26]
-Underfull \hbox (badness 10000) in paragraph at lines 365--366
+Underfull \hbox (badness 10000) in paragraph at lines 363--364
 
  []
 
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
 
-Underfull \hbox (badness 10000) in paragraph at lines 365--366
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
 
  []
 
-[27] [28
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
 
-]
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
+
+ []
+
+[27 <./Imagenes/procesoMC4.pdf>]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 370--371
+
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 372--373
+
+ []
+
+[28]
 Cap\'{\i }tulo 4.
-[29] [30
+[29
+
+] [30
 
 ]
 Cap\'{\i }tulo 5.
@@ -483,18 +569,18 @@ Cap\'{\i }tulo 9.
 [39] [40
 
 ]
-Underfull \hbox (badness 2951) in paragraph at lines 542--544
+Underfull \hbox (badness 2951) in paragraph at lines 550--552
 []\OT1/cmr/m/n/12 NuSMV 2.5 Us-er Man-u-al. Rober-to Cava-da, Alessan-dro Cimat
 -
  []
 
 
-Underfull \hbox (badness 4229) in paragraph at lines 542--544
+Underfull \hbox (badness 4229) in paragraph at lines 550--552
 \OT1/cmr/m/n/12 ti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivet-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 542--544
+Underfull \hbox (badness 10000) in paragraph at lines 550--552
 \OT1/cmr/m/n/12 ti, Mar-co Pi-s-tore, Mar-co Roveri and An-drei Tchalt-sev.
  []
 
@@ -502,30 +588,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 542--544
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no „ in font cmr12!
 
-Underfull \hbox (badness 1881) in paragraph at lines 553--555
+Underfull \hbox (badness 1881) in paragraph at lines 561--563
 []\OT1/cmr/m/n/12 Fundamentals of Fault-Tolerant Dis-tribut-ed Com-put-ing in A
 syn-
  []
 
 
-Underfull \hbox (badness 1189) in paragraph at lines 558--559
+Underfull \hbox (badness 1189) in paragraph at lines 566--567
 []\OT1/cmr/m/n/12 Understanding fault tol-er-ant dis-tribut-ed sys-tems. Flavin
  Cris-tian.
  []
 
 [42] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
 
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2373 strings out of 495061
- 29159 string characters out of 1182621
- 93182 words of memory out of 3000000
- 5548 multiletter control sequences out of 15000+50000
+ 2378 strings out of 495061
+ 29284 string characters out of 1182621
+ 93226 words of memory out of 3000000
+ 5552 multiletter control sequences out of 15000+50000
  11946 words of font info for 42 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  27i,13n,27p,1162b,332s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -540,9 +623,9 @@ texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texli
 ve/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmti12.pfb>
 Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (42 p
-ages, 239799 bytes).
+ages, 274492 bytes).
 PDF statistics:
- 188 PDF objects out of 1000 (max. 8388607)
+ 190 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
