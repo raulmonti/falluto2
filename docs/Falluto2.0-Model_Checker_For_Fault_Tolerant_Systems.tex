@@ -10,6 +10,7 @@
 \usepackage{float} % para establecer posición de imágenes
 \usepackage{amsmath} % para etiquetar flechas
 \usepackage{tabularx}
+\usepackage{enumerate}
 
 \begin{document}
 
@@ -233,16 +234,42 @@ Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los
 
 
 
-\section{Representaci\'on de f\'ormulas l\'ogicas en BDD}
+\section{Representaci\'on de funciones booleanas en BDD}
 
-Muchos model checker, como es el caso de NuSMV, representan las fórmulas booleanas resultantes del modelado usando \textit{Diagramas de decisión binaria ordenados (OBDD)}. Los OBDD permiten una eficiente y compacta representación de las funciones booleanas a diferencia de otras estructuras como las tablas de verdad o estructuras representando la forma normal conjuntiva.
-Podemos definir a los BDD como un subconjunto de grafos dirigidos acíclicos con las siguientes características:
+Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representación de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como así también muchos otros model checkers, logra esta representación a partir de \textit{diagramas de búsqueda binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el cálculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
+
+Una función booleana de $n$ argumentos es una función $f : \{0,1\}^n \to \{0,1\}$. Podemos definir a los BDD como un subconjunto de grafos dirigidos acíclicos finitos con las siguientes características \cite{Huth}:
 \begin{itemize}
-\item
-\item
+\item Poseen un único nodo inicial (un único nodo al cual no llega ninguna arista).
+\item Todas sus hojas son etiquetadas ya sea con '0' o con '1'.
+\item Todos sus nodos que no son hojas están etiquetados con el nombre de una variable booleana.
+\item Cada nodo (excepto las hojas) posee dos aristas salientes hacia otros nodos del diagrama, una etiquetada con '0' y otra etiquetada con '1'.
 \end{itemize}
 
+Si B es un BDD entonces B define en sus hojas una única función booleana sobre las variables en sus nodos de la siguiente manera: arrancando por el nodo inicial y dada una valuación $V=(v_1,v_2,...,v_n)$ sobre el conjunto de variables en los nodos, si $v_i$ es $0$ entonces tomo la arista saliente etiquetada con `0', de lo contrario tomo la etiquetada con `1'. Repito este paso en cada nodo hasta llegar a un hoja. El valor de la hoja es el valor, para esa valuación, de la función booleana representada.
 
+Podemos reducir el tamaño de los BDD logrando una mejora de eficiencia en el espacio de memoria necesario para la representación de las funciones booleanas. Para ello usamos los siguientes tres métodos \cite{Huth}:
+\begin{enumerate}[R1--]
+\item \textbf{Remoción de terminales duplicados.} Si el BDD posee mas de un nodo terminal '0', entonces redirigimos todas las aristas apuntando a esos nodos a unos solo de ellos y eliminamos el resto. Hacemos lo mismo con los nodos terminales '1'.
+\item \textbf{Remoción de verificaciones innecesarias.} Si ambas aristas salientes de un nodo $n$ apuntan a un mismo nodo $m$ entonces eliminamos el nodo $n$ redirigiendo todas sus arista entrantes al nodo $m$.
+\item \textbf{Remoción de no terminales duplicados.} Si dos nodos no terminales $n$ y $m$ son raíces de subBDDs estructuralmente idénticos, entonces eliminamos uno de ellos y redirigimos todas sus aristas entrantes al otro.
+\end{enumerate}
+Estas reducciones no afectan la representación del BDD con respecto a la formula booleana original, y presenta una gran ventaja con respecto al espacio necesario para almacenar tablas de verdad por ejemplo. En la figura \ref{reduccionBDD} podemos ver un ejemplo de aplicación de estas reducciones. En la figura A vemos el BDD original, la figura B es el resultado de unificar las hojas según R1, la figura C es el resultado de eliminar uno de los nodos de etiqueta `y' tal como sugiere R3, y finalmente D es el resultado de aplicar la regla R2 eliminando el nodo de etiqueta `x'.
+
+%TODO demasiado tonto el ejemplo?
+\begin{figure}[H]
+  \centering
+    \includegraphics[scale=0.75]{Imagenes/reduccionBDD.pdf}
+  \caption{Reducción de un BDD según reglas R1,R2 y R3}
+  \label{reduccionBDD}
+\end{figure}
+~\\
+
+Si bien se logra con estas reglas reducir en gran proporción cierto conjunto de BDDs, otros BDDs no son tan susceptibles a ser reducidos de esta manera. Un efecto negativo visible en mucho de estos es la reutilización en sus nodos de una misma variable booleana, lo cual implica revisar el valor de aquellas mas de una vez. Otro defecto surge de que diferentes BDDs pueden representar una misma función booleana, por lo cual comparar la equidad de las funciones booleanas representados en BDDs requiere de mucho trabajo.
+
+Podemos evitar todas estas complicaciones usando un subconjunto de BDDs llamados \textit{diagramas de decisión binaria ordenados} (OBDD).
+
+%TODO ver qué hizo Pablo Dal Lago con esto, para ampliar la teoría de reducción.
 
 %..................................................................................................................................................................
 
@@ -575,6 +602,8 @@ London, England
 \bibitem{Clarke} Edmund M. Clarke, Orna Grumberg, David E. Long: Model checking. NATO ASI DPD 1996: 305-349
 
 \bibitem{Baier} Christel Baier and Joost-Pieter Katoen. 2008. Principles of Model Checking (Representation and Mind Series). The MIT Press.
+
+\bibitem{Huth} Michael R A Huth, Mark D Ryan. Logic in Computer Science, Modeling and reasoning about systems. Cambridge University Press. 2000.
 
 \end{thebibliography}
 

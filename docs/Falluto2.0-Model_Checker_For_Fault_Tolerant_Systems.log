@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  17 DEC 2012 20:11
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  18 DEC 2012 17:19
 entering extended mode
  %&-line parsing enabled.
 **Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
@@ -158,6 +158,10 @@ Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
 \TX@cols=\count105
 \TX@ftn=\toks24
 )
+(/usr/share/texmf-texlive/tex/latex/tools/enumerate.sty
+Package: enumerate 1999/03/05 v3.00 enumerate extensions (DPC)
+\@enLab=\toks25
+)
 (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux
 
 LaTeX Warning: Label `ltsakripke' multiply defined.
@@ -165,18 +169,18 @@ LaTeX Warning: Label `ltsakripke' multiply defined.
 )
 \openout1 = `Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
  (/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count106
@@ -184,11 +188,11 @@ LaTeX Font Info:    ... okay on input line 14.
 \scratchbox=\box30
 \nofMPsegments=\count107
 \nofMParguments=\count108
-\everyMPshowfont=\toks25
+\everyMPshowfont=\toks26
 \MPscratchCnt=\count109
 \MPscratchDim=\dimen123
 \MPnumerator=\count110
-\everyMPtoPDFconversion=\toks26
+\everyMPtoPDFconversion=\toks27
 ) [1
 
 
@@ -202,24 +206,24 @@ LaTeX Font Info:    ... okay on input line 14.
  [6]
 Cap\'{\i }tulo 1.
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--38
+Underfull \hbox (badness 10000) in paragraph at lines 38--39
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 39--41
+Underfull \hbox (badness 10000) in paragraph at lines 40--42
 
  []
 
 [7
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 42--45
+Underfull \hbox (badness 10000) in paragraph at lines 43--46
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 46--50
+Underfull \hbox (badness 10000) in paragraph at lines 47--51
 
  []
 
@@ -228,12 +232,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 46--50
 ]
 Cap\'{\i }tulo 2.
 
-Underfull \hbox (badness 10000) in paragraph at lines 82--83
+Underfull \hbox (badness 10000) in paragraph at lines 83--84
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 93--95
+Underfull \hbox (badness 10000) in paragraph at lines 94--96
 
  []
 
@@ -241,12 +245,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 93--95
 Underfull \vbox (badness 3271) has occurred while \output is active []
 
  [11]
-Underfull \hbox (badness 10000) in paragraph at lines 105--106
+Underfull \hbox (badness 10000) in paragraph at lines 106--107
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 107--108
+Underfull \hbox (badness 10000) in paragraph at lines 108--109
 
  []
 
@@ -255,17 +259,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 107--108
 ]
 Cap\'{\i }tulo 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 124--125
+Underfull \hbox (badness 10000) in paragraph at lines 125--126
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 126--127
+Underfull \hbox (badness 10000) in paragraph at lines 127--128
 
  []
 
 [15]
-Underfull \hbox (badness 10000) in paragraph at lines 151--153
+Underfull \hbox (badness 10000) in paragraph at lines 152--154
 
  []
 
@@ -276,12 +280,12 @@ File: Imagenes/prodYcons.pdf Graphic file (type pdf)
 Underfull \vbox (badness 2961) has occurred while \output is active []
 
  [16]
-Underfull \hbox (badness 10000) in paragraph at lines 163--164
+Underfull \hbox (badness 10000) in paragraph at lines 164--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 163--164
+Underfull \hbox (badness 10000) in paragraph at lines 164--165
 
  []
 
@@ -289,17 +293,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 163--164
 File: Imagenes/prodYconsSincro.pdf Graphic file (type pdf)
 
 <use Imagenes/prodYconsSincro.pdf>
-Overfull \hbox (11.49901pt too wide) in paragraph at lines 167--168
+Overfull \hbox (11.49901pt too wide) in paragraph at lines 168--169
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
 
  []
 
@@ -316,12 +320,12 @@ Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ­ in font cmr12!
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--175
+Underfull \hbox (badness 10000) in paragraph at lines 175--176
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 176--177
+Underfull \hbox (badness 10000) in paragraph at lines 177--178
 
  []
 
@@ -329,7 +333,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 176--177
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 
-Underfull \hbox (badness 10000) in paragraph at lines 185--186
+Underfull \hbox (badness 10000) in paragraph at lines 186--187
 
  []
 
@@ -339,93 +343,166 @@ Missing character: There is no ³ in font cmr12!
 File: Imagenes/ltsakripke.pdf Graphic file (type pdf)
 
 <use Imagenes/ltsakripke.pdf>
-Overfull \hbox (11.49901pt too wide) in paragraph at lines 199--200
+Overfull \hbox (11.49901pt too wide) in paragraph at lines 200--201
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 203--204
+Underfull \hbox (badness 10000) in paragraph at lines 204--205
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 203--204
+Underfull \hbox (badness 10000) in paragraph at lines 204--205
 
  []
 
 
-Overfull \hbox (19.91187pt too wide) in paragraph at lines 211--211
+Overfull \hbox (19.91187pt too wide) in paragraph at lines 212--212
 []\OT1/cmr/bx/n/17.28 De es-truc-turas de Krip-ke a f^^Sormu-las [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 212--213
+Underfull \hbox (badness 10000) in paragraph at lines 213--214
 
  []
 
 [19 <./Imagenes/ltsakripke.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 221--223
+Underfull \hbox (badness 10000) in paragraph at lines 222--224
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 224--225
+Underfull \hbox (badness 10000) in paragraph at lines 225--226
 
  []
 
 [20]
-Overfull \hbox (22.16385pt too wide) in paragraph at lines 236--236
-[]\OT1/cmr/bx/n/17.28 Representaci^^Son de f^^Sormu-las l^^Sogi-cas en BDD 
- []
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmti12!
+Missing character: There is no º in font cmti12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 250--251
+Underfull \hbox (badness 10000) in paragraph at lines 239--240
 
  []
 
 Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
 Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
 [21]
-Underfull \hbox (badness 10000) in paragraph at lines 261--262
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ± in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmbx12!
+Missing character: There is no ³ in font cmbx12!
+Missing character: There is no Ã in font cmbx12!
+Missing character: There is no ³ in font cmbx12!
+Missing character: There is no Ã in font cmbx12!
+Missing character: There is no ³ in font cmbx12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+ <Imagenes/reduccionBDD.pdf, id=84, 501.875pt x 200.75pt>
+File: Imagenes/reduccionBDD.pdf Graphic file (type pdf)
+
+<use Imagenes/reduccionBDD.pdf>
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+ [22]
+Underfull \hbox (badness 10000) in paragraph at lines 266--267
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--279
+
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+[23 <./Imagenes/reduccionBDD.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 289--290
 
  []
 
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no º in font cmr12!
 
-Underfull \hbox (badness 10000) in paragraph at lines 263--264
+Underfull \hbox (badness 10000) in paragraph at lines 291--292
 
  []
 
-[22]
-Underfull \hbox (badness 10000) in paragraph at lines 273--274
+[24]
+Underfull \hbox (badness 10000) in paragraph at lines 301--302
 
  []
 
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ­ in font cmr12!
-[23]
-Underfull \hbox (badness 10000) in paragraph at lines 295--296
+[25]
+Underfull \hbox (badness 10000) in paragraph at lines 323--324
 
  []
 
 (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd)
-Overfull \hbox (20.62506pt too wide) in paragraph at lines 304--304
+Overfull \hbox (20.62506pt too wide) in paragraph at lines 332--332
 []|$\OMS/cmsy/m/n/12 9[]\OML/cmm/m/it/12 s[]s[]s[]:::s[]:::[]R[]
  []
 
 
-Overfull \hbox (17.62482pt too wide) in paragraph at lines 304--305
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 332--333
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 315--317
+Underfull \hbox (badness 10000) in paragraph at lines 343--345
 
  []
 
-[24]
-Overfull \hbox (22.18277pt too wide) in paragraph at lines 318--319
+[26]
+Overfull \hbox (22.18277pt too wide) in paragraph at lines 346--347
 []\OT1/cmr/bx/n/12 Model check-ing \OT1/cmr/m/n/12 es un m^^Seto-do au-tom^^Sat
 ico para la ver-i-fi-caci^^Son de propiedades
  []
@@ -433,182 +510,182 @@ ico para la ver-i-fi-caci^^Son de propiedades
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ± in font cmr12!
 
-Underfull \hbox (badness 10000) in paragraph at lines 330--331
+Underfull \hbox (badness 10000) in paragraph at lines 358--359
 
  []
 
-[25]
-Underfull \hbox (badness 10000) in paragraph at lines 341--343
+[27]
+Underfull \hbox (badness 10000) in paragraph at lines 369--371
 
  []
 
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ± in font cmr12!
-<Imagenes/procesoMC4.pdf, id=98, 401.5pt x 301.125pt>
+<Imagenes/procesoMC4.pdf, id=106, 401.5pt x 301.125pt>
 File: Imagenes/procesoMC4.pdf Graphic file (type pdf)
 
 <use Imagenes/procesoMC4.pdf>
-Overfull \hbox (11.49901pt too wide) in paragraph at lines 359--360
+Overfull \hbox (11.49901pt too wide) in paragraph at lines 387--388
  [][] 
  []
 
-[26]
-Underfull \hbox (badness 10000) in paragraph at lines 363--364
-
- []
-
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-
-Underfull \hbox (badness 10000) in paragraph at lines 366--367
-
- []
-
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
-
- []
-
-[27 <./Imagenes/procesoMC4.pdf>]
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no º in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no º in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-
-Underfull \hbox (badness 10000) in paragraph at lines 370--371
-
- []
-
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-
-Underfull \hbox (badness 10000) in paragraph at lines 372--373
-
- []
-
 [28]
-Cap\'{\i }tulo 4.
-[29
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
 
-] [30
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 394--395
+
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+
+ []
+
+[29 <./Imagenes/procesoMC4.pdf>]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 398--399
+
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--401
+
+ []
+
+[30]
+Cap\'{\i }tulo 4.
+[31
+
+] [32
 
 ]
 Cap\'{\i }tulo 5.
-[31] [32
-
-]
-Cap\'{\i }tulo 6.
 [33] [34
 
 ]
-Cap\'{\i }tulo 7.
+Cap\'{\i }tulo 6.
 [35] [36
 
 ]
-Cap\'{\i }tulo 8.
+Cap\'{\i }tulo 7.
 [37] [38
 
 ]
-Cap\'{\i }tulo 9.
+Cap\'{\i }tulo 8.
 [39] [40
 
 ]
-Underfull \hbox (badness 2951) in paragraph at lines 550--552
+Cap\'{\i }tulo 9.
+[41] [42
+
+]
+Underfull \hbox (badness 2951) in paragraph at lines 578--580
 []\OT1/cmr/m/n/12 NuSMV 2.5 Us-er Man-u-al. Rober-to Cava-da, Alessan-dro Cimat
 -
  []
 
 
-Underfull \hbox (badness 4229) in paragraph at lines 550--552
+Underfull \hbox (badness 4229) in paragraph at lines 578--580
 \OT1/cmr/m/n/12 ti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivet-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 550--552
+Underfull \hbox (badness 10000) in paragraph at lines 578--580
 \OT1/cmr/m/n/12 ti, Mar-co Pi-s-tore, Mar-co Roveri and An-drei Tchalt-sev.
  []
 
-[41]
+[43]
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no „ in font cmr12!
 
-Underfull \hbox (badness 1881) in paragraph at lines 561--563
+Underfull \hbox (badness 1881) in paragraph at lines 589--591
 []\OT1/cmr/m/n/12 Fundamentals of Fault-Tolerant Dis-tribut-ed Com-put-ing in A
 syn-
  []
 
 
-Underfull \hbox (badness 1189) in paragraph at lines 566--567
+Underfull \hbox (badness 1189) in paragraph at lines 594--595
 []\OT1/cmr/m/n/12 Understanding fault tol-er-ant dis-tribut-ed sys-tems. Flavin
  Cris-tian.
  []
 
-[42] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
+[44] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2378 strings out of 495061
- 29284 string characters out of 1182621
- 93226 words of memory out of 3000000
- 5552 multiletter control sequences out of 15000+50000
+ 2404 strings out of 495061
+ 29701 string characters out of 1182621
+ 93598 words of memory out of 3000000
+ 5575 multiletter control sequences out of 15000+50000
  11946 words of font info for 42 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  27i,13n,27p,1162b,332s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -622,10 +699,10 @@ lic/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts
 texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texli
 ve/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmti12.pfb>
-Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (42 p
-ages, 274492 bytes).
+Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (44 p
+ages, 289081 bytes).
 PDF statistics:
- 190 PDF objects out of 1000 (max. 8388607)
+ 199 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

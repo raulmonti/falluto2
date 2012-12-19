@@ -9,22 +9,22 @@
 \contentsline {subsection}{\numberline {3.1.1}Labelled transition systems - LTS}{15}
 \contentsline {subsection}{\numberline {3.1.2}Estructuras de Kripke}{17}
 \contentsline {section}{\numberline {3.2}De estructuras de Kripke a f\'ormulas \text {l\'ogicas}}{19}
-\contentsline {section}{\numberline {3.3}Representaci\'on de f\'ormulas l\'ogicas en BDD}{21}
-\contentsline {section}{\numberline {3.4}L\'ogicas temporales}{21}
-\contentsline {subsection}{\numberline {3.4.1}LTL}{21}
-\contentsline {subsection}{\numberline {3.4.2}CTL}{23}
-\contentsline {section}{\numberline {3.5}Caracter\'isticas del Model Checking}{24}
-\contentsline {chapter}{\numberline {4}Casos de estudio}{29}
-\contentsline {section}{\numberline {4.1}Commit at\'omico}{29}
-\contentsline {section}{\numberline {4.2}Ej\'ercitos bizantinos ?}{29}
-\contentsline {section}{\numberline {4.3}Fil\'osofos comensales ?}{29}
-\contentsline {section}{\numberline {4.4}Falla bizantina ?}{29}
-\contentsline {section}{\numberline {4.5}Elecci\'on de lider ?}{29}
-\contentsline {section}{\numberline {4.6}Protocolos lamport}{29}
-\contentsline {section}{\numberline {4.7}Feedback de contacto de Naza}{29}
-\contentsline {section}{\numberline {4.8}Red satelital ultra secreta?}{29}
-\contentsline {chapter}{\numberline {5}Conclusi\'on}{31}
-\contentsline {chapter}{\numberline {6}Ap\'endice A - Manual de Falluto2.0}{33}
-\contentsline {chapter}{\numberline {7}Ap\'endice B - Sint\'axis formal de Falluto2.0}{35}
-\contentsline {chapter}{\numberline {8}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{37}
-\contentsline {chapter}{\numberline {9}extra}{39}
+\contentsline {section}{\numberline {3.3}Representaci\'on de funciones booleanas en BDD}{21}
+\contentsline {section}{\numberline {3.4}L\'ogicas temporales}{23}
+\contentsline {subsection}{\numberline {3.4.1}LTL}{23}
+\contentsline {subsection}{\numberline {3.4.2}CTL}{25}
+\contentsline {section}{\numberline {3.5}Caracter\'isticas del Model Checking}{26}
+\contentsline {chapter}{\numberline {4}Casos de estudio}{31}
+\contentsline {section}{\numberline {4.1}Commit at\'omico}{31}
+\contentsline {section}{\numberline {4.2}Ej\'ercitos bizantinos ?}{31}
+\contentsline {section}{\numberline {4.3}Fil\'osofos comensales ?}{31}
+\contentsline {section}{\numberline {4.4}Falla bizantina ?}{31}
+\contentsline {section}{\numberline {4.5}Elecci\'on de lider ?}{31}
+\contentsline {section}{\numberline {4.6}Protocolos lamport}{31}
+\contentsline {section}{\numberline {4.7}Feedback de contacto de Naza}{31}
+\contentsline {section}{\numberline {4.8}Red satelital ultra secreta?}{31}
+\contentsline {chapter}{\numberline {5}Conclusi\'on}{33}
+\contentsline {chapter}{\numberline {6}Ap\'endice A - Manual de Falluto2.0}{35}
+\contentsline {chapter}{\numberline {7}Ap\'endice B - Sint\'axis formal de Falluto2.0}{37}
+\contentsline {chapter}{\numberline {8}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{39}
+\contentsline {chapter}{\numberline {9}extra}{41}
