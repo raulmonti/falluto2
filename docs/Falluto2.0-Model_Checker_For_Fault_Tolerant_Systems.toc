@@ -10,21 +10,26 @@
 \contentsline {subsection}{\numberline {3.1.2}Estructuras de Kripke}{17}
 \contentsline {section}{\numberline {3.2}De estructuras de Kripke a f\'ormulas \text {l\'ogicas}}{19}
 \contentsline {section}{\numberline {3.3}Representaci\'on de funciones booleanas en BDD}{21}
-\contentsline {section}{\numberline {3.4}L\'ogicas temporales}{23}
-\contentsline {subsection}{\numberline {3.4.1}LTL}{23}
-\contentsline {subsection}{\numberline {3.4.2}CTL}{25}
-\contentsline {section}{\numberline {3.5}Caracter\'isticas del Model Checking}{26}
-\contentsline {chapter}{\numberline {4}Casos de estudio}{31}
-\contentsline {section}{\numberline {4.1}Commit at\'omico}{31}
-\contentsline {section}{\numberline {4.2}Ej\'ercitos bizantinos ?}{31}
-\contentsline {section}{\numberline {4.3}Fil\'osofos comensales ?}{31}
-\contentsline {section}{\numberline {4.4}Falla bizantina ?}{31}
-\contentsline {section}{\numberline {4.5}Elecci\'on de lider ?}{31}
-\contentsline {section}{\numberline {4.6}Protocolos lamport}{31}
-\contentsline {section}{\numberline {4.7}Feedback de contacto de Naza}{31}
-\contentsline {section}{\numberline {4.8}Red satelital ultra secreta?}{31}
-\contentsline {chapter}{\numberline {5}Conclusi\'on}{33}
-\contentsline {chapter}{\numberline {6}Ap\'endice A - Manual de Falluto2.0}{35}
-\contentsline {chapter}{\numberline {7}Ap\'endice B - Sint\'axis formal de Falluto2.0}{37}
-\contentsline {chapter}{\numberline {8}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{39}
-\contentsline {chapter}{\numberline {9}extra}{41}
+\contentsline {section}{\numberline {3.4}L\'ogicas temporales}{26}
+\contentsline {subsection}{\numberline {3.4.1}LTL}{26}
+\contentsline {subsection}{\numberline {3.4.2}CTL}{28}
+\contentsline {section}{\numberline {3.5}Caracter\'isticas del Model Checking}{29}
+\contentsline {chapter}{\numberline {4}NuSMV}{35}
+\contentsline {section}{\numberline {4.1}El model checker NuSMV}{35}
+\contentsline {section}{\numberline {4.2}Lenguaje de modelado de NuSMV}{36}
+\contentsline {chapter}{\numberline {5}La sintaxis de Falluto2.0}{41}
+\contentsline {section}{\numberline {5.1}Lenguaje de modelado de comportamiento operacional}{41}
+\contentsline {chapter}{\numberline {6}Casos de estudio}{45}
+\contentsline {section}{\numberline {6.1}Commit at\'omico}{45}
+\contentsline {section}{\numberline {6.2}Ej\'ercitos bizantinos ?}{45}
+\contentsline {section}{\numberline {6.3}Fil\'osofos comensales ?}{45}
+\contentsline {section}{\numberline {6.4}Falla bizantina ?}{45}
+\contentsline {section}{\numberline {6.5}Elecci\'on de lider ?}{45}
+\contentsline {section}{\numberline {6.6}Protocolos lamport}{45}
+\contentsline {section}{\numberline {6.7}Feedback de contacto de Naza}{45}
+\contentsline {section}{\numberline {6.8}Red satelital ultra secreta?}{45}
+\contentsline {chapter}{\numberline {7}Conclusi\'on}{47}
+\contentsline {chapter}{\numberline {8}Ap\'endice A - Manual de Falluto2.0}{49}
+\contentsline {chapter}{\numberline {9}Ap\'endice B - Sint\'axis formal de Falluto2.0}{51}
+\contentsline {chapter}{\numberline {10}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{53}
+\contentsline {chapter}{\numberline {11}extra}{55}

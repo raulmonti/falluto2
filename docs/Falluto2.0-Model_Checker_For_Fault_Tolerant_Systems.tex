@@ -6,8 +6,8 @@
 \author{Raul Monti}
 \date{Diciembre 2012}
 
-\usepackage{graphicx} %para poner imágenes
-\usepackage{float} % para establecer posición de imágenes
+\usepackage{graphicx} %para poner im\'agenes
+\usepackage{float} % para establecer posici\'on de im\'agenes
 \usepackage{amsmath} % para etiquetar flechas
 \usepackage{tabularx}
 \usepackage{enumerate}
@@ -92,7 +92,7 @@ Una definici\'on ligeramente m\'as formal nos sugiere definir el termino 'falla'
 
 \section{Sistemas tolerantes a fallas}
 Existen sistemas dise\~nados para ser tolerantes a fallas: ellos o bien exhiben un bien definido comportamiento ante fallas cuando estas ocurren, o bien enmascaran la falla de la componente al usuario, es decir contin\'uan proveyendo su servicio est\'andar especificado a pesar de la ocurrencia de las fallas en la componente\cite{Cristian}.
-Podemos entonces decir de manera vaga que la tolerancia a fallas es la habilidad que posee un sistema de comportarse de una manera bien definida ante la ocurrencia de una falla. En el momento de dise\~nar la tolerancia a fallas, un primer prerrequisito es especificar la clase de falla que ser\'a tolerada. Tradicionalmente esto se lograba usando como base alguno de los modelos de fallas est\'andares (crash, fail-stop, etc...), sin embargo puede hacerse de manera mas concisa especificando clases de fallas. El siguiente paso es enriquecer el sistema bajo consideraci\'on con componentes o conceptos que provean protecci\'on contra las fallas de una clase espec\'ifica\cite{FaultInject}.\\
+Podemos entonces decir de manera vaga que la tolerancia a fallas es la habilidad que posee un sistema de comportarse de una manera bien definida ante la ocurrencia de una falla. En el momento de dise\~nar la tolerancia a fallas, un primer prerrequisito es especificar la clase de falla que ser\'a tolerada. Tradicionalmente esto se lograba usando como base alguno de los modelos de fallas est\'andares (crash, fail-stop, etc...), sin embargo puede hacerse de manera m\'as concisa especificando clases de fallas. El siguiente paso es enriquecer el sistema bajo consideraci\'on con componentes o conceptos que provean protecci\'on contra las fallas de una clase espec\'ifica\cite{FaultInject}.\\
 
 En este trabajo podremos distinguir dos clases de fallas en particular. Un primer grupo de fallas es de tipo \textbf{permanente}: \'estas com\'unmente representan fallas reales causadas por problemas irreversibles en la componente. Una vez que una falla permanente ocurre, permanece activa y afectando al sistema durante el resto de su ejecuci\'on. Por otro lado, un segundo grupo de fallas se caracteriza por ser de duraci\'on instant\'anea. Afectan el estado del sistema en los puntos particulares de se ejecuci\'on en los cuales estas fallas ocurren, sin tener efectos permanentes sobre el mismo. Las mismas pueden repetirse indefinidamente durante la ejecuci\'on del sistema, permaneciendo activas solo en el momento en que afectan al sistema. Diremos que estas fallas son de clase \textbf{transient}.
 
@@ -122,7 +122,7 @@ Por \'ultimo, nos ocuparemos del modelado del sistema en general y nos centrarem
 
 \chapter{Model Checking}
 
-En el dise\~no de software y hardware de sistemas complejos, se consume mas tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, para proveer de t\'ecnicas de verificaci\'on mas afectivas y reducir el tiempo invertido en aplicarlas\cite{prinMC}.\\
+En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas\cite{prinMC}.\\
 
 El \textbf{Model Checking} es un m\'etodo formal para la verificaci\'on exhaustiva de sistemas finitos. Logra esta verificaci\'on explorando todos los estados posibles del sistema con la intenci\'on de verificar la veracidad de una propiedad sobre el mismo.\\
 
@@ -172,7 +172,7 @@ En particular nos interesa para este trabajo la capacidad que nos otorga este fo
 ~\\\\
 
 \subsection{Estructuras de Kripke}
-En model checking usamos un tipo de grafos de transición de estados llamados \textit{Structuras de Kripke} para intuitivamente captar el comportamiento del sistema a modelar. Una \textit{estructura de Kripke} consiste en un conjunto de estados, un conjunto de transiciones entre esos estados, y una función que etiqueta cada estado con un conjunto de propiedades que son verdaderas en este estado. Los caminos en estas estructuras modelan la ejecución del sistema\cite{Clarke}. Estas estructuras son lo suficientemente expresivas como para captar aspectos de lógicas temporales tales como (LTL y CTL) que interesan a la verificación de sistemas vía model checking.\\
+En model checking usamos un tipo de grafos de transici\'on de estados llamados \textit{Structuras de Kripke} para intuitivamente captar el comportamiento del sistema a modelar. Una \textit{estructura de Kripke} consiste en un conjunto de estados, un conjunto de transiciones entre esos estados, y una funci\'on que etiqueta cada estado con un conjunto de propiedades que son verdaderas en este estado. Los caminos en estas estructuras modelan la ejecuci\'on del sistema\cite{Clarke}. Estas estructuras son lo suficientemente expresivas como para captar aspectos de l\'ogicas temporales tales como (LTL y CTL) que interesan a la verificaci\'on de sistemas v\'ia model checking.\\
 
 Formalmente podemos definir una estructura de Kripke como sigue\cite{Clarke}:\\
 
@@ -181,11 +181,11 @@ Sea AP un conjunto de proposiciones at\'omicas. Una estructura de Kripke M sobre
 \item S es un conjunto finito de estados.
 \item $S_0$ $\subseteq$ S es un conjunto de estados inciales.
 \item R $\subseteq$ S x S es una relaci\'on de transici\'on que debe ser total, es decir, para cada estado s $\in$ S hay un estado s' $\in$ S tal que R(s,s').
-\item L : S x $2^{AP}$ es una funci\'on que etiqueta cada estado con el conjunto de proposiciones atómicas verdaderas en ese estado.
+\item L : S x $2^{AP}$ es una funci\'on que etiqueta cada estado con el conjunto de proposiciones at\'omicas verdaderas en ese estado.
 \end{enumerate}
 Una ejecuci\'on del sistema desde un estado s es representado en la estructura M como una secuencia infinita $\pi = s_0s_1s_2...$ tal que $s_0$ = s y $R(s_i,s_{i+1})$ vale para todo i $\geq$ 0.\\
 
-Notemos que podemos traducir la representación LTS de un sistema a una representaci\'on en Estructuras de Kripke equivalente de la siguiente manera. Sea $M_1 = (S_1, S_{1_0} R_1, L_1)$ un sistema descripto en LTS, entonces construimos su descripci\'on $M_2 = (S_2,S_{2_0},R_2,L_2)$ en t\'erminos de estructuras de Kripke sobre AP de la siguiente manera:
+Notemos que podemos traducir la representaci\'on LTS de un sistema a una representaci\'on en Estructuras de Kripke equivalente de la siguiente manera. Sea $M_1 = (S_1, S_{1_0} R_1, L_1)$ un sistema descripto en LTS, entonces construimos su descripci\'on $M_2 = (S_2,S_{2_0},R_2,L_2)$ en t\'erminos de estructuras de Kripke sobre AP de la siguiente manera:
 \begin{itemize}
 \item $ AP = \{action = e ~|~ e \in L_1 \cup \{null\}\} $
 \item $ S_2 = S_1 \times (L_1 \cup \{null\}) $
@@ -236,40 +236,75 @@ Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los
 
 \section{Representaci\'on de funciones booleanas en BDD}
 
-Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representación de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como así también muchos otros model checkers, logra esta representación a partir de \textit{diagramas de búsqueda binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el cálculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
+Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representaci\'on de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como as\'i tambi\'en muchos otros model checkers, logra esta representaci\'on a partir de \textit{diagramas de b\'usqueda binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el c\'alculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
 
-Una función booleana de $n$ argumentos es una función $f : \{0,1\}^n \to \{0,1\}$. Podemos definir a los BDD como un subconjunto de grafos dirigidos acíclicos finitos con las siguientes características \cite{Huth}:
+Una funci\'on booleana de $n$ argumentos es una funci\'on $f : \{0,1\}^n \to \{0,1\}$. Podemos definir a los BDD como un subconjunto de grafos dirigidos ac\'iclicos finitos con las siguientes caracter\'isticas \cite{Huth}:
 \begin{itemize}
-\item Poseen un único nodo inicial (un único nodo al cual no llega ninguna arista).
+\item Poseen un \'unico nodo inicial (un \'unico nodo al cual no llega ninguna arista).
 \item Todas sus hojas son etiquetadas ya sea con '0' o con '1'.
-\item Todos sus nodos que no son hojas están etiquetados con el nombre de una variable booleana.
+\item Todos sus nodos que no son hojas est\'an etiquetados con el nombre de una variable booleana.
 \item Cada nodo (excepto las hojas) posee dos aristas salientes hacia otros nodos del diagrama, una etiquetada con '0' y otra etiquetada con '1'.
 \end{itemize}
 
-Si B es un BDD entonces B define en sus hojas una única función booleana sobre las variables en sus nodos de la siguiente manera: arrancando por el nodo inicial y dada una valuación $V=(v_1,v_2,...,v_n)$ sobre el conjunto de variables en los nodos, si $v_i$ es $0$ entonces tomo la arista saliente etiquetada con `0', de lo contrario tomo la etiquetada con `1'. Repito este paso en cada nodo hasta llegar a un hoja. El valor de la hoja es el valor, para esa valuación, de la función booleana representada.
+Si B es un BDD entonces B define en sus hojas una \'unica funci\'on booleana sobre las variables en sus nodos de la siguiente manera: arrancando por el nodo inicial y dada una valuaci\'on $V=(v_1,v_2,...,v_n)$ sobre el conjunto de variables en los nodos, si $v_i$ es $0$ entonces tomo la arista saliente etiquetada con `0', de lo contrario tomo la etiquetada con `1'. Repito este paso en cada nodo hasta llegar a un hoja. El valor de la hoja es el valor, para esa valuaci\'on, de la funci\'on booleana representada.
 
-Podemos reducir el tamaño de los BDD logrando una mejora de eficiencia en el espacio de memoria necesario para la representación de las funciones booleanas. Para ello usamos los siguientes tres métodos \cite{Huth}:
+Podemos reducir el tama\~no de los BDD logrando una mejora de eficiencia en el espacio de memoria necesario para la representaci\'on de las funciones booleanas. Para ello usamos los siguientes tres m\'etodos \cite{Huth}:
 \begin{enumerate}[R1--]
-\item \textbf{Remoción de terminales duplicados.} Si el BDD posee mas de un nodo terminal '0', entonces redirigimos todas las aristas apuntando a esos nodos a unos solo de ellos y eliminamos el resto. Hacemos lo mismo con los nodos terminales '1'.
-\item \textbf{Remoción de verificaciones innecesarias.} Si ambas aristas salientes de un nodo $n$ apuntan a un mismo nodo $m$ entonces eliminamos el nodo $n$ redirigiendo todas sus arista entrantes al nodo $m$.
-\item \textbf{Remoción de no terminales duplicados.} Si dos nodos no terminales $n$ y $m$ son raíces de subBDDs estructuralmente idénticos, entonces eliminamos uno de ellos y redirigimos todas sus aristas entrantes al otro.
+\item \textbf{Remoci\'on de terminales duplicados.} Si el BDD posee m\'as de un nodo terminal '0', entonces redirigimos todas las aristas apuntando a esos nodos a unos solo de ellos y eliminamos el resto. Hacemos lo mismo con los nodos terminales '1'.
+\item \textbf{Remoci\'on de verificaciones innecesarias.} Si ambas aristas salientes de un nodo $n$ apuntan a un mismo nodo $m$ entonces eliminamos el nodo $n$ redirigiendo todas sus arista entrantes al nodo $m$.
+\item \textbf{Remoci\'on de no terminales duplicados.} Si dos nodos no terminales $n$ y $m$ son ra\'ices de subBDDs estructuralmente id\'enticos, entonces eliminamos uno de ellos y redirigimos todas sus aristas entrantes al otro.
 \end{enumerate}
-Estas reducciones no afectan la representación del BDD con respecto a la formula booleana original, y presenta una gran ventaja con respecto al espacio necesario para almacenar tablas de verdad por ejemplo. En la figura \ref{reduccionBDD} podemos ver un ejemplo de aplicación de estas reducciones. En la figura A vemos el BDD original, la figura B es el resultado de unificar las hojas según R1, la figura C es el resultado de eliminar uno de los nodos de etiqueta `y' tal como sugiere R3, y finalmente D es el resultado de aplicar la regla R2 eliminando el nodo de etiqueta `x'.
+Estas reducciones no afectan la representaci\'on del BDD con respecto a la formula booleana original, y presenta una gran ventaja con respecto al espacio necesario para almacenar tablas de verdad por ejemplo. En la figura \ref{reduccionBDD} podemos ver un ejemplo de aplicaci\'on de estas reducciones. En la figura A vemos el BDD original, la figura B es el resultado de unificar las hojas seg\'un R1, la figura C es el resultado de eliminar uno de los nodos de etiqueta `y' tal como sugiere R3, y finalmente D es el resultado de aplicar la regla R2 eliminando el nodo de etiqueta `x'.
 
 %TODO demasiado tonto el ejemplo?
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.75]{Imagenes/reduccionBDD.pdf}
-  \caption{Reducción de un BDD según reglas R1,R2 y R3}
+  \caption{Reducci\'on de un BDD seg\'un reglas R1,R2 y R3}
   \label{reduccionBDD}
 \end{figure}
 ~\\
 
-Si bien se logra con estas reglas reducir en gran proporción cierto conjunto de BDDs, otros BDDs no son tan susceptibles a ser reducidos de esta manera. Un efecto negativo visible en mucho de estos es la reutilización en sus nodos de una misma variable booleana, lo cual implica revisar el valor de aquellas mas de una vez. Otro defecto surge de que diferentes BDDs pueden representar una misma función booleana, por lo cual comparar la equidad de las funciones booleanas representados en BDDs requiere de mucho trabajo.
+Si bien se logra con estas reglas reducir en gran proporci\'on cierto conjunto de BDDs, otros BDDs no son tan susceptibles a ser reducidos de esta manera. Un efecto negativo visible en mucho de estos es la reutilizaci\'on en sus nodos de una misma variable booleana, lo cual implica revisar el valor de aquellas m\'as de una vez. Otro defecto surge de que diferentes BDDs pueden representar una misma funci\'on booleana, por lo cual comparar la equidad de las funciones booleanas representadas en BDDs requiere de mucho trabajo.\\
 
-Podemos evitar todas estas complicaciones usando un subconjunto de BDDs llamados \textit{diagramas de decisión binaria ordenados} (OBDD).
+Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs llamados \textit{diagramas de decisi\'on binaria ordenados} (OBDD). Los OBDD imponen un orden sobre la aparici\'on de las variables en sus nodos, evitando de este modo los BDDs con m\'as de una aparici\'on de la misma variables. Podemos dar la siguiente definici\'on de un OBDD\cite{Huth}:\\
 
-%TODO ver qué hizo Pablo Dal Lago con esto, para ampliar la teoría de reducción.
+\textit{Sea $[x_1,x_2,...,x_n]$ una lista ordenada de variables sin duplicados y sea B un BDD cuyas variables pertenecen a la lista. Decimos que B tiene el ordenamiento $[x_1,x_2,...,x_n]$ si todas las variables en los nodos de B ocurren en la lista, y para cada ocurrencia de $x_i$ seguida de $x_j$ en cualquier camino sobre B, pasa que $i < j$. Decimos entonces que un OBDD es un BDD que posee un orden para alguna lista de variables.}\\
+
+Notemos que como corolario de la definici\'on obtenemos que una variable no puede ocurrir m\'as de una vez en el OBDD. Estos diagramas poseen adem\'as la cualidad de que para cada funci\'on booleana y orden de variables existe un \'unico OBDD reducido que la representa. Osea que si $B_1$ y $B_2$ son dos OBDD reducidos con orden de variables compatible que representan a la funci\'on booleana f entonces $B_1$ y $B_2$ son id\'enticos. Esto lleva a que la comparaci\'on de equidad entre los mismos se reduzca a una simple comparaci\'on entre sus nodos.
+Cuando no podemos seguir reduciendo un OBDD seg\'un las reglas R1, R2 y R3, decimos que est\'a en su forma can\'onica. Son de inter\'es especial las formas can\'onicas de la figura \ref{canonicos} debido a que nos permiten identificar las siguientes situaciones:
+\begin{itemize}
+\item \textbf{Validez de una funci\'on:} podemos verificar validez de una funci\'on booleana (verificar si la funci\'on siempre computa 1) de la siguiente manera: reducimos su OBDD a su forma can\'onica, si el resultado de la reducci\'on es $B_1$ entonces la funci\'on es v\'alida.
+\item \textbf{Implicaci\'on:} podemos verificar si la funci\'on $f(x_1,x_2,...,x_n)$ implica la funci\'on $g(x_1,x_2,...,x_n)$ (es decir si f computa 1 entonces g tambi\'en) reduciendo el OBDD obtenido como $f \wedge \neg g$. Si el OBDD can\'onico es distinto de $B_0$ entonces la implicancia es verdadera.
+\item \textbf{Satisfactibilidad:} podemos verificar satisfactibilidad de una funci\'on $f(x_1,x_2,...,x_n)$ (es decir si f computa 1 para alguna asignaci\'on de ceros y unos a sus variables) reduciendo su OBDD a forma can\'onica y verificando que \'esta no sea $B_0$
+\end{itemize}
+
+El orden de variables elegido toma vital importancia, ya que de \'el depende el tama\~no del OBDD. Existen algoritmos que logran un ordenamiento inteligente de las variables para mantener acotado el tama\~no de almacenamiento necesario para el OBDD. As\'i tambi\'en existen algoritmos que hacen eficiente la reducci\'on de OBDDs a su OBDD can\'onico, como tambi\'en algoritmos que permiten computar conjunci\'on, disyunci\'on y negaci\'on de OBDDs con considerable eficiencia.\\
+
+
+\begin{figure}
+  \centering
+    \includegraphics{Imagenes/canonicos.pdf}
+  \caption{OBDDs can\'onicos de relevancia}
+  \label{canonicos}
+\end{figure}
+~\\
+
+
+El uso de BDDs produjo un gran salto en el model checking llevando en principios de los noventa a lograr verificar sistemas con espacios de estados mucho m\'as grandes que con m\'etodos anteriores. El model checking usando OBDDs es llamado \textbf{Model Checking Simb\'olico} y debe su nombre a que sugiere no representar cada estado por separado, sino que se representa en los OBDDs conjuntos de estados de manera simb\'olica, m\'as precisamente a aquellos estados que cumplen con la propiedad que esta siendo verificada.Veamos ahora como representar estos conjuntos de estados en OBDDs y como representar la relaci\'on de transici\'on entre ellos:
+
+Recordemos que en nuestro modelo de sistema como estructura de Kripke hab\'iamos definido un conjunto de proposiciones at\'omicas sobre las variables del sistema, que represent\'abamos a cada estado como una valuaci\'on sobre las variables del sistema, y que la funci\'on de etiquetado L nos proporcionaba el subconjunto de AP que era v\'alido en cada estado. Tomaremos la primicia de que poseemos un orden sobre las proposiciones en AP dado como $(x_1,x_2,...,x_n)$ y representaremos ahora cada estado $s$ como un vector $(v_1,v_2,...,v_3)$ donde cada $v_i \in {0,1}$ y $v_i = 1$ si y solo si $x_i \in L(s)$. Vemos entonces que los estados son representados por la funci\'on caracter\'istica inducida por $L$. Es decir, la funci\'on booleana que representa un estado es aquella que valuada en $(v_1,v_2,...,v_3)$ computa el valor 1, y para cualquier otro valuaci\'on de sus variables computa el valor 0. En t\'erminos de OBDDs, el OBDD que representa al estado s es aquel que representa la funci\'on booleana : $$l_1 \wedge l_2 \wedge ... \wedge l_n$$ donde $l_i$ es $x_i$ si $x_i \in L(s)$ y $\neg x_i$ de lo contrario. Luego para un conjunto de estados $S = {s_1, s_2, ..., s_m}$ la representaci\'on en OBDD esta dada por aquel que representa a la funci\'on booleana $$(l_{11} \wedge l_{12} \wedge ... \wedge l_{1n}) \vee (l_{21} \wedge l_{22} \wedge ... \wedge l_{2n}) \vee ... \vee (l_{m1} \wedge l_{m2} \wedge ... \wedge l_{mn})$$ donde $(l_{i1} \wedge l_{i2} \wedge ... \wedge l_{in})$ representa al estado $x_i$.\\
+
+Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subconjunto sobre $S\times S$. De nuevo podemos inducir la funci\'on booleana representante a partir de la funci\'on de etiquetado $L$. De este modo una relaci\'on $s\rightarrow s'$ en $R$ es representada por los vectores $(v_1,v_2,...,v_n),(v'_1,v'_2,...,v'_n)$, donde $v_i = 1$ si $p_i \in L(s)$ y 0 de lo contrario, y $v'_i = 1$ si $p_i \in L(s')$ y 0 de lo contrario. En t\'erminos de OBDD, representamos la relaci\'on con el OBDD para la funci\'on booleana $$(l_1,l_2,...,l_n) \wedge (l'_1,l'_2,...,l'_n)$$ y el conjunto representando el total de la relaci\'on $R$ se logra a partir de la conjunci\'on de cada una de estas f\'ormulas.
+
+
+
+
+
+
+
+
+%TODO ver qu\'e hizo Pablo Dal Lago con esto, para ampliar la teor\'ia de reducci\'on.
 
 %..................................................................................................................................................................
 
@@ -281,7 +316,7 @@ Podemos evitar todas estas complicaciones usando un subconjunto de BDDs llamados
 Las l\'ogicas temporales son sistemas de reglas y s\'imbolos que nos permiten describir y razonar sobre proposiciones en t\'erminos del tiempo. En el caso del model checking, son de gran utilidad para la especificaci\'on de las propiedades a verificar sobre el modelo del sistema. A continuaci\'on presentaremos dos l\'ogicas temporales de inter\'es para este trabajo. Ambas l\'ogicas difieren en expresividad, por lo que hacer uso de las dos nos permite una mayor versatilidad al momento de especificar las propiedades deseadas.\\
 
 \subsection{LTL}
-La \textbf{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecuciones lineales a trav\'es del tiempo. En cada instante de tiempo solo existe una \'unica ejecuci\'on real a realizarse. Comúnmente esta ejecuci\'on de la que hablamos comienza en este momento y se extiende al infinito. El tiempo es discreto y podemos realizar un paralelismo entre el salto de un momento al otro y cada paso en la ejecuci\'on del sistema que se analice. As\'i, cada momento representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas AP, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales G, F, X, U, R. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es \textbf{G}lobally, \textbf{F}inally, Ne\textbf{X}t, \textbf{U}ntil y \textbf{R}elease.\\ A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
+La \textbf{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecuciones lineales a trav\'es del tiempo. En cada instante de tiempo solo existe una \'unica ejecuci\'on real a realizarse. Com\'unmente esta ejecuci\'on de la que hablamos comienza en este momento y se extiende al infinito. El tiempo es discreto y podemos realizar un paralelismo entre el salto de un momento al otro y cada paso en la ejecuci\'on del sistema que se analice. As\'i, cada momento representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas AP, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales G, F, X, U, R. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es \textbf{G}lobally, \textbf{F}inally, Ne\textbf{X}t, \textbf{U}ntil y \textbf{R}elease.\\ A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
 \begin{itemize}
 \item G $\phi$ expresa que en todo momento vale $\phi$.
 \item F $\phi$ expresa que $\phi$ se cumple en elg\'un momento.
@@ -291,7 +326,7 @@ La \textbf{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecucione
 \end{itemize}
 Usando LTL podemos expresar propiedades de \textit{safety} y \textit{liveness} de nuestro sistema de manera sencilla. Por ejemplo para expresar \textit{En alg\'un momento algo bueno suceder\'a} usamos  \textbf{F} 'algoBueno', o para expresar \textit{En ning\'un momento algo malo sucede} usar\'iamos \textbf{G} $\neg$ 'algoMalo'.\\
 
-Es común interpretar las f\'ormulas LTL sobre estructuras de Kripke. Una f\'ormula LTL puede ser satisfecha por una serie infinita de valuaciones sobre AP. Podemos ver a esta serie infinita como una palabra sobre una ejecuci\'on sobre una estructura de Kripke. De este modo si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke M, basta con ver que el lenguaje de M (todas las palabras posibles en M) satisfagan $\phi$. Definimos la sem\'antica de formulas LTL como sigue:\\
+Es com\'un interpretar las f\'ormulas LTL sobre estructuras de Kripke. Una f\'ormula LTL puede ser satisfecha por una serie infinita de valuaciones sobre AP. Podemos ver a esta serie infinita como una palabra sobre una ejecuci\'on sobre una estructura de Kripke. De este modo si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke M, basta con ver que el lenguaje de M (todas las palabras posibles en M) satisfagan $\phi$. Definimos la sem\'antica de formulas LTL como sigue:\\
 
 Sea la palabra $\omega$ = $s_1s_2s_3...$ de valuaciones en AP. Definimos la relaci\'on de satisfactibilidad $\models$ de una formula LTL con respecto a la palabra $\omega$ a partir de las siguientes reglas:
 \begin{itemize}
@@ -312,7 +347,7 @@ Muchas veces es de inter\'es en model checking definir propiedades bajo \textbf{
 
 
 \subsection{CTL}
-A diferencia de LTL, en la \textbf{L\'ogica de \'Arbol Computacional (CTL)} no existe en cada momento un \'unico camino a seguir. CTL es una l\'ogica de tiempo ramificado, en cada momento consideramos todos los posibles saltos hacia un estado posterior, y por lo tanto consideramos diferentes ejecuciones como posibles a realizarse en el futuro. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores \textbf{A} (para todo camino) y \textbf{E} (existe un camino). A su vez establece la regla de estar obligado a usar estos cuantificadores delante de cada conectivo temporal, definiendo as\'i f\'ormulas sobre estados y no sobre caminos como lo hacen la l\'ogica LTL. CTL, a diferencia de LTL, nos permite hablar sobre la existencia de al menos un camino. Así es que podemos especificar propiedades como  \textit{E X p} y \textit{AG EF p}, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple 'p'.
+A diferencia de LTL, en la \textbf{L\'ogica de \'Arbol Computacional (CTL)} no existe en cada momento un \'unico camino a seguir. CTL es una l\'ogica de tiempo ramificado, en cada momento consideramos todos los posibles saltos hacia un estado posterior, y por lo tanto consideramos diferentes ejecuciones como posibles a realizarse en el futuro. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores \textbf{A} (para todo camino) y \textbf{E} (existe un camino). A su vez establece la regla de estar obligado a usar estos cuantificadores delante de cada conectivo temporal, definiendo as\'i f\'ormulas sobre estados y no sobre caminos como lo hacen la l\'ogica LTL. CTL, a diferencia de LTL, nos permite hablar sobre la existencia de al menos un camino. As\'i es que podemos especificar propiedades como  \textit{E X p} y \textit{AG EF p}, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple 'p'.
 
 Los conectivos ${\neg,\wedge,AX,AU,EU}$ comprenden un conjunto completo de conectivos para la l\'ogica CTL dado que los dem\'as pueden ser derivados a partir de ellos. Podemos decir que el siguiente es el significado intuitivo de estos conectivos:
 \begin{itemize}
@@ -349,7 +384,7 @@ El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axi
 \textbf{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
 
 \begin{itemize}
-\item Detecta errores en etapas tempranas de diseño, evitando tener que replantear todo al encontrar estos errores en etapas posteriores.
+\item Detecta errores en etapas tempranas de dise\~no, evitando tener que replantear todo al encontrar estos errores en etapas posteriores.
 
 \item Gran parte de su proceso es autom\'atico, por lo cual no requiere de personal experto en campos de la matem\'atica para llevar a cabo las tareas de verificaci\'on.
 
@@ -373,11 +408,11 @@ Christel Baier y Joost-Pieter Katoen en su libro "Principles of model checking" 
 Ejecutar el model cheker para verificar la validez de una propiedad sobre el sistema modelado. 
 \item Fase de an\'alisis:
 \begin{itemize}
-\item Si la propiedad result\'o ser v\'alida $\longrightarrow$ en el caso de haber mas propiedades a verificar, proceder con la verificaci\'on de las mismas.
+\item Si la propiedad result\'o ser v\'alida $\longrightarrow$ en el caso de haber m\'as propiedades a verificar, proceder con la verificaci\'on de las mismas.
 \item Si la pripiedad fu\'e refutada $\longrightarrow$
 \begin{enumerate}
 \item analizar, a partir de simulaci\'on, el contraejemplo generado.
-\item refinar el modelo, diseño o propiedad.
+\item refinar el modelo, dise\~no o propiedad.
 \item repetir todo el proceso.
 \end{enumerate}
 \item La computadora se qued\'o sin memoria $\longrightarrow$ intentar reducir el modelo y empezar de nuevo.
@@ -394,21 +429,150 @@ Ejecutar el model cheker para verificar la validez de una propiedad sobre el sis
 ~\\
 
 
-En la fase de modelado podemos distinguir entonces por un lado el modelado del sistema y por otro la especificación de las propiedades. El modelado del sistema si bien algunas veces suele ser una simple compilación al lenguaje de modelado específico de la herramienta de model checkin, otras veces puede requerir depuración del modelo para eliminar características innecesarias que puedan ocasionar una explosión de estados a tal grado de agotarse la memoria. Por otro lado podemos destacar como asunto importante en la etapa de especificación de propiedades el hecho de lograr completitud sobre las características deseadas del sistema. Es decir que es esencial en esta etapa lograr expresar en las propiedades el conjunto completo de características que se desea que el sistema posea.\\
+En la fase de modelado podemos distinguir entonces por un lado el modelado del sistema y por otro la especificaci\'on de las propiedades. El modelado del sistema si bien algunas veces suele ser una simple compilaci\'on al lenguaje de modelado espec\'ifico de la herramienta de model checkin, otras veces puede requerir depuraci\'on del modelo para eliminar caracter\'isticas innecesarias que puedan ocasionar una explosi\'on de estados a tal grado de agotarse la memoria. Por otro lado podemos destacar como asunto importante en la etapa de especificaci\'on de propiedades el hecho de lograr completitud sobre las caracter\'isticas deseadas del sistema. Es decir que es esencial en esta etapa lograr expresar en las propiedades el conjunto completo de caracter\'isticas que se desea que el sistema posea.\\
 
-La fase de ejecución usualmente es automática y solo consta de proveer al model checker con el modelado del sistema y la especificación de una propiedad para que el mismo decida sobre su validez.\\
+La fase de ejecuci\'on usualmente es autom\'atica y solo consta de proveer al model checker con el modelado del sistema y la especificaci\'on de una propiedad para que el mismo decida sobre su validez.\\
 
-Por último, es en la fase de análisis donde podemos decidir ya sobre el resultado de la verificación. Se pueden presentar varios escenarios: por un lado puede que el proceso de verificación no se haya completado debido al agotamiento de memoria, en tal caso se deberá recurrir al refinamiento del sistema para conseguir disminuir la explosión de estados, o bien se deberá usar un equipo de mayor potencial en el caso de que ya no se logre llegar a un refinamiento significativo. Puede ser el caso de que todas las propiedades hayan sido validadas por el model checker, lo que indicaría que el modelo del sistema cumple con las características expresadas en la especificación de las propiedades. Por último puede suceder que una o mas propiedades hayan sido refutadas. En este usualmente un contraejemplo otorgado por la herramienta nos permite identificar el problema, el cual puede haber sido causado por una mal modelado del sistema, una falla en la especificación, o simplemente porque en efecto el sistema no cumple con la característica deseada.\\
+Por \'ultimo, es en la fase de an\'alisis donde podemos decidir ya sobre el resultado de la verificaci\'on. Se pueden presentar varios escenarios: por un lado puede que el proceso de verificaci\'on no se haya completado debido al agotamiento de memoria, en tal caso se deber\'a recurrir al refinamiento del sistema para conseguir disminuir la explosi\'on de estados, o bien se deber\'a usar un equipo de mayor potencial en el caso de que ya no se logre llegar a un refinamiento significativo. Puede ser el caso de que todas las propiedades hayan sido validadas por el model checker, lo que indicar\'ia que el modelo del sistema cumple con las caracter\'isticas expresadas en la especificaci\'on de las propiedades. Por \'ultimo puede suceder que una o m\'as propiedades hayan sido refutadas. En este usualmente un contraejemplo otorgado por la herramienta nos permite identificar el problema, el cual puede haber sido causado por una mal modelado del sistema, una falla en la especificaci\'on, o simplemente porque en efecto el sistema no cumple con la caracter\'istica deseada.\\
 
-Es importante tomar en cuenta que el éxito de la verificación depende fuertemente de la correctitud en el modelado del sistema y la especificación de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto también puede ser causa de una especificación incompleta o errónea de las características a verificar.\\
-
-
+Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuertemente de la correctitud en el modelado del sistema y la especificaci\'on de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto tambi\'en puede ser causa de una especificaci\'on incompleta o err\'onea de las caracter\'isticas a verificar.\\
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+\chapter{NuSMV}
+\section{El model checker NuSMV}
+
+NuSMV es un model chcker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos\cite{Cimatti}.\\
+
+NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre la especificaci\'on de sistemas finitos [s\'incronos y as\'incronos], bajo condiciones de fairness.\\
+
+\textit{NuSMV2}, el cual es utilizado en este trabajo, integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
+
+
+\section{Lenguaje de modelado de NuSMV}
+Si bien el lenguaje de modelado de NuSMV es amplio y nos presenta diferentes posibilidades para la definici\'on de la maquina de estados, presentaremos en esta secci\'on solo aquella porci\'on que nos servir\'a m\'as adelante para compilar los modelos descriptos en el lenguaje de Falluto 2.0.\\
+
+Cada proceso del sistema se describe en NuSMV como un m\'odulo, introducido por la palabra \textbf{MODULE}. Al menos uno de estos m\'odulos debe llamarse \textit{main}, y ser\'a el primero en ser [...]. Podemos ver cada proceso como una maquina de estados independiente y al conjunto de estos y sus interacciones como la maquina de estados que representa al sistema completo. Veamos entonces como definir la maquina de estado de cada proceso:\\
+
+\textit{VARIABLES}\\
+
+Dentro de cada \textit{m\'odulo}, introduciendo la secci\'on de variables por la palabra \textbf{VAR}, definimos las variables del proceso junto con sus dominios. Poseemos tres tipos b\'asicos de variables, las booleanas, las enteras y las enumeradas. Tenemos la posibilidad de declarar una variable como un arreglo de valores de cualquiera de los tipos anteriormente mencionados. Vemos un ejemplo a continuaci\'on:
+\begin{verbatim}
+MODULE main
+    VAR
+        var1 : boolean;
+        var2 : -2..3;
+        var3 : {a1, something, 42};
+        var4 : array -1..2 of boolean;
+\end{verbatim}
+Vemos que en el ejemplo la variable \textit{var1} es de tipo booleano (su dominio est\'a formado por los valores \textit{TRUE} y \textit{FALSE}) , \textit{var2} es de tipo entero y su dominio se extiende desde el numero -2 al 3 y \textit{var3} es de tipo enumerado y su dominio lo forman las 3 palabras encerradas en llaves. Por \'ultimo \textit{var4} es un vector de 4 booleanos indexado desde el -1 al 2. Recordemos que las valuaciones sobre las variables representan el estado del proceso y una valuaci\'on sobre el conjunto de todas las variables de cada proceso representa el estado del sistema completo.\\
+
+\textit{ESTADO INICIAL}\\
+
+Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \textbf{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
+\begin{verbatim}
+MODULE auto
+    VAR
+        estado: {encendido, apagado}
+        nafta: 0..3
+    INIT
+        estado = apagado & nafta = 3
+\end{verbatim}
+~\\
+
+\textit{TRANSICIONES}\\
+
+La palabra clave \textbf{TRANS} en NuSMV nos permite introducir dentro de los módulos una sección donde definir las transiciones de nuestra maquina de estados. Así como ya hemos planteado anteriormente, las transiciones hablarán sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relación sobre los mismos. Dada una variable de estado \textit{x}, tenemos que \textit{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una formula proposicional establece entonces las características de la relación de transición. Las ambigüedades en esta fórmula con respecto a la maquina de estados representada introducen una elección aleatoria por parte de NuSMV. Esto es útil para representar no determinismo entre saltos de estados.
+
+\begin{verbatim}
+MODULE auto
+    VAR
+        estado: {encendido, apagado}
+        nafta: 0..3
+    INIT
+        estado = apagado & nafta = 3
+
+    TRANS
+        ( estado = encendido & nafta <= 0 ) -> ( next(estado) = apagado )
+
+\end{verbatim}
+
+Notemos que en el ejemplo solo definimos condiciones para el caso en que $estado = encendido$ y $nafta <= 0$, caso en el que el auto debería apagarse en el próximo estado. En los casos en que se da $estado = apagado$ o $nafta > 0$ el no-determinismo maneja la elección de un estado posterior.\\\\
+
+
+\textit{RESTRICCIONES Y FAIRNESS}\\
+
+NuSMV nos permite establecer restricciones de fairness sobre la ejecución de nuestro sistema. Esto nos permite revisar nuestro sistema bajo ciertos supuestos con respecto a su ejecución. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
+\begin{itemize}
+
+\item \textbf{Fairness incondicional} Dada una fórmula \textit{q} sobre el estado del sistema, escribimos \textit{FAIRNESS q} para establecer una la condición de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condición \textit{q} se cumple frecuentemente durante la ejecución del sistema. En términos de lógicas de tiempo lineal, esto correspondería a restringir la ejecución del sistema a solo aquellas trazas donde se cumpla \textit{G F q}.
+
+\item \textbf{Weak Fairness} Dadas dos fórmulas \textit{p} y \textit{q} sobre el estado del sistema, escribimos \textit{COMPASSION(p,q)} para establecer una condición de fairness fuerte sobre el sistema. Esta condición restringe a la revisión de aquellas ejecuciones del sistema en donde valga que si \textit{p} se cumple siempre entonces \textit{q} se cumple frecuentemente. En términos de LTL esto correspondería a revisar solo aquellas ejecuciones donde se cumpla \textit{G p $\rightarrow$ G F q}.
+
+\end{itemize}
+
+~\\
+\textit{PROPIEDADES Y VERIFICACIÓN}\\
+
+NuSMV nos permite verificar tanto propiedades LTL como CTL sobre nuestro sistema. Para cada una de ellas tenemos su respectiva palabra clave y la precedemos con la fórmula que exprese la propiedad a verificar. La verificación de estas propiedades se realizara bajo las condiciones que establecen las restricciones de fairness definidas. A continuación mostramos un ejemplo que ilustra la especificación de las propiedades:
+
+\begin{verbatim}
+MODULE auto
+    VAR
+        estado: {encendido, apagado}
+        nafta: 0..3
+    INIT
+        estado = apagado & nafta = 3
+
+    TRANS
+        ( estado = encendido & nafta <= 0 ) -> ( next(estado) = apagado )
+
+
+FAIRNESS nafta > 0
+
+LTLSPEC F nafta = 0
+
+CTLSPEC EG estado = apagado
+
+\end{verbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{La sintaxis de Falluto2.0}
+
+En este capítulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuación mostraremos el mecanismo para la inyección de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificación de restricciones y propiedades a verificar sobre el sistema. Para una referencia aún más completa y precisa sobre las reglas sintácticas, en el apéndice \ref{} de este mismo trabajo se puede encontrar una descripción de la sintaxis en términos de Parsing Expresion Grammars.
+
+\section{Lenguaje de modelado de comportamiento operacional}
+Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{Proctypes} de Falluto2.0. Cada \textit{Proctypes} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaración de un \textit{Proctype} es introducida mediante la palabra clave \textit{PROCTYPE}. A continuación se establece un nombre para esta clase de procesos, y se especifica si poseerá o no variables de contexto, y acciones de sincronización. Podemos decir que todo esto forma parte del encabezado del \textit{Proctype}:
+\begin{verbatim}
+PROCTYPE miProceso ( ctxVar1, ctxVar2 ; sinchroAct1, sinchroAct2 )
+\end{verbatim}
+En el cuerpo del \textit{Proctype} podemos distinguir tres secciones que definen su comportamiento operacional. Las describimos a continuación:
+\begin{enumerate}
+\item \textbf{Declaración de variables de estado.} Introducido por la palabra clave \textit{VAR}, esta sección se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Podemos entonces declarar variables de tipo:
+\begin{enumerate}
+\item \textbf{Booleano.} Corresponden a aquellas variables que solo toman los valores TRUE y FALSE. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
+\item \textbf{Entero.} A las variables de tipo entero las declaramos dándoles un nombre y acompañándolas con la especificación del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podrá tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
+\item \textbf{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja al ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
+\item \textbf{Vector.} Podemos declarar variables de tipo vector, eligiendo alguno de los anteriores como subtipo. El subtipo es el tipo de cada valor perteneciente al vector. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se [contribuye] a la declaración de los vectores con un rango indicando la indexación del vector. El ejemplo que sigue es un vector de subtipo enumerado, y se indexa desde el -1 al 2: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
+\end{enumerate}
+\item \textbf{Declaración de estados iniciales.}
+Esta sección es introducida por la palabra clave \textit{INIT}, y define el conjunto de estados iniciales de los procesos de este tipo mediante una formula proposicional sobre las variables de estado del proceso. Similar a la sección INIT de los módulos de NuSMV, la fórmula que se describe aquí busca restringir o no los valores que puede adoptar cada variables de estado en el estado inicial de la ejecución del proceso. Se permite aquí el uso de conectivos lógicos y proposicionales como $\rightarrow, |, \&, \leftrightarrow, etc$, además de conectivos matemáticos, valores booleanos y otros elementos. La restricción mas importante es que la fórmula final sea de tipo booleano.
+\item \textbf{Definición de las transiciones.}
+Para definir la relación de transición de nuestros procesos, tomaremos en cuenta cada transición por separado. Podremos etiquetar las transiciones con un nombre. y de esta manera podernos referir a la misma en el momento de la verificación. Llamaremos acción al nombre de la transición. La sintaxis general para la declaración de una transición es la que sigue: \begin{verbatim}[accion] condición_de_habilitación => postcondición ;\end{verbatim}
+Como ya dijimos \textit{accion} es el nombre de la transición (representa a la acción que lleva a cabo el sistema para pasar a un nuevo estado), la \textit{condición de habilitación} es una fórmula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transición a aquellos que la cumplan. La postcondición es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las características de los estados de destino de esta acción. Para indicar que estamos asignando un valor a una variable en el próximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente próximo. Por ende el siguiente es un ejemplo de postcondición válido para cierto proceso: \begin{verbatim}x' = x + 1, y' in {a,b,c}\end{verbatim}
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Casos de estudio}
 			\section{Commit at\'omico}
