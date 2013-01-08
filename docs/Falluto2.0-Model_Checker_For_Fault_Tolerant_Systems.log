@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  7 JAN 2013 17:44
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.24)  8 JAN 2013 00:16
 entering extended mode
  %&-line parsing enabled.
 **Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.tex
@@ -197,7 +197,10 @@ LaTeX Font Info:    ... okay on input line 15.
 
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
-(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.toc [5
+(./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.toc
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+ [5
 
 ])
 \tf@toc=\write3
@@ -558,29 +561,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 488--489
  []
 
 Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
 Missing character: There is no ¼ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no º in font cmr12!
 
 Overfull \hbox (60.77522pt too wide) in paragraph at lines 503--503
 []        \OT1/cmtt/m/n/12 ( estado = encendido & nafta <= 0 ) -> ( next(estado
@@ -588,13 +569,6 @@ Overfull \hbox (60.77522pt too wide) in paragraph at lines 503--503
  []
 
 [37]
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-
 Underfull \hbox (badness 10000) in paragraph at lines 505--506
 
  []
@@ -609,53 +583,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 508--509
 
  []
 
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmti12!
-Missing character: There is no “ in font cmti12!
 
 Underfull \hbox (badness 10000) in paragraph at lines 519--521
 
  []
 
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
 [38]
 Overfull \hbox (60.77522pt too wide) in paragraph at lines 542--542
 []        \OT1/cmtt/m/n/12 ( estado = encendido & nafta <= 0 ) -> ( next(estado
@@ -666,8 +598,138 @@ Overfull \hbox (60.77522pt too wide) in paragraph at lines 542--542
 
 ]
 Cap\'{\i }tulo 5.
+
+LaTeX Warning: Reference `' on page 41 undefined on input line 551.
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+
+Overfull \hbox (3.3297pt too wide) in paragraph at lines 553--553
+[]\OT1/cmr/bx/n/17.28 Lenguaje de mod-e-la-do de com-por-tamien-
+ []
+
+
+Overfull \hbox (17.5502pt too wide) in paragraph at lines 557--557
+[]\OT1/cmtt/m/n/12 PROCTYPE miProceso ( ctxVar1, ctxVar2 ; sinchroAct1, sinchro
+Act2 )[] 
+ []
+
+[41]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ± in font cmr12!
+ [42]
+Overfull \hbox (3.69987pt too wide) in paragraph at lines 570--570
+ []\OT1/cmtt/m/n/12 [accion] condici\'on_de_habilitaci\'on => postcondici\'on ;
+ 
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no º in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ­ in font cmr12!
+
+Overfull \hbox (60.77522pt too wide) in paragraph at lines 574--574
+[]\OT1/cmtt/m/n/12 INSTANCE nombre = nombre_proctype(parametro1, parametro2, ..
+., parametroN 
+ []
+
+[43]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 575--576
+
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 581--582
+
+ []
+
+[44]
+Missing character: There is no Ã in font cmbx12!
+Missing character: There is no ³ in font cmbx12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
+
+
+LaTeX Warning: Reference `' on page 45 undefined on input line 592.
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+[45]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¡ in font cmr12!
+
+Overfull \hbox (2.2124pt too wide) in paragraph at lines 595--595
+[]\OT1/cmr/bx/n/12 Normal Be-haiv-iour \OT1/cmr/m/n/12 Us-amos es-ta propiedad 
+para ver-i-ficar propiedades
+ []
+
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ­ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
@@ -676,194 +738,91 @@ Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no º in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
 
-LaTeX Warning: Reference `' on page 41 undefined on input line 551.
-
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no © in font cmr12!
-
-Overfull \hbox (3.3297pt too wide) in paragraph at lines 553--553
-[]\OT1/cmr/bx/n/17.28 Lenguaje de mod-e-la-do de com-por-tamien-
+Overfull \hbox (7.62128pt too wide) in paragraph at lines 597--598
+[]\OT1/cmr/bx/n/12 Deadlock check \OT1/cmr/m/n/12 La uti-lizacin de la pal-abra
+ clave CHECK[]DEADLOCK
  []
 
+[46]
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-
-Overfull \hbox (17.5502pt too wide) in paragraph at lines 557--557
-[]\OT1/cmtt/m/n/12 PROCTYPE miProceso ( ctxVar1, ctxVar2 ; sinchroAct1, sinchro
-Act2 )[] 
- []
-
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmbx12!
-Missing character: There is no ³ in font cmbx12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-[41]
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ± in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmbx12!
-Missing character: There is no ³ in font cmbx12!
+Missing character: There is no © in font cmbx12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ³ in font cmr12!
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no © in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
- [42]
-Missing character: There is no Ã in font cmbx12!
-Missing character: There is no ³ in font cmbx12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmtt12!
-Missing character: There is no ³ in font cmtt12!
-Missing character: There is no Ã in font cmtt12!
-Missing character: There is no ³ in font cmtt12!
-Missing character: There is no Ã in font cmtt12!
-Missing character: There is no ³ in font cmtt12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmti12!
-Missing character: There is no ³ in font cmti12!
-Missing character: There is no Ã in font cmti12!
-Missing character: There is no ³ in font cmti12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ­ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ³ in font cmr12!
-Missing character: There is no Ã in font cmr12!
-Missing character: There is no ¡ in font cmr12!
- [43] [44
+ [47] [48
 
 ]
 Cap\'{\i }tulo 6.
-[45] [46
-
-]
-Cap\'{\i }tulo 7.
-[47] [48
-
-]
-Cap\'{\i }tulo 8.
 [49] [50
 
 ]
-Cap\'{\i }tulo 9.
+Cap\'{\i }tulo 7.
 [51] [52
 
 ]
-Cap\'{\i }tulo 10.
+Cap\'{\i }tulo 8.
 [53] [54
 
 ]
-Cap\'{\i }tulo 11.
+Cap\'{\i }tulo 9.
 [55] [56
 
 ]
-Underfull \hbox (badness 2951) in paragraph at lines 745--747
+Cap\'{\i }tulo 10.
+[57] [58
+
+]
+Cap\'{\i }tulo 11.
+[59] [60
+
+]
+Underfull \hbox (badness 2951) in paragraph at lines 776--778
 []\OT1/cmr/m/n/12 NuSMV 2.5 Us-er Man-u-al. Rober-to Cava-da, Alessan-dro Cimat
 -
  []
 
 
-Underfull \hbox (badness 4229) in paragraph at lines 745--747
+Underfull \hbox (badness 4229) in paragraph at lines 776--778
 \OT1/cmr/m/n/12 ti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivet-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 745--747
+Underfull \hbox (badness 10000) in paragraph at lines 776--778
 \OT1/cmr/m/n/12 ti, Mar-co Pi-s-tore, Mar-co Roveri and An-drei Tchalt-sev.
  []
 
-[57]
+[61]
 Missing character: There is no Ã in font cmr12!
 Missing character: There is no „ in font cmr12!
 
-Underfull \hbox (badness 1881) in paragraph at lines 756--758
+Underfull \hbox (badness 1881) in paragraph at lines 787--789
 []\OT1/cmr/m/n/12 Fundamentals of Fault-Tolerant Dis-tribut-ed Com-put-ing in A
 syn-
  []
 
 
-Underfull \hbox (badness 1189) in paragraph at lines 761--762
+Underfull \hbox (badness 1189) in paragraph at lines 792--793
 []\OT1/cmr/m/n/12 Understanding fault tol-er-ant dis-tribut-ed sys-tems. Flavin
  Cris-tian.
  []
 
-[58] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
+[62] (./Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -872,10 +831,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2416 strings out of 495061
- 29902 string characters out of 1182621
+ 2417 strings out of 495061
+ 29917 string characters out of 1182621
  92609 words of memory out of 3000000
- 5585 multiletter control sequences out of 15000+50000
+ 5586 multiletter control sequences out of 15000+50000
  12115 words of font info for 43 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  27i,13n,27p,1601b,325s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -890,10 +849,10 @@ texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texli
 ve/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/a
 msfonts/cm/cmtt12.pfb>
-Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (58 p
-ages, 334007 bytes).
+Output written on Falluto2.0-Model_Checker_For_Fault_Tolerant_Systems.pdf (62 p
+ages, 345501 bytes).
 PDF statistics:
- 249 PDF objects out of 1000 (max. 8388607)
+ 262 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
