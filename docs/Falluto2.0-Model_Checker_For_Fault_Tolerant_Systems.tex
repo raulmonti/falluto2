@@ -512,7 +512,7 @@ NuSMV nos permite establecer restricciones de fairness sobre la ejecuci\'on de n
 
 \item \textbf{Fairness incondicional} Dada una f\'ormula \textit{q} sobre el estado del sistema, escribimos \textit{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on \textit{q} se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla \textit{G F q}.
 
-\item \textbf{Weak Fairness} Dadas dos f\'ormulas \textit{p} y \textit{q} sobre el estado del sistema, escribimos \textit{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si \textit{p} se cumple siempre entonces \textit{q} se cumple frecuentemente. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla \textit{G p $\rightarrow$ G F q}.
+\item \textbf{Strong Fairness} Dadas dos f\'ormulas \textit{p} y \textit{q} sobre el estado del sistema, escribimos \textit{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si \textit{p} se cumple siempre a menudo entonces \textit{q} se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla \textit{G F p $\rightarrow$ G F q}.
 
 \end{itemize}
 
@@ -600,8 +600,96 @@ Falluto2.0 posee además las siguientes meta-propiedades para la verificación d
 Podemos restringir la verificación de las propiedades sobres nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
 \begin{itemize}
 \item \textbf{Fairness incondicional.} Para restringir la verificación del sistema a solo aquellas ejecuciones donde una propiedad $q$ se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde $q$ es una fórmula proposicional que habla a cerca del estado del sistema.
-\item \textbf{Fairnes débil.} Dadas dos formulas proposicionales $p$ y $q$ sobre nuestro sistema, podemos restringir la verificación de propiedades LTL a ejecuciones en las cuales se cumpla la condición de justicia débil de $p$ con respecto a $q$ usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificación solo a ejecuciones donde se cumpla que si $p$ vale siempre, entonces $q$ vale siempre a menudo. Tomemos en cuenta que el uso de esta construcción no es compatible con propiedades definidas en CTL y puede dar resultados erróneos.
+\item \textbf{Fairnes fuerte.} Dadas dos formulas proposicionales $p$ y $q$ sobre nuestro sistema, podemos restringir la verificación de propiedades LTL a ejecuciones en las cuales se cumpla la condición de justicia fuerte de $p$ con respecto a $q$ usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificación solo a ejecuciones donde se cumpla que si $p$ vale siempre a menudo, entonces $q$ vale siempre a menudo. Tomemos en cuenta que el uso de esta construcción no es compatible con propiedades definidas en CTL y puede dar resultados erróneos.
 \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{Semántica de Falluto2.0}
+Como ya mencionamos en la introducción a este trabajo, Falluto2.0 es un front-end para NuSMV. Por lo tanto la descripción del sistema en el lenguaje de Falluto2.0 debe ser compilada a una descripción en el lenguaje de NuSMV. Para ello es necesario tomar en cuenta la semántica de Falluto2.0. En este capítulo abordaremos el tema de la semántica de Falluto2.0, repasando las ideas detrás de su implementación y dando una mirada a la compilación al lenguaje de NuSMV.
+
+\section{Construcción de un sistema global de procesos concurrentes}
+En la estructura de la especificación del sistema en Falluto2.0 podemos distinguir la definición del comportamiento de los procesos, llevado a cabo a partir de los proctypes, de la instanciación de los diferentes procesos. Se busca que los procesos se desarrollen de manera concurrente en el entorno del sistema global, donde cada procesos pueda tener acceso a cierta información del sistema según lo defina el usuario. Se busca así también que los procesos puedan sincronizar acciones y que se pueda controlar de manera general el interliving del resto de las acciones.
+La representación del sistema completo se logra en la compilación a partir del uso de un solo módulo de NuSMV con el siguiente aspecto:
+\begin{verbatim}
+MODULE main
+VAR
+...
+INIT
+...
+TRANS
+...
+\end{verbatim}
+A continuación describiremos como se rellena cada sección de este módulo con el fin de lograr la compilación del sistema original descripto usando el lenguaje de Falluto2.0.\\
+
+\textbf{VARIABLES DEL SISTEMA}
+Podemos ver el estado del sistema como aquel formado por la conjunción del estado de cada proceso que lo compone. De este modo las variables de estado del sistema compilado serán la unión de todas las variables de estado de cada instancia declarada en el sistema original. En la sección VAR entonces colocaremos por cada variables de cada instancia del sistema una variables en representación. La univocidad de las mismas estará dada por la univocidad del nombre de cada instancia con respecto a sus pares. Otras variables formarán parte de esta sección también:
+\begin{itemize}
+\item \textbf{Variable de acción} Esta variables nos permitirá denotar cual fue la última acción llevada a cabo por el sistema. Su utilidad sin embargo va mas allá de una simple denotación, ya que nos permitirá especificar sobre las acciones llevadas a cabo por el sistema. De esta manera podremos hablar sobre propiedades a cerca del accionar del mismo y establecer restricciones sobre el mismo. El dominio de esta variables entonces consta de palabras denotando la realización de cada acción del sistema, entre ellas las acciones comunes de cada instancia de proceso, las acciones de falla de cada instancia de proceso, y acciones de efectos de fallas bizantinas. Un último valor en el dominio de esta variable nos permite denotar una transición al estado de deadlock.
+\item \textbf{Variables de activación de fallas} Las fallas permanentes, es decir las de tipo STOP y BYZANTINE, poseen una variable booleana que nos permite conocer si las estas fallas han ocurrido y están afectando el funcionamiento del sistema.
+\item \textbf{Variables de program counter} Estas variables permiten distinguir entre las acciones de igual nombre dentro de un mismo proceso. Existe entonces un variable de este tipo por cada proceso instanciado. Nos permiten eliminar casos de ambigüedad en el salto de estados del sistema, que de otro modo nos llevaría a una representación errónea del sistema original.
+\end{itemize}
+~\\
+
+\textbf{ESTADOS INICIALES}
+Como ya dijimos, la restricción de estados iniciales en NuSMV se lleva a cabo a partir de una fórmula booleana dentro de la sección \textit{INIT} del módulo. Nuestra fórmula booleana será entonces la conjunción booleana de todas las formulas booleanas presentes en la sección \textit{INIT} de cada proceso instanciado. Agregaremos también en esta fórmula condiciones para la inicialización de variables introducidas por la compilación como serían las variables de actividad de falla y las de program counter.\\
+
+\textbf{TRANSICIONES}
+La relación de transición esta representada en la sección \textit{TRANS} del módulo compilado mediante una fórmula booleana que captura cuatro tipos de transiciones sin realizar distinción entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo diseñado en el lenguaje de Falluto2.0. Esta exclusión se lleva a cabo a partir de la variable de acción introducida en el momento de compilación, y en el caso de no ser suficiente con ella, usamos también las variables de program counter (por ejemplo cuando hay mas de una acción con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
+\begin{itemize}
+\item \textbf{Acciones comunes.} Son las transiciones definidas dentro de cada la sección TRANS de cada proctype.
+\item \textbf{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de las fallas declaradas en la sección \textit{FAULT} de cada \textit{proctype}.
+\item \textbf{Acciones de efecto bizantino.} Representan el cambio de estado del sistema como consecuencia del accionar de los efectos de una falla bizantina.
+\item \textbf{Acción de deadlock.} Representa la imposibilidad de realizar cualquier acción normal. Decimos entonces que el sistema ha realizado una transición hacia un estado de deadlock. Veremos mas adelante la utilidad de poseer esta transición.
+\end{itemize}
+La disyunción excluyente de estas transiciones forma la fórmula de transición final que introducimos en la sección \textit{TRANS} de nuestro módulo compilado. Nuestro módulo de NuSMV quedará en términos de lo que sigue:
+\begin{verbatim}
+MODULE main
+VAR
+    * Por cada instancia de proceso, introducimos la lista 
+      de variables declaradas en su respectivo proctype.
+    * Variable de accion.
+    * Variables de actividad de fallas permanentes.
+    * Variables de program counter por cada proceso instanciado.
+INIT
+    Conjuncion de formulas de la seccion INIT de procesos instanciados
+    & Inicializacion de variables introducidas en compilacion.
+TRANS
+    disyuncion de transiciones comunes compiladas 
+    | disyuncion de transiciones de falla compiladas 
+    | disyuncion de transiciones de efectos bizantinos 
+    | transicion de deadlock
+\end{verbatim}
+
+
+\section{Compilación de transiciones}
+Veremos a continuación como se realiza el proceso de compilación de cada una de las transiciones que luego forman parte de la formula de la sección \textit{TRANS} del módulo compilado.\\
+
+\textbf{TRANSICIONES NORMALES}
+Recordemos que la siguiente era la sintaxis general de la declaración de una transición NORMAL en el lenguaje de Falluto2.0 (Para mas detalles referirse al capítulo \ref{}):
+$$[nombre]~habilitacion => postcondicion;$$
+La versión compilada de esta acción tendrá el siguiente aspecto:
+$$next(actvar)=nombre~\&~!faultact~\&~habilitacion~\&~postcondicion~\&~resto$$
+Notar que de darse esta acción, el nombre de la misma quedará guardado como valor de actvar en el próximo estado, indicando que la acción que se llevo a cabo para llegar a ese estado fue en efecto esta. \textit{!faultact} es un fórmula que asegura que no estén activas aquellas fallas de tipo STOP que afectan esta transición. En efecto esta fórmula es simplemente la conjunción de la negación de las variables de actividad de falla para aquellas fallas que afectan esta transición. \textit{habilitacion} es simplemente una compilación directa de la fórmula de habilitación original al igual que \textit{postcondicion} la cual es la conjunción de la compilación directa de las asignaciones establecidas en la postcondición original. Por último en \textit{resto} nos aseguramos que en el próximo estado no cambie el valor de las variables cuyo valor no es definido en esta transición. En efecto esta fórmula es la conjunción de las asignaciones $next(x)=x$ por cada variable x que debe mantener su valor en el estado destino.\\
+
+\textbf{TRANSICIONES DE FALLA}
+Recordemos que en cuanto a nosotros respecta, una falla es una transición más del sistema. Por ende serán compiladas muy parecidas a las transiciones normales, tomando en cuenta algunas características especiales intrínsecas al tipo de falla. Habíamos dicho que para la inyección de una falla introducíamos de manera declarativa las características de la misma usando la siguiente sintaxis:
+$$nombre~:~habilitacion~=>~postcondicion~is~tipo$$
+La compilación de esta falla dará como resultado la siguiente formula booleana:
+$$next(actvar)=nombre~\&~!fallaactiva~\&~next(fallaactiva)~\&$$ $$habilitacion~\&~postcondicion~\&~resto$$
+Como en el caso de las transiciones comunes, el valor de la variable de acción denotará haber llegado al estado siguiente a partir de la ocurrencia de esta transición, la cual en este caso es de falla. \textit{!fallaactiva} es la condición que impide que las fallas permanentes ocurran mas de una vez, en efecto esta condición es TRUE si la falla es de tipo \textit{transient}. En el caso de ser falla permanente y de llevarse a cabo esta transición, la activación de la falla quedará registrada en el próximo estado debido a la condición \textit{next(fallaactiva)} presente en la fórmula. El resto de la fórmula se puede intuir de lo redactado en el caso de las transiciones comunes.\\
+
+
+\textbf{TRANSICIONES DE EFECTOS DE FALLA BIZANTINA}
+Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espontáneamente a lo largo de toda le ejecución del sistema. Las variables afectadas por estas fallas cambiarán aleatoriamente de valor en distintos instantes de tiempo durante la ejecución. Para simular este efecto, es que hemos introducido transiciones especiales que describen estos cambios. Una vez ocurrida la falla, su transición de efecto bizantina queda habilitada y puede ocurrir aleatoriamente en cualquier momento posterior. La compilación entonces de estas transiciones resulta en fórmulas semejantes a la que sigue:
+$$fallaactiva~\&~next(actvar)=bizefect~\&~permanecen$$
+Aquí \textit{fallaactiva} es la condición de habilitación de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en algún momento de la ejecución. \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar cuál ha sido la acción que se ha ocurrido para llegar al nuevo estado modificado. Por último \textit{permanecen} se forma por la conjunción de las formulas \textit{next(x)=x} para todo x variable del sistema excepto por \textit{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegirá un valor aleatorio para estas variables afectadas ya que no encuentra restricción alguna en la fórmula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destinos posibles.\\
+
+\textbf{TRANSICIÓN DE DEADLOCK}
+Consideramos que nuestro sistema cae en situación de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementación de una transición que exprese el movimiento del sistema hacia este estado nos es útil para la verificación de diferentes propiedades y para la implementación de restricciones de fairness. Notar que a falta de ella y en presencia de solo transiciones de falla habilitadas, estaríamos obligando la ocurrencia de una de estas lo cual no es correcto. La compilación de la transición de deadlock tiene entonces la siguiente forma:
+$$!trans\_habilitadas~\&~next(actvar)=deadlock~\&~resto$$
+Como es evidente, la condición de habilitación de esta transición esta dada por la conjunción de la negación de las condiciones de habilitación de todas las transiciones normales del sistema. De este modo solo realizamos la transición de deadlock cuando nos vemos inhabilitados a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acción que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar} asegurando que ninguna de ellas cambie de valor en el próximo estado.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

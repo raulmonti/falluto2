@@ -21,17 +21,20 @@
 \contentsline {section}{\numberline {5.1}Lenguaje de modelado de comportamiento operacional}{41}
 \contentsline {section}{\numberline {5.2}Lenguaje de descripci\'on de fallas}{44}
 \contentsline {section}{\numberline {5.3}Lenguaje de especificación de propiedades y restricciones}{45}
-\contentsline {chapter}{\numberline {6}Casos de estudio}{49}
-\contentsline {section}{\numberline {6.1}Commit at\'omico}{49}
-\contentsline {section}{\numberline {6.2}Ej\'ercitos bizantinos ?}{49}
-\contentsline {section}{\numberline {6.3}Fil\'osofos comensales ?}{49}
-\contentsline {section}{\numberline {6.4}Falla bizantina ?}{49}
-\contentsline {section}{\numberline {6.5}Elecci\'on de lider ?}{49}
-\contentsline {section}{\numberline {6.6}Protocolos lamport}{49}
-\contentsline {section}{\numberline {6.7}Feedback de contacto de Naza}{49}
-\contentsline {section}{\numberline {6.8}Red satelital ultra secreta?}{49}
-\contentsline {chapter}{\numberline {7}Conclusi\'on}{51}
-\contentsline {chapter}{\numberline {8}Ap\'endice A - Manual de Falluto2.0}{53}
-\contentsline {chapter}{\numberline {9}Ap\'endice B - Sint\'axis formal de Falluto2.0}{55}
-\contentsline {chapter}{\numberline {10}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{57}
-\contentsline {chapter}{\numberline {11}extra}{59}
+\contentsline {chapter}{\numberline {6}Semántica de Falluto2.0}{49}
+\contentsline {section}{\numberline {6.1}Construcción de un sistema global de procesos concurrentes}{49}
+\contentsline {section}{\numberline {6.2}Compilación de transiciones}{52}
+\contentsline {chapter}{\numberline {7}Casos de estudio}{57}
+\contentsline {section}{\numberline {7.1}Commit at\'omico}{57}
+\contentsline {section}{\numberline {7.2}Ej\'ercitos bizantinos ?}{57}
+\contentsline {section}{\numberline {7.3}Fil\'osofos comensales ?}{57}
+\contentsline {section}{\numberline {7.4}Falla bizantina ?}{57}
+\contentsline {section}{\numberline {7.5}Elecci\'on de lider ?}{57}
+\contentsline {section}{\numberline {7.6}Protocolos lamport}{57}
+\contentsline {section}{\numberline {7.7}Feedback de contacto de Naza}{57}
+\contentsline {section}{\numberline {7.8}Red satelital ultra secreta?}{57}
+\contentsline {chapter}{\numberline {8}Conclusi\'on}{59}
+\contentsline {chapter}{\numberline {9}Ap\'endice A - Manual de Falluto2.0}{61}
+\contentsline {chapter}{\numberline {10}Ap\'endice B - Sint\'axis formal de Falluto2.0}{63}
+\contentsline {chapter}{\numberline {11}Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}{65}
+\contentsline {chapter}{\numberline {12}extra}{67}
