@@ -11,6 +11,8 @@
 \renewcommand{\appendixpagename}{Ap\'endices}
 
 
+\usepackage{tabularx}
+
 \pagestyle{plain}
 \title{Falluto2.0 \\ Manual de usuario.}
 \author{Raul Monti}
@@ -41,7 +43,7 @@ Tambi\'en se necesita python versión 2.6.5 o superior. (puede que funcione con 
 
 
 \chapter{Modelado de sistemas en Falluto2.0}
-En este cap\'itulo encontrar\'as c\'omo modelar el comportamiento de un sistema en Falluto2.0, c\'omo especificar propiedades sobre el mismo y c\'omo definir restricciones sobre el proceso de verificaci\'on de de estas.
+En este cap\'itulo encontrar\'as c\'omo modelar el comportamiento de un sistema en Falluto2.0, c\'omo especificar propiedades sobre el mismo y c\'omo definir restricciones sobre el proceso de verificaci\'on de estas.
 Por convenci\'on los archivos de texto en donde definimos nuestros sistemas son terminados en '.fll'. (ejemplo.fll ser\'ia un nombre de archivo para verificaci\'on con Falluto2.0).\\
 \indent Encontrar\'as ejemplos de archivos '.fll' en el Ap\'endice \ref{ejemploModelado}.
 
@@ -249,106 +251,136 @@ filename & Input file path, where the description of the system\\
 \chapter{Sint\'axis formal de Falluto}
 \label{sintaxisFormal}
 
-A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico, y a los s\'imbolos y puntuaciones entre comillas.\\
+A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico, y a los s\'imbolos y puntuaciones entre comillas.
 
-\textbf{Palabras reservadas de Falluto2.0:}\\
+\section{Palabras reservadas de Falluto2.0}
 
+Las siguientes palabras son de caracter reservado, son usadas para fines específicos en la especificación del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
 
+%\begin{tabular}{>{\bfseries}l>{\itshape}l}
+\begin{tabularx}{\textwidth}{>{\bfseries}l>{\itshape}X }
 
-\begin{tabular}{>{\bfseries}l>{\itshape}l}
-RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / \\
-		  				  & SYSNAME / just / is / FAIRNESS / COMPASSION / \\
-						  &	U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y /\\
-						  &	PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS /\\
-				          &	INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX /\\
-						  &	EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE /\\
-					  	  &	in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS /\\
-   				          &	LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION/\\
-   				          & NORMAL\_BAHAIVIOUR\\
-\end{tabular}
+RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAME / just / is / FAIRNESS / COMPASSION / U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y / PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS / INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX / EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE / in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS / LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION/ NORMAL\_BAHAIVIOUR\\
+\end{tabularx}
+%\end{tabular}
 ~\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\textbf{Algunas producciones simples:}\\
+\section{Algunas producciones simples}
 
-Identificadores pueden contener '.' para indicar pertenencia a un objeto ( por ejemplo instancia.variable ). Nombres en cambio no.\\
+Identificadores pueden contener '.' para indicar pertenencia a un proceso específico ( por ejemplo instancia.variable ). Nombres en cambio no.\\
+
 ~\\\\
-\begin{tabular}{>{\bfseries}ll>{\itshape}l}
-IDENT & $\longleftarrow$ & ! \verb|RESERVED| [a-zA-Z\_]("."[a-zA-Z0-9\_]+)?\\\\
-NAME & $\longleftarrow$ & ! \verb|RESERVED| [a-zA-Z\_][a-zA-Z0..9\_]*\\\\
+\begin{tabularx}{\textwidth}{>{\bfseries}llX}
+IDENT & $\longleftarrow$ & ! RESERVED [a-zA-Z\_](``.''[a-zA-Z0-9\_]+)?\\\\
+NAME & $\longleftarrow$ & ! RESERVED [a-zA-Z\_][a-zA-Z0..9\_]*\\\\
 INT & $\longleftarrow$ & -? ( [0] / [1-9][0-9]* )\\\\
-BOOL & $\longleftarrow$ & TRUE / FALSE\\\\
-EVENT & $\longleftarrow$ & just( \verb|IDENT| )\\\\
-NEXTREF & $\longleftarrow$ & \verb|IDENT| '\\\\
-RANGE & $\longleftarrow$ & \verb|INT| ".." \verb|INT|\\\\
-BOOLEAN & $\longleftarrow$ & \textit{bool}\\\\
-SET & $\longleftarrow$ & "\{" (\verb|IDENT| / \verb|INT| / \verb|BOOL|) ("," (\verb|IDENT| / \verb|INT| / \verb|BOOL|))* "\}"\\\\
-INCLUSION & $\longleftarrow$ & \verb|IDENT| in (\verb|SET| / \verb|RANGE|)\\
-\end{tabular}
+BOOL & $\longleftarrow$ & ``TRUE'' / ``FALSE''\\\\
+EVENT & $\longleftarrow$ & ``just('' IDENT ``)''\\\\
+NEXTREF & $\longleftarrow$ & IDENT `` ' ''\\\\
+RANGE & $\longleftarrow$ & INT ``..'' INT\\\\
+BOOLEAN & $\longleftarrow$ & ``bool''\\\\
+SET & $\longleftarrow$ & ``\{'' (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOOL))* ``\}''\\\\
+INCLUSION & $\longleftarrow$ & IDENT ``in'' (SET / RANGE)\\
+\end{tabularx}
 ~\\\\
 
-\textbf{Expresiones:}\\
+\section{Expresiones}
+Las expresiones representan formulas booleanas o enteras. A continuación encontramos su sintaxis:
 
-\noindent \begin{longtable}{>{\bfseries}ll>{\itshape}l}
-EXPRESION & $\longleftarrow$ & \verb|PROP|\\\\
-PROP & $\longleftarrow$ & \verb|CONJ| ( ('$->$' / '$<->$') \verb|PROP| ) ?\\\\
-CONJ & $\longleftarrow$ & \verb|COMP| ( ('$|$' / '$\&$') \verb|CONJ| ) ?\\\\
-COMP & $\longleftarrow$ & \verb|PROD| ( ('$<=$' / '$>=$' / '$\>>$' / '$\<<$' / '$!=$' / '$=$') \verb|CONJ| ) ?\\\\
-PROD & $\longleftarrow$ & \verb|SUM| ( ('$*$' / '$\div$' / '$\%$' ) \verb|PROD| ) ?\\\\
-SUM & $\longleftarrow$ & \verb|VALUE| ( ('$+$' / '$-$' ) \verb|SUM| ) ?\\\\
-VALUE & $\longleftarrow$  & ( '(' \verb|PROP| ')' / \verb|INCLUSION| / \verb|NEXTREF| / \verb|IDENT| / \verb|INT| /\\
-	  &					  &  \verb|BOOL| / \verb|EVENT| / ! \verb|VALUE| / - \verb|VALUE| ) \\\\
-NEXTLIST & $\longleftarrow$  & \verb|NEXTASSIGN| (',' \verb|NEXTASSIGN|)*\\\\
-NEXTASSIGN & $\longleftarrow$  & \verb|NEXTREF| ( $'='$ \verb|EXPRESION| / $"in"$ ( \verb|SET| / \verb|RANGE| ) )\\
-\end{longtable}
+\begin{tabularx}{\textwidth}{>{\bfseries}llX }
+
+%\noindent \begin{longtable}{>{\bfseries}ll>{\itshape}l}
+EXPRESION & $\longleftarrow$ & PROP\\\\
+PROP & $\longleftarrow$ & CONJ ( ('$->$' / '$<->$') PROP ) ?\\\\
+CONJ & $\longleftarrow$ & COMP ( ('$|$' / '$\&$') CONJ ) ?\\\\
+COMP & $\longleftarrow$ & PROD ( ('$<=$' / '$>=$' / '$\>>$' / '$\<<$' / '$!=$' / '$=$') CONJ ) ?\\\\
+PROD & $\longleftarrow$ & SUM ( ('$*$' / '$\div$' / '$\%$' ) PROD ) ?\\\\
+SUM & $\longleftarrow$ & VALUE ( ('$+$' / '$-$' ) SUM ) ?\\\\
+VALUE & $\longleftarrow$  & ( '(' PROP ')' / INCLUSION / NEXTREF / IDENT / INT / BOOL / EVENT / ! VALUE / - VALUE ) \\\\
+NEXTLIST & $\longleftarrow$  & NEXTASSIGN (',' NEXTASSIGN)*\\\\
+NEXTASSIGN & $\longleftarrow$  & NEXTREF ( = EXPRESION / ``in'' ( SET / RANGE ) )\\
+\end{tabularx}
+%\end{longtable}
 ~\\\\
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+\section{Proctypes}
 Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos dentro de la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
 
-\noindent \begin{longtable}{>{\bfseries}lll}
-SYSTEM & $\longleftarrow$ & OPTIONS ? ( DEFINE / PROCTYPE / INSTANCE /\\
-		&				&  SPECIFICATION / CONTRAINT ) *\\\\
-OPTIONS & $\longleftarrow$ & \textit{OPTIONS} ( SYSNAME [a-z0-9A-Z$\_$.]* / \textit{CHECK\_DEADLOCK} /\\ 
-        &                 & \textit{FAULT\_FAIR\_DISABLE} / \textit{INST\_WEAK\_FAIR\_DISABLE} )* \\
-        &                 & \textit{ENDOPTIONS}\\\\
-DEFINE & $\longleftarrow$ & \textit{DEFINE} IDENT $":="$  EXPRESION \\\\
-PROCTYPE & $\longleftarrow$ & \textit{PROCTYPE} IDENT '(' CTXVARS ? SYNCACTS ? ')' \\
-		 &			  & PROCTYPEBODY \textit{ENDPROCTYPE}\\\\
-CTXVARS & $\longleftarrow$ & IDENT (',' IDENT)*\\\\
-SYNCACTS & $\longleftarrow$ & ';' IDENT (',' IDENT)*\\\\
-PROCTYPEBODY & $\longleftarrow$ & VAR ? FAULT ? INIT ? TRANS ?\\\\
-VAR & $\longleftarrow$ & \textit{VAR} VARDECL*\\\\
-VARDECL & $\longleftarrow$ & IDENT ':' (BOOLEAN / SET / RANGE)\\\\
-FAULT & $\longleftarrow$ & \textit{FAULT} FAULTDECL*\\\\
-FAULTDECL & $\longleftarrow$ & NAME ':' (EXPRESION ? $"=>"$ NEXTEXPR ?) ? \\
-		  &				   & \textit{is} (BYZ / STOP / TRANSIENT)\\\\
-BYZ & $\longleftarrow$ & \textit{BYZ} '(' IDENT (',' IDENT)*, ')'\\\\
-TRANSIENT & $\longleftarrow$ & \textit{TRANSIENT}\\\\
-STOP & $\longleftarrow$ & \textit{STOP} ( '(' IDENT, (',' IDENT)* ')' ) ?\\\\
-INIT & $\longleftarrow$ & \textit{INIT} EXPRESION ?\\\\
-TRANS & $\longleftarrow$ & \textit{TRANS} TRANSDECL*\\\\
-TRANSDECL & $\longleftarrow$ & '[' NAME? ']' ':' EXPRESION? ( $"=>"$ NEXTEXPR )?\\
+%\noindent \begin{longtable}{>{\bfseries}lll}
+%\begin{tabularx}{\textwidth}{>{\bfseries}llX }
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.75\textwidth} }
+SYSTEM & $\longleftarrow$ & OPTIONS ? ( DEFINE / PROCTYPE / INSTANCE / SPECIFICATION / CONTRAINT ) *\cr\cr
+OPTIONS & $\longleftarrow$ & ``OPTIONS'' ( ``SYSNAME'' [a-z0-9A-Z$\_$.]* / ``CHECK\_DEADLOCK'' / ``FAULT\_FAIR\_DISABLE'' / ``INST\_WEAK\_FAIR\_DISABLE'' )* ``ENDOPTIONS''\cr\cr
+DEFINE & $\longleftarrow$ & \textit{DEFINE} IDENT $":="$  EXPRESION \cr\cr
+PROCTYPE & $\longleftarrow$ & \textit{PROCTYPE} IDENT '(' CTXVARS ? SYNCACTS ? ')' PROCTYPEBODY \textit{ENDPROCTYPE}\cr\cr
+CTXVARS & $\longleftarrow$ & IDENT (',' IDENT)*\cr\cr
+SYNCACTS & $\longleftarrow$ & ';' IDENT (',' IDENT)*\cr\cr
+PROCTYPEBODY & $\longleftarrow$ & VAR ? FAULT ? INIT ? TRANS ?\cr\cr
+VAR & $\longleftarrow$ & \textit{VAR} VARDECL*\cr\cr
+VARDECL & $\longleftarrow$ & IDENT ':' (BOOLEAN / SET / RANGE)\cr\cr
+FAULT & $\longleftarrow$ & \textit{FAULT} FAULTDECL*\cr\cr
+FAULTDECL & $\longleftarrow$ & NAME ':' (EXPRESION ? $"=>"$ NEXTEXPR ?) ? \textit{is} (BYZ / STOP / TRANSIENT)\cr\cr
+BYZ & $\longleftarrow$ & \textit{BYZ} '(' IDENT (',' IDENT)*, ')'\cr\cr
+TRANSIENT & $\longleftarrow$ & \textit{TRANSIENT}\cr\cr
+STOP & $\longleftarrow$ & \textit{STOP} ( '(' IDENT, (',' IDENT)* ')' ) ?\cr\cr
+INIT & $\longleftarrow$ & \textit{INIT} EXPRESION ?\cr\cr
+TRANS & $\longleftarrow$ & \textit{TRANS} TRANSDECL*\cr\cr
+TRANSDECL & $\longleftarrow$ & '[' NAME? ']' ':' EXPRESION? ( $"=>"$ NEXTEXPR )?\cr
 \end{longtable}
+%\end{tabularx}
 ~\\\\
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+\section{Instanciaci\'on}
 Para la instanciaci\'on tenemos las siguientes reglas:\\\\
 
-\noindent\begin{longtable}{>{\bfseries}lll}
-INSTANCE & $\longleftarrow$ & \textit{INSTANCE} NAME '=' NAME '(' INSTPARAMS ')'\\\\
-INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (',' (IDENT / INT / BOOL) )* ) ?
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.75\textwidth} }
+INSTANCE & $\longleftarrow$ & ``INSTANCE'' NAME ``='' NAME ``('' INSTPARAMS ``)''\cr\cr
+INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOOL) )* ) ?
+\end{longtable}
+~\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Especificaci\'on de propiedades}
+Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado:\\
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.7\textwidth} }
+SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
+CTLSPEC   & $\longleftarrow$ &\textit{CTLSPEC} CTLEXP\cr\cr
+CTLEXP 	  & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP / (\textit{A} / \textit{E}) '[' CTLEXP \textit{U} CTLEXP ']' / CTLVALUE\cr\cr
+CTLBINOP  & $\longleftarrow$ & '\&' / '$|$' / \textit{xor} / \textit{xnor} / $"->"$ / $"<->"$\cr\cr
+CTLVALUE  & $\longleftarrow$ & CTLUNOP CTLEXP /'(' CTLEXP ')' / EXPRESION\cr\cr
+CTLUNOP   & $\longleftarrow$ & \textit{$'!'$ / EG / EX / EF / AG / AX / AF}\cr\cr
+LTLSPEC   & $\longleftarrow$ & \textit{LTLSPEC} LTLEXP\cr\cr
+LTLEXP    & $\longleftarrow$ & LTLBOP / LTLUOP\cr\cr
+LTLBOP    & $\longleftarrow$ & LTLUOP LTLBINOPS LTLEXP\cr\cr
+LTLUOP    & $\longleftarrow$ & LTLUNOPS* LTLVAL\cr\cr
+LTLVAL    & $\longleftarrow$ & EXPRESION / '(' LTLEXP ')'\cr\cr
+LTLUNOPS  & $\longleftarrow$ & \textit{$!$ / G / X / F / H / O / Z / Y}\cr\cr
+LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\&'$ / $"<->"$ / $"->"$}\cr
+\end{longtable}
+~\\
+
+Meta-propiedades de Falluto2.0:\\
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.50\textwidth} }
+NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ (CTLEXP / LTLEXP)\cr\cr
+FINMANYFAULTS & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULTS} $"->"$ LTLEXP\cr\cr
+FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} '(' IDENT (',' IDENT)* ')' $"->"$ LTLEXP\cr
 \end{longtable}
 ~\\\\
 
@@ -357,52 +389,12 @@ INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (',' (IDENT / INT / BOOL)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado:\\\\
+\section{Restricciones y fairness}
 
-\noindent\begin{longtable}{>{\bfseries}lll}
-SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR /\\
-	 	  &	 			     & FINMANYFAULTS / FINMANYFAULT\\\\
-CTLSPEC   & $\longleftarrow$ &\textit{CTLSPEC} CTLEXP\\\\
-CTLEXP 	  & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP /\\
-          &                  & (\textit{A} / \textit{E}) '[' CTLEXP \textit{U} CTLEXP ']' /\\
-          &                  & CTLVALUE\\\\
-CTLBINOP  & $\longleftarrow$ & '\&' / '$|$' / \textit{xor} / \textit{xnor} / $"->"$ / $"<->"$\\\\
-CTLVALUE  & $\longleftarrow$ & CTLUNOP CTLEXP /\\
-          &                  & '(' CTLEXP ')' /\\
-          &                  & EXPRESION\\\\
-CTLUNOP   & $\longleftarrow$ & \textit{$'!'$ / EG / EX / EF / AG / AX / AF}\\\\
-LTLSPEC   & $\longleftarrow$ & \textit{LTLSPEC} LTLEXP\\\\
-LTLEXP    & $\longleftarrow$ & LTLBOP / LTLUOP\\\\
-LTLBOP    & $\longleftarrow$ & LTLUOP LTLBINOPS LTLEXP\\\\
-LTLUOP    & $\longleftarrow$ & LTLUNOPS* LTLVAL\\\\
-LTLVAL    & $\longleftarrow$ & EXPRESION / '(' LTLEXP ')'\\\\
-LTLUNOPS  & $\longleftarrow$ & \textit{$!$ / G / X / F / H / O / Z / Y}\\\\
-LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\&'$ / $"<->"$ / $"->"$}\\
-\end{longtable}
-~\\\\
-\newpage
-\textbf{Meta-propiedades de Falluto2.0:}\\
-
-\noindent \begin{longtable}{>{\bfseries}lll}
-NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ \\
-			     & & (CTLEXP / LTLEXP)\\\\
-FINMANYFAULTS & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULTS} $"->"$ LTLEXP\\\\
-FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} \\ 
-			 & & '(' IDENT (',' IDENT)* ')' $"->"$ LTLEXP\\
-\end{longtable}
-~\\\\
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\textbf{Reglas para especificaci\'on de restricciones de fairness:}\\\\
-
-\noindent \begin{longtable}{>{\bfseries}lll}
-CONTRAINT & $\longleftarrow$ & FAIRNESS / COMPASSION\\\\
-FAIRNESS & $\longleftarrow$ & \textit{FAIRNESS} EXPRESION\\\\
-COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION ')'\\
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.75\textwidth} }
+CONTRAINT & $\longleftarrow$ & FAIRNESS / COMPASSION\cr\cr
+FAIRNESS & $\longleftarrow$ & \textit{FAIRNESS} EXPRESION\cr\cr
+COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION ')'\cr
 \end{longtable}
 ~\\\\
 
@@ -590,6 +582,11 @@ LTLSPEC G ((coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d &
 
 \end{verbatim}
 
+
+\begin{longtable}{ll >{\raggedright}p{0.75\textwidth} }
+algo & otro & algasfkalsjflkasjfassaf asñfñaslkjfñlaksjfñlkasjgñasj gñlasjgña sjgfa \cr
+ssss & fsaf & algasfkalsjflkasjfassaf asñfñaslkjfñlaksjfñlkasjgñasj gñlasjgña sjgfa
+\end{longtable}
 
 \end{document}
 

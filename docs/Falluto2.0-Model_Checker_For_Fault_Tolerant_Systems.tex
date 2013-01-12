@@ -12,6 +12,16 @@
 \usepackage{tabularx}
 \usepackage{enumerate}
 
+\usepackage{longtable}
+
+
+% APENDICES
+\usepackage{appendix}
+\renewcommand{\appendixname}{Ap\'endices}
+\renewcommand{\appendixtocname}{Ap\'endices}
+\renewcommand{\appendixpagename}{Ap\'endices}
+%
+
 \begin{document}
 
 %TODO cambiar las palabras entre []
@@ -548,7 +558,7 @@ CTLSPEC EG estado = apagado
 
 \chapter{La sintaxis de Falluto2.0}
 
-En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars. Podemos encontrar ejemplos esclarecedores también en ref{}.
+En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars. Podemos encontrar ejemplos esclarecedores tambi\'en en ref{}.
 
 \section{Lenguaje de modelado de comportamiento operacional}
 Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{Proctypes} de Falluto2.0. Cada \textit{proctype} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de un \textit{proctype} es introducida mediante la palabra clave \textit{PROCTYPE}. A continuaci\'on se establece un nombre para esta clase de procesos, y se especifica si poseer\'a o no variables de contexto, y acciones de sincronizaci\'on. Podemos decir que todo esto forma parte del encabezado del \textit{proctype}:
@@ -571,10 +581,10 @@ Para definir la relaci\'on de transici\'on de nuestros procesos, tomaremos en cu
 Como ya dijimos \textit{accion} es el nombre de la transici\'on (representa a la acci\'on que lleva a cabo el sistema para pasar a un nuevo estado), la \textit{condici\'on de habilitaci\'on} es una f\'ormula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transici\'on a aquellos que la cumplan. La postcondici\'on es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las caracter\'isticas de los estados de destino de esta acci\'on. Para indicar que estamos asignando un valor a una variable en el pr\'oximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente pr\'oximo. El siguiente es un ejemplo un poco mas claro para la declaraci\'on de una transici\'on:\begin{verbatim}[transicion1] x > 3 & y => x' = x - 1, y' = !y;\end{verbatim}
 \end{enumerate}
 
-Una vez descripto el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave INSTANCE y pasamos a la instanciación los parámetros pertinentes, según se haya definido en el proctype correspondiente. La sintaxis sería entonces la siguiente: \begin{verbatim}INSTANCE nombre = nombre_proctype(parametro1, parametro2, ..., parametroN\end{verbatim}
-Como ya hemos mencionado, podemos pasar variables de contexto como parámetros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el parámetro correspondiente. Para referir a una variable en particular de alguna instancia, usamos la construcción $nombre\_de\_instancia.nombre\_de\_variable$.\\
+Una vez descripto el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave INSTANCE y pasamos a la instanciaci\'on los par\'ametros pertinentes, seg\'un se haya definido en el proctype correspondiente. La sintaxis ser\'ia entonces la siguiente: \begin{verbatim}INSTANCE nombre = nombre_proctype(parametro1, parametro2, ..., parametroN\end{verbatim}
+Como ya hemos mencionado, podemos pasar variables de contexto como par\'ametros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el par\'ametro correspondiente. Para referir a una variable en particular de alguna instancia, usamos la construcci\'on $nombre\_de\_instancia.nombre\_de\_variable$.\\
 
-En cuanto a los parámetros de acciones de sincronización, basta con pasar un nombre a elección al parámetro. Todas las acciones con el mismo nombre a nivel de instanciación, serán sincronizadas entre si. Es decir que si quiero sincronizar acciones entre distintas instancias debo tener presente estas acciones parametrizadas en el proctype, y debo otorgarles un mismo nombre en la instanciación de los procesos involucrados.
+En cuanto a los par\'ametros de acciones de sincronizaci\'on, basta con pasar un nombre a elecci\'on al par\'ametro. Todas las acciones con el mismo nombre a nivel de instanciaci\'on, ser\'an sincronizadas entre si. Es decir que si quiero sincronizar acciones entre distintas instancias debo tener presente estas acciones parametrizadas en el proctype, y debo otorgarles un mismo nombre en la instanciaci\'on de los procesos involucrados.
 
 \section{Lenguaje de descripci\'on de fallas}
 En Falluto2.0 podemos inyectar f\'acilmente fallas en los procesos definidos. Las fallas forman parte de cada proceso y por lo tanto son declaradas dentro de los proctypes en una subsecci\'on introducida por la palabra clave \textit{FAULT}. La sintaxis general para la inyecci\'on de una falla es la siguiente: \begin{verbatim}nombre : condicion_habilitacion => postcondicion is tipo\end{verbatim}
@@ -586,32 +596,41 @@ Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una tran
 \item \textbf{Tipo Byzantine.} Declara que la falla provoca un efecto bizantino sobre ciertas variables del proceso, es decir que una vez ocurrida la falla las variables mencionadas podr\'an en cualquier momento cambiar su valor actual por alg\'un otro valor dentro de su dominio, afectando as\'i el estado del sistema. Debemos preceder a la palabra clave BYZ con una lista de nombres de variables que ser\'an afectadas. Ejemplo: \begin{verbatim}falla1: TRUE => ... is BYZ(var1, var2) \end{verbatim}
 \end{itemize}
 
-\section{Lenguaje de especificación de propiedades y restricciones}
+\section{Lenguaje de especificaci\'on de propiedades y restricciones}
 
-Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificación, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificación LTL y CTL. Se propone también el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
-Para la especificación de una propiedad LTL usamos la palabra clave LTLSPEC y la precedemos de una fórmula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como G (Globaly), F(Finaly), etc, además de los conectivos y operadores de la lógica proposicional. Similarmente para definir propiedades en lógica CTL usamos la palabra clave CTLSPEC precedida por la fórmula correspondiente. La sintaxis completa para la formación de las formulas puede encontrarse en el apéndice \ref{}.\\
-Falluto2.0 posee además las siguientes meta-propiedades para la verificación del sistema:
+Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificaci\'on, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificaci\'on LTL y CTL. Se propone tambi\'en el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
+Para la especificaci\'on de una propiedad LTL usamos la palabra clave LTLSPEC y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como G (Globaly), F(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave CTLSPEC precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{}.\\
+Falluto2.0 posee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
 \begin{itemize}
-\item \textbf{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecución del sistema. Usamos la palabra clave NORMAL\_BEHAVIOUR y la precedemos por una fórmula LTL o CTL especificando la propiedad deseada. Luego la propiedad será satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una fórmula expresada en LTL o CTL.
-\item \textbf{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad $q$ se cumple bajo la suposición de que eventualmente dejan de ocurrir las fallas de nombre $fault1$, $fault2$, ..., $faultn$ en la ejecución del sistema. En este caso la propiedad $q$ solo puede estar escrita en LTL debido a restricciones intrínsecas de la lógica CTL. De manera similar el uso de la construcción \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad $q$ se cumple bajo la suposición de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
-\item \textbf{Deadlock check} La utilización de la palabra clave CHECK\_DEADLOCK dentro de la sección de opciones en la especificación de nuestro sistema, ordena la verificación de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en algún momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
+\item \textbf{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave NORMAL\_BEHAVIOUR y la precedemos por una f\'ormula LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una f\'ormula expresada en LTL o CTL.
+\item \textbf{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad $q$ se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre $fault1$, $fault2$, ..., $faultn$ en la ejecuci\'on del sistema. En este caso la propiedad $q$ solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad $q$ se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
+\item \textbf{Deadlock check} La utilizaci\'on de la palabra clave CHECK\_DEADLOCK dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, ordena la verificaci\'on de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en alg\'un momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
 \end{itemize}
 
-Podemos restringir la verificación de las propiedades sobres nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
+Podemos restringir la verificaci\'on de las propiedades sobres nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
 \begin{itemize}
-\item \textbf{Fairness incondicional.} Para restringir la verificación del sistema a solo aquellas ejecuciones donde una propiedad $q$ se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde $q$ es una fórmula proposicional que habla a cerca del estado del sistema.
-\item \textbf{Fairnes fuerte.} Dadas dos formulas proposicionales $p$ y $q$ sobre nuestro sistema, podemos restringir la verificación de propiedades LTL a ejecuciones en las cuales se cumpla la condición de justicia fuerte de $p$ con respecto a $q$ usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificación solo a ejecuciones donde se cumpla que si $p$ vale siempre a menudo, entonces $q$ vale siempre a menudo. Tomemos en cuenta que el uso de esta construcción no es compatible con propiedades definidas en CTL y puede dar resultados erróneos.
+\item \textbf{Fairness incondicional.} Para restringir la verificaci\'on del sistema a solo aquellas ejecuciones donde una propiedad $q$ se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde $q$ es una f\'ormula proposicional que habla a cerca del estado del sistema.
+\item \textbf{Fairnes fuerte.} Dadas dos formulas proposicionales $p$ y $q$ sobre nuestro sistema, podemos restringir la verificaci\'on de propiedades LTL a ejecuciones en las cuales se cumpla la condici\'on de justicia fuerte de $p$ con respecto a $q$ usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificaci\'on solo a ejecuciones donde se cumpla que si $p$ vale siempre a menudo, entonces $q$ vale siempre a menudo. Tomemos en cuenta que el uso de esta construcci\'on no es compatible con propiedades definidas en CTL y puede dar resultados err\'oneos.
 \end{itemize}
+
+En el an\'alisis de propiedades sobre nuestro sistema, no solo podemos hablar sobre el estado del sistema en cuanto a las variables de estado, sino que tambi\'en podemos analizar las acciones que nos llevan a esos estados. La construcci\'on \textit{just(accion)} nos permite hablar a cerca de la ocurrencia de la transici\'on etiquetada con el nombre \textit{accion}. Por ejemplo podemos restringir nuestra verificaci\'on a aquellas ejecuciones en donde la transici\'on etiquetada como \textit{acci\'on1} se lleve a cabo siempre a menudo usando la siguiente restricci\'on de fairness:
+$$FAIRNESS~just(accion1)$$
+De similar manera, usando alguna de las siguientes declaraciones, podemos verificar si en toda ejecuci\'on del sistema aquella acci\'on se realiza en alg\'un momento de la ejecuci\'on:
+$$CTLSPEC~AF~just(accion1)$$
+$$LTLSPEC~F~just(accion1)$$
+Vale aclarar que \textit{just(x)}, donde \textit{x} es una acci\'on cualquiera, se toma como una f\'ormula booleana y puede combinarse dentro de otras f\'ormulas sin restricci\'on alguna al momento de especificar propiedades y realizar restricciones de fairness.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{Semántica de Falluto2.0}
-Como ya mencionamos en la introducción a este trabajo, Falluto2.0 es un front-end para NuSMV. Por lo tanto la descripción del sistema en el lenguaje de Falluto2.0 debe ser compilada a una descripción en el lenguaje de NuSMV. Para ello es necesario tomar en cuenta la semántica de Falluto2.0. En este capítulo abordaremos el tema de la semántica de Falluto2.0, repasando las ideas detrás de su implementación y dando una mirada a la compilación al lenguaje de NuSMV.
+\chapter{Sem\'antica de Falluto2.0}
+Como ya mencionamos en la introducci\'on a este trabajo, Falluto2.0 es un front-end para NuSMV. Por lo tanto la descripci\'on del sistema en el lenguaje de Falluto2.0 debe ser compilada a una descripci\'on en el lenguaje de NuSMV. Para ello es necesario tomar en cuenta la sem\'antica de Falluto2.0. En este cap\'itulo abordaremos el tema de la sem\'antica de Falluto2.0, repasando las ideas detr\'as de su implementaci\'on y dando una mirada a la compilaci\'on al lenguaje de NuSMV.
 
-\section{Construcción de un sistema global de procesos concurrentes}
-En la estructura de la especificación del sistema en Falluto2.0 podemos distinguir la definición del comportamiento de los procesos, llevado a cabo a partir de los proctypes, de la instanciación de los diferentes procesos. Se busca que los procesos se desarrollen de manera concurrente en el entorno del sistema global, donde cada procesos pueda tener acceso a cierta información del sistema según lo defina el usuario. Se busca así también que los procesos puedan sincronizar acciones y que se pueda controlar de manera general el interliving del resto de las acciones.
-La representación del sistema completo se logra en la compilación a partir del uso de un solo módulo de NuSMV con el siguiente aspecto:
+\section{Construcci\'on de un sistema de procesos concurrentes}
+En la estructura de la especificaci\'on del sistema en Falluto2.0 podemos distinguir la definici\'on del comportamiento de los procesos, llevado a cabo a partir de los proctypes, de la instanciaci\'on de los diferentes procesos. Se busca que los procesos se desarrollen de manera concurrente en el entorno del sistema global, donde cada procesos pueda tener acceso a cierta informaci\'on del sistema seg\'un lo defina el usuario. Se busca as\'i tambi\'en que los procesos puedan sincronizar acciones y que se pueda controlar de manera general el interliving del resto de las acciones.
+La representaci\'on del sistema completo se logra en la compilaci\'on a partir del uso de un solo m\'odulo de NuSMV con el siguiente aspecto:
 \begin{verbatim}
 MODULE main
 VAR
@@ -621,29 +640,29 @@ INIT
 TRANS
 ...
 \end{verbatim}
-A continuación describiremos como se rellena cada sección de este módulo con el fin de lograr la compilación del sistema original descripto usando el lenguaje de Falluto2.0.\\
+A continuaci\'on describiremos como se rellena cada secci\'on de este m\'odulo con el fin de lograr la compilaci\'on del sistema original descripto usando el lenguaje de Falluto2.0.\\
 
 \textbf{VARIABLES DEL SISTEMA}
-Podemos ver el estado del sistema como aquel formado por la conjunción del estado de cada proceso que lo compone. De este modo las variables de estado del sistema compilado serán la unión de todas las variables de estado de cada instancia declarada en el sistema original. En la sección VAR entonces colocaremos por cada variables de cada instancia del sistema una variables en representación. La univocidad de las mismas estará dada por la univocidad del nombre de cada instancia con respecto a sus pares. Otras variables formarán parte de esta sección también:
+Podemos ver el estado del sistema como aquel formado por la conjunci\'on del estado de cada proceso que lo compone. De este modo las variables de estado del sistema compilado ser\'an la uni\'on de todas las variables de estado de cada instancia declarada en el sistema original. En la secci\'on VAR entonces colocaremos por cada variables de cada instancia del sistema una variables en representaci\'on. La univocidad de las mismas estar\'a dada por la univocidad del nombre de cada instancia con respecto a sus pares. Otras variables formar\'an parte de esta secci\'on tambi\'en:
 \begin{itemize}
-\item \textbf{Variable de acción} Esta variables nos permitirá denotar cual fue la última acción llevada a cabo por el sistema. Su utilidad sin embargo va mas allá de una simple denotación, ya que nos permitirá especificar sobre las acciones llevadas a cabo por el sistema. De esta manera podremos hablar sobre propiedades a cerca del accionar del mismo y establecer restricciones sobre el mismo. El dominio de esta variables entonces consta de palabras denotando la realización de cada acción del sistema, entre ellas las acciones comunes de cada instancia de proceso, las acciones de falla de cada instancia de proceso, y acciones de efectos de fallas bizantinas. Un último valor en el dominio de esta variable nos permite denotar una transición al estado de deadlock.
-\item \textbf{Variables de activación de fallas} Las fallas permanentes, es decir las de tipo STOP y BYZANTINE, poseen una variable booleana que nos permite conocer si las estas fallas han ocurrido y están afectando el funcionamiento del sistema.
-\item \textbf{Variables de program counter} Estas variables permiten distinguir entre las acciones de igual nombre dentro de un mismo proceso. Existe entonces un variable de este tipo por cada proceso instanciado. Nos permiten eliminar casos de ambigüedad en el salto de estados del sistema, que de otro modo nos llevaría a una representación errónea del sistema original.
+\item \textbf{Variable de acci\'on} Esta variables nos permitir\'a denotar cual fue la \'ultima acci\'on llevada a cabo por el sistema. Su utilidad sin embargo va mas all\'a de una simple denotaci\'on, ya que nos permitir\'a especificar sobre las acciones llevadas a cabo por el sistema. De esta manera podremos hablar sobre propiedades a cerca del accionar del mismo y establecer restricciones sobre el mismo. El dominio de esta variables entonces consta de palabras denotando la realizaci\'on de cada acci\'on del sistema, entre ellas las acciones comunes de cada instancia de proceso, las acciones de falla de cada instancia de proceso, y acciones de efectos de fallas bizantinas. Un \'ultimo valor en el dominio de esta variable nos permite denotar una transici\'on al estado de deadlock.
+\item \textbf{Variables de activaci\'on de fallas} Las fallas permanentes, es decir las de tipo STOP y BYZANTINE, poseen una variable booleana que nos permite conocer si las estas fallas han ocurrido y est\'an afectando el funcionamiento del sistema.
+\item \textbf{Variables de program counter} Estas variables permiten distinguir entre las acciones de igual nombre dentro de un mismo proceso. Existe entonces un variable de este tipo por cada proceso instanciado. Nos permiten eliminar casos de ambigüedad en el salto de estados del sistema, que de otro modo nos llevar\'ia a una representaci\'on err\'onea del sistema original.
 \end{itemize}
 ~\\
 
 \textbf{ESTADOS INICIALES}
-Como ya dijimos, la restricción de estados iniciales en NuSMV se lleva a cabo a partir de una fórmula booleana dentro de la sección \textit{INIT} del módulo. Nuestra fórmula booleana será entonces la conjunción booleana de todas las formulas booleanas presentes en la sección \textit{INIT} de cada proceso instanciado. Agregaremos también en esta fórmula condiciones para la inicialización de variables introducidas por la compilación como serían las variables de actividad de falla y las de program counter.\\
+Como ya dijimos, la restricci\'on de estados iniciales en NuSMV se lleva a cabo a partir de una f\'ormula booleana dentro de la secci\'on \textit{INIT} del m\'odulo. Nuestra f\'ormula booleana ser\'a entonces la conjunci\'on booleana de todas las formulas booleanas presentes en la secci\'on \textit{INIT} de cada proceso instanciado. Agregaremos tambi\'en en esta f\'ormula condiciones para la inicializaci\'on de variables introducidas por la compilaci\'on como ser\'ian las variables de actividad de falla y las de program counter.\\
 
 \textbf{TRANSICIONES}
-La relación de transición esta representada en la sección \textit{TRANS} del módulo compilado mediante una fórmula booleana que captura cuatro tipos de transiciones sin realizar distinción entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo diseñado en el lenguaje de Falluto2.0. Esta exclusión se lleva a cabo a partir de la variable de acción introducida en el momento de compilación, y en el caso de no ser suficiente con ella, usamos también las variables de program counter (por ejemplo cuando hay mas de una acción con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
+La relaci\'on de transici\'on esta representada en la secci\'on \textit{TRANS} del m\'odulo compilado mediante una f\'ormula booleana que captura cuatro tipos de transiciones sin realizar distinci\'on entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo diseñado en el lenguaje de Falluto2.0. Esta exclusi\'on se lleva a cabo a partir de la variable de acci\'on introducida en el momento de compilaci\'on, y en el caso de no ser suficiente con ella, usamos tambi\'en las variables de program counter (por ejemplo cuando hay mas de una acci\'on con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
 \begin{itemize}
-\item \textbf{Acciones comunes.} Son las transiciones definidas dentro de cada la sección TRANS de cada proctype.
-\item \textbf{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de las fallas declaradas en la sección \textit{FAULT} de cada \textit{proctype}.
+\item \textbf{Acciones comunes.} Son las transiciones definidas dentro de cada la secci\'on TRANS de cada proctype.
+\item \textbf{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de las fallas declaradas en la secci\'on \textit{FAULT} de cada \textit{proctype}.
 \item \textbf{Acciones de efecto bizantino.} Representan el cambio de estado del sistema como consecuencia del accionar de los efectos de una falla bizantina.
-\item \textbf{Acción de deadlock.} Representa la imposibilidad de realizar cualquier acción normal. Decimos entonces que el sistema ha realizado una transición hacia un estado de deadlock. Veremos mas adelante la utilidad de poseer esta transición.
+\item \textbf{Acci\'on de deadlock.} Representa la imposibilidad de realizar cualquier acci\'on normal. Decimos entonces que el sistema ha realizado una transici\'on hacia un estado de deadlock. Veremos mas adelante la utilidad de poseer esta transici\'on.
 \end{itemize}
-La disyunción excluyente de estas transiciones forma la fórmula de transición final que introducimos en la sección \textit{TRANS} de nuestro módulo compilado. Nuestro módulo de NuSMV quedará en términos de lo que sigue:
+La disyunci\'on excluyente de estas transiciones forma la f\'ormula de transici\'on final que introducimos en la secci\'on \textit{TRANS} de nuestro m\'odulo compilado. Nuestro m\'odulo de NuSMV quedar\'a en t\'erminos de lo que sigue:
 \begin{verbatim}
 MODULE main
 VAR
@@ -663,38 +682,83 @@ TRANS
 \end{verbatim}
 
 
-\section{Compilación de transiciones}
-Veremos a continuación como se realiza el proceso de compilación de cada una de las transiciones que luego forman parte de la formula de la sección \textit{TRANS} del módulo compilado.\\
+\section{Compilaci\'on de transiciones}
+Veremos a continuaci\'on como se realiza el proceso de compilaci\'on de cada una de las transiciones que luego forman parte de la formula de la secci\'on \textit{TRANS} del m\'odulo compilado.\\
 
 \textbf{TRANSICIONES NORMALES}
-Recordemos que la siguiente era la sintaxis general de la declaración de una transición NORMAL en el lenguaje de Falluto2.0 (Para mas detalles referirse al capítulo \ref{}):
+Recordemos que la siguiente era la sintaxis general de la declaraci\'on de una transici\'on NORMAL en el lenguaje de Falluto2.0 (Para mas detalles referirse al cap\'itulo \ref{}):
 $$[nombre]~habilitacion => postcondicion;$$
-La versión compilada de esta acción tendrá el siguiente aspecto:
+La versi\'on compilada de esta acci\'on tendr\'a el siguiente aspecto:
 $$next(actvar)=nombre~\&~!faultact~\&~habilitacion~\&~postcondicion~\&~resto$$
-Notar que de darse esta acción, el nombre de la misma quedará guardado como valor de actvar en el próximo estado, indicando que la acción que se llevo a cabo para llegar a ese estado fue en efecto esta. \textit{!faultact} es un fórmula que asegura que no estén activas aquellas fallas de tipo STOP que afectan esta transición. En efecto esta fórmula es simplemente la conjunción de la negación de las variables de actividad de falla para aquellas fallas que afectan esta transición. \textit{habilitacion} es simplemente una compilación directa de la fórmula de habilitación original al igual que \textit{postcondicion} la cual es la conjunción de la compilación directa de las asignaciones establecidas en la postcondición original. Por último en \textit{resto} nos aseguramos que en el próximo estado no cambie el valor de las variables cuyo valor no es definido en esta transición. En efecto esta fórmula es la conjunción de las asignaciones $next(x)=x$ por cada variable x que debe mantener su valor en el estado destino.\\
+Notar que de darse esta acci\'on, el nombre de la misma quedar\'a guardado como valor de actvar en el pr\'oximo estado, indicando que la acci\'on que se llevo a cabo para llegar a ese estado fue en efecto esta. \textit{!faultact} es un f\'ormula que asegura que no est\'en activas aquellas fallas de tipo STOP que afectan esta transici\'on. En efecto esta f\'ormula es simplemente la conjunci\'on de la negaci\'on de las variables de actividad de falla para aquellas fallas que afectan esta transici\'on. \textit{habilitaci\'on} es simplemente una compilaci\'on directa de la f\'ormula de habilitaci\'on original al igual que \textit{postcondicion} la cual es la conjunci\'on de la compilaci\'on directa de las asignaciones establecidas en la postcondici\'on original. Por \'ultimo en \textit{resto} nos aseguramos que en el pr\'oximo estado no cambie el valor de las variables cuyo valor no es definido en esta transici\'on. En efecto esta f\'ormula es la conjunci\'on de las asignaciones $next(x)=x$ por cada variable x que debe mantener su valor en el estado destino. Notemos por \'ultimo que si la transici\'on se realiza a partir de una acci\'on de sincronizaci\'on entonces \textit{habilitaci\'on} es la conjunci\'on de todas las condiciones de habilitaci\'on dadas en cada proceso involucrado. De manera similar la postcondici\'on es la conjunci\'on de todas las asignaciones establecidas en la postcondici\'on de la transici\'on correspondiente en cada proceso involucrado, y se debe tomar en cuenta la inactividad de las fallas de tipo STOP de los diferentes procesos.\\
 
 \textbf{TRANSICIONES DE FALLA}
-Recordemos que en cuanto a nosotros respecta, una falla es una transición más del sistema. Por ende serán compiladas muy parecidas a las transiciones normales, tomando en cuenta algunas características especiales intrínsecas al tipo de falla. Habíamos dicho que para la inyección de una falla introducíamos de manera declarativa las características de la misma usando la siguiente sintaxis:
+Recordemos que en cuanto a nosotros respecta, una falla es una transici\'on m\'as del sistema. Por ende ser\'an compiladas muy parecidas a las transiciones normales, tomando en cuenta algunas caracter\'isticas especiales intr\'insecas al tipo de falla. Hab\'iamos dicho que para la inyecci\'on de una falla introduc\'iamos de manera declarativa las caracter\'isticas de la misma usando la siguiente sintaxis:
 $$nombre~:~habilitacion~=>~postcondicion~is~tipo$$
-La compilación de esta falla dará como resultado la siguiente formula booleana:
+La compilaci\'on de esta falla dar\'a como resultado la siguiente formula booleana:
 $$next(actvar)=nombre~\&~!fallaactiva~\&~next(fallaactiva)~\&$$ $$habilitacion~\&~postcondicion~\&~resto$$
-Como en el caso de las transiciones comunes, el valor de la variable de acción denotará haber llegado al estado siguiente a partir de la ocurrencia de esta transición, la cual en este caso es de falla. \textit{!fallaactiva} es la condición que impide que las fallas permanentes ocurran mas de una vez, en efecto esta condición es TRUE si la falla es de tipo \textit{transient}. En el caso de ser falla permanente y de llevarse a cabo esta transición, la activación de la falla quedará registrada en el próximo estado debido a la condición \textit{next(fallaactiva)} presente en la fórmula. El resto de la fórmula se puede intuir de lo redactado en el caso de las transiciones comunes.\\
+Como en el caso de las transiciones comunes, el valor de la variable de acci\'on denotar\'a haber llegado al estado siguiente a partir de la ocurrencia de esta transici\'on, la cual en este caso es de falla. \textit{!fallaactiva} es la condici\'on que impide que las fallas permanentes ocurran mas de una vez, en efecto esta condici\'on es TRUE si la falla es de tipo \textit{transient}. En el caso de ser falla permanente y de llevarse a cabo esta transici\'on, la activaci\'on de la falla quedar\'a registrada en el pr\'oximo estado debido a la condici\'on \textit{next(fallaactiva)} presente en la f\'ormula. El resto de la f\'ormula se puede intuir de lo redactado en el caso de las transiciones comunes.\\
 
 
 \textbf{TRANSICIONES DE EFECTOS DE FALLA BIZANTINA}
-Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espontáneamente a lo largo de toda le ejecución del sistema. Las variables afectadas por estas fallas cambiarán aleatoriamente de valor en distintos instantes de tiempo durante la ejecución. Para simular este efecto, es que hemos introducido transiciones especiales que describen estos cambios. Una vez ocurrida la falla, su transición de efecto bizantina queda habilitada y puede ocurrir aleatoriamente en cualquier momento posterior. La compilación entonces de estas transiciones resulta en fórmulas semejantes a la que sigue:
+Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espont\'aneamente a lo largo de toda le ejecuci\'on del sistema. Las variables afectadas por estas fallas cambiar\'an aleatoriamente de valor en distintos instantes de tiempo durante la ejecuci\'on. Para simular este efecto, es que hemos introducido transiciones especiales que describen estos cambios. Una vez ocurrida la falla, su transici\'on de efecto bizantina queda habilitada y puede ocurrir aleatoriamente en cualquier momento posterior. La compilaci\'on entonces de estas transiciones resulta en f\'ormulas semejantes a la que sigue:
 $$fallaactiva~\&~next(actvar)=bizefect~\&~permanecen$$
-Aquí \textit{fallaactiva} es la condición de habilitación de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en algún momento de la ejecución. \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar cuál ha sido la acción que se ha ocurrido para llegar al nuevo estado modificado. Por último \textit{permanecen} se forma por la conjunción de las formulas \textit{next(x)=x} para todo x variable del sistema excepto por \textit{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegirá un valor aleatorio para estas variables afectadas ya que no encuentra restricción alguna en la fórmula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destinos posibles.\\
+Aqu\'i \textit{fallaactiva} es la condici\'on de habilitaci\'on de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en alg\'un momento de la ejecuci\'on. \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar cu\'al ha sido la acci\'on que se ha ocurrido para llegar al nuevo estado modificado. Por \'ultimo \textit{permanecen} se forma por la conjunci\'on de las formulas \textit{next(x)=x} para todo x variable del sistema excepto por \textit{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegir\'a un valor aleatorio para estas variables afectadas ya que no encuentra restricci\'on alguna en la f\'ormula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destinos posibles.\\
 
-\textbf{TRANSICIÓN DE DEADLOCK}
-Consideramos que nuestro sistema cae en situación de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementación de una transición que exprese el movimiento del sistema hacia este estado nos es útil para la verificación de diferentes propiedades y para la implementación de restricciones de fairness. Notar que a falta de ella y en presencia de solo transiciones de falla habilitadas, estaríamos obligando la ocurrencia de una de estas lo cual no es correcto. La compilación de la transición de deadlock tiene entonces la siguiente forma:
+\textbf{TRANSICI\'oN DE DEADLOCK}
+Consideramos que nuestro sistema cae en situaci\'on de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementaci\'on de una transici\'on que exprese el movimiento del sistema hacia este estado nos es \'util para la verificaci\'on de diferentes propiedades y para la implementaci\'on de restricciones de fairness. Notar que a falta de ella y en presencia de solo transiciones de falla habilitadas, estar\'iamos obligando la ocurrencia de una de estas lo cual no es correcto. La compilaci\'on de la transici\'on de deadlock tiene entonces la siguiente forma:
 $$!trans\_habilitadas~\&~next(actvar)=deadlock~\&~resto$$
-Como es evidente, la condición de habilitación de esta transición esta dada por la conjunción de la negación de las condiciones de habilitación de todas las transiciones normales del sistema. De este modo solo realizamos la transición de deadlock cuando nos vemos inhabilitados a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acción que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar} asegurando que ninguna de ellas cambie de valor en el próximo estado.
+Como es evidente, la condici\'on de habilitaci\'on de esta transici\'on esta dada por la conjunci\'on de la negaci\'on de las condiciones de habilitaci\'on de todas las transiciones normales del sistema. De este modo solo realizamos la transici\'on de deadlock cuando nos vemos inhabilitados a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acci\'on que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar} asegurando que ninguna de ellas cambie de valor en el pr\'oximo estado.
+
+
+
+\section{Fairness de fallas y procesos}
+En general nos interesa trabajar sobre diseños de sistemas en los cuales se den ciertas condiciones de fairness comunes al comportamiento real de los mismos. Por ejemplo dado un sistema en el que est\'an involucrados varios procesos no es com\'un buscar verificar propiedades sobre ejecuciones en las que solo uno de estos procesos sea el que act\'ue. En el caso de presencia de fallas, tampoco es com\'un atender a ejecuciones en donde las fallas se apoderan de los saltos de estado, y no se da lugar a ejecuciones normales en el sistema. Es por ello que en Falluto2.0 se establecen por defecto dos condiciones de fairness espec\'ificas, las cuales por supuesto pueden ser desactivadas.\\
+
+La primera de ellas es una condici\'on de \textbf{fairness incondicional para las acciones normales} del sistema. Esto evita prestar atenci\'on a aquellas ejecuciones en donde el avance en la ejecuci\'on es dado solo por transiciones de falla. Para lograr esto, introducimos en el sistema compilado la siguiente f\'ormula de justicia incondicional (mas conocida como fairness incondicional):
+$$FAIRNESS \bigvee_{t \in T_N} actvar = t_{name} \vee actvar = deadlock$$
+Donde $T_N$ es el conjunto de transiciones normales del sistema y $t_{name}$ representa el nombre de la transici\'on $t$. De esta manera estamos pidiendo que siempre a menudo se realice una transici\'on buena de ser posible, de lo contrario se caiga en deadlock como de costumbre. Recordemos que para poder caer en deadlock, todas las transiciones normales deben estar deshabilitadas.\\
+
+Nuestra segunda condici\'on de fairness por defecto se forma a partir de varias condiciones de fairness que aseguran que si un proceso cualquiera esta habilitado siempre a partir de un momento, entonces siempre a menudo sea atendido para realizar una transici\'on buena. Decimos entonces que esta es una \textbf{condici\'on de fairness d\'ebil para procesos}. Para implementar esta condici\'on pediremos entonces para cada proceso que siempre a menudo, o bien el proceso este en deadlock, o bien se lo atienda para realizar alguna acci\'on normal. Definimos que el proceso esta en deadlock si todas sus acciones buenas est\'an deshabilitadas. Agregamos entonces por defecto la siguiente condici\'on de fairness a nuestro sistema compilado:
+$$FAIRNESS \bigvee_{t \in T_N} actvar = t_{name} \vee proc\_deadlock$$
+donde \textit{proc\_deadlock} es la formula que expresa que este proceso cay\'o en deadlock y la construimos como sigue:
+$$\bigwedge_{t \in T_{N_proc}}! habilitacion_{t}$$
+donde $T_{N_proc}$ es el conjunto de transiciones normales del proceso y $habilitacion_{t}$ es la condici\'on de habilitaci\'on para la transici\'on $t$. Notemos que un proceso puede caer y salir de deadlock sucesivamente debido a cambios en el estado del resto del sistema. Por lo tanto puede darse el caso de que este fairness se cumpla y sin embargo no se atienda al proceso nunca, ya que cada vez que se lo intenta atender este esta en deadlock. Por lo tanto decimos que la condici\'on de fairness es d\'ebil y solo se asegurar\'a atender al proceso si el mismo nunca cae en deadlock.
+
+
+\section{Sem\'antica de propiedades}
+Como vimos al finalizar la secci\'on \ref{} del cap\'itulo \ref{}, Falluto2.0 nos permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on $$just(accion)$$. Al momento de verificar, esta construcci\'on nos permite expresar la ocurrencia de \textit{accion} como acci\'on para llegar al estado actual. Por lo tanto \textit{just(accion1)} es v\'alido en un estado cualquiera solo si la acci\'on realizada para llegar a ese estado fue \textit{accion1}. Notemos que esta formula nunca vale al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Por lo tanto la compilaci\'on se reduce a una simple traducci\'on semejante a la que sigue: \textit{just(accion1)} se traduce a \textit{actvar = accion1}.\\
+
+Vimos tambi\'en que podemos definir propiedades en LTL y CTL usando la sintaxis $LTLSPEC~q$ y $CTLSPEC~p$ donde $q$ es una formula LTL y $p$ una CTL. La compilaci\'on de estas f\'ormulas se hace de manera directa, tomando en cuenta lo expresado en el p\'arrafo anterior. Esto vale tambi\'en para las condiciones de fairness definidas por el usuario con las sintaxis $FAIRNESS~q$ y $COMPASSION(p,q)$.\\
+
+Miremos entonces la sem\'antica y compilaci\'on de las meta-propiedades que Falluto2.0 nos ofrece:
+\begin{itemize}
+\item \textbf{Meta-propiedad Finitely Many Fault/s.} Esta meta-propiedad nos permite razonar sobre propiedades en el sistema bajo la suposici\'on de que ciertas fallas dejan de ocurrir a partir de cierto momento en la ejecuci\'on. La sintaxis que usamos es $FINMANYFAULT(f_1,f_2,...,f_n) \rightarrow q$ donde $f_1,f_2,...,f_n$ son nombres de fallas y $q$ es la propiedad LTL que queremos verificar en el sistema. Esta propiedad se compila como una f\'ormula LTL compuesta a partir de una implicancia, en donde el antecedente sugiere que en cierto memento las faltas mencionadas dejar\'an de ocurrir, y el precedente corresponde a la compilaci\'on directa de la propiedad $q$. El ejemplo quedar\'ia compilado entonces como:
+$$LTLSPEC~(~F~!~(~actvar~in~\lbrace f_1,f_2,...,f_n \rbrace~)~)~\rightarrow~q_{compilada}$$
+\item \textbf{Meta-propiedad Normal Behaiviour.} La meta-propiedad Normal Behaiviour puede ser usada para verificar propiedades bajo la suposici\'on de que la ejecuci\'on del sistema estar\'a libre de ocurrencia de fallas. Es decir que es utilizada para verificar si la propiedad deseada se cumple al menos en aquellos casos en los que el sistema avanza solo a partir de transiciones normales. La sintaxis para esta propiedad en el lenguaje de Falluto2.0 es la que sigue: $$NORMALBEHAIVIOUR -> q$$ donde $q$ puede ser una formula LTL o una CTL. La compilaci\'on para el caso en que $q$ esta redactada en LTL es la que sigue: 
+$$LTLSPEC~(~G~!~(~actvar~in~\lbrace f_1, f_2,..., f_n\rbrace~)~)~\rightarrow~q_{compilada}$$
+De manera muy similar logramos compilar el caso en que $q$ es una formula CTL:
+$$CTLSPEC~(~AG~!~(~actvar~in~\lbrace f_1, f_2,..., f_n\rbrace~)~)~\rightarrow~q_{compilada}$$
+En ambos casos $\lbrace f_1, f_2,..., f_n\rbrace$ es el conjunto de nombres de todas las fallas declaradas en el sistema por el usuario.
+\end{itemize}
+
+~\\
+
+Falluto2.0 nos ofrece la posibilidad de verificar que nuestro sistema no caiga en estado de \textbf{deadlock}. La instrucci\'on definida por la sintaxis \textit{CHECKDEADLOCK} busca verificar entonces la ausencia de estados a partir de los cuales no se pueda avanzar usando acciones normales. Es decir que revisa que no hayan estados en los cuales todas las acciones normales est\'en inhabilitadas. Recordando la sem\'antica de la transici\'on de deadlock presentada en este mismo cap\'itulo, vemos que su condici\'on de habilitaci\'on es en efecto la negaci\'on de las condiciones de habilitaci\'on de cada transici\'on normal del sistema. Gracias a esto es que podemos definir entonces la compilaci\'on de nuestra propiedad de ausencia de deadlock como sigue:
+$$LTLSPEC~G~!~actvar = deadlock$$
+Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en al menos un estado de la ejecuci\'on la variable de acci\'on tenga el valor representante de deadlock, sugiriendo por lo tanto que el estado anterior a este pose\'ia inhabilitadas todas las acciones buenas del sistema.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 \chapter{Casos de estudio}
-			\section{Commit at\'omico}
+
+\section{Commit at\'omico}
+
+
+
 			\section{Ej\'ercitos bizantinos ?}
 			\section{Fil\'osofos comensales ?}
 			\section{Falla bizantina ?}
@@ -704,15 +768,199 @@ Como es evidente, la condición de habilitación de esta transición esta dada p
 			\section{Red satelital ultra secreta?}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{Conclusi\'on}
 
-\chapter{Ap\'endice A - Manual de Falluto2.0}
-
-\chapter{Ap\'endice B - Sint\'axis formal de Falluto2.0}
-
-\chapter{Ap\'endice C - Ejemplo paradigm\'atico de compilaci\'on.}
 
 
+\appendix
+\appendixpage
+\noappendicestocpagenum
+\addappheadtotoc
+
+\chapter{Manual de Falluto2.0}
+Mostraremos en este apéndice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos además como utilizarlo para la verificación de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta nos ofrece.
+
+\section{Instalación de Falluto2.0}
+Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versión 2.5.3 o superior, como así también Python versión 2.6.5 o superior. NuSMV debe ser accesible mediante nuestra variable de entorno PATH.
+
+\section{Opciones y utilización de la herramienta}
+El primer paso para la verificación del sistema es poseer un archivo (por convención terminado en .fll) en el cual se encuentre la descripción del sistema junto con las opciones de verificación y las propiedades a verificar (Ver el manual de usuario de Falluto2.0 para mayores indicaciones). Dentro de la carpeta de instalación de Falluto2.0 encontramos el script ejecutable del programa llamado \textit{Falluto2.0}. Ejecutamos este script con las siguientes opciones para realizar la verificación:
+
+\noindent usage: Falluto2.0 [-h] [--version] [-s path] [-co] filename\\
+
+
+\begin{tabular}{ll}
+\textbf{argumentos posicionales:}\\\\
+filename & Ruta del archivo de input donde se encuentra \\
+         & la descripción del sistema.\\
+\textbf{argumentos opcionales:} & \\\\
+-h, --help          & muestra este mensaje de ayuda.\\
+--version           & muestra la versión de este programa y sale.\\
+-s path, --s path, -save path & guardar la versión compilada a NuSMV de este \\
+                              & sistema en el archivo dado por la ruta 'path'.\\
+-co 		        & output con color.\\
+\end{tabular}
+
+
+
+\chapter{Sint\'axis formal de Falluto}
+\label{sintaxisFormal}
+
+A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico, y a los s\'imbolos y puntuaciones entre comillas.
+
+\section{Palabras reservadas de Falluto2.0}
+
+Las siguientes palabras son de caracter reservado, son usadas para fines específicos en la especificación del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
+
+%\begin{tabular}{>{\bfseries}l>{\itshape}l}
+\begin{tabularx}{\textwidth}{>{\bfseries}l>{\itshape}X }
+
+RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAME / just / is / FAIRNESS / COMPASSION / U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y / PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS / INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX / EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE / in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS / LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION/ NORMAL\_BAHAIVIOUR\\
+\end{tabularx}
+%\end{tabular}
+~\\
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Algunas producciones simples}
+
+Identificadores pueden contener '.' para indicar pertenencia a un proceso específico ( por ejemplo instancia.variable ). Nombres en cambio no.\\
+
+~\\\\
+\begin{tabularx}{\textwidth}{>{\bfseries}llX}
+IDENT & $\longleftarrow$ & ! RESERVED [a-zA-Z\_](``.''[a-zA-Z0-9\_]+)?\\\\
+NAME & $\longleftarrow$ & ! RESERVED [a-zA-Z\_][a-zA-Z0..9\_]*\\\\
+INT & $\longleftarrow$ & -? ( [0] / [1-9][0-9]* )\\\\
+BOOL & $\longleftarrow$ & ``TRUE'' / ``FALSE''\\\\
+EVENT & $\longleftarrow$ & ``just('' IDENT ``)''\\\\
+NEXTREF & $\longleftarrow$ & IDENT `` ' ''\\\\
+RANGE & $\longleftarrow$ & INT ``..'' INT\\\\
+BOOLEAN & $\longleftarrow$ & ``bool''\\\\
+SET & $\longleftarrow$ & ``\{'' (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOOL))* ``\}''\\\\
+INCLUSION & $\longleftarrow$ & IDENT ``in'' (SET / RANGE)\\
+\end{tabularx}
+~\\\\
+
+\section{Expresiones}
+Las expresiones representan formulas booleanas o enteras. A continuación encontramos su sintaxis:
+
+\begin{tabularx}{\textwidth}{>{\bfseries}llX }
+
+%\noindent \begin{longtable}{>{\bfseries}ll>{\itshape}l}
+EXPRESION & $\longleftarrow$ & PROP\\\\
+PROP & $\longleftarrow$ & CONJ ( ('$->$' / '$<->$') PROP ) ?\\\\
+CONJ & $\longleftarrow$ & COMP ( ('$|$' / '$\&$') CONJ ) ?\\\\
+COMP & $\longleftarrow$ & PROD ( ('$<=$' / '$>=$' / '$\>>$' / '$\<<$' / '$!=$' / '$=$') CONJ ) ?\\\\
+PROD & $\longleftarrow$ & SUM ( ('$*$' / '$\div$' / '$\%$' ) PROD ) ?\\\\
+SUM & $\longleftarrow$ & VALUE ( ('$+$' / '$-$' ) SUM ) ?\\\\
+VALUE & $\longleftarrow$  & ( '(' PROP ')' / INCLUSION / NEXTREF / IDENT / INT / BOOL / EVENT / ! VALUE / - VALUE ) \\\\
+NEXTLIST & $\longleftarrow$  & NEXTASSIGN (',' NEXTASSIGN)*\\\\
+NEXTASSIGN & $\longleftarrow$  & NEXTREF ( = EXPRESION / ``in'' ( SET / RANGE ) )\\
+\end{tabularx}
+%\end{longtable}
+~\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Proctypes}
+Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos dentro de la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
+
+%\noindent \begin{longtable}{>{\bfseries}lll}
+%\begin{tabularx}{\textwidth}{>{\bfseries}llX }
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.6\textwidth} }
+SYSTEM & $\longleftarrow$ & OPTIONS ? ( DEFINE / PROCTYPE / INSTANCE / SPECIFICATION / CONTRAINT ) *\cr\cr
+OPTIONS & $\longleftarrow$ & ``OPTIONS'' ( ``SYSNAME'' [a-z0-9A-Z$\_$.]* / ``CHECK\_DEADLOCK'' / ``FAULT\_FAIR\_DISABLE'' / ``INST\_WEAK\_FAIR\_DISABLE'' )* ``ENDOPTIONS''\cr\cr
+DEFINE & $\longleftarrow$ & \textit{DEFINE} IDENT $":="$  EXPRESION \cr\cr
+PROCTYPE & $\longleftarrow$ & \textit{PROCTYPE} IDENT '(' CTXVARS ? SYNCACTS ? ')' PROCTYPEBODY \textit{ENDPROCTYPE}\cr\cr
+CTXVARS & $\longleftarrow$ & IDENT (',' IDENT)*\cr\cr
+SYNCACTS & $\longleftarrow$ & ';' IDENT (',' IDENT)*\cr\cr
+PROCTYPEBODY & $\longleftarrow$ & VAR ? FAULT ? INIT ? TRANS ?\cr\cr
+VAR & $\longleftarrow$ & \textit{VAR} VARDECL*\cr\cr
+VARDECL & $\longleftarrow$ & IDENT ':' (BOOLEAN / SET / RANGE)\cr\cr
+FAULT & $\longleftarrow$ & \textit{FAULT} FAULTDECL*\cr\cr
+FAULTDECL & $\longleftarrow$ & NAME ':' (EXPRESION ? $"=>"$ NEXTEXPR ?) ? \textit{is} (BYZ / STOP / TRANSIENT)\cr\cr
+BYZ & $\longleftarrow$ & \textit{BYZ} '(' IDENT (',' IDENT)*, ')'\cr\cr
+TRANSIENT & $\longleftarrow$ & \textit{TRANSIENT}\cr\cr
+STOP & $\longleftarrow$ & \textit{STOP} ( '(' IDENT, (',' IDENT)* ')' ) ?\cr\cr
+INIT & $\longleftarrow$ & \textit{INIT} EXPRESION ?\cr\cr
+TRANS & $\longleftarrow$ & \textit{TRANS} TRANSDECL*\cr\cr
+TRANSDECL & $\longleftarrow$ & '[' NAME? ']' ':' EXPRESION? ( $"=>"$ NEXTEXPR )?\cr
+\end{longtable}
+%\end{tabularx}
+~\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Instanciaci\'on}
+Para la instanciaci\'on tenemos las siguientes reglas:\\\\
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.65\textwidth} }
+INSTANCE & $\longleftarrow$ & ``INSTANCE'' NAME ``='' NAME ``('' INSTPARAMS ``)''\cr\cr
+INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOOL) )* ) ?
+\end{longtable}
+~\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Especificaci\'on de propiedades}
+Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado:\\
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.7\textwidth} }
+SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
+CTLSPEC   & $\longleftarrow$ &\textit{CTLSPEC} CTLEXP\cr\cr
+CTLEXP 	  & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP / (\textit{A} / \textit{E}) '[' CTLEXP \textit{U} CTLEXP ']' / CTLVALUE\cr\cr
+CTLBINOP  & $\longleftarrow$ & '\&' / '$|$' / \textit{xor} / \textit{xnor} / $"->"$ / $"<->"$\cr\cr
+CTLVALUE  & $\longleftarrow$ & CTLUNOP CTLEXP /'(' CTLEXP ')' / EXPRESION\cr\cr
+CTLUNOP   & $\longleftarrow$ & \textit{$'!'$ / EG / EX / EF / AG / AX / AF}\cr\cr
+LTLSPEC   & $\longleftarrow$ & \textit{LTLSPEC} LTLEXP\cr\cr
+LTLEXP    & $\longleftarrow$ & LTLBOP / LTLUOP\cr\cr
+LTLBOP    & $\longleftarrow$ & LTLUOP LTLBINOPS LTLEXP\cr\cr
+LTLUOP    & $\longleftarrow$ & LTLUNOPS* LTLVAL\cr\cr
+LTLVAL    & $\longleftarrow$ & EXPRESION / '(' LTLEXP ')'\cr\cr
+LTLUNOPS  & $\longleftarrow$ & \textit{$!$ / G / X / F / H / O / Z / Y}\cr\cr
+LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\&'$ / $"<->"$ / $"->"$}\cr
+\end{longtable}
+~\\
+
+Meta-propiedades de Falluto2.0:\\
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.50\textwidth} }
+NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ (CTLEXP / LTLEXP)\cr\cr
+FINMANYFAULTS & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULTS} $"->"$ LTLEXP\cr\cr
+FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} '(' IDENT (',' IDENT)* ')' $"->"$ LTLEXP\cr
+\end{longtable}
+~\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Restricciones y fairness}
+
+\begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.75\textwidth} }
+CONTRAINT & $\longleftarrow$ & FAIRNESS / COMPASSION\cr\cr
+FAIRNESS & $\longleftarrow$ & \textit{FAIRNESS} EXPRESION\cr\cr
+COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION ')'\cr
+\end{longtable}
+~\\\\
+
+
+
+
+
+
+\chapter{Ejemplo paradigm\'atico de compilaci\'on.}
 
 
 \chapter{extra}
