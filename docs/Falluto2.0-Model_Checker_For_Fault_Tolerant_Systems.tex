@@ -41,6 +41,8 @@ AGRADECIMIENTOS
 \newpage
 
 
+% TODO Hablar sobre el interprete de trazas, y la manera de leer los resultados
+
 
 \chapter{Introducci\'on}
 \label{introduccion}
@@ -705,7 +707,7 @@ Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espont\'an
 $$fallaactiva~\&~next(actvar)=bizefect~\&~permanecen$$
 Aqu\'i \textit{fallaactiva} es la condici\'on de habilitaci\'on de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en alg\'un momento de la ejecuci\'on. \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar cu\'al ha sido la acci\'on que se ha ocurrido para llegar al nuevo estado modificado. Por \'ultimo \textit{permanecen} se forma por la conjunci\'on de las formulas \textit{next(x)=x} para todo x variable del sistema excepto por \textit{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegir\'a un valor aleatorio para estas variables afectadas ya que no encuentra restricci\'on alguna en la f\'ormula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destinos posibles.\\
 
-\textbf{TRANSICI\'oN DE DEADLOCK}
+\textbf{TRANSICI\'ON DE DEADLOCK}
 Consideramos que nuestro sistema cae en situaci\'on de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementaci\'on de una transici\'on que exprese el movimiento del sistema hacia este estado nos es \'util para la verificaci\'on de diferentes propiedades y para la implementaci\'on de restricciones de fairness. Notar que a falta de ella y en presencia de solo transiciones de falla habilitadas, estar\'iamos obligando la ocurrencia de una de estas lo cual no es correcto. La compilaci\'on de la transici\'on de deadlock tiene entonces la siguiente forma:
 $$!trans\_habilitadas~\&~next(actvar)=deadlock~\&~resto$$
 Como es evidente, la condici\'on de habilitaci\'on de esta transici\'on esta dada por la conjunci\'on de la negaci\'on de las condiciones de habilitaci\'on de todas las transiciones normales del sistema. De este modo solo realizamos la transici\'on de deadlock cuando nos vemos inhabilitados a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acci\'on que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar} asegurando que ninguna de ellas cambie de valor en el pr\'oximo estado.
@@ -755,9 +757,116 @@ Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en a
 
 \chapter{Casos de estudio}
 
-\section{Commit at\'omico}
+La intención de este capítulo es la de hacer un repaso sobre el uso de Falluto2.0 y sus funcionalidades. Para ello se mostrará el trabajo sobre una serie de problemas de carácter paradigmático en el estudio de la verificación de sistemas. Mostraremos como usar Falluto2.0 en un principio para describir la funcionalidad de estos sistemas. Continuaremos pensando sobre las fallas que pueden afectar los mismos, y buscaremos probar ciertas propiedades de los sistemas descriptos. Finalizaremos cada sección razonando sobre los resultados expuestos por nuestra herramienta.
+
+\section{Commit at\'omico de 2 fases (2PC)}
+
+El commit atómico es un problema muy conocido en el ámbito de las bases de datos y sistemas de revisión distribuidos entre otros. En estos sistemas es usual encontrar situaciones donde se requiere realizar operaciones de manera atómica, es decir en que estas operaciones se realicen de una sola vez, como si se tratase de una única operación. Muchas veces esto requiere de la sincronización y votación de los distintos procesos que componen el sistema.\\
+
+El protocolo de commit de dos fases (2PC) es un tipo de protocolo de commit atómico (ACP). Es un algoritmo distribuido el cual coordina a todos los procesos participantes en una transacción atómica distribuida por la cual deberán decidir si hacer commit de la transacción o abortar. Es por ende un caso particular de algoritmo de consenso.\\
+
+Podemos distinguir en este algoritmo a un nodo en particular denominado \textit{coordinador}, el cual estará encargado de iniciar la propuesta de commit, y mas adelante tomar una decisión a partir de la votación realizada por el resto de los nodos. Los demás nodos serán denominados \textit{votantes}, estos comunmente poseen la información necesaria para realizar la transacción, y serán los que voten por \textbf{SI} o por \textbf{NO} a la propuesta del \textit{coordinador}.\\
+
+La especificación del algoritmo busca lo siguiente. Cada proceso votará por \textbf{SI} o por \textbf{NO}, llegando así a la decisión de commit o a la de abortar, de modo que se cumpla:
+\begin{enumerate}
+\item Si no ocurren errores y todos los procesos votan por \textbf{SI}, entonces todos los procesos llegan a la decisión de commit.
+\item Un proceso llega a la decisión de commit solo si todos los procesos votaron \textbf{SI}.
+\item Todos los procesos que llegan a una decisión, llegan a la misma.
+\end{enumerate}
 
 
+Este algoritmo se ejecuta (como bien dice su nombre) en dos fases: En una primera fase los procesos votaran si se comprometen a realizar el commit. En una segunda fase el coordinador tomara una decisión basada sobre los votos obtenidos, e informará del resultado de su decisión a cada uno de los procesos involucrados en la transacción\cite{}.\\
+
+El proceso coordinador, de ahora en mas \textit{C}, posee tres acciones. En la primera acción \textit{C} emite su voto, pasa a su fase dos, y espera a que los demás procesos voten. En la segundo acción, \textit{C} detecta que todos los demás procesos han votado \textit{SI} y llega a la decisión de commit. En la tercera acción \textit{C} detecta que algún proceso ha votado \textit{NO} o se ha detenido, y por lo tanto llega a la decisión de abortar.\\
+
+Todos los otros procesos, de ahora en mas \textit{V}, también poseen tres acciones. En su primera acción, \textit{V} detecta que \textit{C} ha emitido su voto por commit y emite su propio voto. En su segunda acción \textit{V} detecta que \textit{C} se ha detenido y decide abortar. En la tercera acción, \textit{V} detecta que algún proceso ha llegado a su fase dos, y toma la misma decisión que aquel.\\
+
+Cada proceso \textbf{j} en nuestro sistema poseerá las siguientes variables de estado:
+\begin{itemize}
+\item \textbf{j.p} Indica la fase del proceso. Comenzará con el valor 0, pasará a tener valor 1 cuando el proceso haya emitido su voto, y finalmente valdrá 2 cuando el proceso haya tomado su decisión final.
+\item \textbf{j.d} Dependiendo de la fase en la que se encuentre el proceso esta variable representará el voto emitido (fase 1), o la decisión tomada (fase 2). El valor \textit{TRUE} indicara voto a favor o decisión de commit, el valor \textit{FALSE} indicará voto en contra, o decisión de abortar.
+\item \textbf{j.up} Esta variable indicará si el proceso está en ejecución (tomando valor TRUE) o se ha detenido por algún error (tomando valor FALSE).
+\end{itemize}
+
+El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos, sin tomar en cuenta las fallas que provocan la detención de los mismos:
+
+%TODO EL DIAGRAMA SI TE PARECE :P
+
+En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicación entre los procesos, solo simularemos fallas de tipo STOP, simulando así la caída en inactividad de algún proceso interviniente. Quedará abstraída también aquellas fallas que llevan a que los procesos voten por no hacer commit ya que no conciernen al protocolo. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de 4 votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:
+
+\begin{verbatim}
+
+PROCTYPE Coordinator(v0, v1, v2, v3)
+
+    VAR
+        p   : 0..2
+        d   : bool
+        up  : bool
+    
+    FAULT 
+        crash: => up' = FALSE is STOP
+
+    INIT
+        p = 0 & up = TRUE
+
+    TRANS
+        [vote]:    p = 0 => p' = 1, d' in { TRUE, FALSE };
+        [commit]:  p = 1 &
+                   v0.up & v0.d & v0.p = 1 &
+                   v1.up & v1.d & v1.p = 1 &
+                   v2.up & v2.d & v2.p = 1 &
+                   v3.up & v3.d & v3.p = 1 
+                   => p' = 2, d' = TRUE;
+        [abort]:  p = 1 &
+                  ((!v0.up | (v0.p >= 1 & !v0.d)) |
+                   (!v1.up | (v1.p >= 1 & !v1.d)) |
+                   (!v2.up | (v2.p >= 1 & !v2.d)) |
+                   (!v3.up | (v3.p >= 1 & !v3.d)) |
+                   !d)
+                  => p' = 2, d' = FALSE;
+ENDPROCTYPE
+\end{verbatim}
+
+Como vemos el modelado surge de manera directa a partir de la especificación. Miremos sin embargo con detención la sección \textbf{FAULT} del modelado del proceso coordinador. En ella encontramos la especificación de una única falla, representando la detención del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de carácter permanente, es decir que una vez que ocurre, el proceso instanciado quedará infinitamente inhabilitado para realizar cualquier transición buena. Dado que es de nuestro interés que los demás procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detención del proceso coordinador, hemos agregado a la falla de detención la postcondición \textit{up' = FALSE}. Veremos mas adelante como los demás procesos pueden acceder a esta variable, en función de variable de contexto, y de esta manera enterarse de la situación del coordinador. Vale la pena también revisar los parámetros de contexto de esta declaración. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas será una referencia a cada votante en el sistema, y serán especificados en la instanciación al realizar el pasaje de parámetros. De este modo el proceso coordinador podrá en cualquier momento acceder a las variables de estado de los votantes en condición de solo lectura.\\
+
+Continuando con el modelado, miremos ahora los procesos votantes:
+\begin{verbatim}
+PROCTYPE RegularVoter(coo, v0, v1, v2)
+    
+    VAR
+        p:  0..2
+        d:  bool
+        up: bool
+
+    FAULT
+        crash: => up' = FALSE is STOP
+    
+    INIT
+        p = 0 & up = TRUE
+
+    TRANS
+        [vote]: p = 0 & coo.up & coo.p = 1 => d' in {TRUE, FALSE}, p' = 1;
+        [abort]: p = 0 & !coo.up => p' = 2, d' = FALSE;
+        [commit]: p < 2 & coo.p = 2 => p' = 2, d' = coo.d;
+        [commit]: p < 2 & v0.p = 2 => p' = 2, d' = v0.d;
+        [commit]: p < 2 & v1.p = 2 => p' = 2, d' = v1.d;
+        [commit]: p < 2 & v2.p = 2 => p' = 2, d' = v2.d;
+
+ENDPROCTYPE
+\end{verbatim}
+
+Nuevamente el modelado se extrae de manera directa de la especificación del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los demás procesos en el sistema, incluyendo al coordinador (\texit{coo}). La falla declarada es idéntica a la declarada en el modelado del coordinador. Por último la acción \textit{commit} fue separada para cada caso en que se detecta la toma de decisión de un proceso diferente. Si bien comparten el nombre, solo una de ellas será elegida para realizar la transición.\\
+
+Miremos ahora como organizar los procesos en la etapa de instanciación de manera que cada uno pueda ver el estado de los demás. Para instanciar los procesos usaremos el siguiente código:
+\begin{verbatim}
+INSTANCE coord = Coordinator(voter0, voter1, voter2, voter3)
+INSTANCE voter0 = RegularVoter(coord, voter1, voter2, voter3)
+INSTANCE voter1 = RegularVoter(coord, voter0, voter2, voter3)
+INSTANCE voter2 = RegularVoter(coord, voter0, voter1, voter3)
+INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
+\end{verbatim}
+
+Como vemos hemos instanciado un proceso coordinador, y cuatro procesos votantes. Hemos asignado los nombres de instanciación de cada proceso como parámetros de los demás procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes.
 
 			\section{Ej\'ercitos bizantinos ?}
 			\section{Fil\'osofos comensales ?}
@@ -783,10 +892,11 @@ Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en a
 Mostraremos en este apéndice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos además como utilizarlo para la verificación de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta nos ofrece.
 
 \section{Instalación de Falluto2.0}
-Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versión 2.5.3 o superior, como así también Python versión 2.6.5 o superior. NuSMV debe ser accesible mediante nuestra variable de entorno PATH.
+Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versión 2.5.3 o superior, como así también Python versión 2.6.5 o superior. Tanto NuSMV como Python deben ser accesible mediante la ruta de busqueda para ejecución 'PATH'.
 
 \section{Opciones y utilización de la herramienta}
-El primer paso para la verificación del sistema es poseer un archivo (por convención terminado en .fll) en el cual se encuentre la descripción del sistema junto con las opciones de verificación y las propiedades a verificar (Ver el manual de usuario de Falluto2.0 para mayores indicaciones). Dentro de la carpeta de instalación de Falluto2.0 encontramos el script ejecutable del programa llamado \textit{Falluto2.0}. Ejecutamos este script con las siguientes opciones para realizar la verificación:
+El primer paso para la verificación del sistema es poseer un archivo (por convención terminado en .fll) en el cual se encuentre la descripción del sistema junto con las opciones de verificación y las propiedades a verificar (Ver el manual de usuario de Falluto2.0 para mayores indicaciones). Dentro de la carpeta de instalación de Falluto2.0 encontramos el script ejecutable del programa llamado \textit{Falluto2.0.py}. Ejecutamos este script con las siguientes opciones para realizar la verificación:\\
+
 
 \noindent usage: Falluto2.0 [-h] [--version] [-s path] [-co] filename\\
 
@@ -803,6 +913,9 @@ filename & Ruta del archivo de input donde se encuentra \\
 -co 		        & output con color.\\
 \end{tabular}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \chapter{Sint\'axis formal de Falluto}
@@ -822,8 +935,6 @@ RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAM
 %\end{tabular}
 ~\\
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Algunas producciones simples}
@@ -846,7 +957,7 @@ INCLUSION & $\longleftarrow$ & IDENT ``in'' (SET / RANGE)\\
 ~\\\\
 
 \section{Expresiones}
-Las expresiones representan formulas booleanas o enteras. A continuación encontramos su sintaxis:
+Las expresiones describen formulas booleanas o enteras. A continuación encontramos su sintaxis:
 
 \begin{tabularx}{\textwidth}{>{\bfseries}llX }
 
@@ -861,46 +972,41 @@ VALUE & $\longleftarrow$  & ( '(' PROP ')' / INCLUSION / NEXTREF / IDENT / INT /
 NEXTLIST & $\longleftarrow$  & NEXTASSIGN (',' NEXTASSIGN)*\\\\
 NEXTASSIGN & $\longleftarrow$  & NEXTREF ( = EXPRESION / ``in'' ( SET / RANGE ) )\\
 \end{tabularx}
-%\end{longtable}
 ~\\\\
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Proctypes}
-Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos dentro de la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
+Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos pertenecientes a la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
 
 %\noindent \begin{longtable}{>{\bfseries}lll}
 %\begin{tabularx}{\textwidth}{>{\bfseries}llX }
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.6\textwidth} }
 SYSTEM & $\longleftarrow$ & OPTIONS ? ( DEFINE / PROCTYPE / INSTANCE / SPECIFICATION / CONTRAINT ) *\cr\cr
 OPTIONS & $\longleftarrow$ & ``OPTIONS'' ( ``SYSNAME'' [a-z0-9A-Z$\_$.]* / ``CHECK\_DEADLOCK'' / ``FAULT\_FAIR\_DISABLE'' / ``INST\_WEAK\_FAIR\_DISABLE'' )* ``ENDOPTIONS''\cr\cr
-DEFINE & $\longleftarrow$ & \textit{DEFINE} IDENT $":="$  EXPRESION \cr\cr
-PROCTYPE & $\longleftarrow$ & \textit{PROCTYPE} IDENT '(' CTXVARS ? SYNCACTS ? ')' PROCTYPEBODY \textit{ENDPROCTYPE}\cr\cr
-CTXVARS & $\longleftarrow$ & IDENT (',' IDENT)*\cr\cr
-SYNCACTS & $\longleftarrow$ & ';' IDENT (',' IDENT)*\cr\cr
+DEFINE & $\longleftarrow$ & ``DEFINE'' IDENT $":="$  EXPRESION \cr\cr
+PROCTYPE & $\longleftarrow$ & ``PROCTYPE'' IDENT ``('' CTXVARS ? SYNCACTS ? ``)'' PROCTYPEBODY ``ENDPROCTYPE''\cr\cr
+CTXVARS & $\longleftarrow$ & IDENT (``,'' IDENT)*\cr\cr
+SYNCACTS & $\longleftarrow$ & ';' IDENT (``,'' IDENT)*\cr\cr
 PROCTYPEBODY & $\longleftarrow$ & VAR ? FAULT ? INIT ? TRANS ?\cr\cr
-VAR & $\longleftarrow$ & \textit{VAR} VARDECL*\cr\cr
-VARDECL & $\longleftarrow$ & IDENT ':' (BOOLEAN / SET / RANGE)\cr\cr
-FAULT & $\longleftarrow$ & \textit{FAULT} FAULTDECL*\cr\cr
-FAULTDECL & $\longleftarrow$ & NAME ':' (EXPRESION ? $"=>"$ NEXTEXPR ?) ? \textit{is} (BYZ / STOP / TRANSIENT)\cr\cr
-BYZ & $\longleftarrow$ & \textit{BYZ} '(' IDENT (',' IDENT)*, ')'\cr\cr
-TRANSIENT & $\longleftarrow$ & \textit{TRANSIENT}\cr\cr
-STOP & $\longleftarrow$ & \textit{STOP} ( '(' IDENT, (',' IDENT)* ')' ) ?\cr\cr
-INIT & $\longleftarrow$ & \textit{INIT} EXPRESION ?\cr\cr
-TRANS & $\longleftarrow$ & \textit{TRANS} TRANSDECL*\cr\cr
-TRANSDECL & $\longleftarrow$ & '[' NAME? ']' ':' EXPRESION? ( $"=>"$ NEXTEXPR )?\cr
+VAR & $\longleftarrow$ & ``VAR'' VARDECL*\cr\cr
+VARDECL & $\longleftarrow$ & IDENT ``:'' (BOOLEAN / SET / RANGE)\cr\cr
+FAULT & $\longleftarrow$ & ``FAULT'' FAULTDECL*\cr\cr
+FAULTDECL & $\longleftarrow$ & NAME ``:'' (EXPRESION ? $``=>"$ NEXTEXPR ?) ? ``is'' (BYZ / STOP / TRANSIENT)\cr\cr
+BYZ & $\longleftarrow$ & ``BYZ'' ``('' IDENT (``,'' IDENT)*, ``)''\cr\cr
+TRANSIENT & $\longleftarrow$ & ``TRANSIENT''\cr\cr
+STOP & $\longleftarrow$ & ``STOP'' ( ``('' IDENT, (``,'' IDENT)* ``)'' ) ?\cr\cr
+INIT & $\longleftarrow$ & ``INIT'' EXPRESION ?\cr\cr
+TRANS & $\longleftarrow$ & ``TRANS'' TRANSDECL*\cr\cr
+TRANSDECL & $\longleftarrow$ & ``['' NAME? ``]'' ``:'' EXPRESION? ( $"=>"$ NEXTEXPR )?\cr
 \end{longtable}
-%\end{tabularx}
 ~\\\\
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Instanciaci\'on}
-Para la instanciaci\'on tenemos las siguientes reglas:\\\\
+Para especificar que un proceso forma parte del sistema, debemos instanciar el mismo a partir de un proctype previamente definido. La sintaxis de instanciación de procesos es la que sigue:\\\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.65\textwidth} }
 INSTANCE & $\longleftarrow$ & ``INSTANCE'' NAME ``='' NAME ``('' INSTPARAMS ``)''\cr\cr
@@ -910,10 +1016,10 @@ INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOO
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Especificaci\'on de propiedades}
-Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado:\\
+Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado. Encontramos que podemos definir propiedades tanto en lógica LTL como en CTL. Podemos además hacer uso de mete-propiedades predefinidas para facilitar la verificación:\\
+
+Para la elaboración de propiedades LTL y CTL, se ofrece la siguiente sintaxis:\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.7\textwidth} }
 SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
@@ -932,7 +1038,7 @@ LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\
 \end{longtable}
 ~\\
 
-Meta-propiedades de Falluto2.0:\\
+A continuación encontramos las reglas sintácticas para el uso de las meta-propiedades de Falluto2.0:\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.50\textwidth} }
 NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ (CTLEXP / LTLEXP)\cr\cr
@@ -941,9 +1047,6 @@ FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} '(' IDENT (',' 
 \end{longtable}
 ~\\\\
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Restricciones y fairness}
@@ -959,144 +1062,25 @@ COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \chapter{Ejemplo paradigm\'atico de compilaci\'on.}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \chapter{extra}
 	- falencias de falluto??? 
 	- fallas por omisi\'on de input.
 	- recuperci\'on de fallas por parte del usuario.
+%TODO Algo que le falta a Falluto 2.0 es la posibilidad de simular interactivamente sobre el sistema modelado para depurar el modelado mismo.
 
 
-
-
-%
-%\section{\textbf{NuSMV}}
-%
-%NuSMV\cite{NuSMVBibl} es un model checker simb\'olico originado en la reingenieria, reimplementaci\'on
-%y extensi\'on of CMU SMV. Usamos su segunda versi\'on la cual implementa tanto t\'ecnicas
-%de \textbf{model checking simb\'olico basado en BDD}, como  t\'ecnicas de model checking
-%basadas en \textbf{satisfactibilidad proposisional (SAT)}.
-%Cada una de estas t\'ecnicas sulen ser \'utiles para resolver diferentes tipos
-%de problemas y por lo tanto pueden considerarse complementarias.\\
-%
-%El c\'odigo de \emph{NuSMV} se distribuye bajo licencia LGPL-2.1 la cual permite el 
-%uso gratuito del software por parte de cualquier persona interesada asi como a 
-%contribuir con el desarrollo del mismo. La adopci\'on de esta licencia ha permitido la
-%contribuci\'on al proyecto por parte de numerosos \'ambitos cient\'ificos asi como
-%industriales.\\
-%
-%El proyecto de software libre NuSMV apunta a crear una base com\'un para
-%el estudio y comparaci\'on de diferentes t\'ecnicas de model checkin simb\'olico.\\
-%
-%\begin{itemize}
-%
-%
-%\item%
-%\textbf{Funcionalidades:}\\
-%
-%\emph{NUSMV} permite la representaci\'on de sistemas finitos tanto s\'incronos
-%como as\'incronos, aunque estos \'ultimos estan deprecados en las versiones superiores
-%a la 2.5.0., y al an\'alisis de especificaciones expresadas en CTL (l\'ogica de \'arbol
-%computacional) y LTL (l\'ogica temporal lineal).
-%
-%
-%\item%
-%\textbf{Arquitectura:}\\
-%
-%
-%\item%
-%\textbf{Qualidades de la implementacion:}\\
-%
-%\emph{NUSMV} esta escrito en ANSI C, y es compatible con POSIX. \emph{NUSMV} usa un avanzado
-%paquete de BDD desarollado en Colorado University, y provee una interf\'az general para
-%linking con avanzados resolvedores SAT. Esto produce que NUSMV sea muy robusto, portable,
-%eficiente, y facil de entender por personas fuera del equipo de desarrollo.\\
-%\\
-%
-%
-%\end{itemize}
-%
-%
-%\section{Por qu\'e NuSMV?}
-%
-%Porque nos da un gran control sobre la eficiencia del checkeo del modelo. Esto se debe
-%a que ... (Preguntar bien a Pedro o leer mucho para entender :D)
-%
-%
-%\chapter{Falluto 2.0}
-%
-%\section{Objetivos}
-%\begin{itemize}
-%\item%
-%Ocultar al usuario las complejidades de tener que definir un sistema usando una herramienta
-%con la complejidad de NuSMV.
-%\item
-%Ocultar las complejidades de definir de manera funcional el comportamiento de fallas,
-%presentando una sintaxis declarativa para la especificaci\'on de las mismas.
-%\end{itemize}
-%
-%\section{Implementaci\'on de Falluto 2.0}
-%
-%Falluto 2.0 esta escrito en Python\cite{Python}. Python es un Lenguaje de programaci\'on interpretado cuya filosof\'ia hace hincapi\'e en una sintaxis limpia que favorezca un c\'odigo legible.
-%Se trata de un lenguaje de programaci\'on multiparadigma ya que soporta orientaci\'on a objetos, programaci\'on imperativa y, en menor medida, programaci\'on funcional. Es un lenguaje interpretado, usa tipado din\'amico, es fuertemente tipado y es multiplataforma. Posee una muy completa librer\'ia estadar.
-%Es administrado por la Python Software Foundation. Posee una licencia de c\'odigo abierto, denominada Python Software Foundation License,1 que es compatible con la Licencia p\'ublica general de GNU a partir de la versi\'on 2.1.1, e incompatible en ciertas versiones anteriores.
-%
-%
-%\subsubsection{A cerca del valor inicial de actvar\#}
-%
-%Notar que el valor inicial de esta variable no tiene significado alguno en el
-%sistema ya que representa la acci\'{o}n que se realiz\'{o} en el estado anterior para 
-%transitar hasta el actual. Dado que el estado actual es el inicial, osea no hubo
-%estado anterior, esta variable no representa nada en este momento. Sin embargo
-%es importante darle un valor correcto para que no afecte la verificaci\'{o}n de
-%propiedades en el sistema smv resultante.\\
-%
-%\noindent Las opciones para su valor inicial son:\\
-%\begin{enumerate}
-%
-%\item%
-%    Un valor incial espec\'{i}fico, que solo se use en este caso.
-%\item%
-%    Cualquier valor dentro de su dominio.
-%\end{enumerate}
-%
-%
-%
-%
-%
-%
-%\section{Parsing expresion grammars}
-%
-%
-%Most language syntax theory and practice is based on generative
-%systems, such as regular expressions and context-free grammars, in
-%which a language is defined formally by a set of rules applied recursively
-%to generate strings of the language. A recognition-based
-%system, in contrast, defines a language in terms of rules or predicates
-%that decide whether or not a given string is in the language.
-%The power of generative grammars to express
-%ambiguity is crucial to their original purpose of modelling
-%natural languages, but this very power makes it unnecessarily difficult
-%both to express and to parse machine-oriented languages using
-%CFGs. Parsing Expression Grammars (PEGs) provide an alternative,
-%recognition-based formal foundation for describing machineoriented
-%syntax, which solves the ambiguity problem by not introducing
-%ambiguity in the first place. Where CFGs express nondeterministic
-%choice between alternatives, PEGs instead use prioritized
-%choice. PEGs address frequently felt expressiveness limitations of
-%CFGs and REs, simplifying syntax definitions and making it unnecessary
-%to separate their lexical and hierarchical components. A
-%linear-time parser can be built for any PEG, avoiding both the complexity
-%and fickleness of LR parsers and the inefficiency of generalized
-%CFG parsing. While PEGs provide a rich set of operators for
-%constructing grammars, they are reducible to two minimal recognition
-%schemas developed around 1970, TS/TDPL and gTS/GTDPL.\cite{PEG}
-%
-%
-%
-%
 
 \newpage % Bibliography goes in new page
 
@@ -1137,9 +1121,5 @@ London, England
 \bibitem{Huth} Michael R A Huth, Mark D Ryan. Logic in Computer Science, Modeling and reasoning about systems. Cambridge University Press. 2000.
 
 \end{thebibliography}
-
-%TODO Algo que le falta a Falluto 2.0 es la posibilidad de simular interactivamente sobre el sistema modelado para depurar el modelado mismo.
-
-
 
 \end{document}
