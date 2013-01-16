@@ -788,14 +788,29 @@ Cada proceso \textbf{j} en nuestro sistema poseerá las siguientes variables de 
 \item \textbf{j.up} Esta variable indicará si el proceso está en ejecución (tomando valor TRUE) o se ha detenido por algún error (tomando valor FALSE).
 \end{itemize}
 
-El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos, sin tomar en cuenta las fallas que provocan la detención de los mismos:
+El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos. Las lineas punteadas representan transiciones de falla en las que provocan que la componente se detenga:
 
 %TODO EL DIAGRAMA SI TE PARECE :P
 
-En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicación entre los procesos, solo simularemos fallas de tipo STOP, simulando así la caída en inactividad de algún proceso interviniente. Quedará abstraída también aquellas fallas que llevan a que los procesos voten por no hacer commit ya que no conciernen al protocolo. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de 4 votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:
+\begin{figure}[H]
+  \centering
+    \includegraphics[scale=0.75]{Imagenes/2pcCoor.pdf}
+  \caption{Diagrama de estados de una componente coordinador del protocolo de commit atómico de 2 fases}
+  \label{2pcc}
+\end{figure}
+~\\
+\begin{figure}[H]
+  \centering
+    \includegraphics[scale=0.75]{Imagenes/2pcVoter.pdf}
+  \caption{Diagrama de estados de una componente votante del protocolo de commit atómico de 2 fases}
+  \label{2pcv}
+\end{figure}
+~\\
 
+En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicación entre los procesos, solo simularemos fallas de tipo STOP, simulando así la caída en inactividad de algún proceso interviniente. Quedará abstraída también aquellas fallas que llevan a que los procesos voten por no hacer commit ya que no conciernen al protocolo. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de 4 votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:\\
+
+\noindent \line(1,0){400}
 \begin{verbatim}
-
 PROCTYPE Coordinator(v0, v1, v2, v3)
 
     VAR
@@ -826,10 +841,14 @@ PROCTYPE Coordinator(v0, v1, v2, v3)
                   => p' = 2, d' = FALSE;
 ENDPROCTYPE
 \end{verbatim}
+\line(1,0){400}
+~\\\\
 
 Como vemos el modelado surge de manera directa a partir de la especificación. Miremos sin embargo con detención la sección \textbf{FAULT} del modelado del proceso coordinador. En ella encontramos la especificación de una única falla, representando la detención del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de carácter permanente, es decir que una vez que ocurre, el proceso instanciado quedará infinitamente inhabilitado para realizar cualquier transición buena. Dado que es de nuestro interés que los demás procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detención del proceso coordinador, hemos agregado a la falla de detención la postcondición \textit{up' = FALSE}. Veremos mas adelante como los demás procesos pueden acceder a esta variable, en función de variable de contexto, y de esta manera enterarse de la situación del coordinador. Vale la pena también revisar los parámetros de contexto de esta declaración. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas será una referencia a cada votante en el sistema, y serán especificados en la instanciación al realizar el pasaje de parámetros. De este modo el proceso coordinador podrá en cualquier momento acceder a las variables de estado de los votantes en condición de solo lectura.\\
 
-Continuando con el modelado, miremos ahora los procesos votantes:
+Continuando con el modelado, miremos ahora los procesos votantes:\\
+
+\noindent \line(1,0){400}
 \begin{verbatim}
 PROCTYPE RegularVoter(coo, v0, v1, v2)
     
@@ -845,7 +864,9 @@ PROCTYPE RegularVoter(coo, v0, v1, v2)
         p = 0 & up = TRUE
 
     TRANS
-        [vote]: p = 0 & coo.up & coo.p = 1 => d' in {TRUE, FALSE}, p' = 1;
+        [vote]: p = 0 & coo.up & coo.p = 1
+                => 
+                d' in {TRUE, FALSE}, p' = 1;
         [abort]: p = 0 & !coo.up => p' = 2, d' = FALSE;
         [commit]: p < 2 & coo.p = 2 => p' = 2, d' = coo.d;
         [commit]: p < 2 & v0.p = 2 => p' = 2, d' = v0.d;
@@ -854,10 +875,15 @@ PROCTYPE RegularVoter(coo, v0, v1, v2)
 
 ENDPROCTYPE
 \end{verbatim}
+\line(1,0){400}
+~\\\\
 
-Nuevamente el modelado se extrae de manera directa de la especificación del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los demás procesos en el sistema, incluyendo al coordinador (\texit{coo}). La falla declarada es idéntica a la declarada en el modelado del coordinador. Por último la acción \textit{commit} fue separada para cada caso en que se detecta la toma de decisión de un proceso diferente. Si bien comparten el nombre, solo una de ellas será elegida para realizar la transición.\\
 
-Miremos ahora como organizar los procesos en la etapa de instanciación de manera que cada uno pueda ver el estado de los demás. Para instanciar los procesos usaremos el siguiente código:
+Nuevamente el modelado se extrae de manera directa de la especificación del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los demás procesos en el sistema, incluyendo al coordinador (\textit{coo}). La falla declarada es idéntica a la declarada en el modelado del coordinador. Por último la acción \textit{commit} fue separada para cada caso en que se detecta la toma de decisión de un proceso diferente. Si bien comparten el nombre, solo una de ellas será elegida para realizar la transición.\\
+
+Miremos ahora como organizar los procesos en la etapa de instanciación de manera que cada uno pueda ver el estado de los demás. Para instanciar los procesos usaremos el siguiente código:\\
+
+\noindent \line(1,0){400}
 \begin{verbatim}
 INSTANCE coord = Coordinator(voter0, voter1, voter2, voter3)
 INSTANCE voter0 = RegularVoter(coord, voter1, voter2, voter3)
@@ -865,16 +891,22 @@ INSTANCE voter1 = RegularVoter(coord, voter0, voter2, voter3)
 INSTANCE voter2 = RegularVoter(coord, voter0, voter1, voter3)
 INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
 \end{verbatim}
+\noindent \line(1,0){400}
+~\\\\
 
-Como vemos hemos instanciado un proceso coordinador, y cuatro procesos votantes. Hemos asignado los nombres de instanciación de cada proceso como parámetros de los demás procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes.
+Como vemos hemos instanciado un proceso coordinador, y cuatro procesos votantes. Hemos asignado los nombres de instanciación de cada proceso como parámetros de los demás procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes. Esto se ve en el caso de los procesos votantes, donde el índice del parámetro para el proceso coordinador en la instanciación coincide con el índice de la variable de contexto \textit{coo} en el proctype \textit{RegularVoter}.\\
 
-			\section{Ej\'ercitos bizantinos ?}
-			\section{Fil\'osofos comensales ?}
-			\section{Falla bizantina ?}
-			\section{Elecci\'on de lider ?}
-			\section{Protocolos lamport}
-			\section{Feedback de contacto de Naza}
-			\section{Red satelital ultra secreta?}
+
+
+
+
+%\section{Ej\'ercitos bizantinos ?}
+%\section{Fil\'osofos comensales ?}
+%\section{Falla bizantina ?}
+%\section{Elecci\'on de lider ?}
+%\section{Protocolos lamport}
+%\section{Feedback de contacto de Naza}
+%\section{Red satelital ultra secreta?}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

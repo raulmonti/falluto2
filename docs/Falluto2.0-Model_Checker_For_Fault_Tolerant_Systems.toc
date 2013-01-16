@@ -28,25 +28,18 @@
 \contentsline {section}{\numberline {6.4}Sem\'antica de propiedades}{56}
 \contentsline {chapter}{\numberline {7}Casos de estudio}{59}
 \contentsline {section}{\numberline {7.1}Commit at\'omico de 2 fases (2PC)}{59}
-\contentsline {section}{\numberline {7.2}Ej\'ercitos bizantinos ?}{63}
-\contentsline {section}{\numberline {7.3}Fil\'osofos comensales ?}{63}
-\contentsline {section}{\numberline {7.4}Falla bizantina ?}{63}
-\contentsline {section}{\numberline {7.5}Elecci\'on de lider ?}{63}
-\contentsline {section}{\numberline {7.6}Protocolos lamport}{63}
-\contentsline {section}{\numberline {7.7}Feedback de contacto de Naza}{63}
-\contentsline {section}{\numberline {7.8}Red satelital ultra secreta?}{63}
-\contentsline {chapter}{\numberline {8}Conclusi\'on}{65}
+\contentsline {chapter}{\numberline {8}Conclusi\'on}{67}
 \contentsline {chapter}{Ap\'endices}{}
-\contentsline {chapter}{\numberline {A}Manual de Falluto2.0}{69}
-\contentsline {section}{\numberline {A.1}Instalación de Falluto2.0}{69}
-\contentsline {section}{\numberline {A.2}Opciones y utilización de la herramienta}{69}
-\contentsline {chapter}{\numberline {B}Sint\'axis formal de Falluto}{71}
-\contentsline {section}{\numberline {B.1}Palabras reservadas de Falluto2.0}{71}
-\contentsline {section}{\numberline {B.2}Algunas producciones simples}{72}
-\contentsline {section}{\numberline {B.3}Expresiones}{72}
-\contentsline {section}{\numberline {B.4}Proctypes}{73}
-\contentsline {section}{\numberline {B.5}Instanciaci\'on}{75}
-\contentsline {section}{\numberline {B.6}Especificaci\'on de propiedades}{75}
-\contentsline {section}{\numberline {B.7}Restricciones y fairness}{77}
-\contentsline {chapter}{\numberline {C}Ejemplo paradigm\'atico de compilaci\'on.}{79}
-\contentsline {chapter}{\numberline {D}extra}{81}
+\contentsline {chapter}{\numberline {A}Manual de Falluto2.0}{71}
+\contentsline {section}{\numberline {A.1}Instalación de Falluto2.0}{71}
+\contentsline {section}{\numberline {A.2}Opciones y utilización de la herramienta}{71}
+\contentsline {chapter}{\numberline {B}Sint\'axis formal de Falluto}{73}
+\contentsline {section}{\numberline {B.1}Palabras reservadas de Falluto2.0}{73}
+\contentsline {section}{\numberline {B.2}Algunas producciones simples}{74}
+\contentsline {section}{\numberline {B.3}Expresiones}{74}
+\contentsline {section}{\numberline {B.4}Proctypes}{75}
+\contentsline {section}{\numberline {B.5}Instanciaci\'on}{77}
+\contentsline {section}{\numberline {B.6}Especificaci\'on de propiedades}{77}
+\contentsline {section}{\numberline {B.7}Restricciones y fairness}{79}
+\contentsline {chapter}{\numberline {C}Ejemplo paradigm\'atico de compilaci\'on.}{81}
+\contentsline {chapter}{\numberline {D}extra}{83}
