@@ -22,12 +22,66 @@
 \renewcommand{\appendixpagename}{Ap\'endices}
 %
 
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
 \begin{document}
 
 %TODO cambiar las palabras entre []
 %TODO rellenar los '...'
-\maketitle
+%\maketitle
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CAR\'aTULA
+%
+
+\begin{titlepage}
+\begin{center}
+
+% Upper part of the page. The '~' is needed because \\
+% only works if a paragraph has started.
+\includegraphics[width=0.30\textwidth]{./Imagenes/logo}~\\[1cm]
+
+\textsc{\LARGE Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[1.0cm]
+
+\textsc{\Large Trabajo final de grado}\\[0.5cm]
+
+% Title
+\HRule \\[0.4cm]
+{ \huge \bfseries Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}\\[0.4cm]
+
+\HRule \\[1.0cm]
+
+% Author and supervisor
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Alumno:}\\
+Ra\'ul E.~\textsc{Monti}
+\end{flushleft}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Director:} \\
+Dr.~Pedro~R.~\textsc{D'Argenio}\\
+\emph{Codirector:} \\
+Lc.~Nazareno \textsc{Aguirre}
+\end{flushright}
+\end{minipage}
+
+\vfill
+
+% Bottom of the page
+\begin{flushright}
+{\large C\'ordoba, \today}
+\end{flushright}
+
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+~
 \newpage
 ACA VA EL RESUMEN
 \newpage
@@ -247,6 +301,7 @@ Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los
 
 
 \section{Representaci\'on de funciones booleanas en BDD}
+\label{boolBDD}
 
 Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representaci\'on de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como as\'i tambi\'en muchos otros model checkers, logra esta representaci\'on a partir de \textit{diagramas de b\'usqueda binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el c\'alculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
 
@@ -461,7 +516,7 @@ Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuerte
 
 NuSMV es un model chcker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos\cite{Cimatti}.\\
 
-NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre la especificaci\'on de sistemas finitos [s\'incronos y as\'incronos], bajo condiciones de fairness.\\
+NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre la especificaci\'on de sistemas finitos concurrentes, bajo condiciones de fairness.\\
 
 \textit{NuSMV2}, el cual es utilizado en este trabajo, integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
 
@@ -486,7 +541,7 @@ Vemos que en el ejemplo la variable \textit{var1} es de tipo booleano (su domini
 
 \textit{ESTADO INICIAL}\\
 
-Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \textbf{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
+Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \textbf{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{boolBDD} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
 \begin{verbatim}
 MODULE auto
     VAR
@@ -559,8 +614,9 @@ CTLSPEC EG estado = apagado
 
 
 \chapter{La sintaxis de Falluto2.0}
+\label{sintaxisDeFalluto}
 
-En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars. Podemos encontrar ejemplos esclarecedores tambi\'en en ref{}.
+En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars. Podemos encontrar ejemplos esclarecedores tambi\'en en ref{}.
 
 \section{Lenguaje de modelado de comportamiento operacional}
 Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{Proctypes} de Falluto2.0. Cada \textit{proctype} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de un \textit{proctype} es introducida mediante la palabra clave \textit{PROCTYPE}. A continuaci\'on se establece un nombre para esta clase de procesos, y se especifica si poseer\'a o no variables de contexto, y acciones de sincronizaci\'on. Podemos decir que todo esto forma parte del encabezado del \textit{proctype}:
@@ -601,7 +657,7 @@ Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una tran
 \section{Lenguaje de especificaci\'on de propiedades y restricciones}
 
 Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificaci\'on, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificaci\'on LTL y CTL. Se propone tambi\'en el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
-Para la especificaci\'on de una propiedad LTL usamos la palabra clave LTLSPEC y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como G (Globaly), F(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave CTLSPEC precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{}.\\
+Para la especificaci\'on de una propiedad LTL usamos la palabra clave LTLSPEC y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como G (Globaly), F(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave CTLSPEC precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.\\
 Falluto2.0 posee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
 \begin{itemize}
 \item \textbf{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave NORMAL\_BEHAVIOUR y la precedemos por una f\'ormula LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una f\'ormula expresada en LTL o CTL.
@@ -688,7 +744,7 @@ TRANS
 Veremos a continuaci\'on como se realiza el proceso de compilaci\'on de cada una de las transiciones que luego forman parte de la formula de la secci\'on \textit{TRANS} del m\'odulo compilado.\\
 
 \textbf{TRANSICIONES NORMALES}
-Recordemos que la siguiente era la sintaxis general de la declaraci\'on de una transici\'on NORMAL en el lenguaje de Falluto2.0 (Para mas detalles referirse al cap\'itulo \ref{}):
+Recordemos que la siguiente era la sintaxis general de la declaraci\'on de una transici\'on NORMAL en el lenguaje de Falluto2.0 (Para mas detalles referirse al cap\'itulo \ref{sintaxisDeFalluto}):
 $$[nombre]~habilitacion => postcondicion;$$
 La versi\'on compilada de esta acci\'on tendr\'a el siguiente aspecto:
 $$next(actvar)=nombre~\&~!faultact~\&~habilitacion~\&~postcondicion~\&~resto$$
@@ -729,7 +785,7 @@ donde $T_{N_proc}$ es el conjunto de transiciones normales del proceso y $habili
 
 
 \section{Sem\'antica de propiedades}
-Como vimos al finalizar la secci\'on \ref{} del cap\'itulo \ref{}, Falluto2.0 nos permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on $$just(accion)$$. Al momento de verificar, esta construcci\'on nos permite expresar la ocurrencia de \textit{accion} como acci\'on para llegar al estado actual. Por lo tanto \textit{just(accion1)} es v\'alido en un estado cualquiera solo si la acci\'on realizada para llegar a ese estado fue \textit{accion1}. Notemos que esta formula nunca vale al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Por lo tanto la compilaci\'on se reduce a una simple traducci\'on semejante a la que sigue: \textit{just(accion1)} se traduce a \textit{actvar = accion1}.\\
+Como vimos al finalizar la el cap\'itulo \ref{sintaxisDeFalluto}, Falluto2.0 nos permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on $$just(accion)$$. Al momento de verificar, esta construcci\'on nos permite expresar la ocurrencia de \textit{accion} como acci\'on para llegar al estado actual. Por lo tanto \textit{just(accion1)} es v\'alido en un estado cualquiera solo si la acci\'on realizada para llegar a ese estado fue \textit{accion1}. Notemos que esta formula nunca vale al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Por lo tanto la compilaci\'on se reduce a una simple traducci\'on semejante a la que sigue: \textit{just(accion1)} se traduce a \textit{actvar = accion1}.\\
 
 Vimos tambi\'en que podemos definir propiedades en LTL y CTL usando la sintaxis $LTLSPEC~q$ y $CTLSPEC~p$ donde $q$ es una formula LTL y $p$ una CTL. La compilaci\'on de estas f\'ormulas se hace de manera directa, tomando en cuenta lo expresado en el p\'arrafo anterior. Esto vale tambi\'en para las condiciones de fairness definidas por el usuario con las sintaxis $FAIRNESS~q$ y $COMPASSION(p,q)$.\\
 
@@ -757,57 +813,55 @@ Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en a
 
 \chapter{Casos de estudio}
 
-La intención de este capítulo es la de hacer un repaso sobre el uso de Falluto2.0 y sus funcionalidades. Para ello se mostrará el trabajo sobre una serie de problemas de carácter paradigmático en el estudio de la verificación de sistemas. Mostraremos como usar Falluto2.0 en un principio para describir la funcionalidad de estos sistemas. Continuaremos pensando sobre las fallas que pueden afectar los mismos, y buscaremos probar ciertas propiedades de los sistemas descriptos. Finalizaremos cada sección razonando sobre los resultados expuestos por nuestra herramienta.
+La intenci\'on de este cap\'itulo es la de hacer un repaso sobre el uso de Falluto2.0 y sus funcionalidades. Para ello se mostrar\'a el trabajo sobre una serie de problemas de car\'acter paradigm\'atico en el estudio de la verificaci\'on de sistemas. Mostraremos como usar Falluto2.0 en un principio para describir la funcionalidad de estos sistemas. Continuaremos pensando sobre las fallas que pueden afectar los mismos, y buscaremos probar ciertas propiedades de los sistemas descriptos. Finalizaremos cada secci\'on razonando sobre los resultados expuestos por nuestra herramienta.
 
 \section{Commit at\'omico de 2 fases (2PC)}
 
-El commit atómico es un problema muy conocido en el ámbito de las bases de datos y sistemas de revisión distribuidos entre otros. En estos sistemas es usual encontrar situaciones donde se requiere realizar operaciones de manera atómica, es decir en que estas operaciones se realicen de una sola vez, como si se tratase de una única operación. Muchas veces esto requiere de la sincronización y votación de los distintos procesos que componen el sistema.\\
+El commit at\'omico es un problema muy conocido en el \'ambito de las bases de datos y sistemas de revisi\'on distribuidos entre otros. En estos sistemas es usual encontrar situaciones donde se requiere realizar operaciones de manera at\'omica, es decir en que estas operaciones se realicen de una sola vez, como si se tratase de una \'unica operaci\'on. Muchas veces esto requiere de la sincronizaci\'on y votaci\'on de los distintos procesos que componen el sistema.\\
 
-El protocolo de commit de dos fases (2PC) es un tipo de protocolo de commit atómico (ACP). Es un algoritmo distribuido el cual coordina a todos los procesos participantes en una transacción atómica distribuida por la cual deberán decidir si hacer commit de la transacción o abortar. Es por ende un caso particular de algoritmo de consenso.\\
+El protocolo de commit de dos fases (2PC) es un tipo de protocolo de commit at\'omico (ACP). Es un algoritmo distribuido el cual coordina a todos los procesos participantes en una transacci\'on at\'omica distribuida por la cual deber\'an decidir si hacer commit de la transacci\'on o abortar. Es por ende un caso particular de algoritmo de consenso.\\
 
-Podemos distinguir en este algoritmo a un nodo en particular denominado \textit{coordinador}, el cual estará encargado de iniciar la propuesta de commit, y mas adelante tomar una decisión a partir de la votación realizada por el resto de los nodos. Los demás nodos serán denominados \textit{votantes}, estos comunmente poseen la información necesaria para realizar la transacción, y serán los que voten por \textbf{SI} o por \textbf{NO} a la propuesta del \textit{coordinador}.\\
+Podemos distinguir en este algoritmo a un nodo en particular denominado \textit{coordinador}, el cual estar\'a encargado de iniciar la propuesta de commit, y mas adelante tomar una decisi\'on a partir de la votaci\'on realizada por el resto de los nodos. Los dem\'as nodos ser\'an denominados \textit{votantes}, estos comunmente poseen la informaci\'on necesaria para realizar la transacci\'on, y ser\'an los que voten por \textbf{SI} o por \textbf{NO} a la propuesta del \textit{coordinador}.\\
 
-La especificación del algoritmo busca lo siguiente. Cada proceso votará por \textbf{SI} o por \textbf{NO}, llegando así a la decisión de commit o a la de abortar, de modo que se cumpla:
+La especificaci\'on del algoritmo busca lo siguiente. Cada proceso votar\'a por \textbf{SI} o por \textbf{NO}, llegando as\'i a la decisi\'on de commit o a la de abortar, de modo que se cumpla:
 \begin{enumerate}
-\item Si no ocurren errores y todos los procesos votan por \textbf{SI}, entonces todos los procesos llegan a la decisión de commit.
-\item Un proceso llega a la decisión de commit solo si todos los procesos votaron \textbf{SI}.
-\item Todos los procesos que llegan a una decisión, llegan a la misma.
+\item Si no ocurren errores y todos los procesos votan por \textbf{SI}, entonces todos los procesos llegan a la decisi\'on de commit.
+\item Un proceso llega a la decisi\'on de commit solo si todos los procesos votaron \textbf{SI}.
+\item Todos los procesos que llegan a una decisi\'on, llegan a la misma.
 \end{enumerate}
 
 
-Este algoritmo se ejecuta (como bien dice su nombre) en dos fases: En una primera fase los procesos votaran si se comprometen a realizar el commit. En una segunda fase el coordinador tomara una decisión basada sobre los votos obtenidos, e informará del resultado de su decisión a cada uno de los procesos involucrados en la transacción\cite{}.\\
+Este algoritmo se ejecuta (como bien dice su nombre) en dos fases: En una primera fase los procesos votaran si se comprometen a realizar el commit. En una segunda fase el coordinador tomara una decisi\'on basada sobre los votos obtenidos, e informar\'a del resultado de su decisi\'on a cada uno de los procesos involucrados en la transacci\'on\cite{Arora}.\\
 
-El proceso coordinador, de ahora en mas \textit{C}, posee tres acciones. En la primera acción \textit{C} emite su voto, pasa a su fase dos, y espera a que los demás procesos voten. En la segundo acción, \textit{C} detecta que todos los demás procesos han votado \textit{SI} y llega a la decisión de commit. En la tercera acción \textit{C} detecta que algún proceso ha votado \textit{NO} o se ha detenido, y por lo tanto llega a la decisión de abortar.\\
+El proceso coordinador, de ahora en mas \textit{C}, posee tres acciones. En la primera acci\'on \textit{C} emite su voto, pasa a su fase dos, y espera a que los dem\'as procesos voten. En la segundo acci\'on, \textit{C} detecta que todos los dem\'as procesos han votado \textit{SI} y llega a la decisi\'on de commit. En la tercera acci\'on \textit{C} detecta que alg\'un proceso ha votado \textit{NO} o se ha detenido, y por lo tanto llega a la decisi\'on de abortar.\\
 
-Todos los otros procesos, de ahora en mas \textit{V}, también poseen tres acciones. En su primera acción, \textit{V} detecta que \textit{C} ha emitido su voto por commit y emite su propio voto. En su segunda acción \textit{V} detecta que \textit{C} se ha detenido y decide abortar. En la tercera acción, \textit{V} detecta que algún proceso ha llegado a su fase dos, y toma la misma decisión que aquel.\\
+Todos los otros procesos, de ahora en mas \textit{V}, tambi\'en poseen tres acciones. En su primera acci\'on, \textit{V} detecta que \textit{C} ha emitido su voto por commit y emite su propio voto. En su segunda acci\'on \textit{V} detecta que \textit{C} se ha detenido y decide abortar. En la tercera acci\'on, \textit{V} detecta que alg\'un proceso ha llegado a su fase dos, y toma la misma decisi\'on que aquel.\\
 
-Cada proceso \textbf{j} en nuestro sistema poseerá las siguientes variables de estado:
+Cada proceso \textbf{j} en nuestro sistema poseer\'a las siguientes variables de estado:
 \begin{itemize}
-\item \textbf{j.p} Indica la fase del proceso. Comenzará con el valor 0, pasará a tener valor 1 cuando el proceso haya emitido su voto, y finalmente valdrá 2 cuando el proceso haya tomado su decisión final.
-\item \textbf{j.d} Dependiendo de la fase en la que se encuentre el proceso esta variable representará el voto emitido (fase 1), o la decisión tomada (fase 2). El valor \textit{TRUE} indicara voto a favor o decisión de commit, el valor \textit{FALSE} indicará voto en contra, o decisión de abortar.
-\item \textbf{j.up} Esta variable indicará si el proceso está en ejecución (tomando valor TRUE) o se ha detenido por algún error (tomando valor FALSE).
+\item \textbf{j.p} Indica la fase del proceso. Comenzar\'a con el valor 0, pasar\'a a tener valor 1 cuando el proceso haya emitido su voto, y finalmente valdr\'a 2 cuando el proceso haya tomado su decisi\'on final.
+\item \textbf{j.d} Dependiendo de la fase en la que se encuentre el proceso esta variable representar\'a el voto emitido (fase 1), o la decisi\'on tomada (fase 2). El valor \textit{TRUE} indicara voto a favor o decisi\'on de commit, el valor \textit{FALSE} indicar\'a voto en contra, o decisi\'on de abortar.
+\item \textbf{j.up} Esta variable indicar\'a si el proceso est\'a en ejecuci\'on (tomando valor TRUE) o se ha detenido por alg\'un error (tomando valor FALSE).
 \end{itemize}
 
 El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos. Las lineas punteadas representan transiciones de falla en las que provocan que la componente se detenga:
 
-%TODO EL DIAGRAMA SI TE PARECE :P
-
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.75]{Imagenes/2pcCoor.pdf}
-  \caption{Diagrama de estados de una componente coordinador del protocolo de commit atómico de 2 fases}
+  \caption{Diagrama de estados de una componente coordinador del protocolo de commit at\'omico de 2 fases}
   \label{2pcc}
 \end{figure}
 ~\\
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.75]{Imagenes/2pcVoter.pdf}
-  \caption{Diagrama de estados de una componente votante del protocolo de commit atómico de 2 fases}
+  \caption{Diagrama de estados de una componente votante del protocolo de commit at\'omico de 2 fases}
   \label{2pcv}
 \end{figure}
 ~\\
 
-En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicación entre los procesos, solo simularemos fallas de tipo STOP, simulando así la caída en inactividad de algún proceso interviniente. Quedará abstraída también aquellas fallas que llevan a que los procesos voten por no hacer commit ya que no conciernen al protocolo. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de 4 votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:\\
+En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicaci\'on entre los procesos, solo simularemos fallas de tipo STOP, simulando as\'i la ca\'ida en inactividad de alg\'un proceso interviniente. Quedar\'a abstra\'ida tambi\'en aquellas fallas que llevan a que los procesos voten por no hacer commit ya que no conciernen al protocolo. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de 4 votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:\\
 
 \noindent \line(1,0){400}
 \begin{verbatim}
@@ -844,7 +898,7 @@ ENDPROCTYPE
 \line(1,0){400}
 ~\\\\
 
-Como vemos el modelado surge de manera directa a partir de la especificación. Miremos sin embargo con detención la sección \textbf{FAULT} del modelado del proceso coordinador. En ella encontramos la especificación de una única falla, representando la detención del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de carácter permanente, es decir que una vez que ocurre, el proceso instanciado quedará infinitamente inhabilitado para realizar cualquier transición buena. Dado que es de nuestro interés que los demás procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detención del proceso coordinador, hemos agregado a la falla de detención la postcondición \textit{up' = FALSE}. Veremos mas adelante como los demás procesos pueden acceder a esta variable, en función de variable de contexto, y de esta manera enterarse de la situación del coordinador. Vale la pena también revisar los parámetros de contexto de esta declaración. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas será una referencia a cada votante en el sistema, y serán especificados en la instanciación al realizar el pasaje de parámetros. De este modo el proceso coordinador podrá en cualquier momento acceder a las variables de estado de los votantes en condición de solo lectura.\\
+Como vemos el modelado surge de manera directa a partir de la especificaci\'on. Miremos sin embargo con detenci\'on la secci\'on \textbf{FAULT} del modelado del proceso coordinador. En ella encontramos la especificaci\'on de una \'unica falla, representando la detenci\'on del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de car\'acter permanente, es decir que una vez que ocurre, el proceso instanciado quedar\'a infinitamente inhabilitado para realizar cualquier transici\'on buena. Dado que es de nuestro inter\'es que los dem\'as procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detenci\'on del proceso coordinador, hemos agregado a la falla de detenci\'on la postcondici\'on \textit{up' = FALSE}. Veremos mas adelante como los dem\'as procesos pueden acceder a esta variable, en funci\'on de variable de contexto, y de esta manera enterarse de la situaci\'on del coordinador. Vale la pena tambi\'en revisar los par\'ametros de contexto de esta declaraci\'on. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas ser\'a una referencia a cada votante en el sistema, y ser\'an especificados en la instanciaci\'on al realizar el pasaje de par\'ametros. De este modo el proceso coordinador podr\'a en cualquier momento acceder a las variables de estado de los votantes en condici\'on de solo lectura.\\
 
 Continuando con el modelado, miremos ahora los procesos votantes:\\
 
@@ -879,9 +933,9 @@ ENDPROCTYPE
 ~\\\\
 
 
-Nuevamente el modelado se extrae de manera directa de la especificación del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los demás procesos en el sistema, incluyendo al coordinador (\textit{coo}). La falla declarada es idéntica a la declarada en el modelado del coordinador. Por último la acción \textit{commit} fue separada para cada caso en que se detecta la toma de decisión de un proceso diferente. Si bien comparten el nombre, solo una de ellas será elegida para realizar la transición.\\
+Nuevamente el modelado se extrae de manera directa de la especificaci\'on del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los dem\'as procesos en el sistema, incluyendo al coordinador (\textit{coo}). La falla declarada es id\'entica a la declarada en el modelado del coordinador. Por \'ultimo la acci\'on \textit{commit} fue separada para cada caso en que se detecta la toma de decisi\'on de un proceso diferente. Si bien comparten el nombre, solo una de ellas ser\'a elegida para realizar la transici\'on.\\
 
-Miremos ahora como organizar los procesos en la etapa de instanciación de manera que cada uno pueda ver el estado de los demás. Para instanciar los procesos usaremos el siguiente código:\\
+Miremos ahora como organizar los procesos en la etapa de instanciaci\'on de manera que cada uno pueda ver el estado de los dem\'as. Para instanciar los procesos usaremos el siguiente c\'odigo:\\
 
 \noindent \line(1,0){400}
 \begin{verbatim}
@@ -894,11 +948,68 @@ INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
 \noindent \line(1,0){400}
 ~\\\\
 
-Como vemos hemos instanciado un proceso coordinador, y cuatro procesos votantes. Hemos asignado los nombres de instanciación de cada proceso como parámetros de los demás procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes. Esto se ve en el caso de los procesos votantes, donde el índice del parámetro para el proceso coordinador en la instanciación coincide con el índice de la variable de contexto \textit{coo} en el proctype \textit{RegularVoter}.\\
+Como vemos, hemos instanciado un proceso coordinador y cuatro procesos votantes. Hemos asignado los nombres de instanciaci\'on de cada proceso como par\'ametros de los dem\'as procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes. Esto queda claro en el caso de los procesos votantes, donde el \'indice del par\'ametro para el proceso coordinador en la instanciaci\'on coincide con el \'indice de la variable de contexto \textit{coo} en el proctype \textit{RegularVoter}.\\
+
+Una vez modelado el sistema, es necesario especificar las propiedades deseadas sobre el mismo, para su posterior verificaci\'on con la herramienta. Vimos en la especificaci\'on del algoritmo que estamos trabajando, que buscamos que el mismo cumpla con tres propiedades especificas. Las recordamos a continuaci\'on y miramos el c\'odigo usado para especificarlas en Falluto2.0:
+\begin{enumerate}
+\item \textbf{Si no ocurren errores y todos los procesos votan por \textbf{SI}, entonces todos los procesos llegan a la decisi\'on de commit.}\\ Esta propiedad supone que no ocurren errores y en ese contexto busca probar que si todos los procesos votaron por hacer commit entonces todos llegan a la decisi\'on de hacer commit. Podemos aprovechar entonces la metapropiedad \textit{NORMAL\_BEHAIVIOUR} para este caso, y la especificaci\'on en Falluto2.0 tomar\'a entonces la siguiente forma:\\
+\noindent \line(1,0){350}
+\begin{verbatim}
+NORMAL_BEHAIVIOUR -> G ( (coord.p = 1 & coord.d & 
+                          voter0.p = 1 & voter0.d & 
+                          voter1.p = 1 & voter1.d & 
+                          voter2.p = 1 & voter2.d & 
+                          voter3.p = 1 & voter3.d) 
+                          -> 
+                          F (coord.p = 2 & coord.d & 
+                             voter0.p = 2 & voter0.d & 
+                             voter1.p = 2 & voter1.d & 
+                             voter2.p = 2 & voter2.d & 
+                             voter3.p = 2 & voter3.d)
+                       )
+\end{verbatim}
+\noindent \line(1,0){350}
+~\\\\
+
+\item \textbf{Un proceso llega a la decisi\'on de commit solo si todos los procesos votaron \textbf{SI}.}\\ Notemos que dado un proceso \textit{j} denotamos el estado en el que este proceso llega a la desici\'on de commit con el estado dado por las condiciones \textit{j.p = 2} y \textit{j.d = TRUE}. As\'i tambi\'en, sabemos que si un proceso \textit{j} se encuentra en una fase que no sea \textit{0}, y su variable \textit{d} tiene el valor booleano \textit{TRUE} entonces se puede decir que el proceso a votado a favor del commit. De este modo la especificaci\'on de esta propiedad en Falluto2.0 toma la forma:\\
+\noindent \line(1,0){350}
+\begin{verbatim}
+LTLSPEC G ( ((coord.p = 2 & coord.d) |
+             (voter0.p = 2 & voter0.d) |            
+             (voter1.p = 2 & voter1.d) |
+             (voter2.p = 2 & voter2.d) |
+             (voter3.p = 2 & voter3.d) |
+            )
+            -> 
+            (voter0.p != 0 & voter0.d & 
+             voter1.p != 0 & voter1.d & 
+             voter2.p != 0 & voter2.d & 
+             voter3.p != 0 & voter3.d
+            )
+          ) 
+\end{verbatim}
+\noindent \line(1,0){350}
+~\\\\
+
+\item \textbf{Todos los procesos que llegan a una decisi\'on, llegan a la misma.}\\ Miremos esta propiedad en particular para los procesos \textit{voter1} y \textit{voter3}, ya que los dem\'as casos son semejantes. Supongamos que cada uno ha llegado a una decisi\'on y veamos que sea la misma. La siguiente sintaxis especifica esta propiedad como una propiedad en CTL:\\
+\noindent \line(1,0){350}
+\begin{verbatim}
+CTLSPEC AG ( (voter1.p = 2 & voter3.p = 2) 
+             -> 
+             (voter1.d = voter3.d)
+           )
+\end{verbatim}
+\noindent \line(1,0){350}
+~\\\\
+
+\end{enumerate}
+
+Si verificamos con Falluto2.0 el modelo que hemos ido definiendo, junto con las propiedades especificadas, notaremos que en efecto el modelo las cumple. Falluto2.0 expondr\'a, por cada propiedad presentada, una linea asegurando las satisfactibilidad de la misma en el modelo.
 
 
 
-
+\section{Protocolo de ventana deslizante\\GO-BACK-N}
+nada todavia :S
 
 %\section{Ej\'ercitos bizantinos ?}
 %\section{Fil\'osofos comensales ?}
@@ -921,13 +1032,13 @@ Como vemos hemos instanciado un proceso coordinador, y cuatro procesos votantes.
 \addappheadtotoc
 
 \chapter{Manual de Falluto2.0}
-Mostraremos en este apéndice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos además como utilizarlo para la verificación de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta nos ofrece.
+Mostraremos en este ap\'endice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos adem\'as como utilizarlo para la verificaci\'on de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta nos ofrece.
 
-\section{Instalación de Falluto2.0}
-Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versión 2.5.3 o superior, como así también Python versión 2.6.5 o superior. Tanto NuSMV como Python deben ser accesible mediante la ruta de busqueda para ejecución 'PATH'.
+\section{Instalaci\'on de Falluto2.0}
+Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versi\'on 2.5.3 o superior, como as\'i tambi\'en Python versi\'on 2.6.5 o superior. Tanto NuSMV como Python deben ser accesible mediante la ruta de busqueda para ejecuci\'on 'PATH'.
 
-\section{Opciones y utilización de la herramienta}
-El primer paso para la verificación del sistema es poseer un archivo (por convención terminado en .fll) en el cual se encuentre la descripción del sistema junto con las opciones de verificación y las propiedades a verificar (Ver el manual de usuario de Falluto2.0 para mayores indicaciones). Dentro de la carpeta de instalación de Falluto2.0 encontramos el script ejecutable del programa llamado \textit{Falluto2.0.py}. Ejecutamos este script con las siguientes opciones para realizar la verificación:\\
+\section{Opciones y utilizaci\'on de la herramienta}
+El primer paso para la verificaci\'on del sistema es poseer un archivo (por convenci\'on terminado en .fll) en el cual se encuentre la descripci\'on del sistema junto con las opciones de verificaci\'on y las propiedades a verificar (Ver el manual de usuario de Falluto2.0 para mayores indicaciones). Dentro de la carpeta de instalaci\'on de Falluto2.0 encontramos el script ejecutable del programa llamado \textit{Falluto2.0.py}. Ejecutamos este script con las siguientes opciones para realizar la verificaci\'on:\\
 
 
 \noindent usage: Falluto2.0 [-h] [--version] [-s path] [-co] filename\\
@@ -936,11 +1047,11 @@ El primer paso para la verificación del sistema es poseer un archivo (por conve
 \begin{tabular}{ll}
 \textbf{argumentos posicionales:}\\\\
 filename & Ruta del archivo de input donde se encuentra \\
-         & la descripción del sistema.\\
+         & la descripci\'on del sistema.\\
 \textbf{argumentos opcionales:} & \\\\
 -h, --help          & muestra este mensaje de ayuda.\\
---version           & muestra la versión de este programa y sale.\\
--s path, --s path, -save path & guardar la versión compilada a NuSMV de este \\
+--version           & muestra la versi\'on de este programa y sale.\\
+-s path, --s path, -save path & guardar la versi\'on compilada a NuSMV de este \\
                               & sistema en el archivo dado por la ruta 'path'.\\
 -co 		        & output con color.\\
 \end{tabular}
@@ -957,7 +1068,7 @@ A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de
 
 \section{Palabras reservadas de Falluto2.0}
 
-Las siguientes palabras son de caracter reservado, son usadas para fines específicos en la especificación del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
+Las siguientes palabras son de caracter reservado, son usadas para fines espec\'ificos en la especificaci\'on del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
 
 %\begin{tabular}{>{\bfseries}l>{\itshape}l}
 \begin{tabularx}{\textwidth}{>{\bfseries}l>{\itshape}X }
@@ -971,7 +1082,7 @@ RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAM
 
 \section{Algunas producciones simples}
 
-Identificadores pueden contener '.' para indicar pertenencia a un proceso específico ( por ejemplo instancia.variable ). Nombres en cambio no.\\
+Identificadores pueden contener '.' para indicar pertenencia a un proceso espec\'ifico ( por ejemplo instancia.variable ). Nombres en cambio no.\\
 
 ~\\\\
 \begin{tabularx}{\textwidth}{>{\bfseries}llX}
@@ -989,7 +1100,7 @@ INCLUSION & $\longleftarrow$ & IDENT ``in'' (SET / RANGE)\\
 ~\\\\
 
 \section{Expresiones}
-Las expresiones describen formulas booleanas o enteras. A continuación encontramos su sintaxis:
+Las expresiones describen formulas booleanas o enteras. A continuaci\'on encontramos su sintaxis:
 
 \begin{tabularx}{\textwidth}{>{\bfseries}llX }
 
@@ -1038,7 +1149,7 @@ TRANSDECL & $\longleftarrow$ & ``['' NAME? ``]'' ``:'' EXPRESION? ( $"=>"$ NEXTE
 
 
 \section{Instanciaci\'on}
-Para especificar que un proceso forma parte del sistema, debemos instanciar el mismo a partir de un proctype previamente definido. La sintaxis de instanciación de procesos es la que sigue:\\\\
+Para especificar que un proceso forma parte del sistema, debemos instanciar el mismo a partir de un proctype previamente definido. La sintaxis de instanciaci\'on de procesos es la que sigue:\\\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.65\textwidth} }
 INSTANCE & $\longleftarrow$ & ``INSTANCE'' NAME ``='' NAME ``('' INSTPARAMS ``)''\cr\cr
@@ -1049,9 +1160,9 @@ INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOO
 
 
 \section{Especificaci\'on de propiedades}
-Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado. Encontramos que podemos definir propiedades tanto en lógica LTL como en CTL. Podemos además hacer uso de mete-propiedades predefinidas para facilitar la verificación:\\
+Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado. Encontramos que podemos definir propiedades tanto en l\'ogica LTL como en CTL. Podemos adem\'as hacer uso de mete-propiedades predefinidas para facilitar la verificaci\'on:\\
 
-Para la elaboración de propiedades LTL y CTL, se ofrece la siguiente sintaxis:\\
+Para la elaboraci\'on de propiedades LTL y CTL, se ofrece la siguiente sintaxis:\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.7\textwidth} }
 SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
@@ -1070,7 +1181,7 @@ LTLBINOPS & $\longleftarrow$ & \textit{ U / V / S / T / xor / xnor / $'|'$ / $'\
 \end{longtable}
 ~\\
 
-A continuación encontramos las reglas sintácticas para el uso de las meta-propiedades de Falluto2.0:\\
+A continuaci\'on encontramos las reglas sint\'acticas para el uso de las meta-propiedades de Falluto2.0:\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.50\textwidth} }
 NORMALBEHAIVIOUR & $\longleftarrow$ & \textit{NORMAL\_BEHAIVIOUR} $"->"$ (CTLEXP / LTLEXP)\cr\cr
@@ -1082,6 +1193,8 @@ FINMANYFAULT & $\longleftarrow$ & \textit{FINITELY\_MANY\_FAULT} '(' IDENT (',' 
 
 
 \section{Restricciones y fairness}
+
+Las siguientes son reglas sint\'acticas para la elaboraci\'on de restricciones de fairness sobre la verificaci\'on del sistema. Espec\'ificamente podemos definir dos tipos de restricciones de fairness: inconditional fairness (\textit{FAIRNESS}) y strong fairness (\textit{COMPASSION}).
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.75\textwidth} }
 CONTRAINT & $\longleftarrow$ & FAIRNESS / COMPASSION\cr\cr
@@ -1151,6 +1264,11 @@ London, England
 \bibitem{Baier} Christel Baier and Joost-Pieter Katoen. 2008. Principles of Model Checking (Representation and Mind Series). The MIT Press.
 
 \bibitem{Huth} Michael R A Huth, Mark D Ryan. Logic in Computer Science, Modeling and reasoning about systems. Cambridge University Press. 2000.
+
+\bibitem{Cimatti} A. Cimatti, E. Clarke, F. Giunchiglia, M. Roveri. NuSMV: a new Symbolic Model Verifier. In N. Halbwachs and D. Peled, editors. Proceeding of International Conference on Computer-Aided Verification (CAV'99). In Lecture Notes in Computer Science, number 1633, pages 495-499, Trento, Italy, July 1999. Springer
+
+\bibitem{Arora} A. Arora and M. G. Gouda. Closure and convergence: A foundation of fault-tolerant computing. IEEE Trans. Software Eng., 19(11):1015–1027, 1993.
+
 
 \end{thebibliography}
 
