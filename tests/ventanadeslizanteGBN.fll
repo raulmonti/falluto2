@@ -1,0 +1,115 @@
+---- PROTOCOLO DE VENTANA DESLIZANTE GO-BACK-N, PARA FALLUTO2.0
+---- Raúl Monti
+---- 17 de enero, 2013
+---- Córdoba, Argentina
+
+
+OPTIONS
+SYSNAME Go_Back_N
+CHECK_DEADLOCK
+ENDOPTIONS
+
+-- DEFINITIONS
+DEFINE WZ := 2 			-- Window size.
+DEFINE MSEQ := 2		-- Max sequence number.
+DEFINE MSP1 := MSEQ + 1		-- Max sequence number + 1.
+DEFINE MAXCOP := 1		-- Max number of copies of the 
+				-- same frame in the buffer.
+
+
+PROCTYPE sender( ACK; send, read)
+
+VAR
+	DTX:  0..2 -- Data in output buffer
+	NS:   0..2 -- Next sequence number
+	LA:   0..2 -- Last Ack
+	RT:   0..2 -- Retransmition index
+	SENT: bool -- Output buffer empty?
+INIT
+	NS = 0 & LA = 0 & DTX = 0 & SENT & RT =  0
+TRANS
+	-- CONTINUE RETRANSMITION IF EVER STARTED
+	[contRetr]: RT != NS & SENT => DTX' = RT, RT' = (RT+1)%MSP1, SENT' = FALSE;
+        ----
+	---- TODO Unificar las dos de abajo
+        ----
+	-- SEND NEW SEQUENCE FRAME (CASE NS > LA)
+	[new]: NS >= LA & RT = NS & SENT & NS-LA < WZ => SENT' = FALSE, NS' = (NS+1)%MSP1, RT' = (RT+1)%MSP1, DTX' = NS;
+	-- SEND NEW SEQUENCE FRAME (CASE NS <= LA)
+	[new]: NS < LA & RT = NS & SENT & MSP1-LA+NS < WZ => SENT' = FALSE, NS' = (NS+1)%MSP1, RT' = (RT+1)%MSP1, DTX' = NS;
+	-- START RETRANSMITION IF WINDOW IS FULL
+	[startRetr]: ((NS >= LA & NS-LA >= WZ) | (NS < LA & MSP1-LA+NS >= WZ)) & SENT & RT = NS => SENT' = FALSE, DTX' = LA, RT' = LA;
+	-- READ INVALID ACK AND DISCARD
+	[read]: !(NS > LA & (ACK > LA | ACK <= NS)) & !(NS <= LA & ACK > LA & ACK <= NS) ;
+	-- READ VALID ACK
+	[read]: (NS > LA & (ACK > LA | ACK <= NS)) | (NS <= LA & ACK > LA & ACK <= NS) => LA' = ACK, RT' = NS;
+	-- SEND OUTPUT THROUGH BUFFER
+	[send]: !SENT => SENT' = TRUE;
+
+ENDPROCTYPE
+
+PROCTYPE receiver( AF; send, read)
+VAR
+	NR:0..2 -- Next request number
+	NA:bool -- Need to send ack
+INIT
+	NR = 0 & NA = FALSE
+TRANS
+	-- GAP DETECTED 
+	--[read]: AF > NR => NA' = TRUE;
+	-- INVALID PACKET -> DISCARD IT
+	[read]: AF != NR => NA' = TRUE;
+	-- RECEIVED WHAT REQUESTED
+	[read]: AF = NR => NR' = (NR+1)%(MSP1), NA' = TRUE;
+	-- SEND ACK IF NEEDED
+	[send]: NA => NA' = FALSE;
+
+ENDPROCTYPE
+
+
+
+
+PROCTYPE buffer( IN; send, read)
+
+VAR
+	buff:  array 0..3 of 0..1
+	data:  0..2
+	empty: bool -- can be data written over?
+
+FAULT
+	loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
+	loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
+	loose2: buff[2] > 0 => buff[2]' = buff[2]-1 is TRANSIENT
+--	loose3: buff[3] > 0 => buff[3]' = buff[3]-1 is TRANSIENT
+
+INIT
+	buff[0] = 0 & buff[1] = 0 & buff[2] = 0 & buff[3] = 0 & empty & data = 0
+
+TRANS
+	-- READ A 0
+	[send]: IN = 0 & buff[0] < MAXCOP => buff[0]' = buff[0]+1;
+	-- READ A 1
+	[send]: IN = 1 & buff[1] < MAXCOP => buff[1]' = buff[1]+1;
+
+	[send]: IN = 2 & buff[2] < MAXCOP => buff[2]' = buff[2]+1;
+
+--	[send]: IN = 3 & buff[3] < MAXCOP => buff[3]' = buff[3]+1;
+
+	[arrive]: empty & buff[0] > 0 => data' = 0, empty' = FALSE, buff[0]' = buff[0]-1;
+	[arrive]: empty & buff[1] > 0 => data' = 1, empty' = FALSE, buff[1]' = buff[1]-1;
+	[arrive]: empty & buff[2] > 0 => data' = 2, empty' = FALSE, buff[2]' = buff[2]-1;
+--	[arrive]: empty & buff[3] > 0 => data' = 3, empty' = FALSE, buff[3]' = buff[3]-1;
+
+	[read]: !empty => empty' = TRUE;
+
+ENDPROCTYPE
+
+INSTANCE producer = sender(buffCP.data, send1, read1)
+INSTANCE consumer = receiver(buffPC.data, send2, read2)
+INSTANCE buffPC = buffer(producer.DTX, send1, read2)
+INSTANCE buffCP = buffer(consumer.NR, send2, read1)
+
+
+LTLSPEC G F (just(read2) & buffPC.data = MSEQ)
+FINITELY_MANY_FAULTS -> G F (just(read2) & buffPC.data = MSEQ)
+--FINITELY_MANY_FAULT(buffPC.loose1) -> G F (just(read2) & buffPC.data = MSEQ & X (consumer.NA))

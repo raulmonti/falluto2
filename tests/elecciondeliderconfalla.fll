@@ -5,7 +5,6 @@ CHECK_DEADLOCK
 --FAULT_SYS_FAIR_DISABLE
 --MODULE_WEAK_FAIR_DISABLE
 
-
 ENDOPTIONS
 
 
@@ -13,34 +12,30 @@ ENDOPTIONS
 PROCTYPE Process(myId, idMenos1, maxIMenos1, distIMenos1)
 	
 	VAR
-		id: 1..5
 		maxid: 1..5
 		dist: 0..4
 
 	FAULT
 		falla: is BYZ(maxid,dist)
 
-	INIT
-		id = myId
-
 	TRANS
 	
-		[mine0]: id > maxid			=>	maxid' = id, dist' = 0
-	    	[mine1]: dist = 0 & maxid != id 		=> 	maxid' = id
-		[mine2]: id = maxid & dist != 0 		=> 	dist' = 0
+		[mine0]: myId > maxid => maxid' = myId, dist' = 0;
+	    	[mine1]: dist = 0 & maxid != myId => maxid' = myId;
+		[mine2]: myId = maxid & dist != 0 => dist' = 0;
 
-		[neighbour]: distIMenos1+1 < 5 & id < maxIMenos1	=> 	maxid' = maxIMenos1, dist' = distIMenos1 + 1
+		[neighbour]: distIMenos1+1 < 5 & myId < maxIMenos1 => maxid' = maxIMenos1, dist' = distIMenos1 + 1;
 
-		[lider]: distIMenos1+1 >= 5 | (id > idMenos1 & id >= maxIMenos1) 	=> 	maxid' = id, dist' = 0
+		[lider]: distIMenos1+1 >= 5 | (myId > idMenos1 & myId >= maxIMenos1) => maxid' = myId, dist' = 0;
 
 ENDPROCTYPE
 
 
-INSTANCE proc1 = Process(1,proc5.id,proc5.maxid,proc5.dist)
-INSTANCE proc2 = Process(2,proc1.id,proc1.maxid,proc1.dist)
-INSTANCE proc3 = Process(3,proc2.id,proc2.maxid,proc2.dist)
-INSTANCE proc4 = Process(4,proc3.id,proc3.maxid,proc3.dist)
-INSTANCE proc5 = Process(5,proc4.id,proc4.maxid,proc4.dist)
+INSTANCE proc1 = Process(1,5,proc5.maxid,proc5.dist)
+INSTANCE proc2 = Process(2,1,proc1.maxid,proc1.dist)
+INSTANCE proc3 = Process(3,2,proc2.maxid,proc2.dist)
+INSTANCE proc4 = Process(4,3,proc3.maxid,proc3.dist)
+INSTANCE proc5 = Process(5,4,proc4.maxid,proc4.dist)
 
 
 LTLSPEC G F ((proc1.maxid = 5 & proc2.maxid = 5 & proc3.maxid = 5 & proc4.maxid = 5 & proc5.maxid = 5) 

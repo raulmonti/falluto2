@@ -11,19 +11,18 @@ PROCTYPE RegularVoter(coo, v0, v1, v2)
         up: bool
 
     FAULT
-        crash: is STOP
+        crash: => up' = FALSE is STOP
     
     INIT
         phase = 0 & up = TRUE
 
     TRANS
-        [vote]: phase = 0 & coo.up & coo.phase = 1 => d' in {TRUE, FALSE}, phase' = 1
-        [abort]: phase = 0 & !coo.up => phase' = 2, d' = FALSE
-        [decide0]: phase < 2 & coo.phase = 2 => phase' = 2, d' = coo.d
-        [decide1]: phase < 2 & v0.phase = 2 => phase' = 2, d' = v0.d
-        [decide2]: phase < 2 & v1.phase = 2 => phase' = 2, d' = v1.d
-        [decide3]: phase < 2 & v2.phase = 2 => phase' = 2, d' = v2.d
-        --[crash]: => up' = FALSE
+        [vote]: phase = 0 & coo.up & coo.phase = 1 => d' in {TRUE, FALSE}, phase' = 1;
+        [abort]: phase = 0 & !coo.up => phase' = 2, d' = FALSE;
+        [commit]: phase < 2 & coo.phase = 2 => phase' = 2, d' = coo.d;
+        [commit]: phase < 2 & v0.phase = 2 => phase' = 2, d' = v0.d;
+        [commit]: phase < 2 & v1.phase = 2 => phase' = 2, d' = v1.d;
+        [commit]: phase < 2 & v2.phase = 2 => phase' = 2, d' = v2.d;
 
 ENDPROCTYPE
 
@@ -37,26 +36,26 @@ PROCTYPE Coordinator(v0, v1, v2, v3)
 
     
     FAULT 
-        crash: is STOP
+        crash: => up' = FALSE is STOP
 
     INIT
         phase = 0 & up = TRUE
 
     TRANS
-        [vote]:     phase = 0 => phase' = 1, d' in { TRUE, FALSE }
-        [decide0]:     phase = 1 
+        [vote]: phase = 0 => phase' = 1, d' in { TRUE, FALSE };
+        [commit]:     phase = 1 & d
                 & v0.up & v0.d & v0.phase = 1 
                 & v1.up & v1.d & v1.phase = 1
                 & v2.up & v2.d & v2.phase = 1
                 & v3.up & v3.d & v3.phase = 1
-                => phase' = 2, d' = TRUE
-        [decide1]:     phase = 1 
-                | (!v0.up | (v0.phase >= 1 & !v0.d)) 
+                => phase' = 2, d' = TRUE;
+        [abort]:     phase = 1 &
+                ( (!v0.up | (v0.phase >= 1 & !v0.d)) 
                 | (!v1.up | (v1.phase >= 1 & !v1.d)) 
                 | (!v2.up | (v2.phase >= 1 & !v2.d)) 
                 | (!v3.up | (v3.phase >= 1 & !v3.d))
-                => phase' = 2, d' = FALSE
-        --[crash]: => up' = FALSE
+                | !d)
+                => phase' = 2, d' = FALSE;
 ENDPROCTYPE
 
 
@@ -69,8 +68,22 @@ INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
 
 
 
-LTLSPEC G ( (coord.phase = 2 & coord.d -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d)) )
-&
-(( coord.phase = 0 | coord.phase = 1 |  (coord.phase = 2 & !coord.d)) -> 
-    (((voter0.phase != 2 | !voter0.d) & (voter1.phase != 2 | !voter1.d) & (voter2.phase != 2 | !voter2.d) & (voter3.phase != 2 | !voter3.d) )))
 
+-- LTLSPEC G (( coord.phase = 0 | coord.phase = 1 |  (coord.phase = 2 & !coord.d)) -> (((voter0.phase != 2 | !voter0.d) & (voter1.phase != 2 | !voter1.d) & (voter2.phase != 2 | !voter2.d) & (voter3.phase != 2 | !voter3.d ))))
+
+--
+-- Si no ocurren errores y todos los procesos votan por \textbf{SI}, entonces todos los procesos llegan a la decisión de commit.
+--
+NORMAL_BEHAIVIOUR -> G ((coord.phase = 1 & coord.d & voter0.phase = 1 & voter0.d & voter1.phase = 1 & voter1.d & voter2.phase = 1 & voter2.d & voter3.phase = 1 & voter3.d) -> F (coord.phase = 2 & coord.d & voter0.phase = 2 & voter0.d & voter1.phase = 2 & voter1.d & voter2.phase = 2 & voter2.d & voter3.phase = 2 & voter3.d))
+
+--
+-- Un proceso llega a la decisión de commit solo si todos los procesos votaron \textbf{SI}.
+--
+LTLSPEC G ( ((coord.phase = 2 & coord.d ) | (voter0.phase = 2 & voter0.d) | (voter1.phase = 2 & voter1.d) | (voter2.phase = 2 & voter2.d) | (voter3.phase = 2 & voter3.d)) -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d) )
+
+
+--
+-- Todos los procesos que llegan a una decisión, llegan a la misma. (caso de voter1 y voter3, y caso en que todos llegan a una desición)
+--
+LTLSPEC G ((voter1.phase = 2 & voter3.phase = 2) -> (voter1.d = voter3.d))
+-- LTLSPEC G ((coord.phase = 2 & voter0.phase = 2 & voter1.phase = 2 & voter2.phase = 2 & voter3.phase = 2) -> (coord.d = voter0.d & voter0.d = voter1.d & voter1.d = voter2.d & voter2.d = voter3.d))
