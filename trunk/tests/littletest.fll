@@ -14,9 +14,9 @@ PROCTYPE module(; transfer)
 	INIT
 		!on & file = 0
 	TRANS
-		[transfer]: on => file' = (file + 1) % 10
-		[On]: !on => on' = TRUE
-		[Off]: on & file = 9 => on' = FALSE
+		[transfer]: on => file' = (file + 1) % 10;
+		[On]: !on => on' = TRUE;
+		[Off]: on & file = 9 => on' = FALSE;
 ENDPROCTYPE
 
 INSTANCE mod1 = module(sync)
