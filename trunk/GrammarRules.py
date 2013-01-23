@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #===============================================================================
 # Modulo GrammarRules.py
 # 23 de Octubre del 2012
@@ -10,6 +12,7 @@
 #===============================================================================
 #
 from pyPEG import *
+from pyPEG import _not
 import pyPEG
 import re, fileinput
 from Debug import *
@@ -27,33 +30,45 @@ def COMMENT():  return [re.compile(r"--.*"), re.compile("/\*.*?\*/", re.S)]
 
 
 # IDENTIFIERS
+def RESERVED():     return [re.compile(r"""\barray\b|\bof\b|\bin\b|
+                            \bCHECKDEADLOCK\b|\bENDOPTIONS\b|\bOPTIONS\b|
+                            \bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|
+                            \bCOMPASSION\b|\bU\b|\bV\b|\bS\b|
+                            \bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|
+                            \bO\b|\bZ\b|\bY\b|\bPROCTYPE\b|\bINSTANCE\b|
+                            \bTRANS\b|\bINIT\b|\bVAR\b|\bENDPROCTYPE\b|
+                            \bFALSE\b|\bTRUE\b|\bFAULT\b""", re.X)
+                           ]
 
-reserved = r"(?!\bin\b|\bCHECKDEADLOCK\b|\bENDOPTIONS\b|\bOPTIONS\b|\
-\bFLLNAME\b|\bjust\b|\bis\b|\bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|\
-\bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|\bPROCTYPE\b|\
-\bINSTANCE\b|\bTRANS\b|\bINIT\b|\bVAR\b|\bENDPROCTYPE\b|\bFALSE\b|\bTRUE\b|\
-\bFAULT\b)"
-
-identifiers = reserved + r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?"
-
-names = reserved + r"[a-zA-Z_]+\w*"
-
-def NAME():         return [re.compile(names)]
-def IDENT():        return [re.compile(identifiers)]
+def NAME():         return pyPEG._not(RESERVED), \
+                                re.compile(r"[a-zA-Z_]+\w*")
+def IDENT():        return pyPEG._not(RESERVED), \
+                                re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
 def INT():          return [re.compile(r"\-?\d+")]
 def BOOL():         return [re.compile(r"\bFALSE\b|\bTRUE\b")]
 def EVENT():        return [(re.compile(r"just\(") \
                            , IDENT, re.compile(r"\)"))
                            ]
-def NEXTREF():      return [(IDENT, "'")]
+def NEWLINE():      return re.compile('\n')
+# el _not en la definición de SUBSCRIPT evita que exista newline entre el 
+# nombre del arreglo y el símbolo '[' de la subscripción.
+#def SUBSCRIPT():    return _not(re.compile(r"""[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?
+#                                           [ \t\r\f\v]*[\n]""", re.X)) \
+#                           , IDENT, re.compile(r"\["), [IDENT, INT] \
+#                           , re.compile(r"\]")
 
-def SET():          return re.compile(r"\{"), 0, ([IDENT, INT, BOOL] \
+def SUBSCRIPT():    return IDENT, re.compile(r"\["), [IDENT, INT] \
+                           , re.compile(r"\]")
+
+
+def NEXTREF():      return [([SUBSCRIPT,IDENT], "'")]
+def SET():          return re.compile(r"\{"), 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
                            , -1, (re.compile(r"\,") \
-                           , [IDENT, INT, BOOL])), re.compile(r"\}")
+                           , [SUBSCRIPT, IDENT, INT, BOOL])), re.compile(r"\}")
 
 def RANGE():        return INT, re.compile(r"\.\."), INT
+def INCLUSION():    return [SUBSCRIPT,IDENT], re.compile(r"\bin\b"), [SET,RANGE]
 
-def INCLUSION():    return IDENT, re.compile(r"\bin\b"), [SET, RANGE]
 
 
 # EXPRESION
@@ -63,6 +78,7 @@ def EXPRESION(): return [LEVEL5]
 def VALUE():    return [ (re.compile(r"\("), LEVEL5, re.compile(r"\)"))
                        , INCLUSION
                        , NEXTREF
+                       , SUBSCRIPT
                        , IDENT
                        , INT
                        , BOOL
@@ -106,7 +122,7 @@ def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
 def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 # Defines
-def DEFINE():       return keyword("DEFINE"), IDENT, ":=", EXPRESION
+def DEFINE():       return keyword("DEFINE"), NAME, ":=", EXPRESION
 
 # Proctypes
 def PROCTYPE():     return keyword("PROCTYPE"), IDENT, "(", CTXVARS, \
@@ -116,31 +132,34 @@ def CTXVARS():      return 0, (IDENT, -1, (",", IDENT))
 def SYNCACTS():     return 0, (";", 0, ( IDENT, -1, (",", IDENT)))
 def PROCTYPEBODY(): return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 
-
 def VAR():          return keyword("VAR"), -1, VARDECL
-def VARDECL():      return IDENT, re.compile(r"\:"), [ BOOLEAN, SET, RANGE]
+def VARDECL():      return IDENT, re.compile(r"\:"), [BOOLEAN,ENUM,RANGE,ARRAY]
 def BOOLEAN():      return [keyword("bool")]
-
+def ENUM():         return re.compile(r"\{"), 0, ([NAME, INT]\
+                           , -1, (re.compile(r"\,") \
+                           , [NAME, INT])), re.compile(r"\}")
+def ARRAY():        return re.compile(r"array"), INT, re.compile(r"\.\."), INT \
+                           , re.compile(r"of\b"), [RANGE, BOOLEAN, ENUM]
 
 def FAULT():        return keyword("FAULT"), -1, FAULTDECL
-def FAULTDECL():    return NAME, ":", 0, (0, EXPRESION, \
-                           "=>", 0, NEXTEXPR), keyword("is"), [BYZ, STOP, TRANSIENT]
+def FAULTDECL():    return NAME, ":", 0, (0, EXPRESION, "=>", 0, NEXTEXPR) \
+                           , keyword("is"), [BYZ, STOP, TRANSIENT]
 def BYZ():          return keyword("BYZ"), "(", IDENT, -1, (",", IDENT), ")"
 def TRANSIENT():    return [keyword("TRANSIENT")]
-def STOP():         return [(keyword("STOP"), "(", IDENT, -1, (",", IDENT), ")"), keyword("STOP")]
-
+def STOP():         return [(keyword("STOP"), "(", IDENT, -1 \
+                           , (",", IDENT), ")"), keyword("STOP")]
 
 def INIT():         return keyword("INIT"), 0, EXPRESION
 
 def TRANS():        return keyword("TRANS"), -1, TRANSDECL
 def TRANSDECL():    return "[", 0, NAME, "]", ":" \
-                            , 0, EXPRESION, 0, ("=>", NEXTEXPR)
+                            , 0, EXPRESION, 0, ("=>", NEXTEXPR), ";"
 
 
 
 # INSTANCES
 
-instparams = [IDENT, INT, BOOL]
+instparams = [SUBSCRIPT, IDENT, INT, BOOL]
 
 def INSTANCE():     return keyword("INSTANCE"), NAME, "=", NAME \
                            , "(", PARAMLIST, ")"
@@ -221,7 +240,7 @@ def COMPASSION():   return keyword("COMPASSION") \
 # TESTS ........................................................................
 if __name__ == "__main__":
 
-    def TEST(): return GRAMMAR
+    def TEST(): return ARRAY
 
     _file = fileinput.input()
     _ast = parse(TEST, _file, True, COMMENT, packrat = False)
