@@ -545,7 +545,9 @@ class Checker(object):
                 elif isInt(_str(elem)):
                     ts.add(Types.Int)
                 else:
-                    assert False
+                    if _str(elem) not in ['{',',','}']:
+                        debugERROR(elem)
+                        assert False
             return list(ts)
 
     #.......................................................................

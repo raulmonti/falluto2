@@ -29,4 +29,11 @@ debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
 
 debugTODO("Averiguar sobre line-wrapped para que se vea mejor la salida")
 
-debugTODO("instances weak fairness en instancias en particular y no en todas")
+debugTODO("instances weak fairness en instancias en particular y no en todas.")
+
+debugTODO("Permitir opcion para encontrar contraejemplos acotados.")
+
+debugTODO("Permitir dar nombre a las propiedades y de ese modo generar una" \
+         + "salida mas limpia.")
+
+debugTODO("Mejorar putbrackets para que no meta () de más")
