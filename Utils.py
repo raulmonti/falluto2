@@ -30,42 +30,52 @@ def _cl(ast = []):
 
 ################################################################################
 
-def _str(ast = []):
+def _str(ast = [], sp = True):
     """
         Devuelve un string formado por los elementos de tipo unicode que estan 
-        dentro del AST separados entre ellos por espacios simples. 'ast' debe 
+        dentro del AST separados entre ellos por espacios (si 'sp'). 'ast' debe 
         haber sido contruido por la funcion parse o parseLine del modulo pyPEG 
         o debe ser una subseccion del mismo, siempre y cuando sea de tipo 
         Symbol, list o unicode.
     """
+    spp = ""
+    if sp:
+        spp = " "
     lst = _cl(ast)
     string = ""
     if lst != []:
         string = str(lst[0])
     for element in lst[1::]:
-        string += " " + str(element)
+        string += spp + str(element)
     return str(string)
 
 
 ################################################################################
 
-def putBrackets(AST):
+def putBrackets(AST, space = True):
     """
         Devuelve un string con los elementos unicode de AST, colocando ademas
         parentesis segun presedencia de operadores. AST debe haber sido parseado
         por la regla EXPRESION de la gramatica de entrada de Falluto.
     """
+    
+    obrace = ' ( '
+    cbrace = ' ) '
+    if not space:
+        obrace = '('
+        cbrace = ')'
     if isinstance(AST, Symbol):
         if len(AST.what) == 3:
             if AST.what[0] == "(":
-                return putBrackets(AST.what[1])
+                return putBrackets(AST.what[1], space)
             else:
-                return " ( " + putBrackets(AST.what[0]) + " " + _str(AST.what[1])\
-                     + " " + putBrackets(AST.what[2]) + " ) "
+                return obrace + putBrackets(AST.what[0],space) + " " \
+                     + _str(AST.what[1]) \
+                     + " " + putBrackets(AST.what[2],space) + cbrace
         elif len(AST.what) == 1:
-            return putBrackets(AST.what[0])
+            return putBrackets(AST.what[0],space)
         elif len(AST.what) == 2:
-            return AST.what[0] + " " + putBrackets(AST.what[1])
+            return AST.what[0] + " " + putBrackets(AST.what[1],space)
         else:
             Debug.debugWARNING("Passing through: " + repr(AST) + "\n")
             return _str(AST)
@@ -79,22 +89,25 @@ def putBracketsAsList(AST):
     return putBrackets(AST).split()
 ################################################################################
 
-def putBracketsToFormula(AST):
+def putBracketsToFormula(AST, space=True):
     """
         Devuelve un string con los elementos unicode de AST, colocando ademas
         parentesis segun presedencia de operadores a los subAST de tipo 
         EXPRESION que se encuentren dentro de AST.
     """
+    sp = ' '
+    if not space:
+        sp = ''
     if isinstance(AST, Symbol):
         if AST.__name__ == "EXPRESION":
-            return putBrackets(AST) + ' '
+            return putBrackets(AST,space) + sp
         else:
             string = ""
             for elem in AST.what:
-                string += putBracketsToFormula(elem)
+                string += putBracketsToFormula(elem, space)
             return string
     elif isinstance(AST, unicode) or isinstance(AST, str):
-        return AST + ' '
+        return AST + sp
     else:
         raise TypeError(AST)
 

@@ -20,22 +20,7 @@ import Mejoras
 #
 #===============================================================================
 
-""" TODO BORRAR EN EL CASO DE QUE NUNCA LA USE
-# MODULE PLAIN API =============================================================
-# Compile:
-#   .. system: Parser.System type object to compile.
-#   .. @ returns: A Compiler instance with the compiled system.
-def Compile(system):
-    _cmp = Compiler()
-    _cmp.compile(system)
-    return _cmp
-
-#===============================================================================
-"""
-
 # TODO problema con ! var in {,,,}
-
-# TODO probar commitatomico usando instancias como varibles de contexto
 
 # THE COMPILER =================================================================
 
@@ -64,7 +49,6 @@ class Compiler(object):
     _actvar = __actvar
     _dkact  = __dkact
 
-
     #.......................................................................
     def __init__(self):
         self.compiledstring     = "" # String with the compiled system
@@ -80,7 +64,6 @@ class Compiler(object):
         self.transdict          = {}    # read method fillTransCompilingDict
         self.synchroMap         = {}    # read method fillTransCompilingDict
         self.synchrodict        = {}    # read method fillTransCompilingDict
-
 
     #.......................................................................
     def compile(self, system):
@@ -102,8 +85,8 @@ class Compiler(object):
     # Llenar un 'set' con todas los nombres de variables del programa compilado
     def fillVarSet(self):
         """
-            Fill in th self.varset with every variable name to be in the
-            compiled program. (does declared in VAR section)
+            Fill in self.varset with every variable name to be in the
+            compiled program. (those declared in VAR section)
         """
         self.varset.add(Compiler.__actvar)
         for inst in self.sys.instances.itervalues():
@@ -113,11 +96,30 @@ class Compiler(object):
                 self.varset.add(self.compileFaultActive(inst.name, f.name))
             # common variables
             for var in pt.localvars:
-               self.varset.add(self.compileLocalVar(inst.name, var.name))
+                if not var.isarray:
+                    self.varset.add(self.compileLocalVar(inst.name, var.name))
+                else:
+                    for v in self.arrayToVars(var):
+                        self.varset.add(self.compileLocalVar(inst.name, v))
 
             # instance program counters
             self.varset.add(self.compileIPC(inst.name))
 
+
+    #.......................................................................
+    def arrayToVars(self, array):
+        """
+            Get an array type VarDeclaration and return a list with variable
+            names representing each position of the array.
+        """
+        assert isinstance(array, Parser.VarDeclaration)
+        assert array.isarray
+        result = []
+        f = int(array.range[0])
+        t = int(array.range[1])
+        for i in range(f,t+1):
+            result.append(array.name + "[" + str(i) + "]")
+        return result
 
     #.......................................................................
     def fillVarCompilationTable(self):
@@ -128,7 +130,6 @@ class Compiler(object):
         # Compiler.__glinst is the 'namespace' for varibales outside
         # instances name spaces (for example in properties declarations)
         self.ctable[Compiler.__glinst] = {}
-
         # local vars
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
@@ -139,13 +140,13 @@ class Compiler(object):
                 # global instance for properties and contraints compilation
                 self.ctable[Compiler.__glinst][inst.name + '.' + lv.name] = \
                     self.ctable[inst.name][lv.name]
+                # Enumerated values (the ones declared inside ENUMs)
                 if lv.type == Types.Symbol:
-                    # Symbol values (the ones declared inside symbol sets)
                     for x in lv.domain:
                         self.ctable[inst.name][x] = self.compileSymbValue(x)
                         # global instance again
                         self.ctable[Compiler.__glinst][x] = \
-                            self.ctable[inst.name][x]
+                            self.compileSymbValue(x)
 
         # context vars
         for inst in self.sys.instances.itervalues():
@@ -166,7 +167,7 @@ class Compiler(object):
                     ii,vv = siv.split('.',1)
                     self.ctable[inst.name][scv] = self.ctable[ii][vv]
                 # else it's a boolean value or an integer
-                # TODO quizas no deberi permitir esto
+                # TODO quizas no deberia permitir esto
                 else:
                     assert isBool(siv) or isInt(siv)
                     self.ctable[inst.name][scv] = self.compileBOOLorINT(siv)
@@ -332,7 +333,7 @@ class Compiler(object):
         changed = set([])
         # Transition postcondition
         for p in trans.pos:
-            cref = self.compileLocalVar(iname, _str(p[0]))
+            cref = self.compileLocalVar(iname, _str(p[0],False))
             changed.add(cref)
             plst.append( self.compileNextRef(cref) \
                          + ' ' + _str(p[1]) + ' ' \
@@ -436,10 +437,15 @@ class Compiler(object):
             for var in pt.localvars:
                 vname = self.ctable[inst.name][var.name]
                 if var.type == Types.Bool:
-                    self.save(vname + ":boolean;")
+                    #TODO muy choto este parche, corregir cuando haya tiempo
+                    if var.isarray:
+                        self.save( vname + " : array " + str(var.range[0]) \
+                                 + ".." + str(var.range[1]) + " of boolean;")
+                    else:
+                        self.save(vname + ":boolean;")
                 else:
                     self.save(self.compileAST( inst.name, var.rawinput \
-                                             , False, pb = False) + ';')
+                                             , True, pb = False) + ';')
 
         # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -466,11 +472,11 @@ class Compiler(object):
         for p in self.sys.properties.itervalues():
             formula = self.replaceEvents(p.formula)
             if p.type == Types.Ctlspec:
-                pRepr = "CTLSPEC "+putBracketsToFormula(p.formula) 
+                pRepr = "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
                 self.compiledproperties.append( (pRepr, pComp) )
             elif p.type == Types.Ltlspec:
-                pRepr = "LTLSPEC "+putBracketsToFormula(p.formula) 
+                pRepr = "LTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
                 self.compiledproperties.append( (pRepr, pComp) )
             elif p.type == Types.Nb:
@@ -510,9 +516,7 @@ class Compiler(object):
                       + self.compileSet(faults) + " ) ) -> "
         formula = self.replaceEvents(p.formula)
         strprop += self.compileAST(Compiler.__glinst, formula)
-                  
-#        debugGREEN("Compiling normal behaviour propertie:\n\t" + strprop)             
-        return ("NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula), strprop)
+        return ("NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False), strprop)
     #.......................................................................
     def compileFmfPropertie(self, p):
         """
@@ -539,18 +543,16 @@ class Compiler(object):
                 + self.compileSet(faults) + ") ) -> "
         formula = self.replaceEvents(p.formula)
         strprop += self.compileAST(Compiler.__glinst,formula)
-
-#        debugGREEN("Compiling finitely many faults propertie:\n\t" + strprop)
-        
+     
         if p.type == Types.Fmfs:
             return \
-            ("FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula), strprop)
+            ("FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False), strprop)
         else:
             return \
             ("FINITELY_MANY_FAULT (" \
             + self.symbolSeparatedTupleString( \
             [_str(x) for x in p.params], False, False, ',') \
-            + ';' + putBracketsToFormula(p.formula) + ")", strprop)
+            + ';' + putBracketsToFormula(p.formula,False) + ")", strprop)
     #.......................................................................
     def buildContraints(self):
         self.save("\n\n")
@@ -812,7 +814,7 @@ class Compiler(object):
         # POSTCONDITIONS
         # Transition postcondition
         for p in f.pos:
-            cref = self.compileLocalVar(inst.name, _str(p[0]))
+            cref = self.compileLocalVar(inst.name, _str(p[0],False))
             vset.add(cref)
             ftlst.append( self.compileNextRef(cref) + ' ' + _str(p[1]) + ' ' \
                         + self.compileAST(inst.name, p[2]))
@@ -828,6 +830,9 @@ class Compiler(object):
             ftlst.append(self.compileNextRef(v) + ' = ' + v)
         # RETURN
         return self.symbolSeparatedTupleString(ftlst, False, False)
+
+
+
     #.......................................................................
     def buildByzantineTrans(self, inst, pt, f):
         thistransvect = []

@@ -5,7 +5,7 @@
 
 # MODULES GLOBAL VARS //////////////////////////////////////////////////////////
 
-DEBUG__ = True
+DEBUG__ = False
 
 DEBUGTODO__ = False
 

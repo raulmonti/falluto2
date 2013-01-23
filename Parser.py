@@ -384,7 +384,9 @@ class VarDeclaration(ParserBaseElem):
 
     def __init__(self):
         ParserBaseElem.__init__(self)
+        self.range = []
         self.domain = []
+        self.isarray = False
     #.......................................................................
     def parse(self, AST):
         self.rawinput = AST
@@ -394,7 +396,7 @@ class VarDeclaration(ParserBaseElem):
         AST = AST[2]
         if AST.__name__ == "BOOLEAN":
             self.type = Types.Bool
-        elif AST.__name__ == "SET":
+        elif AST.__name__ == "ENUM":
             self.type = Types.Symbol
             for x in AST.what:
                 if not isinstance(x, unicode):
@@ -404,8 +406,29 @@ class VarDeclaration(ParserBaseElem):
             for x in AST.what:
                 if not isinstance(x, unicode):
                     self.domain.append(_str(x))
+        elif AST.__name__ == "ARRAY":
+            self.isarray = True
+            self.range.append(_str(AST.what[1]))
+            self.range.append(_str(AST.what[3]))
+            domain = AST.what[5]
+            if domain.__name__ == "BOOLEAN":
+                self.type = Types.Bool
+            elif domain.__name__ == "ENUM":
+                self.type = Types.Symbol
+                for x in domain.what:
+                    if not isinstance(x, unicode):
+                        self.domain.append(_str(x))
+            elif domain.__name__ == "RANGE":
+                self.type = Types.Int
+                for x in domain.what:
+                    if not isinstance(x, unicode):
+                        self.domain.append(_str(x))
+            else:
+                raise TypeError(domain)
         else:
-            assert False
+            raise TypeError(domain)
+
+
     #.......................................................................
     def __str__(self):
         string = "---> Variable " + str(self.name) + " declaration"
@@ -415,6 +438,7 @@ class VarDeclaration(ParserBaseElem):
             string += "<" + str(x) + "> "
         return string
     #.......................................................................
+
 
 ################################################################################
 

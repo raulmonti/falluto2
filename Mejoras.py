@@ -30,3 +30,18 @@ debugTODO("Lograr trazas de contraejemplo mas cortas y lindas :D")
 debugTODO("Averiguar sobre line-wrapped para que se vea mejor la salida")
 
 debugTODO("instances weak fairness en instancias en particular y no en todas")
+
+debugTODO("Permitir la opcion de encontrar contrajemplos acotados.")
+
+debugTODO("Imprimir valores de los defines en la traza contraejemplo")
+
+debugTODO("Opcion para mostrar el output de NuSMV sin procesar")
+
+debugTODO("El archivo temporal deberia tener nombre unico por cada corrida.")
+
+debugTODO( "Efectos de falla bizantina no deberian apoderarse de la ejecucion" \
+         + "por defecto asi como las fallas en gral.")
+
+debugTODO( "Opcion de computar el tiempo que le lleva verificar.")
+
+debugTODO( "Opcion de guardar resultados en un archivo")
