@@ -1009,7 +1009,256 @@ Si verificamos con Falluto2.0 el modelo que hemos ido definiendo, junto con las 
 
 
 \section{Protocolo de ventana deslizante\\GO-BACK-N}
-nada todavia :S
+
+Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), comúnmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{números de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.\\
+
+En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de números de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los números de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on aún no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo número de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tamaño inicial siempre\cite[tanembaum].\\
+
+El protocolo \textbf{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En particular, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la última con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de paquetes, este se anticipa al reenv\'io de los mismos. Este tipo de protocolos es muy útil en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados.\\
+
+Con la intenci\'on de modelar el algoritmo que especifica este protocolo, dividiremos el mismo en cuatro partes:
+\begin{enumerate}
+\item \textbf{Env\'io de trama de secuencia}
+\item \textbf{Recepci\'on de trama de secuencia}
+\item \textbf{Env\'io de tramas de confirmaci\'on de recepci\'on}
+\item \textbf{Recepci\'on de tramas de confirmaci\'on de recepci\'on}
+\end{enumerate}
+~\\
+
+El emisor utilizar\'a entonces los algoritmos (1) y (4) mientras que el receptor los algoritmos (2) y (3). A continuaci\'on describiremos cada uno de estos algoritmos y mostraremos como modelarlos con Falluto2.0. Nuestra intenci\'on ser\'a modelar un nodo emisor y uno receptor, comunicados por canales no confiables, es decir por canales sujetos a la perdida de mensajes. Buscaremos demostrar con nuestra herramienta que este protocolo es tolerante a un numero de ocurrencia finito de estas fallas sobre los canales, en cuanto a que eventualmente todos las tramas podr\'an ser entregadas al receptor.\\\\
+
+\begin{center}
+\textbf{\large Los algoritmos (1) y (4), y el modelado del emisor.}
+\end{center}
+
+El siguiente pseudoc\'odigo representa el algoritmo de env\'io de trama de secuencia:\\
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+if( buffer de envio vacio )
+
+    if( estoy restransmitiendo )
+        continuo con la retransmision;
+            
+    else if( tengo tramas y la ventana no esta llena )
+        envio trama nueva;
+
+    else 
+        inicio retransmision;
+
+else
+        
+    continuar   		
+        
+\end{verbatim}
+\noindent \line(1,0){400}\\\\
+
+mientras que este otro representa al de recepci\'on de confirmaci\'on de recepci\'on:\\
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+if( la confirmacion cae dentro de la ventana de emision)
+    
+    deslizo la ventana;
+
+    if( estoy retransmitiendo)
+
+        dejo de retransmitir;
+
+else
+
+    descarto la confirmacion;
+\end{verbatim}
+\noindent \line(1,0){400}\\\\
+
+Como vemos, iniciaremos la retransmisi\'on de tramas solo cuando hayamos enviado todos los paquetes dentro de nuestra ventana. A su vez detendremos la retransmisi\'on al recibir tramas de confirmaci\'on v\'alidas, ya que en ese caso se avanza la ventana y nuevas tramas se hacen disponibles para la retransmisi\'on. Notemos adem\'as que suponemos que siempre tenemos paquetes nuevos para insertar en nuestras tramas y enviarlos.\\
+
+El modelado del emisor en Falluto2.0 presenta entonces el siguiente aspecto:\\
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+-- DEFINICIONES
+DEFINE WZ := 2          -- Window size.
+DEFINE MSEQ := 2        -- Max sequence number.
+DEFINE MSP1 := MSEQ + 1 -- Max sequence number + 1.
+
+PROCTYPE sender( ACK; send, read)
+
+VAR
+    DTX:  0..2 -- Data in output buffer
+    NS:   0..2 -- Next sequence number
+    LA:   0..2 -- Last Ack
+    RT:   0..2 -- Retransmition index
+    SENT: bool -- Output buffer empty?
+
+INIT
+    NS = 0 & LA = 0 & DTX = 0 & SENT & RT =  0
+
+TRANS
+
+    -- CONTINUAR CON LA RETRANSMISION SI SE HA EMPEZADO
+    [contRetr]: RT != NS & SENT 
+                => 
+                DTX' = RT, RT' = (RT+1)%MSP1, SENT' = FALSE;
+
+    -- NUEVO FRAME 
+    [new]:  RT = NS & SENT & 
+            ((NS >= LA & NS-LA < WZ)|(NS < LA & MSP1-LA+NS < WZ))
+            => 
+            SENT' = FALSE, NS' = (NS+1)%MSP1, 
+            RT' = (RT+1)%MSP1, DTX' = NS;
+
+    -- COMENZAR RETRANSMISION SI LA VENTANA ESTA LLENA
+    [startRetr]: 
+        ((NS>=LA & NS-LA >= WZ)|(NS<LA & MSP1-LA+NS >= WZ)) & 
+        SENT & RT = NS 
+        => 
+        SENT' = FALSE, DTX' = LA, RT' = LA;
+
+
+    -- LEER ACK INVALIDO Y DESCARTARLO
+    [read]: !(NS > LA & (ACK > LA | ACK <= NS)) & 
+            !(NS <= LA & ACK > LA & ACK <= NS);
+
+    -- LEER ACK VALIDO Y ACEPTARLO
+    [read]: (NS>LA & (ACK>LA | ACK<=NS)) |
+            (NS <= LA & ACK > LA & ACK <= NS) 
+            => 
+            LA' = ACK, RT' = NS;
+
+
+    -- ENVIAR EL MENSAJE POR EL CANAL DE COMUNICACION
+    [send]: !SENT => SENT' = TRUE;
+
+ENDPROCTYPE
+\end{verbatim}
+\noindent \line(1,0){400}\\
+
+Hemos simulado un emisor sin fallas, el cual memoriza el valor de la \'ultima confirmaci\'on de recepci\'on, el n\'umero de secuencia del pr\'oximo paquete a ser enviado y el \'indice de retransmisi\'on. De esta manera la ventana de transmisi\'on queda definida entre los \'indices dados por \textit{LA} y \textit{NS}, y en caso de retransmisi\'on, el \'indide \textit{RT} recorre esta ventana simulando enviar las tramas correspondientes.\\
+
+La secci\'on \textit{TRANS} del emisor, se ha definido tomando en cuenta el sentido de las construcciones \textit{IF-ELSEIF-ELSE}. Por lo tanto la guarda de cada transici\'on definida se conforma, en parte, por la negaci\'on de las guardas de las transiciones correspondientes a los casos anteriores dentro de la construcci\'on \textit{IF-ELSEIF-ELSE}. Las tres primeras transiciones se corresponden al algoritmo para env\'io de tramas de secuencia, mientras que las transiciones 4 y 5 pertenecen al de recepci\'on de tramas de confirmaci\'on de recepci\'on.\\
+
+
+\begin{center}
+\textbf{\large Los algoritmos (2) y (3), y el modelado del receptor.}
+\end{center}
+
+Miremos ahora el pseudoc\'odigo correspondiente a los algoritmos de recepci\'on de tramas de secuencia y env\'io de confirmaci\'on de recepci\'on. Estos algoritmos ser\'an inclu\'idos en el modelado del receptor.\\
+
+El siguiente pseudoc\'odigo describe el algoritmo de recepci\'on de tramas de secuencia:\\
+
+\noindent \line(1,0){400}\\
+
+\begin{verbatim}
+if( es la trama que esperaba )
+
+    aceptar trama y correr ventana;
+    generar confirmacion de recepcion;
+    
+else
+
+    descartar trama;
+    re-generar confirmacion de recepcion;
+\end{verbatim}
+
+\noindent \line(1,0){400}\\
+
+El algoritmo para env\'io de tramas de confirmaci\'on de recepci\'on es muy simple ya que solo consta de enviar el número de secuencia que se espera recibir en la pr\'oxima trama. Ya que en el caso del protocolo GO-BACK-N, la ventana de recepci\'on posee tama\~no 1, el algoritmo consistir\'a en enviar el n\'umero de secuencia correspondiente a la nueva ventana obtenida luego de la recepci\'on de una trama v\'alida.\\
+
+Miremos a continuaci\'on nuestro modelado del receptor en el lenguaje de Falluto2.0:\\
+
+\noindent \line(1,0){400}\\
+
+\begin{verbatim}
+PROCTYPE receiver( NF; send, read)
+
+VAR
+        NR:0..2 -- Next request number
+        NA:bool -- Need to send ack
+
+INIT
+        NR = 0 & NA = FALSE
+
+TRANS
+
+        -- DESCARTAR TRAMA INVALIDA
+        [read]: NF != NR => NA' = TRUE;
+
+        -- RECIBIR TRAMA VALIDA
+        [read]: NF = NR => NR' = (NR+1)%(MSP1), NA' = TRUE;
+
+        -- ENVIAR ACK DE SER NECESARIO
+        [send]: NA => NA' = FALSE;
+
+ENDPROCTYPE
+\end{verbatim}
+
+\noindent \line(1,0){400}\\
+
+Hemos modelado entonces un receptor sin fallas, el cual mantiene memoria el número de secuencia de la próxima trama que se espera recibir. En su sección \textit{TRANS} podemos distinguir el modelado de los algoritmos (2) y (3). Las dos primeras transiciones forman parte de la recepción de tramas de secuencia, mientras que la última transición describe el envío de la una trama de confirmación de recepción.\\
+
+A continuación modelaremos los canales de comunicación entre el emisor y el receptor. Estos canales estarán sujetos a fallas, en particular a fallas que implican la perdida de los mensajes que intentan atravesarlos. A continuación encontramos el modelo de los canales en el lenguaje de Falluto2.0:
+
+\noindent \line(1,0){400}
+
+\begin{verbatim}
+PROCTYPE channel( IN; send, read )
+
+VAR
+    buff:  array 0..2 of 0..1 -- fisical channel
+    data:  0..2               -- output data
+    empty: bool               -- output buffer empty?
+
+FAULT
+    loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
+    loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
+    loose2: buff[2] > 0 => buff[2]' = buff[2]-1 is TRANSIENT
+    
+INIT
+    buff[0] = 0 & buff[1] = 0 & buff[2] = 0 & empty & data = 0
+
+TRANS
+    -- ENVIAR UNA TRAMA POR EL CANAL
+    [send]: IN = 0 & buff[0] < MAXCOP => buff[0]' = buff[0]+1;
+    [send]: IN = 1 & buff[1] < MAXCOP => buff[1]' = buff[1]+1;
+    [send]: IN = 2 & buff[2] < MAXCOP => buff[2]' = buff[2]+1;
+
+    -- UNA TRAMA LLEGA AL FINAL DEL CANAL
+    [arrive]: empty & buff[0] > 0 
+              => 
+              data' = 0, empty' = FALSE, buff[0]' = buff[0]-1;
+    [arrive]: empty & buff[1] > 0 
+              => 
+              data' = 1, empty' = FALSE, buff[1]' = buff[1]-1;
+    [arrive]: empty & buff[2] > 0 
+              => 
+              data' = 2, empty' = FALSE, buff[2]' = buff[2]-1;
+
+    -- LA TRAMA ES LEIDA POR EL RECEPTOR DEL CANAL
+    [read]: !empty => empty' = TRUE;
+
+ENDPROCTYPE
+
+\end{verbatim}
+
+\noindent \line(1,0){400}\\
+
+En el modelado de los canales tenemos que la variable \textit{buff} en la posición $i$ define la cantidad de mensajes con número de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser leída por el receptor. A su vez la variable \textit{empty} nos indica si el receptor ya ha leído el dato que le llegó o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducción de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde será leído; y por último la transición de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.\\
+
+Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que nos otorga nuestra herramienta para la inyección de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de número de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condición de habilitación representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de número de secuencia $i$ en el canal usando la post-condición $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecución siempre que se cumpla su condición de habilitación.\\
+
+Por último veamos como modelar el sincronizado de los canales con el emisor y el receptor mediante el pasaje de nombres de acción comunes en la etapa de instanciación. Instanciamos entonces un emisor, un receptor, y dos canales, uno desde el emisor al receptor y otro en dirección contraria. Hacemos esto de la siguiente manera:\\
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+INSTANCE emisor   = sender   (buffRE.data , send1, read1)
+INSTANCE receptor = receiver (buffER.data , send2, read2)
+INSTANCE buffER   = channel  (emisor.DTX  , send1, read2)
+INSTANCE buffRE   = channel  (receptor.NR , send2, read1)
+\end{verbatim}
+\noindent \line(1,0){400}\\
+
+De esta manera hemos logrado que el emisor pueda leer los datos que llegan a través del canal \textit{buffER} al pasar como parámetro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a través de la variable \textit{bufferRE.data} pasada como parámetro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los parámetros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronización de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como parámetro nombres equivalentes para las acciones.\\
 
 %\section{Ej\'ercitos bizantinos ?}
 %\section{Fil\'osofos comensales ?}

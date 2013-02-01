@@ -37,7 +37,8 @@ def RESERVED():     return [re.compile(r"""\barray\b|\bof\b|\bin\b|
                             \bT\b|\bxor\b|\bxnor\b|\bG\b|\bX\b|\bF\b|\bH\b|
                             \bO\b|\bZ\b|\bY\b|\bPROCTYPE\b|\bINSTANCE\b|
                             \bTRANS\b|\bINIT\b|\bVAR\b|\bENDPROCTYPE\b|
-                            \bFALSE\b|\bTRUE\b|\bFAULT\b""", re.X)
+                            \bFALSE\b|\bTRUE\b|\bFAULT\b|
+                            \bAX\b|\bEX\b|\bAF\b|\bEF\b|\bAG\b|\bEG\b""", re.X)
                            ]
 
 def NAME():         return pyPEG._not(RESERVED), \

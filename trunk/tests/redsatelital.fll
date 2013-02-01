@@ -84,6 +84,7 @@ PROCTYPE satReceiver(NS; send, read)
     TRANS
         -- IN SEQUENCE FRAME
         [read]: NS = VR => RS' = FALSE, VR' = (VR+1)%MAXSEQ, NEEDACK' = TRUE;
+	---- TODO lo de abajo está mal porque la sequencia de paquetes es circular :S
         -- GAP DETECTED, ASK FOR RETRANSMITION
         [read]: NS > VR => RS' = TRUE, NEEDACK' = TRUE;
         -- DISCARD REPEATED FRAME 
@@ -161,5 +162,5 @@ INSTANCE buff21 = buffer(sat2.VR, send2, read1)
 --LTLSPEC G F (just(read2) & buff12.data = 0)
 
 
-CTLSPEC !EF ((just(send1)) & AX((A[(!just(send2)) U just(send1)])))
---CTLSPEC A[(!just(send2)) U just(send1)]
+ CTLSPEC ! (EF just(send1) & AX A[!just(send2) U just(send1)])
+--CTLSPEC just(send1) & AX A[!just(send2) U just(send1)]
