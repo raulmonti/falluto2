@@ -6,15 +6,14 @@
 
 OPTIONS
 SYSNAME Go_Back_N
-CHECK_DEADLOCK
+--CHECK_DEADLOCK
 ENDOPTIONS
 
 -- DEFINITIONS
 DEFINE WZ := 2 			-- Window size.
 DEFINE MSEQ := 2		-- Max sequence number.
 DEFINE MSP1 := MSEQ + 1		-- Max sequence number + 1.
-DEFINE MAXCOP := 1		-- Max number of copies of the 
-				-- same frame in the buffer.
+DEFINE MAXCOP := 1		-- Max number of copies of the same frame in the buffer.
 
 
 PROCTYPE sender( ACK; send, read)
@@ -28,39 +27,39 @@ VAR
 INIT
 	NS = 0 & LA = 0 & DTX = 0 & SENT & RT =  0
 TRANS
+	---- TODO: contRetr no retransmite el NS que es el que me importa retransmitir para conseguir el ACK
 	-- CONTINUE RETRANSMITION IF EVER STARTED
 	[contRetr]: RT != NS & SENT => DTX' = RT, RT' = (RT+1)%MSP1, SENT' = FALSE;
-        ----
-	---- TODO Unificar las dos de abajo
-        ----
-	-- SEND NEW SEQUENCE FRAME (CASE NS > LA)
-	[new]: NS >= LA & RT = NS & SENT & NS-LA < WZ => SENT' = FALSE, NS' = (NS+1)%MSP1, RT' = (RT+1)%MSP1, DTX' = NS;
-	-- SEND NEW SEQUENCE FRAME (CASE NS <= LA)
-	[new]: NS < LA & RT = NS & SENT & MSP1-LA+NS < WZ => SENT' = FALSE, NS' = (NS+1)%MSP1, RT' = (RT+1)%MSP1, DTX' = NS;
+
+	-- SEND NEW SEQUENCE FRAME
+	[new]: ((NS >= LA & NS-LA<WZ) | (NS < LA & MSP1-LA+NS < WZ)) & SENT & NS = RT => SENT' = FALSE, NS' = (NS+1)%MSP1, RT' = (RT+1)%MSP1, DTX' = NS;
+
 	-- START RETRANSMITION IF WINDOW IS FULL
 	[startRetr]: ((NS >= LA & NS-LA >= WZ) | (NS < LA & MSP1-LA+NS >= WZ)) & SENT & RT = NS => SENT' = FALSE, DTX' = LA, RT' = LA;
+
 	-- READ INVALID ACK AND DISCARD
 	[read]: !(NS > LA & (ACK > LA | ACK <= NS)) & !(NS <= LA & ACK > LA & ACK <= NS) ;
+
 	-- READ VALID ACK
 	[read]: (NS > LA & (ACK > LA | ACK <= NS)) | (NS <= LA & ACK > LA & ACK <= NS) => LA' = ACK, RT' = NS;
+
 	-- SEND OUTPUT THROUGH BUFFER
 	[send]: !SENT => SENT' = TRUE;
 
 ENDPROCTYPE
 
-PROCTYPE receiver( AF; send, read)
+
+PROCTYPE receiver( NF; send, read)
 VAR
 	NR:0..2 -- Next request number
 	NA:bool -- Need to send ack
 INIT
 	NR = 0 & NA = FALSE
 TRANS
-	-- GAP DETECTED 
-	--[read]: AF > NR => NA' = TRUE;
-	-- INVALID PACKET -> DISCARD IT
-	[read]: AF != NR => NA' = TRUE;
+	-- INVALID FRAME -> DISCARD IT
+	[read]: NF != NR;     -- (Comentario) => NA' = TRUE
 	-- RECEIVED WHAT REQUESTED
-	[read]: AF = NR => NR' = (NR+1)%(MSP1), NA' = TRUE;
+	[read]: NF = NR => NR' = (NR+1)%(MSP1), NA' = TRUE;
 	-- SEND ACK IF NEEDED
 	[send]: NA => NA' = FALSE;
 
@@ -74,7 +73,7 @@ PROCTYPE buffer( IN; send, read)
 VAR
 	buff:  array 0..3 of 0..1
 	data:  0..2
-	empty: bool -- can be data written over?
+	empty: bool -- output buffer empty?
 
 FAULT
 	loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
@@ -104,12 +103,15 @@ TRANS
 
 ENDPROCTYPE
 
+
+
+
 INSTANCE producer = sender(buffCP.data, send1, read1)
 INSTANCE consumer = receiver(buffPC.data, send2, read2)
 INSTANCE buffPC = buffer(producer.DTX, send1, read2)
 INSTANCE buffCP = buffer(consumer.NR, send2, read1)
 
 
+NORMAL_BEHAIVIOUR -> G F (just(read2) & buffPC.data = MSEQ)
 LTLSPEC G F (just(read2) & buffPC.data = MSEQ)
 FINITELY_MANY_FAULTS -> G F (just(read2) & buffPC.data = MSEQ)
---FINITELY_MANY_FAULT(buffPC.loose1) -> G F (just(read2) & buffPC.data = MSEQ & X (consumer.NA))
