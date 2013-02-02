@@ -1260,6 +1260,19 @@ INSTANCE buffRE   = channel  (receptor.NR , send2, read1)
 
 De esta manera hemos logrado que el emisor pueda leer los datos que llegan a través del canal \textit{buffER} al pasar como parámetro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a través de la variable \textit{bufferRE.data} pasada como parámetro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los parámetros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronización de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como parámetro nombres equivalentes para las acciones.\\
 
+Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto número de secuencia llegue siempre a menudo al receptor. Usemos en particular el número máximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con número de secuencia máximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecución suceda que siempre a menudo \textbf{canalER.data = MSEQ $\&$ receptor lee el canal }}. Encontramos que la sintaxis de Falluto2.0 nos ofrece una manera muy sencilla de describir la acción en la cual el receptor lee el canal, usando la construcción \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente formula LTL para expresar la propiedad que hemos sugerido: \\
+
+\noindent \textbf{Propiedad(1):}\\ \textit{LTLSPEC G F (canalER.data = MSEQ \& just(read2))}
+
+Podemos verificar la veracidad de esta propiedad bajo escenarios en los que las fallas no ocurren usando la meta-propiedad \textit{NORMAL\_BEHAIVIOUR}, y bajo escenarios en los que la ocurrencia de fallas es de carácter finito usando la meta-propiedad \textit{FINITELY\_MANY\_FAULTS}. Las propiedades resultantes del uso de estas meta-propiedades tienen la siguiente forma:\\
+
+\noindent \textbf{Propiedad(2):}\\ \textit{NORMAL\_BEHAIVIOUR $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))}\\
+
+\noindent \textbf{Propiedad(3):}\\ \textit{FINITELY\_MANY\_FAULTS $\rightarrow$ ~G~F~(canalER.data = MSEQ~\&~just(read2))}\\
+
+
+Como resultado de la verificación realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad(2). 
+
 %\section{Ej\'ercitos bizantinos ?}
 %\section{Fil\'osofos comensales ?}
 %\section{Falla bizantina ?}
