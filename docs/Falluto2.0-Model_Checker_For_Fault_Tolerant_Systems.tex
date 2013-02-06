@@ -1,3 +1,13 @@
+
+
+
+
+%TODO cambiar las palabras entre []
+%TODO rellenar los '...'
+%TODO Hablar sobre el interprete de trazas, y la manera de leer los resultados
+
+
+
 \documentclass[titlepage, 12pt]{book}
 \usepackage[spanish]{babel}
 
@@ -7,11 +17,10 @@
 \date{Diciembre 2012}
 
 \usepackage{graphicx} %para poner im\'agenes
-\usepackage{float} % para establecer posici\'on de im\'agenes
-\usepackage{amsmath} % para etiquetar flechas
+\usepackage{float}    % para establecer posici\'on de im\'agenes
+\usepackage{amsmath}  % para etiquetar flechas
 \usepackage{tabularx}
 \usepackage{enumerate}
-
 \usepackage{longtable}
 
 
@@ -22,17 +31,19 @@
 \renewcommand{\appendixpagename}{Ap\'endices}
 %
 
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
+% Linea separadora para c\'odigo
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+%
+
+\def\Falluto20{{\rm F\kern-.1667em\lower.5ex\hbox{A}\kern-.125emllutO2.0}}
 
 \begin{document}
 
-%TODO cambiar las palabras entre []
-%TODO rellenar los '...'
 %\maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% CAR\'aTULA
+% CARATULA
 %
 
 \begin{titlepage}
@@ -40,50 +51,81 @@
 
 % Upper part of the page. The '~' is needed because \\
 % only works if a paragraph has started.
-\includegraphics[width=0.30\textwidth]{./Imagenes/logo}~\\[1cm]
+\includegraphics[width=0.30\textwidth]{./Imagenes/logo}~\\[0.5cm]
 
-\textsc{\LARGE Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[1.0cm]
+\textsc{\Large Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[0.5cm]
 
-\textsc{\Large Trabajo final de grado}\\[0.5cm]
+\textsc{\large Trabajo final de grado}\\
 
 % Title
 \HRule \\[0.4cm]
-{ \huge \bfseries Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}\\[0.4cm]
-
+{ \huge \bfseries Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}\\
 \HRule \\[1.0cm]
 
-% Author and supervisor
-\begin{minipage}{0.4\textwidth}
-\begin{flushleft} \large
-\emph{Alumno:}\\
-Ra\'ul E.~\textsc{Monti}
+
+
+\hspace{0.5\textwidth}
+\begin{minipage}{0.45\textwidth}
+\begin{flushleft}
+{\large
+Ra\'ul \textsc{Monti}\\
+Directores:\\
+Dr. Pedro R. \textsc{D'Argenio},\\
+Dr. Nazareno \textsc{Aguirre}
+}
 \end{flushleft}
 \end{minipage}
-\begin{minipage}{0.4\textwidth}
-\begin{flushright} \large
-\emph{Director:} \\
-Dr.~Pedro~R.~\textsc{D'Argenio}\\
-\emph{Codirector:} \\
-Lc.~Nazareno \textsc{Aguirre}
-\end{flushright}
-\end{minipage}
+
+% Author and supervisor
+%\begin{minipage}{0.4\textwidth}
+%\begin{flushleft} \large
+%\emph{Alumno:}\\
+%Ra\'ul E.~\textsc{Monti}
+%\end{flushleft}
+%\end{minipage}
+%\begin{minipage}{0.4\textwidth}
+%\begin{flushright} \large
+%\emph{Director:} \\
+%Dr.~Pedro~R.~\textsc{D'Argenio}\\
+%\emph{Codirector:} \\
+%Lc.~Nazareno \textsc{Aguirre}
+%\end{flushright}
+%\end{minipage}
 
 \vfill
 
 % Bottom of the page
 \begin{flushright}
-{\large C\'ordoba, \today}
+{C\'ordoba, \today}
 \end{flushright}
 
 \end{center}
 \end{titlepage}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+~\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-~
-\newpage
-ACA VA EL RESUMEN
+\chapter*{\center{Resumen}}
+
+Los sistemas computacionales juegan roles determinantes en muchas \'areas de nuestra vida cotidiana. En algunos casos la dependencia hacia estos sistemas es cr\'itica, y el mal funcionamiento de los mismos puede acarrear grandes perdidas econ\'omicas o hasta de vidas humanas.\\
+
+Las fallas en el dise\~no del sistema, como as\'i tambi\'en aquellas fallas causadas por el entorno de ejecuci\'on, pueden llevar a un comportamiento erroneo del mismo.\\
+%
+%Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian a la aver\'ia o mal funcionamiento de los mismos. Estos sistemas por ende presentan una gran ventaja con respecto a aquellos que no lo son. Introducir la capacidad de tolerar fallas en un sistema computacional no es sencillo y es muy propenso a producir errores. La verificaci\'on de la correctitud de estos sistemas es entonces de vital importancia si se busca certificar que en efecto las fallas sean toleradas.\\
+
+Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian al mal funcionamiento de los mismos. Dar la capacidad de tolerar fallas a un sistema computacional no es sencillo y es muy propenso a introducir errores. La verificaci\'on de la correctitud de estos sistemas es entonces de vital importancia.\\
+
+%El model checking es una t\'ecnica formal que se encarga de verificar que el modelo de un sistema cumpla con un conjunto de propiedades. Este m\'etodo de verificaci\'on es exhaustivo y por lo tanto nos permite una verificaci\'on completa sobre el modelo del sistema a implementarse.\\
+
+El model checking es una t\'ecnica formal que se encarga de verificar exhaustivamente que el modelo de un sistema cumpla con un conjunto de propiedades.\\
+
+En este trabajo se presenta un lenguaje para el modelado de sistemas tolerantes a fallas y la especificaci\'on de propiedades sobre los mismos. Se provee adem\'as la herramienta de verificaci\'on Falluto2.0, construida como front-end para el model checker simb\'olico NuSMV, la cual utiliza el lenguaje descripto. Se analiza la simplicidad y practicidad del lenguaje como as\'i tambi\'en su correctitud. Por \'ultimo se observa el uso de la herramienta sobre dos casos particulares de modelado de sistemas tolerantes a fallas.\\
+
+ 
 \newpage
 ABSTRACT
 \newpage
@@ -95,29 +137,30 @@ AGRADECIMIENTOS
 \newpage
 
 
-% TODO Hablar sobre el interprete de trazas, y la manera de leer los resultados
-
-
 \chapter{Introducci\'on}
 \label{introduccion}
 
-Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes tareas, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocasiona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes [perdidas] monetarias y hasta llegar a ocasionar la [perdida] de vidas humanas.\\
+Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes tareas, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocasiona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes monetarias o hasta de vidas humanas.\\
 
-Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional\cite{faultInjection} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.\\
-Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especific\'on plantea) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.\\
+Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional \cite{faultInjection} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.\\
+Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especificaci\'on describe) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.\\
 
 Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas computacionales, es conveniente comprobar la correctitud de los sistemas tolerantes a fallas.
-El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dificil y \emph{propenso a errores}: la combianaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que [genera una gran demanda] a la capacidad intelectual del dise\~nador humano\cite{SteinerRushby}.\\
-En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on.\\ La examinaci\'on autim\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}.\\
+El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dif\'icil y \emph{propenso a errores}: la combinaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que genera una gran demanda a la capacidad intelectual del dise\~nador humano \cite{SteinerRushby}.\\
 
-En ciencias de la computaci\'on \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si la el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
-El reducido nivel de interacci\'on con el usuario de este m\'etodo es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad des ser usad por individuos no expertos\cite{RuysBrinksma}.\\
-%TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
+En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on. La examinaci\'on autom\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}.\\
+
+En ciencias de la computaci\'on \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.\\
+
+El reducido nivel de interacci\'on que presenta este m\'etodo con el usuario es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad des ser usad por individuos no expertos \cite{RuysBrinksma}. %TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
 Sin embargo es preciso modelar el sistema y definir las propiedades, lidiando mientras tanto con el principal problema del Model Checking: \emph{la explosi\'on de estados} debido al incremento exponencial de los mismos a ra\'iz de la introducci\'on de variables en la especificaci\'on del sistema.\\
 
-Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando as\'i la nociva explosi\'on de estados al momento de la verificaci\'on.
+%Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando as\'i la nociva explosi\'on de estados al momento de la verificaci\'on.
 
-Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV\cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errors evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo.\\Este trabajo se presenta como extensi\'on tanto del trabajo realizado por Edgardo Hammes\cite{Falluto1} como del realizado por Nicol\'as Bordenabe\cite{Offbeat}.
+Es objetivo de este trabajo elaborar una herramienta que contribuya a disminuir el esfuerzo y a evitar la introducci\'on de errores en el modelado y verificaci\'on mediante model checking de sistemas tolerantes a fallas. Buscamos con nuestra herramienta evitar tanto la introducci\'on de errores en el modelado como as\'i tambi\'en contener la explosi\'on de estados de la cual sufre el model checking. Queremos tambi\'en que nuestro lenguaje de modelado ofrezca facilidades al momento de especificar las propiedades a verificar, de manera especial en el caso en que las mismas involucren la ocurrencia de fallas.\\
+
+Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV\cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errores evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo. Este trabajo se presenta como extensi\'on del trabajo realizado por Edgardo Hames\cite{Hames}, y toma como base los conocimientos adquiridos a partir del trabajo de caracter\'isticas similares realizado por Nicol\'as Bordenabe\cite{Bordenabe}.
+
 %TODO seguir hablando del trabajo y poner la distribucion de los temas en el trabajo.
 
 
@@ -133,11 +176,7 @@ Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orient
 
 Mejorar la confiabilidad del sistema (el grado de confianza que se puede poner 
 de manera justificada sobre el sistema) es usualmente presentado como el 
-principal beneficio de la tolerancia a fallas. <Normalmente la confiabilidad es 
-definida estad\'isticamente, indicando la probabilidad de que el sistema sea 
-funcional y provea el servicio esperado en un alg\'un momento espec\'ifico >?
-\cite{Felix}.
-
+principal beneficio de la tolerancia a fallas. Introduciremos al comienzo de este cap\'itulo los conceptos b\'asicos de lo que entender\'emos como \textit{falla} en un sistema. Hablaremos luego de lo que significa que un sistema \textit{tolere fallas}, y concluiremos planteando el contexto en el cual nuestro trabajo tratar\'a la tolerancia a fallas.
 
 
 
@@ -146,9 +185,11 @@ funcional y provea el servicio esperado en un alg\'un momento espec\'ifico >?
 
 
 \section{Fallas}
-Intuitivamente, y dentro del contexto que nos competen, podemos definir a una falla como una desviaci\'on de su funci\'on esperada en una componente de hardware o software. Estas fallas pueden ocurrir en cualquier etapa de la evoluci\'on del sistema computacional en cuesti\'on -especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, e instalaci\'on- y durante toda su vida operacional\cite{FaultInject}.\\
+Intuitivamente, y dentro del contexto que nos compete, podemos definir a una \textit{falla} (``fault'' en ingl\'es) en una componente de hardware o software como una perturbaci\'on de su estado la cual pone en peligro su correcto funcionamiento. Las fallas pueden ser introducidas en cualquier etapa de la evoluci\'on del sistema computacional en cuesti\'on -especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, e instalaci\'on- y pueden ocurrir en cualquier momento durante su vida operacional \cite{FaultInject}.\\
 
-Una definici\'on ligeramente m\'as formal nos sugiere definir el termino 'falla' basado en la observaci\'on de que los sistemas cambian su estado como resultado de dos clases de eventos muy similares: operaciones normales de sistema y ocurrencia de fallas. Por lo tanto, un falla puede ser modelada como una no deseada (pero sin embargo posible) transici\'on de estado en un proceso\cite{Felix}.
+Una definici\'on ligeramente m\'as formal nos sugiere definir el termino \textit{falla} basado en la observaci\'on de que los sistemas cambian su estado como resultado de dos clases de eventos muy similares: operaciones normales de sistema y ocurrencia de fallas. Por lo tanto, un falla puede ser modelada como una no deseada (pero sin embargo posible) transici\'on de estado en un proceso \cite{Felix}.\\
+
+Denotaremos con el t\'ermino \textit{error} (en ingl\'es ``failure'') al efecto no deseado que puede llegar a producir una falla en el comportamiento del sistema en cuesti\'on. Queda as\'i distinguida la falla de su posible efecto negativo sobre el comportamiento del sistema.
 
 
 
@@ -157,10 +198,11 @@ Una definici\'on ligeramente m\'as formal nos sugiere definir el termino 'falla'
 
 
 \section{Sistemas tolerantes a fallas}
-Existen sistemas dise\~nados para ser tolerantes a fallas: ellos o bien exhiben un bien definido comportamiento ante fallas cuando estas ocurren, o bien enmascaran la falla de la componente al usuario, es decir contin\'uan proveyendo su servicio est\'andar especificado a pesar de la ocurrencia de las fallas en la componente\cite{Cristian}.
-Podemos entonces decir de manera vaga que la tolerancia a fallas es la habilidad que posee un sistema de comportarse de una manera bien definida ante la ocurrencia de una falla. En el momento de dise\~nar la tolerancia a fallas, un primer prerrequisito es especificar la clase de falla que ser\'a tolerada. Tradicionalmente esto se lograba usando como base alguno de los modelos de fallas est\'andares (crash, fail-stop, etc...), sin embargo puede hacerse de manera m\'as concisa especificando clases de fallas. El siguiente paso es enriquecer el sistema bajo consideraci\'on con componentes o conceptos que provean protecci\'on contra las fallas de una clase espec\'ifica\cite{FaultInject}.\\
+Existen sistemas dise\~nados para ser tolerantes a fallas: ellos o bien exhiben un comportamiento bien definido ante la ocurrencia de fallas, o bien enmascaran la falla de la componente al usuario, es decir contin\'uan proveyendo su servicio est\'andar especificado a pesar de la ocurrencia de las fallas en la componente \cite{Cristian}. Podemos entonces decir de manera vaga que la tolerancia a fallas es la habilidad que posee un sistema de comportarse de una manera bien definida ante la ocurrencia de una falla. En el momento de dise\~nar la tolerancia a fallas, un primer prerrequisito es especificar la clase de falla que ser\'a tolerada. Tradicionalmente esto se lograba usando como base alguno de los modelos de fallas est\'andares (crash, fail-stop, etc...), sin embargo puede hacerse de manera m\'as concisa especificando clases de fallas. El siguiente paso es enriquecer el sistema bajo consideraci\'on con componentes o conceptos que provean protecci\'on contra las fallas de una clase espec\'ifica \cite{FaultInject}.\\
 
-En este trabajo podremos distinguir dos clases de fallas en particular. Un primer grupo de fallas es de tipo \textbf{permanente}: \'estas com\'unmente representan fallas reales causadas por problemas irreversibles en la componente. Una vez que una falla permanente ocurre, permanece activa y afectando al sistema durante el resto de su ejecuci\'on. Por otro lado, un segundo grupo de fallas se caracteriza por ser de duraci\'on instant\'anea. Afectan el estado del sistema en los puntos particulares de se ejecuci\'on en los cuales estas fallas ocurren, sin tener efectos permanentes sobre el mismo. Las mismas pueden repetirse indefinidamente durante la ejecuci\'on del sistema, permaneciendo activas solo en el momento en que afectan al sistema. Diremos que estas fallas son de clase \textbf{transient}.
+En este trabajo podremos distinguir dos clases de fallas en particular. Un primer grupo de fallas es de tipo \textit{permanente}: \'estas com\'unmente representan fallas reales causadas por problemas irreversibles en la componente. Una vez que una falla permanente ocurre, permanece activa y afectando al sistema durante el resto de su ejecuci\'on. Por otro lado, un segundo grupo de fallas se caracteriza por ser de duraci\'on instant\'anea. Afectan el estado del sistema solo en los puntos espec\'ificos de se ejecuci\'on en los cuales estas fallas ocurren. Por lo tanto su efecto sobre el sistema solo resulta como consecuencia de los cambios particulares ocasionados en el momento de ocurrencia de la falla. Las mismas pueden repetirse indefinidamente durante la ejecuci\'on del sistema, permaneciendo activas solo en el momento en que afectan al sistema. Diremos que estas fallas son de clase \textit{transitoria}.\\
+
+Al establecer el grado de tolerancia de fallas de un sistema, no basta solo con indicar las caracter\'isticas intr\'insecas de las fallas mismas, sino que es de inter\'es presentar el contexto de ocurrencia de estas. Por ello, al tratar con fallas, tomamos en cuenta diferentes condiciones y suposiciones sobre la ocurrencia de las mismas durante la ejecuci\'on del sistema. Muchas veces es de inter\'es por ejemplo evitar tratar situaciones en las que las fallas ocurren constantemente, ya que esto suele presentar un escenario irreal. Otras veces la ocurrencia de fallas en el modelo se observa en cantidades finitas y por lo tanto buscaremos poder establecer estos escenarios de an\'alisis tambi\'en. Todas estas condiciones nos permiten generar un contexto sobre el interleaving de las transiciones de falla y transiciones normales o buenas durante la ejecuci\'on del sistema. A partir de esto es que podemos analizar la tolerancia a fallas de manera mas espec\'ifica y certera. La tolerancia a fallas de nuestros sistemas quedar\'a entonces caracterizada no solo por el tipo de fallas sino que tambi\'en a partir de las condiciones de ocurrencia de las mismas.
 
 
 
@@ -168,12 +210,14 @@ En este trabajo podremos distinguir dos clases de fallas en particular. Un prime
 
 
 
-\section{Conclusi\'on}
-En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones buenas del sistema y transiciones debido a fallas, ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo.\\
+\section{Discusi\'on}
+Tomando como respaldo lo analizado en este cap\'itulo, es que tomaremos una serie de decisiones sobre nuestro trabajo.\\
 
-Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transient}.\\
+En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones buenas del sistema y transiciones ocasionadas por fallas. Ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo. Esto difiere del punto de vista tomado por otros trabajos como \cite[etc...]{Arora,dCTL}\\
 
-Por \'ultimo, nos ocuparemos del modelado del sistema en general y nos centraremos en la inyecci\'on de las fallas en el mismo. No nos detendremos sin embargo en temas espec\'ificos al dise\~no de la tolerancia a las fallas.
+Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transitorio}, y la tolerancia de los sistemas modelados con respecto a ambas clases de fallas ser\'a estudiada bajo ciertas condiciones de ocurrencia e interleaving entre estas y acciones normales.\\
+
+Es importante aclarar que si bien nos ocuparemos del modelado del sistema en general y nos centraremos por momentos en la inyecci\'on de fallas sobre el mismo, no nos detendremos en temas espec\'ificos al dise\~no de la tolerancia a fallas.
 
 
 
@@ -188,11 +232,11 @@ Por \'ultimo, nos ocuparemos del modelado del sistema en general y nos centrarem
 
 \chapter{Model Checking}
 
-En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas\cite{prinMC}.\\
+En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, y para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas \cite{prinMC}.\\
 
-El \textbf{Model Checking} es un m\'etodo formal para la verificaci\'on exhaustiva de sistemas finitos. Logra esta verificaci\'on explorando todos los estados posibles del sistema con la intenci\'on de verificar la veracidad de una propiedad sobre el mismo.\\
+El \textit{Model Checking} es un m\'etodo formal para la verificaci\'on exhaustiva de sistemas finitos. Logra esta verificaci\'on explorando todos los estados posibles del sistema con la intenci\'on de verificar la veracidad un conjunto de propiedades sobre el mismo.\\
 
-En este cap\'itulo comenzaremos revisando algunos conceptos b\'asicos para entender el funcionamiento de los \textit{model checkers} (programas utilizados para la verificaci\'on mediante \textit{model checking}, y concluiremos presentando el proceso de \textit{model checking} junto con algunas caracter\'isticas de este m\'etodo.
+En este cap\'itulo comenzaremos revisando algunos conceptos b\'asicos para entender el funcionamiento de los \textit{model checkers} (programas utilizados para la verificaci\'on mediante model checking), y concluiremos presentando el proceso de model checking junto con algunas caracter\'isticas de este m\'etodo.
 
 
 
@@ -206,8 +250,10 @@ En este cap\'itulo comenzaremos revisando algunos conceptos b\'asicos para enten
 \section{Sistemas de transici\'on}
 %TODO introducir sistemas de transicion
 
-\subsection{Labelled transition systems - LTS}
-Llamamos sistema de transiciones etiquetadas a un concepto de maquina abstracta usada en parte para el modelado de sistemas computacionales concurrentes. Este sistema de representaci\'on est\'a compuesto por un conjunto de estados, un conjunto de etiquetas o nombres, y una relaci\'on ternaria explicando las transiciones etiquetadas desde un estado hacia otro del sistema.\\
+\subsection*{Labelled transition systems - LTS}
+
+Llamamos \textit{sistema de transiciones etiquetadas} (en ingl\'es ``labeled transitions systems'') a un concepto de maquina abstracta usada en parte para el modelado de sistemas computacionales concurrentes. Este sistema de representaci\'on est\'a compuesto por un conjunto de estados, un conjunto de etiquetas o nombres, y una relaci\'on ternaria explicando las transiciones etiquetadas desde un estado hacia otro del sistema.\\
+
 Formalmente podemos decir que un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:
 \begin{itemize}
 \item $S$ es un conjunto (de estados)
@@ -215,13 +261,11 @@ Formalmente podemos decir que un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:
 \item $L$ es un conjunto de etiquetas (nombres de transiciones)
 \item $R \subseteq S \times L \times S$ es una relaci\'on ternaria (de transiciones etiquetadas)
 \end{itemize}
-Notemos entonces que si s1 y s2 son elementos en S, l es un nombre en L, y (s1,l,s2) pertenece a R, entonces estamos indicando que existe una transici\'on con nombre l desde el estado s1 al estado s2.\\
-As\'i podemos modelar sistemas computacionales tomando cada elemento en S como un estado particular del sistema y definiendo relaciones etiquetadas entre los mismos para representar el comportamiento del sistema.\\
+Notemos entonces que si $s1$ y $s2$ son elementos en $S$, $l$ es un nombre en $L$, y $(s1,l,s2)$ pertenece a $R$, entonces estamos indicando que existe una transici\'on con nombre $l$ desde el estado $s1$ al estado $s2$. De esta manera podemos modelar sistemas computacionales tomando cada elemento en $S$ como un estado particular del sistema y definiendo relaciones etiquetadas entre los mismos para representar su comportamiento.\\
 
-En particular nos interesa para este trabajo la capacidad que nos otorga este formalismo para representar sincronizaci\'on entre acciones de distintas componentes del sistema. En el ejemplo de la figura \ref{figura1} encontramos dos componentes, un productor y un consumidor, ambas con su representaci\'on LTS. Podemos a partir de ellas definir un sistema concurrente sincronizado en el cual las transiciones de igual nombre en cada componente deben ser ejecutadas de manera sincronizada, mientras que las transiciones propias de cada componente pueden ejecutarse independientemente. Vemos el sistema resultante en la figura \ref{figura2}. En ella la transici\'on punteada y etiquetada con 'Listo' representa la acci\'on sincronizada entre el productor y el consumidor. A su vez podemos ver en el estado punteado un caso de [interliving] entre los procesos sincronizados. All\'i podemos elegir entre darle paso a la acci\'on 'Producir' del productor, o dejar que el consumidor realice la acci\'on 'Consumir'. 
+En particular nos interesa para este trabajo la capacidad que nos otorga este formalismo para representar sincronizaci\'on entre acciones de distintas componentes del sistema. En el ejemplo de la figura \ref{figura1} encontramos dos componentes, un productor y un consumidor, ambas con su representaci\'on LTS. Podemos a partir de ellas definir un sistema concurrente sincronizado en el cual las transiciones de igual nombre en cada componente deben ser ejecutadas de manera sincronizada, mientras que las transiciones propias de cada componente pueden ejecutarse independientemente. Vemos el sistema resultante en la figura \ref{figura2}. En ella la transici\'on punteada y etiquetada con `Listo' representa la acci\'on sincronizada entre el productor y el consumidor. A su vez podemos ver en el estado punteado un caso de interleaving entre los procesos sincronizados. All\'i podemos elegir entre darle paso a la acci\'on `Producir' del productor, o dejar que el consumidor realice la acci\'on `Consumir'. 
 
-
-\begin{figure}[H] %Al incluir el paquete float, [H] obliga a posicionar la imagen justo en este lugar por mas que a latex no le guste.
+\begin{figure}[htp] %Al incluir el paquete float, [H] obliga a posicionar la imagen justo en este lugar por mas que a latex no le guste.
   \centering
     \includegraphics{Imagenes/prodYcons.pdf}
   \caption{El productor (izquierda) y el consumidor (derecha).}
@@ -229,29 +273,31 @@ En particular nos interesa para este trabajo la capacidad que nos otorga este fo
 \end{figure}
 ~\\\\
 
-\begin{figure}[H] %Al incluir el paquete float, [H] obliga a posicionar la imagen justo en este lugar por mas que a latex no le guste.
+\begin{figure}[htp] %Al incluir el paquete float, [H] obliga a posicionar la imagen justo en este lugar por mas que a latex no le guste.
   \centering
     \includegraphics{Imagenes/prodYconsSincro.pdf}
-  \caption{productor y consumidor de la figura \ref{figura1} sincronizados.}
+  \caption{Productor y consumidor de la figura \ref{figura1} sincronizados.}
   \label{figura2}
 \end{figure}
 ~\\\\
 
-\subsection{Estructuras de Kripke}
-En model checking usamos un tipo de grafos de transici\'on de estados llamados \textit{Structuras de Kripke} para intuitivamente captar el comportamiento del sistema a modelar. Una \textit{estructura de Kripke} consiste en un conjunto de estados, un conjunto de transiciones entre esos estados, y una funci\'on que etiqueta cada estado con un conjunto de propiedades que son verdaderas en este estado. Los caminos en estas estructuras modelan la ejecuci\'on del sistema\cite{Clarke}. Estas estructuras son lo suficientemente expresivas como para captar aspectos de l\'ogicas temporales tales como (LTL y CTL) que interesan a la verificaci\'on de sistemas v\'ia model checking.\\
+\subsection*{Estructuras de Kripke}
+En model checking usamos un tipo de grafos de transici\'on de estados llamados \textit{Structuras de Kripke} para intuitivamente captar el comportamiento del sistema a modelar. Una estructura de Kripke consiste en un conjunto de estados, un conjunto de transiciones entre esos estados, y una funci\'on que etiqueta cada estado con un conjunto de propiedades que son verdaderas en este estado. Los caminos en estas estructuras modelan la ejecuci\'on del sistema \cite{Clarke}. Estas estructuras son lo suficientemente expresivas como para captar aspectos de l\'ogicas temporales tales como (LTL y CTL) que interesan a la verificaci\'on de sistemas v\'ia model checking.\\
 
-Formalmente podemos definir una estructura de Kripke como sigue\cite{Clarke}:\\
+Formalmente podemos definir una estructura de Kripke como sigue \cite{Clarke}:\\
 
-Sea AP un conjunto de proposiciones at\'omicas. Una estructura de Kripke M sobre AP es una cuatro-upla (S,$S_0$,R,L) tal que:
+Sea $AP$ un conjunto de proposiciones at\'omicas. Una estructura de Kripke $M$ sobre $AP$ es una cuatro-upla $(S,S_0,R,L)$ tal que:
+
 \begin{enumerate}
-\item S es un conjunto finito de estados.
-\item $S_0$ $\subseteq$ S es un conjunto de estados inciales.
-\item R $\subseteq$ S x S es una relaci\'on de transici\'on que debe ser total, es decir, para cada estado s $\in$ S hay un estado s' $\in$ S tal que R(s,s').
-\item L : S x $2^{AP}$ es una funci\'on que etiqueta cada estado con el conjunto de proposiciones at\'omicas verdaderas en ese estado.
+\item $S$ es un conjunto finito de estados.
+\item $S_0 \subseteq S$ es un conjunto de estados iniciales.
+\item $R \subseteq S \times S$ es una relaci\'on de transici\'on que debe ser total, es decir, para cada estado $s \in S$ hay un estado $s' \in S$ tal que $R(s,s')$.
+\item $L : S \times 2^{AP}$ es una funci\'on que etiqueta cada estado con el conjunto de proposiciones at\'omicas verdaderas en ese estado.
 \end{enumerate}
-Una ejecuci\'on del sistema desde un estado s es representado en la estructura M como una secuencia infinita $\pi = s_0s_1s_2...$ tal que $s_0$ = s y $R(s_i,s_{i+1})$ vale para todo i $\geq$ 0.\\
 
-Notemos que podemos traducir la representaci\'on LTS de un sistema a una representaci\'on en Estructuras de Kripke equivalente de la siguiente manera. Sea $M_1 = (S_1, S_{1_0} R_1, L_1)$ un sistema descripto en LTS, entonces construimos su descripci\'on $M_2 = (S_2,S_{2_0},R_2,L_2)$ en t\'erminos de estructuras de Kripke sobre AP de la siguiente manera:
+Una ejecuci\'on del sistema desde un estado $s$ es representado en la estructura $M$ como una secuencia infinita $\pi = s_0s_1s_2...$ tal que $s_0 = s$ y $R(s_i,s_{i+1})$ vale para todo $i \geq 0$.\\
+
+Notemos que podemos traducir la representaci\'on LTS de un sistema a una representaci\'on en Estructuras de Kripke equivalente de la siguiente manera. Sea $M_1 = (S_1, S_{1_0} R_1, L_1)$ un sistema descripto en LTS, entonces construimos su descripci\'on $M_2 = (S_2,S_{2_0},R_2,L_2)$ en t\'erminos de estructuras de Kripke sobre $AP$ como sigue:
 \begin{itemize}
 \item $ AP = \{action = e ~|~ e \in L_1 \cup \{null\}\} $
 \item $ S_2 = S_1 \times (L_1 \cup \{null\}) $
@@ -259,9 +305,9 @@ Notemos que podemos traducir la representaci\'on LTS de un sistema a una represe
 \item $R_2 = \{(s,a) \rightarrow (s',b) ~|~ s\overset{b}{\rightarrow}s' \in R_1, a \in L \cup \{null\}\}$
 \item $L_2(s,a) = (action = a), ~\forall~(s,a) \in S_2$
 \end{itemize}
-Lo que hicimos fue entonces construir por cada estado $s_i$ y etiqueta $e$ en el LTS un estado en la estructura de Kripke que represente llegar al estado $s_i$ usando la etiqueta $e$. Dado que en el inicio de las ejecuciones no realizamos acci\'on alguna para llegar al estado inicial, es que hemos adem\'as definido para cada estado $s \in S_{1_0}$ un estado $(s,null)$ que lo represente en $S_2$. La funci\'on de relaci\'on se forma de manera intuitiva. El etiquetado indica qu\'e acci\'on se llev\'o a cabo para llegar a cada estado. Esto \'ultimo, junto con el nombre del estado, dejan en claro la transici\'on llevada a cabo en la ejecuci\'on del sistema definido en el LTS original. Vemos un ejemplo de traducci\'on LTS-Kripke en la figura \ref{ltsakripke}. Notemos que el sistema traducido puede ser depurado quitando estados no alcanzables como se muestra en la tercera figura de \ref{ltsakripke}.
+Lo que hicimos fue entonces construir por cada estado $s_i$ y etiqueta $e$ en el LTS un estado en la estructura de Kripke que represente llegar al estado $s_i$ usando la etiqueta $e$. Dado que en el inicio de las ejecuciones no realizamos acci\'on alguna para llegar al estado inicial, es que hemos adem\'as definido para cada estado $s \in S_{1_0}$ un estado $(s,null)$ que lo represente en $S_2$. La funci\'on de relaci\'on se forma de manera intuitiva. El etiquetado indica qu\'e acci\'on se llev\'o a cabo para llegar a cada estado. Esto \'ultimo, junto con el nombre del estado, dejan en claro la transici\'on llevada a cabo en la ejecuci\'on del sistema definido en el LTS original. Vemos un ejemplo de traducci\'on LTS-Kripke en la figura \ref{ltsakripke}. Notemos que el sistema traducido puede ser depurado quitando estados no alcanzables como se muestra en la figura \ref{ltsakripke}.C.
 
-\begin{figure}[H]
+\begin{figure}[htp]
   \centering
     \includegraphics{Imagenes/ltsakripke.pdf}
   \caption{Ejemplo de traducci\'on de un sistema LTS a estructuras de Kripke. (A) El sistema en LTS; (B) El sistema en estructuras de Kripke; (C) El sistema en estructuras de Kripke depurado}
@@ -275,22 +321,26 @@ Lo que hicimos fue entonces construir por cada estado $s_i$ y etiqueta $e$ en el
 
 
 
-\section{De estructuras de Kripke a f\'ormulas \text{l\'ogicas}}
+\section{De estructuras de Kripke a f\'ormulas l\'ogicas}
+
+
 Si bien las estructuras de Kripke nos sirven para captar intuitivamente el comportamiento de los sistemas a modelar, los model checkers trabajan sobre el modelado del sistema en base a la l\'ogica de primer orden. A continuaci\'on veremos como lograr la interpretaci\'on de estructuras de Kripke usando f\'ormulas l\'ogicas de primer orden. En lo que a nosotros concierne, la l\'ogica de primer orden estar\'a comprendida por los conectivos l\'ogicos usuales - $\neg,\wedge,\vee,\rightarrow,etc...$ -, y haremos uso tambi\'en de los cuantificadores $\forall$ y $\exists$.\\
 
-Supongamos que queremos modelar un sistema $P$, y tomemos todas sus variables de sistema $V = {v_0,v_1,...,v_n}$. Consideremos para el caso que todas estas variables toman valores de un domino finito $D$. Tenemos que una valuaci\'on de $V$ es una funci\'on total sobre el dominio, la cual asigna a cada variable en $V$ un valor en $D$. Notemos que dado que los valores de las variables del sistema son las que definen el estado del mismo en su totalidad, cada valuci\'on estar\'ia definiendo el estado del sistema. Por lo tanto en t\'erminos de estructuras de Kripke tenemos que si $M = (S,S_0,R,L)$ sobre $AP$ modela un sistema con variables en V entonces:
+Supongamos que queremos modelar un sistema $P$, y tomemos todas sus variables de sistema $V = {v_0,v_1,...,v_n}$. Consideremos para el caso que todas estas variables toman valores de un domino finito $D$. Tenemos que una valuaci\'on de $V$ es una funci\'on total sobre el dominio, la cual asigna a cada variable en $V$ un valor en $D$. Notemos que dado que los valores de las variables del sistema son las que definen el estado del mismo en su totalidad, cada valuaci\'on estar\'ia definiendo el estado del sistema. Por lo tanto en t\'erminos de estructuras de Kripke tenemos que si $M = (S,S_0,R,L)$ sobre $AP$ modela un sistema con variables en $V$ entonces:
+
 \begin{itemize}
-\item $\textit{Usualmente } AP = \{v=d~|~ v \in V, d \in D\}.$
-\item \textit{Cada estado s $\in$ S es una valuaci\'on sobre V.}
-\item \textit{R explica la relaci\'on entre estas valuaciones, vale decir explica la transici\'on entre los cambios de valores en las variables del sistema.}
-\item \textit{L(s) es el subconjunto de proposiciones en AP que son validas dada la valuaci\'on del estado s.}
+\item Usualmente  $AP = \{v=d~|~ v \in V, d \in D\}.$
+\item Cada estado $s \in S$ es una valuaci\'on sobre $V$.
+\item $R$ explica la relaci\'on entre estas valuaciones, vale decir explica la transici\'on entre los cambios de valores en las variables del sistema.
+\item $L(s)$ es el subconjunto de proposiciones en $AP$ que son validas dada la valuaci\'on del estado $s$.
 \end{itemize}
-Dada un estado en la estructura de Kripke, es decir una valuaci\'on $s:V\rightarrow D$, podemos escribir una f\'ormula sobre las variables en V tal que sea v\'alida solo para esta valuaci\'on\cite{Clarke}. La f\'ormula ser\'ia: $$(v_0 = s(v_0)) \& (v_1 = s(v_1)) \& ... \& (v_n = s(v_n))$$
-Dado que en general una f\'ormula puede ser satisfecha por diferentes valuaciones, podemos a partir de ella definir el conjunto de estados que la satisfacen. Asi por ejemplo podemos definir una f\'ormula cuyos estados que la satisfacen sean solo los estados iniciales del sistema ($S_0$ en la estructura de Kripke que lo modela).\\
+
+Dada un estado en la estructura de Kripke, es decir una valuaci\'on $s:V\rightarrow D$, podemos escribir una f\'ormula sobre las variables en $V$ tal que sea v\'alida solo para esta valuaci\'on \cite{Clarke}. La f\'ormula ser\'ia: $$(v_0 = s(v_0)) \& (v_1 = s(v_1)) \& ... \& (v_n = s(v_n))$$
+Dado que en general una f\'ormula puede ser satisfecha por diferentes valuaciones, podemos a partir de ella definir el conjunto de estados que la satisfacen. As\'i por ejemplo podemos definir una f\'ormula cuyos estados que la satisfacen sean solo los estados iniciales del sistema ($S_0$ en la estructura de Kripke que lo modela).\\
 
 Adem\'as de definir los estados, necesitamos poder especificar tambi\'en transiciones como f\'ormulas interpretadas de primer orden. Para ello debemos lograr a partir de una f\'ormula representar la relaci\'on entre una valuaci\'on actual y la siguiente (estado actual y estado sucesor). Necesitaremos entonces otro conjunto de variables $V'$ el cual representen las variables en estado sucesor. De esta forma, dada la f\'ormula de transici\'on $F_r$ sobre el conjunto de variables $V \cup V'$ diremos que $s'$ es estado sucesor de $s$, es decir que $(s,s')\in R$, si y solo si $F_r$ es v\'alida al valuar todas sus variables en $V$ seg\'un $s$ y todas sus variables en $V'$ seg\'un $s'$.\\
 
-Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los estados. Recordemos que las proposiciones at\'omicas en AP son de la forma $v=d$ con $v \in V$ y $d \in D$. Entonces tenemos que una proposici\'on $v=d$ es v\'alida en el estado $s$ si y solo si $d = s(v)$. En tal caso tenemos que $v=d \in L(s)$.
+Por \'ultimo, las proposiciones en $AP$ nos permiten definir propiedades sobre los estados. Recordemos que las proposiciones at\'omicas en $AP$ son de la forma $v=d$ con $v \in V$ y $d \in D$. Entonces tenemos que una proposici\'on $v=d$ es v\'alida en el estado $s$ si y solo si $d = s(v)$. En tal caso tenemos que $v=d \in L(s)$.
 
 
 
@@ -303,28 +353,31 @@ Por \'ultimo, las proposiciones en AP nos permiten definir propiedades sobre los
 \section{Representaci\'on de funciones booleanas en BDD}
 \label{boolBDD}
 
-Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representaci\'on de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como as\'i tambi\'en muchos otros model checkers, logra esta representaci\'on a partir de \textit{diagramas de b\'usqueda binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el c\'alculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
+Las funciones booleanas son un fuerte formalismo para representar los sistemas de transiciones y razonar acerca de propiedades sobre ellos. Se busca entonces poseer una eficiente representaci\'on de estas funciones para poder abarcar sistemas considerablemente complejos. NuSMV, como as\'i tambi\'en muchos otros model checkers, logra esta representaci\'on a partir de \textit{diagramas de decisi\'on binaria}. Los BDD presentan muchas ventajas en cuanto a eficiencia en el c\'alculo y en el espacio de almacenamiento con respecto a otras representaciones como pueden ser las tablas de verdad o subclases de la formula proposicional como la forma normal conjuntiva.\\
 
 Una funci\'on booleana de $n$ argumentos es una funci\'on $f : \{0,1\}^n \to \{0,1\}$. Podemos definir a los BDD como un subconjunto de grafos dirigidos ac\'iclicos finitos con las siguientes caracter\'isticas \cite{Huth}:
+
 \begin{itemize}
 \item Poseen un \'unico nodo inicial (un \'unico nodo al cual no llega ninguna arista).
-\item Todas sus hojas son etiquetadas ya sea con '0' o con '1'.
+\item Todas sus hojas son etiquetadas ya sea con `0' o con `1'.
 \item Todos sus nodos que no son hojas est\'an etiquetados con el nombre de una variable booleana.
-\item Cada nodo (excepto las hojas) posee dos aristas salientes hacia otros nodos del diagrama, una etiquetada con '0' y otra etiquetada con '1'.
+\item Cada nodo (excepto las hojas) posee dos aristas salientes hacia otros nodos del diagrama, una etiquetada con `0' y otra etiquetada con `1'.
 \end{itemize}
 
-Si B es un BDD entonces B define en sus hojas una \'unica funci\'on booleana sobre las variables en sus nodos de la siguiente manera: arrancando por el nodo inicial y dada una valuaci\'on $V=(v_1,v_2,...,v_n)$ sobre el conjunto de variables en los nodos, si $v_i$ es $0$ entonces tomo la arista saliente etiquetada con `0', de lo contrario tomo la etiquetada con `1'. Repito este paso en cada nodo hasta llegar a un hoja. El valor de la hoja es el valor, para esa valuaci\'on, de la funci\'on booleana representada.
+Si $B$ es un BDD entonces $B$ define en sus hojas una \'unica funci\'on booleana sobre las variables en sus nodos de la siguiente manera: arrancando por el nodo inicial y dada una valuaci\'on $V=(v_1,v_2,...,v_n)$ sobre el conjunto de variables en los nodos, si $v_i$ es $0$ entonces tomo la arista saliente etiquetada con `0', de lo contrario tomo la etiquetada con `1'. Repito este paso en cada nodo hasta llegar a un hoja. El valor de la hoja es el valor, para esa valuaci\'on, de la funci\'on booleana representada.\\
 
 Podemos reducir el tama\~no de los BDD logrando una mejora de eficiencia en el espacio de memoria necesario para la representaci\'on de las funciones booleanas. Para ello usamos los siguientes tres m\'etodos \cite{Huth}:
+
 \begin{enumerate}[R1--]
-\item \textbf{Remoci\'on de terminales duplicados.} Si el BDD posee m\'as de un nodo terminal '0', entonces redirigimos todas las aristas apuntando a esos nodos a unos solo de ellos y eliminamos el resto. Hacemos lo mismo con los nodos terminales '1'.
-\item \textbf{Remoci\'on de verificaciones innecesarias.} Si ambas aristas salientes de un nodo $n$ apuntan a un mismo nodo $m$ entonces eliminamos el nodo $n$ redirigiendo todas sus arista entrantes al nodo $m$.
-\item \textbf{Remoci\'on de no terminales duplicados.} Si dos nodos no terminales $n$ y $m$ son ra\'ices de subBDDs estructuralmente id\'enticos, entonces eliminamos uno de ellos y redirigimos todas sus aristas entrantes al otro.
+\item \textit{Remoci\'on de terminales duplicados.} Si el BDD posee m\'as de un nodo terminal `0', entonces redirigimos todas las aristas apuntando a esos nodos a unos solo de ellos y eliminamos el resto. Hacemos lo mismo con los nodos terminales `1'.
+\item \textit{Remoci\'on de verificaciones innecesarias.} Si ambas aristas salientes de un nodo $n$ apuntan a un mismo nodo $m$ entonces eliminamos el nodo $n$ redirigiendo todas sus arista entrantes al nodo $m$.
+\item \textit{Remoci\'on de no terminales duplicados.} Si dos nodos no terminales $n$ y $m$ son ra\'ices de sub-BDDs estructuralmente id\'enticos, entonces eliminamos uno de ellos y redirigimos todas sus aristas entrantes al otro.
 \end{enumerate}
+
 Estas reducciones no afectan la representaci\'on del BDD con respecto a la formula booleana original, y presenta una gran ventaja con respecto al espacio necesario para almacenar tablas de verdad por ejemplo. En la figura \ref{reduccionBDD} podemos ver un ejemplo de aplicaci\'on de estas reducciones. En la figura A vemos el BDD original, la figura B es el resultado de unificar las hojas seg\'un R1, la figura C es el resultado de eliminar uno de los nodos de etiqueta `y' tal como sugiere R3, y finalmente D es el resultado de aplicar la regla R2 eliminando el nodo de etiqueta `x'.
 
 %TODO demasiado tonto el ejemplo?
-\begin{figure}[H]
+\begin{figure}[htp]
   \centering
     \includegraphics[scale=0.75]{Imagenes/reduccionBDD.pdf}
   \caption{Reducci\'on de un BDD seg\'un reglas R1,R2 y R3}
@@ -334,22 +387,22 @@ Estas reducciones no afectan la representaci\'on del BDD con respecto a la formu
 
 Si bien se logra con estas reglas reducir en gran proporci\'on cierto conjunto de BDDs, otros BDDs no son tan susceptibles a ser reducidos de esta manera. Un efecto negativo visible en mucho de estos es la reutilizaci\'on en sus nodos de una misma variable booleana, lo cual implica revisar el valor de aquellas m\'as de una vez. Otro defecto surge de que diferentes BDDs pueden representar una misma funci\'on booleana, por lo cual comparar la equidad de las funciones booleanas representadas en BDDs requiere de mucho trabajo.\\
 
-Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs llamados \textit{diagramas de decisi\'on binaria ordenados} (OBDD). Los OBDD imponen un orden sobre la aparici\'on de las variables en sus nodos, evitando de este modo los BDDs con m\'as de una aparici\'on de la misma variables. Podemos dar la siguiente definici\'on de un OBDD\cite{Huth}:\\
+Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs llamados \textit{diagramas de decisi\'on binaria ordenados} (OBDD). Los OBDD imponen un orden sobre la aparici\'on de las variables en sus nodos, evitando de este modo los BDDs con m\'as de una aparici\'on de la misma variables. Podemos dar la siguiente definici\'on de un OBDD \cite{Huth}:\\
 
-\textit{Sea $[x_1,x_2,...,x_n]$ una lista ordenada de variables sin duplicados y sea B un BDD cuyas variables pertenecen a la lista. Decimos que B tiene el ordenamiento $[x_1,x_2,...,x_n]$ si todas las variables en los nodos de B ocurren en la lista, y para cada ocurrencia de $x_i$ seguida de $x_j$ en cualquier camino sobre B, pasa que $i < j$. Decimos entonces que un OBDD es un BDD que posee un orden para alguna lista de variables.}\\
+\textit{Sea $[x_1,x_2,...,x_n]$ una lista ordenada de variables sin duplicados y sea $B$ un BDD cuyas variables pertenecen a la lista. Decimos que $B$ tiene el ordenamiento $[x_1,x_2,...,x_n]$ si todas las variables en los nodos de $B$ ocurren en la lista, y para cada ocurrencia de $x_i$ seguida de $x_j$ en cualquier camino sobre $B$, pasa que $i < j$. Decimos entonces que un OBDD es un BDD que posee un orden para alguna lista de variables.}\\
 
-Notemos que como corolario de la definici\'on obtenemos que una variable no puede ocurrir m\'as de una vez en el OBDD. Estos diagramas poseen adem\'as la cualidad de que para cada funci\'on booleana y orden de variables existe un \'unico OBDD reducido que la representa. Osea que si $B_1$ y $B_2$ son dos OBDD reducidos con orden de variables compatible que representan a la funci\'on booleana f entonces $B_1$ y $B_2$ son id\'enticos. Esto lleva a que la comparaci\'on de equidad entre los mismos se reduzca a una simple comparaci\'on entre sus nodos.
-Cuando no podemos seguir reduciendo un OBDD seg\'un las reglas R1, R2 y R3, decimos que est\'a en su forma can\'onica. Son de inter\'es especial las formas can\'onicas de la figura \ref{canonicos} debido a que nos permiten identificar las siguientes situaciones:
+Notemos que como corolario de la definici\'on obtenemos que una variable no puede ocurrir m\'as de una vez en el OBDD. Estos diagramas poseen adem\'as la cualidad de que para cada funci\'on booleana y orden de variables existe un \'unico OBDD reducido que la representa. Osea que si $B_1$ y $B_2$ son dos OBDD reducidos con orden de variables compatible que representan a la funci\'on booleana f entonces $B_1$ y $B_2$ son id\'enticos. Esto lleva a que la comparaci\'on de equidad entre los mismos se reduzca a una simple comparaci\'on entre sus nodos. Cuando no podemos seguir reduciendo un OBDD seg\'un las reglas R1, R2 y R3, decimos que est\'a en su forma can\'onica. Son de inter\'es especial las formas can\'onicas de la figura \ref{canonicos} debido a que nos permiten identificar las siguientes situaciones:
+
 \begin{itemize}
-\item \textbf{Validez de una funci\'on:} podemos verificar validez de una funci\'on booleana (verificar si la funci\'on siempre computa 1) de la siguiente manera: reducimos su OBDD a su forma can\'onica, si el resultado de la reducci\'on es $B_1$ entonces la funci\'on es v\'alida.
-\item \textbf{Implicaci\'on:} podemos verificar si la funci\'on $f(x_1,x_2,...,x_n)$ implica la funci\'on $g(x_1,x_2,...,x_n)$ (es decir si f computa 1 entonces g tambi\'en) reduciendo el OBDD obtenido como $f \wedge \neg g$. Si el OBDD can\'onico es distinto de $B_0$ entonces la implicancia es verdadera.
-\item \textbf{Satisfactibilidad:} podemos verificar satisfactibilidad de una funci\'on $f(x_1,x_2,...,x_n)$ (es decir si f computa 1 para alguna asignaci\'on de ceros y unos a sus variables) reduciendo su OBDD a forma can\'onica y verificando que \'esta no sea $B_0$
+\item \textit{Validez de una funci\'on:} podemos verificar validez de una funci\'on booleana (verificar si la funci\'on siempre computa $1$) de la siguiente manera: reducimos su OBDD a su forma can\'onica, si el resultado de la reducci\'on es $B_1$ entonces la funci\'on es v\'alida.
+\item \textit{Implicaci\'on:} podemos verificar si la funci\'on $f(x_1,x_2,...,x_n)$ implica la funci\'on $g(x_1,x_2,...,x_n)$ (es decir si $f$ computa $1$ entonces $g$ tambi\'en) reduciendo el OBDD obtenido como $f \wedge \neg g$. Si el OBDD can\'onico es distinto de $B_0$ entonces la implicancia es verdadera.
+\item \textit{Satisfactibilidad:} podemos verificar satisfactibilidad de una funci\'on $f(x_1,x_2,...,x_n)$ (es decir si $f$ computa $1$ para alguna asignaci\'on de ceros y unos a sus variables) reduciendo su OBDD a forma can\'onica y verificando que \'esta no sea $B_0$
 \end{itemize}
 
 El orden de variables elegido toma vital importancia, ya que de \'el depende el tama\~no del OBDD. Existen algoritmos que logran un ordenamiento inteligente de las variables para mantener acotado el tama\~no de almacenamiento necesario para el OBDD. As\'i tambi\'en existen algoritmos que hacen eficiente la reducci\'on de OBDDs a su OBDD can\'onico, como tambi\'en algoritmos que permiten computar conjunci\'on, disyunci\'on y negaci\'on de OBDDs con considerable eficiencia.\\
 
 
-\begin{figure}
+\begin{figure}[htp]
   \centering
     \includegraphics{Imagenes/canonicos.pdf}
   \caption{OBDDs can\'onicos de relevancia}
@@ -358,11 +411,11 @@ El orden de variables elegido toma vital importancia, ya que de \'el depende el 
 ~\\
 
 
-El uso de BDDs produjo un gran salto en el model checking llevando en principios de los noventa a lograr verificar sistemas con espacios de estados mucho m\'as grandes que con m\'etodos anteriores. El model checking usando OBDDs es llamado \textbf{Model Checking Simb\'olico} y debe su nombre a que sugiere no representar cada estado por separado, sino que se representa en los OBDDs conjuntos de estados de manera simb\'olica, m\'as precisamente a aquellos estados que cumplen con la propiedad que esta siendo verificada.Veamos ahora como representar estos conjuntos de estados en OBDDs y como representar la relaci\'on de transici\'on entre ellos:
+El uso de BDDs produjo un gran salto en el model checking llevando en principios de los noventa a lograr verificar sistemas con espacios de estados mucho m\'as grandes que con m\'etodos anteriores. El model checking usando OBDDs es llamado \textit{Model Checking Simb\'olico} y debe su nombre a que sugiere no representar cada estado por separado, sino que se representa en los OBDDs conjuntos de estados de manera simb\'olica, m\'as precisamente a aquellos estados que cumplen con la propiedad que esta siendo verificada. Veremos ahora como representar estos conjuntos de estados en OBDDs y como representar la relaci\'on de transici\'on entre ellos.\\
 
-Recordemos que en nuestro modelo de sistema como estructura de Kripke hab\'iamos definido un conjunto de proposiciones at\'omicas sobre las variables del sistema, que represent\'abamos a cada estado como una valuaci\'on sobre las variables del sistema, y que la funci\'on de etiquetado L nos proporcionaba el subconjunto de AP que era v\'alido en cada estado. Tomaremos la primicia de que poseemos un orden sobre las proposiciones en AP dado como $(x_1,x_2,...,x_n)$ y representaremos ahora cada estado $s$ como un vector $(v_1,v_2,...,v_3)$ donde cada $v_i \in {0,1}$ y $v_i = 1$ si y solo si $x_i \in L(s)$. Vemos entonces que los estados son representados por la funci\'on caracter\'istica inducida por $L$. Es decir, la funci\'on booleana que representa un estado es aquella que valuada en $(v_1,v_2,...,v_3)$ computa el valor 1, y para cualquier otro valuaci\'on de sus variables computa el valor 0. En t\'erminos de OBDDs, el OBDD que representa al estado s es aquel que representa la funci\'on booleana : $$l_1 \wedge l_2 \wedge ... \wedge l_n$$ donde $l_i$ es $x_i$ si $x_i \in L(s)$ y $\neg x_i$ de lo contrario. Luego para un conjunto de estados $S = {s_1, s_2, ..., s_m}$ la representaci\'on en OBDD esta dada por aquel que representa a la funci\'on booleana $$(l_{11} \wedge l_{12} \wedge ... \wedge l_{1n}) \vee (l_{21} \wedge l_{22} \wedge ... \wedge l_{2n}) \vee ... \vee (l_{m1} \wedge l_{m2} \wedge ... \wedge l_{mn})$$ donde $(l_{i1} \wedge l_{i2} \wedge ... \wedge l_{in})$ representa al estado $x_i$.\\
+Recordemos que en nuestro modelo de sistema como estructura de Kripke hab\'iamos definido un conjunto de proposiciones at\'omicas sobre las variables del sistema, que represent\'abamos a cada estado como una valuaci\'on sobre las variables del sistema, y que la funci\'on de etiquetado $L$ nos proporcionaba el subconjunto de $AP$ que era v\'alido en cada estado. Tomaremos la primicia de que poseemos un orden sobre las proposiciones en $AP$ dado como $(x_1,x_2,...,x_n)$ y representaremos ahora cada estado $s$ como un vector $(v_1,v_2,...,v_3)$ donde cada $v_i \in {0,1}$ y $v_i = 1$ si y solo si $x_i \in L(s)$. Vemos entonces que los estados son representados por la funci\'on caracter\'istica inducida por $L$. Es decir, la funci\'on booleana que representa un estado es aquella que valuada en $(v_1,v_2,...,v_3)$ computa el valor $1$, y para cualquier otro valuaci\'on de sus variables computa el valor $0$. En t\'erminos de OBDDs, el OBDD que representa al estado $s$ es aquel que representa la funci\'on booleana : $$l_1 \wedge l_2 \wedge ... \wedge l_n$$ donde $l_i$ es $x_i$ si $x_i \in L(s)$ y $\neg x_i$ de lo contrario. Luego para un conjunto de estados $S = {s_1, s_2, ..., s_m}$ la representaci\'on en OBDD esta dada por aquel que representa a la funci\'on booleana $$(l_{11} \wedge l_{12} \wedge ... \wedge l_{1n}) \vee (l_{21} \wedge l_{22} \wedge ... \wedge l_{2n}) \vee ... \vee (l_{m1} \wedge l_{m2} \wedge ... \wedge l_{mn})$$ donde $(l_{i1} \wedge l_{i2} \wedge ... \wedge l_{in})$ representa al estado $x_i$.\\
 
-Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subconjunto sobre $S\times S$. De nuevo podemos inducir la funci\'on booleana representante a partir de la funci\'on de etiquetado $L$. De este modo una relaci\'on $s\rightarrow s'$ en $R$ es representada por los vectores $(v_1,v_2,...,v_n),(v'_1,v'_2,...,v'_n)$, donde $v_i = 1$ si $p_i \in L(s)$ y 0 de lo contrario, y $v'_i = 1$ si $p_i \in L(s')$ y 0 de lo contrario. En t\'erminos de OBDD, representamos la relaci\'on con el OBDD para la funci\'on booleana $$(l_1,l_2,...,l_n) \wedge (l'_1,l'_2,...,l'_n)$$ y el conjunto representando el total de la relaci\'on $R$ se logra a partir de la conjunci\'on de cada una de estas f\'ormulas.
+Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subconjunto sobre $S\times S$. De nuevo podemos inducir la funci\'on booleana representante a partir de la funci\'on de etiquetado $L$. De este modo una relaci\'on $s\rightarrow s'$ en $R$ es representada por los vectores $(v_1,v_2,...,v_n),(v'_1,v'_2,...,v'_n)$, donde $v_i = 1$ si $p_i \in L(s)$ y $0$ de lo contrario, y $v'_i = 1$ si $p_i \in L(s')$ y $0$ de lo contrario. En t\'erminos de OBDD, representamos la relaci\'on con el OBDD para la funci\'on booleana $$(l_1,l_2,...,l_n) \wedge (l'_1,l'_2,...,l'_n)$$ y el conjunto representando el total de la relaci\'on $R$ se logra a partir de la conjunci\'on de cada una de estas f\'ormulas.
 
 
 
@@ -382,41 +435,45 @@ Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subcon
 \section{L\'ogicas temporales}
 Las l\'ogicas temporales son sistemas de reglas y s\'imbolos que nos permiten describir y razonar sobre proposiciones en t\'erminos del tiempo. En el caso del model checking, son de gran utilidad para la especificaci\'on de las propiedades a verificar sobre el modelo del sistema. A continuaci\'on presentaremos dos l\'ogicas temporales de inter\'es para este trabajo. Ambas l\'ogicas difieren en expresividad, por lo que hacer uso de las dos nos permite una mayor versatilidad al momento de especificar las propiedades deseadas.\\
 
-\subsection{LTL}
-La \textbf{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecuciones lineales a trav\'es del tiempo. En cada instante de tiempo solo existe una \'unica ejecuci\'on real a realizarse. Com\'unmente esta ejecuci\'on de la que hablamos comienza en este momento y se extiende al infinito. El tiempo es discreto y podemos realizar un paralelismo entre el salto de un momento al otro y cada paso en la ejecuci\'on del sistema que se analice. As\'i, cada momento representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas AP, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales G, F, X, U, R. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es \textbf{G}lobally, \textbf{F}inally, Ne\textbf{X}t, \textbf{U}ntil y \textbf{R}elease.\\ A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
+\subsection*{LTL}
+La \textit{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecuciones lineales a trav\'es del tiempo. En cada instante de tiempo solo existe una \'unica ejecuci\'on real a realizarse. Com\'unmente esta ejecuci\'on de la que hablamos comienza en este momento y se extiende al infinito. El tiempo es discreto y podemos realizar un paralelismo entre el salto de un momento al otro y cada paso en la ejecuci\'on del sistema que se analice. As\'i, cada momento representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas $AP$, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales $G, F, X, U, R$. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es $G$lobally, $F$inally, Ne$X$t, $U$ntil y $R$elease. A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
+
 \begin{itemize}
-\item G $\phi$ expresa que en todo momento vale $\phi$.
-\item F $\phi$ expresa que $\phi$ se cumple en elg\'un momento.
-\item X $\phi$ expresa que $\phi$ se cumple en el momento inmediatamente posterior al actual.
-\item $\phi$ U $\psi$ expresa que $\psi$ vale en alg\'un momento, y para todo momento anterior a aquel $\phi$ vale.
-\item $\phi$ R $\psi$ expresa que o bien $\phi$ no vale nunca y $\psi$ vale siempre, o bien $\psi$ vale en cada momento hasta que $\phi$ valga.
+\item $G \phi$ expresa que en todo momento vale $\phi$.
+\item $F \phi$ expresa que $\phi$ se cumple en elg\'un momento.
+\item $X \phi$ expresa que $\phi$ se cumple en el momento inmediatamente posterior al actual.
+\item $\phi U \psi$ expresa que $\psi$ vale en alg\'un momento, y para todo momento anterior a aquel $\phi$ vale.
+\item $\phi R \psi$ expresa que o bien $\phi$ no vale nunca y $\psi$ vale siempre, o bien $\psi$ vale en cada momento hasta que $\phi$ valga.
 \end{itemize}
-Usando LTL podemos expresar propiedades de \textit{safety} y \textit{liveness} de nuestro sistema de manera sencilla. Por ejemplo para expresar \textit{En alg\'un momento algo bueno suceder\'a} usamos  \textbf{F} 'algoBueno', o para expresar \textit{En ning\'un momento algo malo sucede} usar\'iamos \textbf{G} $\neg$ 'algoMalo'.\\
 
-Es com\'un interpretar las f\'ormulas LTL sobre estructuras de Kripke. Una f\'ormula LTL puede ser satisfecha por una serie infinita de valuaciones sobre AP. Podemos ver a esta serie infinita como una palabra sobre una ejecuci\'on sobre una estructura de Kripke. De este modo si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke M, basta con ver que el lenguaje de M (todas las palabras posibles en M) satisfagan $\phi$. Definimos la sem\'antica de formulas LTL como sigue:\\
+Usando LTL podemos expresar propiedades de \textit{liveness} y \textit{safety} de nuestro sistema de manera sencilla. Por ejemplo para expresar \textit{``En alg\'un momento algo bueno suceder\'a''} usamos  $F$ ``algo bueno'', o para expresar \textit{``En ning\'un momento algo malo sucede''} usar\'iamos $G$ $\neg$ ``algo malo''.\\
 
-Sea la palabra $\omega$ = $s_1s_2s_3...$ de valuaciones en AP. Definimos la relaci\'on de satisfactibilidad $\models$ de una formula LTL con respecto a la palabra $\omega$ a partir de las siguientes reglas:
+Es com\'un interpretar las f\'ormulas LTL sobre estructuras de Kripke. Una f\'ormula LTL puede ser satisfecha por una serie infinita de valuaciones sobre $AP$. Podemos ver a esta serie infinita como una palabra descripta por una ejecuci\'on sobre una estructura de Kripke. De este modo si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke $M$, basta con ver que el lenguaje de $M$ (todas las palabras posibles en $M$) satisfagan $\phi$. Definimos la sem\'antica de formulas LTL como sigue:\\
+
+Sea la palabra $\omega$ = $s_1s_2s_3...$ de valuaciones en $AP$. Definimos la relaci\'on de satisfactibilidad $\models$ de una formula LTL con respecto a la palabra $\omega$ a partir de las siguientes reglas:
 \begin{itemize}
 \item $\omega \models p $ si $ p \in \omega[0]$
 \item $\omega \models \neg p $ si no $\omega \models p$
-\item $\omega \models \phi \vee \psi$ si $\omega \models \phi$ or $\omega \models \psi$
-\item $\omega \models$ X $\phi$ si $\omega$[1...] $\models \phi$
+\item $\omega \models \phi \vee \psi$ si $\omega \models \phi$ o $\omega \models \psi$
+\item $\omega \models X \phi$ si $\omega[1...] \models \phi$
 \item $\omega \models \phi U \psi$ si existe $i \geq 0$ tal que  $\omega[i...] \models \psi$ y para todo $0 \leq k < i$, $\omega[k...] \models \phi$ 
 \end{itemize}
 Notar que los dem\'as conectivos son derivados de aquellos para los que hemos definido las reglas de satisfactibilidad. \\
 
-Muchas veces es de inter\'es en model checking definir propiedades bajo \textbf{condiciones de equidad}, tambi\'en llamadas \textit{condiciones de \textbf{fairness}}. Por ejemplo en el contexto del modelado de un planificador de tareas podemos requerir que el mismo atienda equitativamente a los diferentes procesos. LTL a diferencia de CTL nos da la posibilidad de definir estas equidades:
+Muchas veces es de inter\'es en model checking definir propiedades bajo \textit{condiciones de equidad (en ingl\'es ``Fairness Conditions'')} . Por ejemplo en el contexto del modelado de un planificador de tareas podemos requerir que el mismo atienda equitativamente a los diferentes procesos. LTL a diferencia de CTL nos da la posibilidad de definir estas equidades:
+
 \begin{enumerate}
-\item Equidad incondicional: G F p (siempre finalmente se cumple p, o a menudo se cumple p)
-\item Equidad fuerte: G F q $\rightarrow$ G F p (si a menudo vale q entonces a menudo vale p)
-\item Equidad d\'ebil: F G q $\rightarrow$ G F p (si finalmente siempre vale q, entonces a menudo vale p)
+\item Equidad incondicional:\\[0.3cm] $G~F~p$ (siempre finalmente se cumple $p$, o a menudo se cumple $p$)
+\item Equidad fuerte:\\[0.3cm] $G~F~q \rightarrow G~F~p$ (si a menudo vale $q$ entonces a menudo vale $p$)
+\item Equidad d\'ebil:\\[0.3cm] $F~G~q \rightarrow G~F~p$ (si finalmente siempre vale $q$, entonces a menudo vale $p$)
 \end{enumerate}
 
 
-\subsection{CTL}
-A diferencia de LTL, en la \textbf{L\'ogica de \'Arbol Computacional (CTL)} no existe en cada momento un \'unico camino a seguir. CTL es una l\'ogica de tiempo ramificado, en cada momento consideramos todos los posibles saltos hacia un estado posterior, y por lo tanto consideramos diferentes ejecuciones como posibles a realizarse en el futuro. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores \textbf{A} (para todo camino) y \textbf{E} (existe un camino). A su vez establece la regla de estar obligado a usar estos cuantificadores delante de cada conectivo temporal, definiendo as\'i f\'ormulas sobre estados y no sobre caminos como lo hacen la l\'ogica LTL. CTL, a diferencia de LTL, nos permite hablar sobre la existencia de al menos un camino. As\'i es que podemos especificar propiedades como  \textit{E X p} y \textit{AG EF p}, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple 'p'.
+\subsection*{CTL}
+A diferencia de LTL, en la \textit{L\'ogica de \'arbol Computacional (en ingl\'es ``Computation tree logic'' (CTL))}  no existe en cada momento un \'unico camino a seguir. CTL es una l\'ogica de tiempo ramificado, en cada momento consideramos todos los posibles saltos hacia un estado posterior, y por lo tanto consideramos diferentes ejecuciones como posibles a realizarse en el futuro. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores $A$ (para todo camino) y $E$ (existe un camino). A su vez establece la regla de estar obligado a usar estos cuantificadores delante de cada conectivo temporal, definiendo as\'i f\'ormulas sobre estados y no sobre caminos como lo hacen la l\'ogica LTL. CTL, a diferencia de LTL, nos permite hablar sobre la existencia de al menos un camino. As\'i es que podemos especificar propiedades como  $E~X~p$ y $AG~EF~p$, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple $p$.
 
 Los conectivos ${\neg,\wedge,AX,AU,EU}$ comprenden un conjunto completo de conectivos para la l\'ogica CTL dado que los dem\'as pueden ser derivados a partir de ellos. Podemos decir que el siguiente es el significado intuitivo de estos conectivos:
+
 \begin{itemize}
 \item $\neg$ es la negaci\'on booleana usual.
 \item $\wedge$ es la conjunci\'on booleana usual.
@@ -425,15 +482,17 @@ Los conectivos ${\neg,\wedge,AX,AU,EU}$ comprenden un conjunto completo de conec
 \item $E[p~U~q]$ se cumple en un estado $s$ si existe al menos una ejecuci\'on $s_1s_2...s_n...$ con $s_1 = s$ donde $q$ vale en $s_n$ y $p$ vale para todo estado en $s_1...s_{n-1}$.
 \end{itemize}
 
-A continuaci\'on, utilizando estructuras de Kripke, definimos la sem\'antica formal de CTL por inducci\'on estructural sobre una f\'ormula $\phi$. Sea la estructura de Kripke $M =(S,S_0,R,L)$ sobre AP, sea $\phi$ una f\'ormula CTL bien formada sobre AP, y sean s $\in$ S y p $\in$ AP.\\
+A continuaci\'on, utilizando estructuras de Kripke, definimos la sem\'antica formal de CTL por inducci\'on estructural sobre una f\'ormula $\phi$. Sea la estructura de Kripke $M =(S,S_0,R,L)$ sobre $AP$, sea $\phi$ una f\'ormula CTL bien formada sobre $AP$, y sean $s \in S$ y $p \in AP$:\\
 
+
+% TODO arreglar esta tabla para que no quede fuera del margen derecho
 \begin{tabularx}{\textwidth}{@{\textbullet}lcX}
 $~M,s \models p$ & $\leftrightarrow$ & $p \in L(s)$\\
 $~M,s \models \neg\phi $ & $\leftrightarrow$ & $ \text{no } M,s \models \phi$\\
 $~M,s \models \phi_0 \wedge \phi_1 $ & $\leftrightarrow$ & $ M,s \models \phi_0 \text{ y } M,s \models \phi_1$\\
 $~M,s \models AX\phi $ & $\leftrightarrow$ & $ \forall (s,s') \in R,~ M,s' \models \phi$\\
 $~M,s \models EX\phi $ & $\leftrightarrow$ & $ \exists (s,s') \in R,~M \text{ tal que } s' \models \phi$\\
-$~M,s \models E(\phi_0 U \phi_1) $ & $\leftrightarrow$ & $\exists \text{ una ejecuci\'on } s_1s_2s_3...s_n... \text{ definida por } R \text{ tal que }\linebreak  s_0 = s, M,s_n \models \phi_1, \forall 0<i<n~ M, s_i \models \phi_0$\\
+$~M,s \models E(\phi_0 U \phi_1) $ & $\leftrightarrow$ & $\exists$ una ejecuci\'on $s_1s_2s_3...s_n...$ definida por $R$ tal que $s_0 = s,~M,s_n \models \phi_1,$ y $\forall 0<i<n~ M, s_i \models \phi_0$\\
 \end{tabularx}
 
 
@@ -445,10 +504,11 @@ $~M,s \models E(\phi_0 U \phi_1) $ & $\leftrightarrow$ & $\exists \text{ una eje
 
 
 \section{Caracter\'isticas del Model Checking}
-Existen diferentes m\'etodos para la verificaci\'on de sistemas complejos, entre ellos podemos destacar como principales la simulaci\'on, el testing, la verificaci\'on deductiva, y el model checking\cite{Clarke}. Tanto la simulaci\'on como el testing comprenden realizar experimentos antes de desplegar el sistema en el campo. Mientras que en el caso de la \textit{simulaci\'on} se trabaja sobre una abstracci\'on o modelo del sistema, en el \textit{testing} se trabaja sobre el [producto real]. En cuanto a costo-eficiencia, estos m\'etodos pueden ser ventajosos para detectar gran cantidad de errores. Sin embargo, revisar todas las posibles interacciones y potenciales errores usando simulaci\'on y testing es raramente posible.\\
+Existen diferentes m\'etodos para la verificaci\'on de sistemas complejos, entre ellos podemos destacar como principales la simulaci\'on, el testing, la verificaci\'on deductiva, y el model checking \cite{Clarke}. Tanto la simulaci\'on como el testing comprenden realizar experimentos antes de desplegar el sistema en el campo. Mientras que en el caso de la \textit{simulaci\'on} se trabaja sobre una abstracci\'on o modelo del sistema, en el \textit{testing} se trabaja sobre el producto real. En cuanto a costo-eficiencia, estos m\'etodos pueden ser ventajosos para detectar gran cantidad de errores. Sin embargo, revisar todas las posibles interacciones y potenciales errores usando simulaci\'on y testing es raramente posible.\\
+
 El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axiomas y reglas para probar la correctitud del sistema. Este m\'etodo si bien posee la ventaja de poder probar correctitud sobre sistemas de estados infinitos no es muy utilizado fuera de casos cr\'iticos. Esto se debe a que requiere de gran cantidad de tiempo y de la conducci\'on por parte de expertos en el campo del razonamiento l\'ogico.\\
 
-\textbf{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
+\textit{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
 
 \begin{itemize}
 \item Detecta errores en etapas tempranas de dise\~no, evitando tener que replantear todo al encontrar estos errores en etapas posteriores.
@@ -460,9 +520,9 @@ El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axi
 \item Ofrece clara evidencia del problema en el caso de encontrar que la propiedad deseada sobre el sistema no se cumpla.
 \end{itemize}
 
-Sin embargo model checking sufre del problema de explsi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe preservar la no satisfactibilidad de las propiedades a verificar, en el caso que esta exista. Como vemos este proceso de abstracci\'on y refinamiento requiere muchas veces de personal experto, y es una de las barreras a superar si se desea lograr que el model checking se convierta enteramente en una herramienta \text{``push-button''}.\\
+Sin embargo el \textit{model checking} sufre del problema de explosi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe preservar la no satisfactibilidad de las propiedades a verificar, en el caso que esta exista. Como vemos este proceso de abstracci\'on y refinamiento requiere muchas veces de personal experto, y es una de las barreras a superar si se desea lograr que el model checking se convierta enteramente en una herramienta \text{``push-button''}.\\
 
-Christel Baier y Joost-Pieter Katoen en su libro "Principles of model checking" \cite{Baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema:
+Christel Baier y Joost-Pieter Katoen \cite{Baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema:
 
 \begin{enumerate}
 \item Fase de modelado:
@@ -491,7 +551,7 @@ Ejecutar el model cheker para verificar la validez de una propiedad sobre el sis
   \centering
     \includegraphics{Imagenes/procesoMC4.pdf}
   \caption{El proceso de Model Checking}
-  \label{ltsakripke}
+  \label{procMC}
 \end{figure}
 ~\\
 
@@ -504,7 +564,7 @@ Por \'ultimo, es en la fase de an\'alisis donde podemos decidir ya sobre el resu
 
 Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuertemente de la correctitud en el modelado del sistema y la especificaci\'on de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto tambi\'en puede ser causa de una especificaci\'on incompleta o err\'onea de las caracter\'isticas a verificar.\\
 
-
+\section{Discusi\'on}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -514,21 +574,21 @@ Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuerte
 \chapter{NuSMV}
 \section{El model checker NuSMV}
 
-NuSMV es un model chcker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos\cite{Cimatti}.\\
+NuSMV es un model chcker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.\\
 
-NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre la especificaci\'on de sistemas finitos concurrentes, bajo condiciones de fairness.\\
+NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre el modelado de sistemas finitos concurrentes, bajo condiciones de fairness.\\
 
-\textit{NuSMV2}, el cual es utilizado en este trabajo, integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
+Para este trabajo usamos como back-end el model checker \textit{NuSMV2} \cite{NuSMV2}, el cual integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
 
 
 \section{Lenguaje de modelado de NuSMV}
-Si bien el lenguaje de modelado de NuSMV es amplio y nos presenta diferentes posibilidades para la definici\'on de la maquina de estados, presentaremos en esta secci\'on solo aquella porci\'on que nos servir\'a m\'as adelante para compilar los modelos descriptos en el lenguaje de Falluto 2.0.\\
+Si bien el lenguaje de modelado de NuSMV es amplio y nos presenta diferentes posibilidades para la definici\'on de la maquina de estados, presentaremos en esta secci\'on solo aquella porci\'on que nos servir\'a m\'as adelante para compilar los modelos descriptos en el lenguaje de Falluto2.0.\\
 
-Cada proceso del sistema se describe en NuSMV como un m\'odulo, introducido por la palabra \textbf{MODULE}. Al menos uno de estos m\'odulos debe llamarse \textit{main}, y ser\'a el primero en ser [...]. Podemos ver cada proceso como una maquina de estados independiente y al conjunto de estos y sus interacciones como la maquina de estados que representa al sistema completo. Veamos entonces como definir la maquina de estado de cada proceso:\\
+Cada proceso del sistema se describe en NuSMV como un m\'odulo, introducido por la palabra \texttt{MODULE}. Al menos uno de estos m\'odulos debe llamarse \textit{main}, y ser\'a el m\'odulo evaluado por el interprete. Podemos ver cada proceso como una maquina de estados independiente y al conjunto de estos y sus interacciones como la maquina de estados que representa al sistema completo. Veamos entonces como definir la maquina de estado de cada proceso:\\
 
-\textit{VARIABLES}\\
+\subsection*{Variables}
 
-Dentro de cada \textit{m\'odulo}, introduciendo la secci\'on de variables por la palabra \textbf{VAR}, definimos las variables del proceso junto con sus dominios. Poseemos tres tipos b\'asicos de variables, las booleanas, las enteras y las enumeradas. Tenemos la posibilidad de declarar una variable como un arreglo de valores de cualquiera de los tipos anteriormente mencionados. Vemos un ejemplo a continuaci\'on:
+Dentro de cada \textit{m\'odulo}, introduciendo la secci\'on de variables por la palabra \texttt{VAR}, definimos las variables del proceso junto con sus dominios. Poseemos tres tipos b\'asicos de variables, las booleanas, las enteras y las enumeradas. Tenemos la posibilidad de declarar una variable como un arreglo de valores de cualquiera de los tipos anteriormente mencionados. Vemos un ejemplo a continuaci\'on:
 \begin{verbatim}
 MODULE main
     VAR
@@ -537,11 +597,11 @@ MODULE main
         var3 : {a1, something, 42};
         var4 : array -1..2 of boolean;
 \end{verbatim}
-Vemos que en el ejemplo la variable \textit{var1} es de tipo booleano (su dominio est\'a formado por los valores \textit{TRUE} y \textit{FALSE}) , \textit{var2} es de tipo entero y su dominio se extiende desde el numero -2 al 3 y \textit{var3} es de tipo enumerado y su dominio lo forman las 3 palabras encerradas en llaves. Por \'ultimo \textit{var4} es un vector de 4 booleanos indexado desde el -1 al 2. Recordemos que las valuaciones sobre las variables representan el estado del proceso y una valuaci\'on sobre el conjunto de todas las variables de cada proceso representa el estado del sistema completo.\\
+Vemos que en el ejemplo la variable \texttt{var1} es de tipo booleano (su dominio est\'a formado por los valores \texttt{TRUE} y \texttt{FALSE}) , \texttt{var2} es de tipo entero y su dominio se extiende desde el numero -2 al 3 y \texttt{var3} es de tipo enumerado y su dominio lo forman las 3 palabras encerradas en llaves. Por \'ultimo \texttt{var4} es un vector de 4 booleanos indexado desde el -1 al 2. Recordemos que las valuaciones sobre las variables representan el estado del proceso y una valuaci\'on sobre el conjunto de todas las variables de cada proceso representa el estado del sistema completo.\\
 
-\textit{ESTADO INICIAL}\\
+\subsection*{Estado inicial}
 
-Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \textbf{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{boolBDD} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
+Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \texttt{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{boolBDD} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
 \begin{verbatim}
 MODULE auto
     VAR
@@ -552,9 +612,9 @@ MODULE auto
 \end{verbatim}
 ~\\
 
-\textit{TRANSICIONES}\\
+\subsection*{Transiciones}
 
-La palabra clave \textbf{TRANS} en NuSMV nos permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \textit{x}, tenemos que \textit{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una formula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on aleatoria por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
+La palabra clave \texttt{TRANS} en NuSMV nos permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \texttt{x}, tenemos que \texttt{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una formula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on aleatoria por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
 
 \begin{verbatim}
 MODULE auto
@@ -565,26 +625,27 @@ MODULE auto
         estado = apagado & nafta = 3
 
     TRANS
-        ( estado = encendido & nafta <= 0 ) -> ( next(estado) = apagado )
+        ( estado = encendido & nafta <= 0 ) 
+        -> 
+        ( next(estado) = apagado )
 
 \end{verbatim}
 
-Notemos que en el ejemplo solo definimos condiciones para el caso en que $estado = encendido$ y $nafta <= 0$, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da $estado = apagado$ o $nafta > 0$ el no-determinismo maneja la elecci\'on de un estado posterior.\\\\
+Notemos que en el ejemplo solo definimos condiciones para el caso en que \texttt{estado = encendido} y \texttt{nafta <= 0}, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da \texttt{estado = apagado} o \texttt{nafta > 0} el no-determinismo maneja la elecci\'on de un estado posterior.\\\\
 
 
-\textit{RESTRICCIONES Y FAIRNESS}\\
+\subsection*{Restricciones y fairness}
 
 NuSMV nos permite establecer restricciones de fairness sobre la ejecuci\'on de nuestro sistema. Esto nos permite revisar nuestro sistema bajo ciertos supuestos con respecto a su ejecuci\'on. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
 \begin{itemize}
 
-\item \textbf{Fairness incondicional} Dada una f\'ormula \textit{q} sobre el estado del sistema, escribimos \textit{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on \textit{q} se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla \textit{G F q}.
+\item \textit{Fairness incondicional} Dada una f\'ormula \texttt{q} sobre el estado del sistema, escribimos \texttt{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on \texttt{q} se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla \texttt{G F q}.
 
-\item \textbf{Strong Fairness} Dadas dos f\'ormulas \textit{p} y \textit{q} sobre el estado del sistema, escribimos \textit{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si \textit{p} se cumple siempre a menudo entonces \textit{q} se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla \textit{G F p $\rightarrow$ G F q}.
+\item \textit{Strong Fairness} Dadas dos f\'ormulas \texttt{p} y \texttt{q} sobre el estado del sistema, escribimos \texttt{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si \texttt{p} se cumple siempre a menudo entonces \texttt{q} se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla \texttt{G F p $\rightarrow$ G F q}.
 
 \end{itemize}
 
-~\\
-\textit{PROPIEDADES Y VERIFICACI\'oN}\\
+\subsection*{Propiedades y verificaci\'on}
 
 NuSMV nos permite verificar tanto propiedades LTL como CTL sobre nuestro sistema. Para cada una de ellas tenemos su respectiva palabra clave y la precedemos con la f\'ormula que exprese la propiedad a verificar. La verificaci\'on de estas propiedades se realizara bajo las condiciones que establecen las restricciones de fairness definidas. A continuaci\'on mostramos un ejemplo que ilustra la especificaci\'on de las propiedades:
 
@@ -597,7 +658,9 @@ MODULE auto
         estado = apagado & nafta = 3
 
     TRANS
-        ( estado = encendido & nafta <= 0 ) -> ( next(estado) = apagado )
+        ( estado = encendido & nafta <= 0 ) 
+        -> 
+        ( next(estado) = apagado )
 
 
 FAIRNESS nafta > 0
@@ -608,7 +671,11 @@ CTLSPEC EG estado = apagado
 
 \end{verbatim}
 
+En el ejemplo de arriba podemos encontramos la especificaci\'on de una propiedad LTL introducida por la palabra clave \texttt{LTLSPEC} y una CTL introducida por la palabra clave \texttt{CTLSPEC}. Ambas ser\'an verificadas sobre el sistema modelado pero bajo la condici\'on de fairness dada por \texttt{FAIRNESS F nafta = 0}.
 
+\section*{Discusi\'on}
+
+Si bien el lenguaje de NuSMV presenta una amplia variedad de posibilidades para el modelado del sistema, nosotros solo haremos caso a una peque\~na parte de este. Con la porci\'on del lenguaje presentado en este cap\'itulo ser\'a suficiente para describir la maquina de estados de nuestros modelos compilados de manera completa. Nos permitir\'a adem\'as mantener un claro control sobre el tama\~no de nuestro sistema al momento de compilar lo modelado por el usuario en el lenguaje de front-end que presenta Falluto2.0 al lenguaje del back-end ofrecido por NuSMV. Notemos lo cercano que est\'an las descripciones dadas como ejemplo en este cap\'itulo a la idea intuitiva de una estructura de Kripke.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -628,7 +695,7 @@ En el cuerpo del \textit{proctype} podemos distinguir tres secciones que definen
 \item \textbf{Declaraci\'on de variables de estado.} Introducido por la palabra clave \textit{VAR}, esta secci\'on se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Podemos entonces declarar variables de tipo:
 \begin{enumerate}
 \item \textbf{Booleano.} Corresponden a aquellas variables que solo toman los valores TRUE y FALSE. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
-\item \textbf{Entero.} A las variables de tipo entero las declaramos d\'andoles un nombre y acompañ\'andolas con la especificaci\'on del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podr\'a tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
+\item \textbf{Entero.} A las variables de tipo entero las declaramos d\'andoles un nombre y acompa\~n\'andolas con la especificaci\'on del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podr\'a tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
 \item \textbf{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja al ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
 \item \textbf{Vector.} Podemos declarar variables de tipo vector, eligiendo alguno de los anteriores como subtipo. El subtipo es el tipo de cada valor perteneciente al vector. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se [contribuye] a la declaraci\'on de los vectores con un rango indicando la indexaci\'on del vector. El ejemplo que sigue es un vector de subtipo enumerado, y se indexa desde el -1 al 2: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
 \end{enumerate}
@@ -713,7 +780,7 @@ Podemos ver el estado del sistema como aquel formado por la conjunci\'on del est
 Como ya dijimos, la restricci\'on de estados iniciales en NuSMV se lleva a cabo a partir de una f\'ormula booleana dentro de la secci\'on \textit{INIT} del m\'odulo. Nuestra f\'ormula booleana ser\'a entonces la conjunci\'on booleana de todas las formulas booleanas presentes en la secci\'on \textit{INIT} de cada proceso instanciado. Agregaremos tambi\'en en esta f\'ormula condiciones para la inicializaci\'on de variables introducidas por la compilaci\'on como ser\'ian las variables de actividad de falla y las de program counter.\\
 
 \textbf{TRANSICIONES}
-La relaci\'on de transici\'on esta representada en la secci\'on \textit{TRANS} del m\'odulo compilado mediante una f\'ormula booleana que captura cuatro tipos de transiciones sin realizar distinci\'on entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo diseñado en el lenguaje de Falluto2.0. Esta exclusi\'on se lleva a cabo a partir de la variable de acci\'on introducida en el momento de compilaci\'on, y en el caso de no ser suficiente con ella, usamos tambi\'en las variables de program counter (por ejemplo cuando hay mas de una acci\'on con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
+La relaci\'on de transici\'on esta representada en la secci\'on \textit{TRANS} del m\'odulo compilado mediante una f\'ormula booleana que captura cuatro tipos de transiciones sin realizar distinci\'on entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo dise\~nado en el lenguaje de Falluto2.0. Esta exclusi\'on se lleva a cabo a partir de la variable de acci\'on introducida en el momento de compilaci\'on, y en el caso de no ser suficiente con ella, usamos tambi\'en las variables de program counter (por ejemplo cuando hay mas de una acci\'on con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
 \begin{itemize}
 \item \textbf{Acciones comunes.} Son las transiciones definidas dentro de cada la secci\'on TRANS de cada proctype.
 \item \textbf{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de las fallas declaradas en la secci\'on \textit{FAULT} de cada \textit{proctype}.
@@ -763,7 +830,7 @@ Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espont\'an
 $$fallaactiva~\&~next(actvar)=bizefect~\&~permanecen$$
 Aqu\'i \textit{fallaactiva} es la condici\'on de habilitaci\'on de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en alg\'un momento de la ejecuci\'on. \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar cu\'al ha sido la acci\'on que se ha ocurrido para llegar al nuevo estado modificado. Por \'ultimo \textit{permanecen} se forma por la conjunci\'on de las formulas \textit{next(x)=x} para todo x variable del sistema excepto por \textit{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegir\'a un valor aleatorio para estas variables afectadas ya que no encuentra restricci\'on alguna en la f\'ormula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destinos posibles.\\
 
-\textbf{TRANSICI\'ON DE DEADLOCK}
+\textbf{TRANSICI\'oN DE DEADLOCK}
 Consideramos que nuestro sistema cae en situaci\'on de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementaci\'on de una transici\'on que exprese el movimiento del sistema hacia este estado nos es \'util para la verificaci\'on de diferentes propiedades y para la implementaci\'on de restricciones de fairness. Notar que a falta de ella y en presencia de solo transiciones de falla habilitadas, estar\'iamos obligando la ocurrencia de una de estas lo cual no es correcto. La compilaci\'on de la transici\'on de deadlock tiene entonces la siguiente forma:
 $$!trans\_habilitadas~\&~next(actvar)=deadlock~\&~resto$$
 Como es evidente, la condici\'on de habilitaci\'on de esta transici\'on esta dada por la conjunci\'on de la negaci\'on de las condiciones de habilitaci\'on de todas las transiciones normales del sistema. De este modo solo realizamos la transici\'on de deadlock cuando nos vemos inhabilitados a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acci\'on que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar} asegurando que ninguna de ellas cambie de valor en el pr\'oximo estado.
@@ -771,7 +838,7 @@ Como es evidente, la condici\'on de habilitaci\'on de esta transici\'on esta dad
 
 
 \section{Fairness de fallas y procesos}
-En general nos interesa trabajar sobre diseños de sistemas en los cuales se den ciertas condiciones de fairness comunes al comportamiento real de los mismos. Por ejemplo dado un sistema en el que est\'an involucrados varios procesos no es com\'un buscar verificar propiedades sobre ejecuciones en las que solo uno de estos procesos sea el que act\'ue. En el caso de presencia de fallas, tampoco es com\'un atender a ejecuciones en donde las fallas se apoderan de los saltos de estado, y no se da lugar a ejecuciones normales en el sistema. Es por ello que en Falluto2.0 se establecen por defecto dos condiciones de fairness espec\'ificas, las cuales por supuesto pueden ser desactivadas.\\
+En general nos interesa trabajar sobre dise\~nos de sistemas en los cuales se den ciertas condiciones de fairness comunes al comportamiento real de los mismos. Por ejemplo dado un sistema en el que est\'an involucrados varios procesos no es com\'un buscar verificar propiedades sobre ejecuciones en las que solo uno de estos procesos sea el que act\'ue. En el caso de presencia de fallas, tampoco es com\'un atender a ejecuciones en donde las fallas se apoderan de los saltos de estado, y no se da lugar a ejecuciones normales en el sistema. Es por ello que en Falluto2.0 se establecen por defecto dos condiciones de fairness espec\'ificas, las cuales por supuesto pueden ser desactivadas.\\
 
 La primera de ellas es una condici\'on de \textbf{fairness incondicional para las acciones normales} del sistema. Esto evita prestar atenci\'on a aquellas ejecuciones en donde el avance en la ejecuci\'on es dado solo por transiciones de falla. Para lograr esto, introducimos en el sistema compilado la siguiente f\'ormula de justicia incondicional (mas conocida como fairness incondicional):
 $$FAIRNESS \bigvee_{t \in T_N} actvar = t_{name} \vee actvar = deadlock$$
@@ -1010,11 +1077,11 @@ Si verificamos con Falluto2.0 el modelo que hemos ido definiendo, junto con las 
 
 \section{Protocolo de ventana deslizante\\GO-BACK-N}
 
-Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), comúnmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{números de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.\\
+Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), com\'unmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{n\'umeros de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.\\
 
-En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de números de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los números de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on aún no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo número de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tamaño inicial siempre\cite[tanembaum].\\
+En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de n\'umeros de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los n\'umeros de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on a\'un no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo n\'umero de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tama\~no inicial siempre\cite[tanembaum].\\
 
-El protocolo \textbf{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En particular, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la última con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de paquetes, este se anticipa al reenv\'io de los mismos. Este tipo de protocolos es muy útil en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados.\\
+El protocolo \textbf{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En particular, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la \'ultima con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de paquetes, este se anticipa al reenv\'io de los mismos. Este tipo de protocolos es muy \'util en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados.\\
 
 Con la intenci\'on de modelar el algoritmo que especifica este protocolo, dividiremos el mismo en cuatro partes:
 \begin{enumerate}
@@ -1163,7 +1230,7 @@ else
 
 \noindent \line(1,0){400}\\
 
-El algoritmo para env\'io de tramas de confirmaci\'on de recepci\'on es muy simple ya que solo consta de enviar el número de secuencia que se espera recibir en la pr\'oxima trama. Ya que en el caso del protocolo GO-BACK-N, la ventana de recepci\'on posee tama\~no 1, el algoritmo consistir\'a en enviar el n\'umero de secuencia correspondiente a la nueva ventana obtenida luego de la recepci\'on de una trama v\'alida.\\
+El algoritmo para env\'io de tramas de confirmaci\'on de recepci\'on es muy simple ya que solo consta de enviar el n\'umero de secuencia que se espera recibir en la pr\'oxima trama. Ya que en el caso del protocolo GO-BACK-N, la ventana de recepci\'on posee tama\~no 1, el algoritmo consistir\'a en enviar el n\'umero de secuencia correspondiente a la nueva ventana obtenida luego de la recepci\'on de una trama v\'alida.\\
 
 Miremos a continuaci\'on nuestro modelado del receptor en el lenguaje de Falluto2.0:\\
 
@@ -1195,9 +1262,9 @@ ENDPROCTYPE
 
 \noindent \line(1,0){400}\\
 
-Hemos modelado entonces un receptor sin fallas, el cual mantiene memoria el número de secuencia de la próxima trama que se espera recibir. En su sección \textit{TRANS} podemos distinguir el modelado de los algoritmos (2) y (3). Las dos primeras transiciones forman parte de la recepción de tramas de secuencia, mientras que la última transición describe el envío de la una trama de confirmación de recepción.\\
+Hemos modelado entonces un receptor sin fallas, el cual mantiene memoria el n\'umero de secuencia de la pr\'oxima trama que se espera recibir. En su secci\'on \textit{TRANS} podemos distinguir el modelado de los algoritmos (2) y (3). Las dos primeras transiciones forman parte de la recepci\'on de tramas de secuencia, mientras que la \'ultima transici\'on describe el env\'io de la una trama de confirmaci\'on de recepci\'on.\\
 
-A continuación modelaremos los canales de comunicación entre el emisor y el receptor. Estos canales estarán sujetos a fallas, en particular a fallas que implican la perdida de los mensajes que intentan atravesarlos. A continuación encontramos el modelo de los canales en el lenguaje de Falluto2.0:
+A continuaci\'on modelaremos los canales de comunicaci\'on entre el emisor y el receptor. Estos canales estar\'an sujetos a fallas, en particular a fallas que implican la perdida de los mensajes que intentan atravesarlos. A continuaci\'on encontramos el modelo de los canales en el lenguaje de Falluto2.0:
 
 \noindent \line(1,0){400}
 
@@ -1243,11 +1310,11 @@ ENDPROCTYPE
 
 \noindent \line(1,0){400}\\
 
-En el modelado de los canales tenemos que la variable \textit{buff} en la posición $i$ define la cantidad de mensajes con número de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser leída por el receptor. A su vez la variable \textit{empty} nos indica si el receptor ya ha leído el dato que le llegó o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducción de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde será leído; y por último la transición de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.\\
+En el modelado de los canales tenemos que la variable \textit{buff} en la posici\'on $i$ define la cantidad de mensajes con n\'umero de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser le\'ida por el receptor. A su vez la variable \textit{empty} nos indica si el receptor ya ha le\'ido el dato que le lleg\'o o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducci\'on de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde ser\'a le\'ido; y por \'ultimo la transici\'on de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.\\
 
-Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que nos otorga nuestra herramienta para la inyección de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de número de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condición de habilitación representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de número de secuencia $i$ en el canal usando la post-condición $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecución siempre que se cumpla su condición de habilitación.\\
+Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que nos otorga nuestra herramienta para la inyecci\'on de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de n\'umero de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condici\'on de habilitaci\'on representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de n\'umero de secuencia $i$ en el canal usando la post-condici\'on $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecuci\'on siempre que se cumpla su condici\'on de habilitaci\'on.\\
 
-Por último veamos como modelar el sincronizado de los canales con el emisor y el receptor mediante el pasaje de nombres de acción comunes en la etapa de instanciación. Instanciamos entonces un emisor, un receptor, y dos canales, uno desde el emisor al receptor y otro en dirección contraria. Hacemos esto de la siguiente manera:\\
+Por \'ultimo veamos como modelar el sincronizado de los canales con el emisor y el receptor mediante el pasaje de nombres de acci\'on comunes en la etapa de instanciaci\'on. Instanciamos entonces un emisor, un receptor, y dos canales, uno desde el emisor al receptor y otro en direcci\'on contraria. Hacemos esto de la siguiente manera:\\
 
 \noindent \line(1,0){400}
 \begin{verbatim}
@@ -1258,20 +1325,20 @@ INSTANCE buffRE   = channel  (receptor.NR , send2, read1)
 \end{verbatim}
 \noindent \line(1,0){400}\\
 
-De esta manera hemos logrado que el emisor pueda leer los datos que llegan a través del canal \textit{buffER} al pasar como parámetro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a través de la variable \textit{bufferRE.data} pasada como parámetro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los parámetros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronización de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como parámetro nombres equivalentes para las acciones.\\
+De esta manera hemos logrado que el emisor pueda leer los datos que llegan a trav\'es del canal \textit{buffER} al pasar como par\'ametro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a trav\'es de la variable \textit{bufferRE.data} pasada como par\'ametro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los par\'ametros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronizaci\'on de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como par\'ametro nombres equivalentes para las acciones.\\
 
-Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto número de secuencia llegue siempre a menudo al receptor. Usemos en particular el número máximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con número de secuencia máximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecución suceda que siempre a menudo \textbf{canalER.data = MSEQ $\&$ receptor lee el canal }}. Encontramos que la sintaxis de Falluto2.0 nos ofrece una manera muy sencilla de describir la acción en la cual el receptor lee el canal, usando la construcción \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente formula LTL para expresar la propiedad que hemos sugerido: \\
+Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto n\'umero de secuencia llegue siempre a menudo al receptor. Usemos en particular el n\'umero m\'aximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con n\'umero de secuencia m\'aximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecuci\'on suceda que siempre a menudo \textbf{canalER.data = MSEQ $\&$ receptor lee el canal }}. Encontramos que la sintaxis de Falluto2.0 nos ofrece una manera muy sencilla de describir la acci\'on en la cual el receptor lee el canal, usando la construcci\'on \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente formula LTL para expresar la propiedad que hemos sugerido: \\
 
 \noindent \textbf{Propiedad(1):}\\ \textit{LTLSPEC G F (canalER.data = MSEQ \& just(read2))}
 
-Podemos verificar la veracidad de esta propiedad bajo escenarios en los que las fallas no ocurren usando la meta-propiedad \textit{NORMAL\_BEHAIVIOUR}, y bajo escenarios en los que la ocurrencia de fallas es de carácter finito usando la meta-propiedad \textit{FINITELY\_MANY\_FAULTS}. Las propiedades resultantes del uso de estas meta-propiedades tienen la siguiente forma:\\
+Podemos verificar la veracidad de esta propiedad bajo escenarios en los que las fallas no ocurren usando la meta-propiedad \textit{NORMAL\_BEHAIVIOUR}, y bajo escenarios en los que la ocurrencia de fallas es de car\'acter finito usando la meta-propiedad \textit{FINITELY\_MANY\_FAULTS}. Las propiedades resultantes del uso de estas meta-propiedades tienen la siguiente forma:\\
 
 \noindent \textbf{Propiedad(2):}\\ \textit{NORMAL\_BEHAIVIOUR $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))}\\
 
 \noindent \textbf{Propiedad(3):}\\ \textit{FINITELY\_MANY\_FAULTS $\rightarrow$ ~G~F~(canalER.data = MSEQ~\&~just(read2))}\\
 
 
-Como resultado de la verificación realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad(2). 
+Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad(2). 
 
 %\section{Ej\'ercitos bizantinos ?}
 %\section{Fil\'osofos comensales ?}
@@ -1489,47 +1556,128 @@ COMPASSION & $\longleftarrow$ & \textit{COMPASSION} '(' EXPRESION ',' EXPRESION 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \newpage % Bibliography goes in new page
 
 \begin{thebibliography}{99}
 
-\bibitem{faultInjection} Fault injection: a method for validating computer-system dependability
-Clarke, J.A.; Pradhan, D.K. June.1995 
 
-\bibitem{SteinerRushby} Steiner-etal:DSN04; Wilfried Steiner and John Rushby and Maria Sorea and Holger Pfeifer; Model Checking a Fault-Tolerant Startup Algorithm: From Design Exploration To Exhaustive Fault Simulation; The International Conference on Dependable Systems and Networks, IEEE Computer Society, Florence, Italy, june, 2004
+\bibitem{faultInjection}
+Clarke, J.A.; Pradhan, D.K.
+\newblock {\em Fault injection: a method for validating computer-system dependability.}
+\newblock {June.1995}
 
-\bibitem{RuysBrinksma} Model Checking: Verification or Debugging?; Theo C. Ruys and Ed Brinksma; Faculty of Computer Science, University of Twente. P.O. Box 217, 7500 AE Enschede, The Netherlands.
 
-\bibitem{NuSMV} NuSMV 2.5 User Manual. Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren,
-Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev. http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf
+\bibitem{SteinerRushby} 
+Steiner-etal:DSN04; Wilfried Steiner and John Rushby and Maria Sorea and Holger Pfeifer;
+\newblock {\em Model Checking a Fault-Tolerant Startup Algorithm: From Design Exploration To Exhaustive Fault Simulation.}
+\newblock The International Conference on Dependable Systems and Networks, IEEE Computer Society, Florence, Italy, june, 2004
 
-\bibitem{Falluto1} Falluto: Un model checker para la verificaci\'on de sistemas tolerantes a fallas; Edgardo E. Hames; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; C\'ordoba, 14 de diciembre de 2009.
 
-\bibitem{Offbeat} Offbeat: Una extensi\'on de PRISM para el an\'alisis de sistemas temporizados tolerantes a fallas; Nicol\'as Emilio Bordenabe; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; 28 de Marzo de 2011
+\bibitem{RuysBrinksma}
+Theo C. Ruys and Ed Brinksma.
+\newblock {\em Model Checking: Verification or Debugging?} 
+\newblock Faculty of Computer Science, University of Twente. P.O. Box 217, 7500 AE Enschede, The Netherlands.
 
-\bibitem{Python} Python; http://en.wikipedia.org/wiki/Python\_(programming\_language)
 
-\bibitem{PEG} Parsing Expression Grammars: A Recognition-Based Syntactic Foundation. Bryan Ford. Massachusetts Institute of Technology; Cambridge, MA
+\bibitem{NuSMV}
+Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev.
+\newblock {\em NuSMV 2.5 User Manual.}  
+\newblock \texttt{http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf}
 
-\bibitem{Felix} Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments. FELIX C. GÄRTNER,
-Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
 
-\bibitem{FaultInject} Fault Injection. A Method For Validating Fomputer-System Dependability. Jeffrey A. Clarke Mitre Corporation, Dhiraj K. Pradhan Texas A\&M University. June 1995
+\bibitem{Hames}
+Edgardo~E.\ Hames.
+\newblock \textsc{Falluto}: {U}n model checker para la verificaci\'on de
+  sistemas tolerantes a falla.
+\newblock Trabajo de grado, FaMAF, Universidad Nacional de C\'ordoba, 2009.
 
-\bibitem{Cristian} Understanding fault tolerant distributed systems. Flavin Cristian. COMMUNICATIONS OF THE ACM, February 1991, Vol.34, No.2
 
-\bibitem{prinMC} Principles of model checking. Christel Baier and Joost-Pieter Katoen. The MIT Press Cambridge, Massachusetts
-London, England
+\bibitem{Bordenabe}
+Nicol\'as Bordenabe.
+\newblock \textsc{Offbeat}: {U}na extensi\'on de {PRISM} para el an\'alisis de
+  sistemas temporizados tolerantes a fallas.
+\newblock Trabajo de grado, FaMAF, Universidad Nacional de C\'ordoba, 2011.
 
-\bibitem{Clarke} Edmund M. Clarke, Orna Grumberg, David E. Long: Model checking. NATO ASI DPD 1996: 305-349
 
-\bibitem{Baier} Christel Baier and Joost-Pieter Katoen. 2008. Principles of Model Checking (Representation and Mind Series). The MIT Press.
+\bibitem{Python} 
+\newblock {\em Python.} 
+\newblock \texttt{http://www.python.org/about/}
 
-\bibitem{Huth} Michael R A Huth, Mark D Ryan. Logic in Computer Science, Modeling and reasoning about systems. Cambridge University Press. 2000.
 
-\bibitem{Cimatti} A. Cimatti, E. Clarke, F. Giunchiglia, M. Roveri. NuSMV: a new Symbolic Model Verifier. In N. Halbwachs and D. Peled, editors. Proceeding of International Conference on Computer-Aided Verification (CAV'99). In Lecture Notes in Computer Science, number 1633, pages 495-499, Trento, Italy, July 1999. Springer
+\bibitem{PEG}
+Bryan Ford.
+\newblock{ \em Parsing Expression Grammars: A Recognition-Based Syntactic Foundation.}
+\newblock{ Massachusetts Institute of Technology; Cambridge, MA.}
 
-\bibitem{Arora} A. Arora and M. G. Gouda. Closure and convergence: A foundation of fault-tolerant computing. IEEE Trans. Software Eng., 19(11):1015–1027, 1993.
+
+\bibitem{Felix} 
+FELIX C. GÄRTNER.
+\newblock {\em Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments.}
+\newblock Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
+
+
+\bibitem{FaultInject} 
+Jeffrey A. Clarke Mitre Corporation, Dhiraj K. Pradhan.
+\newblock {\em  Fault Injection. A Method For Validating Fomputer-System Dependability.}
+\newblock  Texas A\&M University. June 1995
+
+
+\bibitem{Cristian} 
+Flavin Cristian.
+\newblock {\em Understanding fault tolerant distributed systems.} 
+\newblock COMMUNICATIONS OF THE ACM, February 1991, Vol.34, No.2
+
+
+\bibitem{prinMC} 
+Christel Baier and Joost-Pieter Katoen.
+\newblock{\em Principles of model checking.} 
+\newblock The MIT Press Cambridge, Massachusetts London, England.
+
+
+\bibitem{Clarke} 
+Edmund M. Clarke, Orna Grumberg, David E. Long.
+\newblock {\em Model checking.}
+\newblock NATO ASI DPD 1996: 305-349
+
+
+\bibitem{Baier} 
+Christel Baier and Joost-Pieter Katoen.
+\newblock {\em Principles of Model Checking (Representation and Mind Series).}
+\newblock The MIT Press, 2008.
+
+
+\bibitem{Huth} 
+Michael R A Huth, Mark D Ryan.
+\newblock {\em Logic in Computer Science, Modeling and reasoning about systems.}
+\newblock Cambridge University Press. 2000.
+
+
+\bibitem{Cimatti} 
+A. Cimatti, E. Clarke, F. Giunchiglia, M. Roveri. 
+\newblock {\em \textsc{NuSMV}: a new Symbolic Model Verifier.}
+\newblock In N. Halbwachs and D. Peled, editors. Proceeding of International Conference on Computer-Aided Verification (CAV'99). In Lecture Notes in Computer Science, number 1633, pages 495-499, Trento, Italy, July 1999. Springer.
+
+
+\bibitem{Arora} 
+A. Arora and M. G. Gouda. 
+\newblock {\em Closure and convergence: A foundation of fault-tolerant computing.}
+\newblock IEEE Trans. Software Eng., 19(11):1015–1027, 1993.
+
+
+\bibitem{dCTL} 
+P. F. Castro, C. Kilmurray, A. Acosta, N. Aguirre. 
+\newblock {\em dCTL: A Branching Time Temporal Logic for Fault-Tolerant System Verification.}
+\newblock SEFM 2011.
+
+
+\bibitem{NuSMV2}
+Cimatti, Alessandro; Clarke, Edmund M.; Giunchiglia, Enrico; Giunchiglia, Fausto; Pistore, Marco; Rovere, Marco; Sebastiani,
+Roberto; and Tacchella, Armando.
+\newblock {\em NuSMV 2: An OpenSource Tool for Symbolic Model Checking.}
+\newblock Computer Science Department. Paper 430. 2002.
+\newblock \texttt{http://repository.cmu.edu/compsci/430}
 
 
 \end{thebibliography}
