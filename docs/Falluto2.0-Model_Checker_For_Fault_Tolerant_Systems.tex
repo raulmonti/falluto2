@@ -231,6 +231,7 @@ Es importante aclarar que si bien nos ocuparemos del modelado del sistema en gen
 
 
 \chapter{Model Checking}
+\label{CapMC}
 
 En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, y para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas \cite{prinMC}.\\
 
@@ -248,6 +249,7 @@ En este cap\'itulo comenzaremos revisando algunos conceptos b\'asicos para enten
 
 
 \section{Sistemas de transici\'on}
+\label{LTSaK}
 %TODO introducir sistemas de transicion
 
 \subsection*{Labelled transition systems - LTS}
@@ -394,9 +396,9 @@ Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs lla
 Notemos que como corolario de la definici\'on obtenemos que una variable no puede ocurrir m\'as de una vez en el OBDD. Estos diagramas poseen adem\'as la cualidad de que para cada funci\'on booleana y orden de variables existe un \'unico OBDD reducido que la representa. Osea que si $B_1$ y $B_2$ son dos OBDD reducidos con orden de variables compatible que representan a la funci\'on booleana f entonces $B_1$ y $B_2$ son id\'enticos. Esto lleva a que la comparaci\'on de equidad entre los mismos se reduzca a una simple comparaci\'on entre sus nodos. Cuando no podemos seguir reduciendo un OBDD seg\'un las reglas R1, R2 y R3, decimos que est\'a en su forma can\'onica. Son de inter\'es especial las formas can\'onicas de la figura \ref{canonicos} debido a que nos permiten identificar las siguientes situaciones:
 
 \begin{itemize}
-\item \textit{Validez de una funci\'on:} podemos verificar validez de una funci\'on booleana (verificar si la funci\'on siempre computa $1$) de la siguiente manera: reducimos su OBDD a su forma can\'onica, si el resultado de la reducci\'on es $B_1$ entonces la funci\'on es v\'alida.
+\item \textit{Validez de una funci\'on:} podemos verificar validez de una funci\'on\\ booleana (verificar si la funci\'on siempre computa $1$) de la siguiente manera: reducimos su OBDD a su forma can\'onica, si el resultado de la reducci\'on es $B_1$ entonces la funci\'on es v\'alida.
 \item \textit{Implicaci\'on:} podemos verificar si la funci\'on $f(x_1,x_2,...,x_n)$ implica la funci\'on $g(x_1,x_2,...,x_n)$ (es decir si $f$ computa $1$ entonces $g$ tambi\'en) reduciendo el OBDD obtenido como $f \wedge \neg g$. Si el OBDD can\'onico es distinto de $B_0$ entonces la implicancia es verdadera.
-\item \textit{Satisfactibilidad:} podemos verificar satisfactibilidad de una funci\'on $f(x_1,x_2,...,x_n)$ (es decir si $f$ computa $1$ para alguna asignaci\'on de ceros y unos a sus variables) reduciendo su OBDD a forma can\'onica y verificando que \'esta no sea $B_0$
+\item \textit{Satisfactibilidad:} podemos verificar satisfactibilidad de una funci\'on\\ $f(x_1,x_2,...,x_n)$ (es decir si $f$ computa $1$ para alguna asignaci\'on de ceros y unos a sus variables) reduciendo su OBDD a forma can\'onica y verificando que \'esta no sea $B_0$
 \end{itemize}
 
 El orden de variables elegido toma vital importancia, ya que de \'el depende el tama\~no del OBDD. Existen algoritmos que logran un ordenamiento inteligente de las variables para mantener acotado el tama\~no de almacenamiento necesario para el OBDD. As\'i tambi\'en existen algoritmos que hacen eficiente la reducci\'on de OBDDs a su OBDD can\'onico, como tambi\'en algoritmos que permiten computar conjunci\'on, disyunci\'on y negaci\'on de OBDDs con considerable eficiencia.\\
@@ -565,6 +567,11 @@ Por \'ultimo, es en la fase de an\'alisis donde podemos decidir ya sobre el resu
 Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuertemente de la correctitud en el modelado del sistema y la especificaci\'on de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto tambi\'en puede ser causa de una especificaci\'on incompleta o err\'onea de las caracter\'isticas a verificar.\\
 
 \section{Discusi\'on}
+Veremos m\'as adelante, al momento de presentar las sintaxis de NuSMV y Falluto2.0, como se pone en pr\'actica la teor\'ia presentada en este cap\'itulo. Podremos distinguir por un lado que el lenguaje presentado por Falluto2.0 para modelar los sistemas se acerca en gran medida a la idea de LTS, mientras que por otro lado el de NuSMV ser\'a m\'as cercano a la representaci\'on de estructuras de Kripke. Esto nos llevar\'a a que la teor\'ia de traducci\'on de LTS a f\'ormulas de Kripke presentada en la secci\'on \ref{LTSaK} conforme la base de la sem\'antica de compilaci\'on de Falluto2.0.\\
+ 
+Este cap\'itulo nos deja entrever as\'i tambi\'en el gran control que tendremos sobre el sistema final que el model checker verificar\'a, dado que al describir la estructura de Kripke estamos a un paso del armado de los BDD sobres los cuales la herramienta verificar\'a el modelo. La ausencia de pasos intermedios evita la introducci\'on de nuevas variables y la complejizaci\'on del modelo la cual se traduce en una explosi\'on de estados.
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -683,69 +690,127 @@ Si bien el lenguaje de NuSMV presenta una amplia variedad de posibilidades para 
 \chapter{La sintaxis de Falluto2.0}
 \label{sintaxisDeFalluto}
 
-En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars. Podemos encontrar ejemplos esclarecedores tambi\'en en ref{}.
+En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars.
 
 \section{Lenguaje de modelado de comportamiento operacional}
-Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{Proctypes} de Falluto2.0. Cada \textit{proctype} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de un \textit{proctype} es introducida mediante la palabra clave \textit{PROCTYPE}. A continuaci\'on se establece un nombre para esta clase de procesos, y se especifica si poseer\'a o no variables de contexto, y acciones de sincronizaci\'on. Podemos decir que todo esto forma parte del encabezado del \textit{proctype}:
+Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{proctypes} de Falluto2.0. Cada \textit{proctype} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de cada \textit{proctype} esta delimitada por las palabras claves \texttt{PROCTYPE} y \texttt{ENDPROCTYPE}, y en ella podemos distinguir los siguientes elementos:
+\begin{itemize}
+\item El encabezado.
+\item La declaraci\'on de variables de estado.
+\item La declaraci\'on de transiciones de falla.
+\item La secci\'on de inicializaci\'on.
+\item La secci\'on de declaraci\'on de transiciones normales.
+\end{itemize} 
+A continuaci\'on buscaremos comprender el uso de cada una de estas secciones comenzando por el encabezado y mirando luego el cuerpo del proctype, el cual esta conformado por el resto de las secciones enumeradas arriba.\\
+
+Formando el encabezado del \textit{proctype} encontraremos, despu\'es de la palabra clave introductoria \texttt{PROCTYPE}, el nombre que denotar\'a a cada clase de procesos. A continuaci\'on una lista de nombres especifica si estos procesos poseer\'an o no variables de contexto, y acciones de sincronizaci\'on. A modo de ejemplo miremos el encabezado que sigue:
+
 \begin{verbatim}
-PROCTYPE miProceso ( ctxVar1, ctxVar2 ; sinchroAct1, sinchroAct2 )
+PROCTYPE miProceso (ctxVar1, ctxVar2 ; sinchroAct1, sinchroAct2)
 \end{verbatim}
+
+En este encabezado estamos indicando que los procesos de tipo \texttt{miProceso} poseer\'an dos variables de contexto (\texttt{ctxVar1} y \texttt{ctxVar2}) y dos acciones de sincronizaci\'on (\texttt{sinchroAct1} y \texttt{sinchroAct2}).\\
+
+
 En el cuerpo del \textit{proctype} podemos distinguir tres secciones que definen su comportamiento operacional. Las describimos a continuaci\'on:
 \begin{enumerate}
-\item \textbf{Declaraci\'on de variables de estado.} Introducido por la palabra clave \textit{VAR}, esta secci\'on se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Podemos entonces declarar variables de tipo:
+\item \textit{Declaraci\'on de variables de estado.} Introducido por la palabra clave \texttt{VAR}, esta secci\'on se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Podemos entonces declarar variables de tipo:
 \begin{enumerate}
-\item \textbf{Booleano.} Corresponden a aquellas variables que solo toman los valores TRUE y FALSE. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
-\item \textbf{Entero.} A las variables de tipo entero las declaramos d\'andoles un nombre y acompa\~n\'andolas con la especificaci\'on del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podr\'a tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
-\item \textbf{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja al ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
-\item \textbf{Vector.} Podemos declarar variables de tipo vector, eligiendo alguno de los anteriores como subtipo. El subtipo es el tipo de cada valor perteneciente al vector. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se [contribuye] a la declaraci\'on de los vectores con un rango indicando la indexaci\'on del vector. El ejemplo que sigue es un vector de subtipo enumerado, y se indexa desde el -1 al 2: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
-\end{enumerate}
-\item \textbf{Declaraci\'on de estados iniciales.}
-Esta secci\'on es introducida por la palabra clave \textit{INIT}, y define el conjunto de estados iniciales de los procesos de este tipo mediante una formula proposicional sobre las variables de estado del proceso. Similar a la secci\'on INIT de los m\'odulos de NuSMV, la f\'ormula que se describe aqu\'i busca restringir o no los valores que puede adoptar cada variables de estado en el estado inicial de la ejecuci\'on del proceso. Se permite aqu\'i el uso de conectivos l\'ogicos y proposicionales como $\rightarrow, |, \&, \leftrightarrow, etc$, adem\'as de conectivos matem\'aticos, valores booleanos y otros elementos. La restricci\'on mas importante es que la f\'ormula final sea de tipo booleano.
-\item \textbf{Definici\'on de las transiciones.}
-Para definir la relaci\'on de transici\'on de nuestros procesos, tomaremos en cuenta cada transici\'on por separado. Podremos etiquetar las transiciones con un nombre. y de esta manera podernos referir a la misma en el momento de la verificaci\'on. Llamaremos acci\'on al nombre de la transici\'on. La sintaxis general para la declaraci\'on de una transici\'on es la que sigue: \begin{verbatim}[accion] condici\'on_de_habilitaci\'on => postcondici\'on ;\end{verbatim}
-Como ya dijimos \textit{accion} es el nombre de la transici\'on (representa a la acci\'on que lleva a cabo el sistema para pasar a un nuevo estado), la \textit{condici\'on de habilitaci\'on} es una f\'ormula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transici\'on a aquellos que la cumplan. La postcondici\'on es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las caracter\'isticas de los estados de destino de esta acci\'on. Para indicar que estamos asignando un valor a una variable en el pr\'oximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente pr\'oximo. El siguiente es un ejemplo un poco mas claro para la declaraci\'on de una transici\'on:\begin{verbatim}[transicion1] x > 3 & y => x' = x - 1, y' = !y;\end{verbatim}
+\item \textit{Booleano.} Corresponden a aquellas variables que solo toman los valores \textit{TRUE} y \textit{FALSE}. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
+\item \textit{Entero.} A las variables de tipo entero las declaramos d\'andoles un nombre y acompa\~n\'andolas con la especificaci\'on del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podr\'a tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
+\item \textit{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja al ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
+\item \textit{Vector.} Podemos declarar variables como vectores de alguno de los tipos anteriormente mencionados. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se debe indicar en la declaraci\'on de los vectores el rango de indexaci\'on que se desea para ellos. De esta manera no solo se define el tama\~no del vector, sino que tambi\'en se indica qu\'e \'indices ser\'an permitidos usar para acceder a sus elementos. El ejemplo que sigue es un vector de subtipo enumerado, y se indexa desde el -1 al 2: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
 \end{enumerate}
 
-Una vez descripto el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave INSTANCE y pasamos a la instanciaci\'on los par\'ametros pertinentes, seg\'un se haya definido en el proctype correspondiente. La sintaxis ser\'ia entonces la siguiente: \begin{verbatim}INSTANCE nombre = nombre_proctype(parametro1, parametro2, ..., parametroN\end{verbatim}
-Como ya hemos mencionado, podemos pasar variables de contexto como par\'ametros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el par\'ametro correspondiente. Para referir a una variable en particular de alguna instancia, usamos la construcci\'on $nombre\_de\_instancia.nombre\_de\_variable$.\\
+\item \textit{Declaraci\'on de estados iniciales.}
+Esta secci\'on es introducida por la palabra clave \texttt{INIT}, y define el conjunto de estados iniciales de los procesos de este tipo mediante una formula proposicional sobre las variables de estado del proceso. Similar a la secci\'on \textit{INIT} de los m\'odulos de NuSMV, la f\'ormula que se describe aqu\'i busca restringir o no los valores que puede adoptar cada variables de estado en el estado inicial de la ejecuci\'on del proceso. Se permite aqu\'i el uso de conectivos l\'ogicos y proposicionales como $\rightarrow, |, \&, \leftrightarrow, etc$, adem\'as de conectivos matem\'aticos, valores booleanos y otros elementos. La restricci\'on m\'as importante es que la f\'ormula final sea de tipo booleano.
 
-En cuanto a los par\'ametros de acciones de sincronizaci\'on, basta con pasar un nombre a elecci\'on al par\'ametro. Todas las acciones con el mismo nombre a nivel de instanciaci\'on, ser\'an sincronizadas entre si. Es decir que si quiero sincronizar acciones entre distintas instancias debo tener presente estas acciones parametrizadas en el proctype, y debo otorgarles un mismo nombre en la instanciaci\'on de los procesos involucrados.
+\item \textit{Definici\'on de las transiciones.}
+Para definir la relaci\'on de transici\'on de nuestros procesos, tomaremos en cuenta cada transici\'on por separado. Podremos etiquetar las transiciones con un nombre, y de esta manera poder referir a la misma al momento de declarar las propiedades a ser verificadas. Llamaremos acci\'on al nombre de la transici\'on. La sintaxis general para la declaraci\'on de una transici\'on es la que sigue: 
+\begin{verbatim}
+[accion] condicion_de_habilitacion => postcondicion ;
+\end{verbatim}
+Como ya dijimos \texttt{accion} es el nombre de la transici\'on (representa a la acci\'on que lleva a cabo el sistema para pasar a un nuevo estado), la \texttt{condicion\_de\_habilitacion} es una f\'ormula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transici\'on a aquellos que la cumplan. Por \'ultimo, \texttt{postcondicion} es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las caracter\'isticas de los estados de destino de esta transici\'on. Para indicar que estamos asignando un valor a una variable en el pr\'oximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente pr\'oximo. El siguiente es un ejemplo un poco mas claro para la declaraci\'on de una transici\'on:
+\begin{verbatim}
+[transicion1] x > 3 & y => x' = x - 1, y' = !y;
+\end{verbatim}
+Vemos en el ejemplo que la precondici\'on restringe los estados origen a aquellos en los que el valor de verdad de \texttt{y} sea \textit{TRUE} y el valor num\'erico de \texttt{x} sea mayor a $3$. Por su parte se restrige a los estados de llegada al subconjunto de estados que cumplan con la condici\'on de que el valor de \texttt{x} sea su valor actual menos $1$ y el de \texttt{y} sea la negaci\'on de su valor actual.
+\end{enumerate}
+
+Una vez descripto el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave \texttt{INSTANCE} y pasamos a la instanciaci\'on los par\'ametros pertinentes, seg\'un se haya definido en el proctype correspondiente. La sintaxis ser\'ia entonces la siguiente: 
+\begin{verbatim}
+INSTANCE nombre = nombre_proctype(param1, param2, ..., paramN)
+\end{verbatim}
+Como ya hemos mencionado, podemos pasar variables de contexto como par\'ametros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el par\'ametro correspondiente. Para referir a una variable en particular de alguna instancia colocamos el nombre de la instancia precedido por un punto y el nombre de la variable en cuesti\'on:
+\begin{verbatim}
+nombre_de_instancia.nombre_de_variable
+\end{verbatim}
+
+En cuanto a los par\'ametros de acciones de sincronizaci\'on, basta con pasar un nombre a elecci\'on al par\'ametro. Todas las acciones con el mismo nombre a nivel de instanciaci\'on, ser\'an sincronizadas entre si. Es decir que si quiero sincronizar acciones entre distintas instancias debo tener presente estas acciones parametrizadas en el proctype, y debo otorgarles un mismo nombre en la instanciaci\'on de los procesos involucrados. Observemos un ejemplo:
+\begin{verbatim}
+
+PROCTYPE contador ( ; contar )
+    VAR
+        cuenta:0..5
+    INIT
+        cuenta = 0
+    TRANS
+        [contar]: => cuenta' = (cuenta+1)%6;
+ENDPROCTYPE
+
+INSTANCE contador1 = contardor(contar1)
+INSTANCE contador2 = contardor(contar2)
+INSTANCE contador3 = contardor(contar2)
+INSTANCE contador4 = contardor(contar1)
+
+\end{verbatim}
+
+En este ejemplo hemos instanciado cuatro procesos de tipo \textit{contador}. Si miramos la declaraci\'on del proctype \texttt{contador} veremos que posee un acci\'on de sincronizaci\'on denominada \texttt{contar}. En el momento de instanciaci\'on hemos logrado entonces que el proceso \texttt{contador1} sincronice esta acci\'on con \texttt{contador4} otorg\'andoles a ambos el nombre de sincronizaci\'on \texttt{contar1}, mientras que \texttt{contador2} sincronizar\'a con \texttt{contador3} a partir del nombre de sincronizaci\'on \texttt{contar2}.
+
 
 \section{Lenguaje de descripci\'on de fallas}
-En Falluto2.0 podemos inyectar f\'acilmente fallas en los procesos definidos. Las fallas forman parte de cada proceso y por lo tanto son declaradas dentro de los proctypes en una subsecci\'on introducida por la palabra clave \textit{FAULT}. La sintaxis general para la inyecci\'on de una falla es la siguiente: \begin{verbatim}nombre : condicion_habilitacion => postcondicion is tipo\end{verbatim}
+En Falluto2.0 podemos inyectar f\'acilmente fallas en los procesos definidos. Las fallas forman parte de cada proceso y por lo tanto son declaradas dentro de los proctypes en una subsecci\'on introducida por la palabra clave \texttt{FAULT}. La sintaxis general para la inyecci\'on de una falla es la siguiente: \begin{verbatim}nombre : condicion_habilitacion => postcondicion is tipo\end{verbatim}
 Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una transici\'on com\'un. Esto se debe a que se toma en cuenta la falla como una transici\'on m\'as, aunque no deseada, del sistema. El nombre le otorga a la falla una identificaci\'on \'unica dentro del proctype. La condici\'on de habilitaci\'on es nuevamente una f\'ormula booleana sobre el estado actual del proceso (y el sistema global si tomamos en cuenta el uso de las variables de contexto). La postcondici\'on establece condiciones a cumplirse en el estado de llegada luego de la transici\'on de falla. De nuevo, se introduce aqu\'i una lista de asignaciones a las variables de estado a ser cumplidas por el estado de llegada. Las fallas pueden pertenecer a tres tipos en particular: \textit{transient, stop, byzantine}. Podemos distinguir dos clases de fallas seg\'un la prolongaci\'on de su actividad. Las fallas transient pertenecen a una clase de fallas en donde el efecto es instantaneo, mientras que las fallas de tipo stop y byzantine pertenecen a una clase de fallas de efecto permanente. A continuaci\'on daremos la sintaxis para declarar cada uno de estos tipos para las fallas:\\
 
 \begin{itemize}
-\item \textbf{Tipo Transient.} Simplemente usamos la palabra clave \textit{TRANSIENT} para declarar que la falla pertenece a este tipo. Notar que los efectos de estas fallas se restringen a la postcondici\'on que se haya definido en la declaraci\'on de la misma. Ejemplo: \begin{verbatim}falla1 : TRUE => x' = 0 is TRANSIENT\end{verbatim}
-\item \textbf{Tipo Stop.} Declara que la falla tiene la capacidad de detener total o parcialmente el funcionamiento del proceso, impidiendo que el mismo realice ciertas transiciones. Usamos la palabra clave STOP y opcionalmente la precedemos de una lista con los nombres de transiciones que esta falla, en el caso de ocurrir, inhabilita. Notemos que si optamos por no otorgar dicha lista, la falla detendr\'a todas las transiciones normales del sistema, entendiendo por normales a aquellas que no son transici\'on de falla. Ejemplo: \begin{verbatim}falla1 : x => y' = FALSE is STOP(trans1,trans2) \end{verbatim}
-\item \textbf{Tipo Byzantine.} Declara que la falla provoca un efecto bizantino sobre ciertas variables del proceso, es decir que una vez ocurrida la falla las variables mencionadas podr\'an en cualquier momento cambiar su valor actual por alg\'un otro valor dentro de su dominio, afectando as\'i el estado del sistema. Debemos preceder a la palabra clave BYZ con una lista de nombres de variables que ser\'an afectadas. Ejemplo: \begin{verbatim}falla1: TRUE => ... is BYZ(var1, var2) \end{verbatim}
+\item \textit{Tipo Transient.} Simplemente usamos la palabra clave \texttt{TRANSIENT} para declarar que la falla pertenece a este tipo. Notar que los efectos de estas fallas se restringen a la postcondici\'on que se haya definido en la declaraci\'on de la misma. Ejemplo: \begin{verbatim}falla1 : TRUE => x' = 0 is TRANSIENT\end{verbatim}
+\item \textit{Tipo Stop.} Declara que la falla tiene la capacidad de detener total o parcialmente el funcionamiento del proceso, impidiendo que el mismo realice ciertas transiciones. Usamos la palabra clave \texttt{STOP} y opcionalmente la precedemos de una lista con los nombres de transiciones que esta falla, en el caso de ocurrir, inhabilita. Notemos que si optamos por no otorgar dicha lista, la falla detendr\'a todas las transiciones normales del sistema, entendiendo por normales a aquellas que no son transici\'on de falla. Ejemplo: \begin{verbatim}falla1 : x => y' = FALSE is STOP(trans1,trans2) \end{verbatim}
+\item \textit{Tipo Byzantine.} Declara que la falla provoca un efecto bizantino sobre ciertas variables del proceso. Es decir que una vez ocurrida la falla las variables mencionadas podr\'an en cualquier momento cambiar su valor actual por alg\'un otro valor dentro de su dominio, provocando asi un cambio de estado en el sistema. Debemos preceder a la palabra clave \texttt{BYZ} con una lista de nombres de variables que ser\'an afectadas. Ejemplo: \begin{verbatim}falla1: TRUE => ... is BYZ(var1, var2) \end{verbatim}
 \end{itemize}
 
 \section{Lenguaje de especificaci\'on de propiedades y restricciones}
 
 Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificaci\'on, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificaci\'on LTL y CTL. Se propone tambi\'en el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
-Para la especificaci\'on de una propiedad LTL usamos la palabra clave LTLSPEC y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como G (Globaly), F(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave CTLSPEC precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.\\
+Para la especificaci\'on de una propiedad LTL usamos la palabra clave \texttt{LTLSPEC} y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como \texttt{G}(Globaly), \texttt{F}(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave \texttt{CTLSPEC} precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.\\
 Falluto2.0 posee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
 \begin{itemize}
-\item \textbf{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave NORMAL\_BEHAVIOUR y la precedemos por una f\'ormula LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una f\'ormula expresada en LTL o CTL.
-\item \textbf{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad $q$ se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre $fault1$, $fault2$, ..., $faultn$ en la ejecuci\'on del sistema. En este caso la propiedad $q$ solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad $q$ se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
-\item \textbf{Deadlock check} La utilizaci\'on de la palabra clave CHECK\_DEADLOCK dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, ordena la verificaci\'on de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en alg\'un momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
+\item \textit{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave \texttt{NORMAL\_BEHAVIOUR} y la precedemos por una f\'ormula LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una f\'ormula expresada en LTL o CTL.
+\item \textit{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad $q$ se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre $fault1$, $fault2$, ..., $faultn$ en la ejecuci\'on del sistema. En este caso la propiedad $q$ solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad $q$ se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
+\item \textit{Deadlock check} La utilizaci\'on de la palabra clave \texttt{CHECK\_DEADLOCK} dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, ordena la verificaci\'on de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en alg\'un momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
 \end{itemize}
 
-Podemos restringir la verificaci\'on de las propiedades sobres nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
+Podemos restringir la verificaci\'on de las propiedades sobre nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
 \begin{itemize}
-\item \textbf{Fairness incondicional.} Para restringir la verificaci\'on del sistema a solo aquellas ejecuciones donde una propiedad $q$ se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde $q$ es una f\'ormula proposicional que habla a cerca del estado del sistema.
-\item \textbf{Fairnes fuerte.} Dadas dos formulas proposicionales $p$ y $q$ sobre nuestro sistema, podemos restringir la verificaci\'on de propiedades LTL a ejecuciones en las cuales se cumpla la condici\'on de justicia fuerte de $p$ con respecto a $q$ usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificaci\'on solo a ejecuciones donde se cumpla que si $p$ vale siempre a menudo, entonces $q$ vale siempre a menudo. Tomemos en cuenta que el uso de esta construcci\'on no es compatible con propiedades definidas en CTL y puede dar resultados err\'oneos.
+\item \textit{Fairness incondicional.} Para restringir la verificaci\'on del sistema a solo aquellas ejecuciones donde una propiedad \texttt{q} se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde \texttt{q} es una f\'ormula proposicional que habla a cerca del estado del sistema.
+\item \textit{Fairnes fuerte.} Dadas dos formulas proposicionales \texttt{p} y \texttt{q} sobre nuestro sistema, podemos restringir la verificaci\'on de propiedades LTL a ejecuciones en las cuales se cumpla la condici\'on de justicia fuerte de \texttt{p} con respecto a \texttt{q} usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificaci\'on solo a ejecuciones donde se cumpla que si \texttt{p} vale siempre a menudo, entonces \texttt{q} vale siempre a menudo. Tomemos en cuenta que el uso de esta construcci\'on no es compatible con propiedades definidas en CTL y puede dar resultados err\'oneos.
 \end{itemize}
 
-En el an\'alisis de propiedades sobre nuestro sistema, no solo podemos hablar sobre el estado del sistema en cuanto a las variables de estado, sino que tambi\'en podemos analizar las acciones que nos llevan a esos estados. La construcci\'on \textit{just(accion)} nos permite hablar a cerca de la ocurrencia de la transici\'on etiquetada con el nombre \textit{accion}. Por ejemplo podemos restringir nuestra verificaci\'on a aquellas ejecuciones en donde la transici\'on etiquetada como \textit{acci\'on1} se lleve a cabo siempre a menudo usando la siguiente restricci\'on de fairness:
-$$FAIRNESS~just(accion1)$$
+En el an\'alisis de propiedades sobre nuestro sistema, no solo podemos hablar sobre el estado del sistema en cuanto a las variables de estado, sino que tambi\'en podemos analizar las acciones que nos llevan a esos estados. La construcci\'on \texttt{just(accion)} nos permite hablar a cerca de la ocurrencia de la transici\'on etiquetada con el nombre \texttt{accion}. Por ejemplo podemos restringir nuestra verificaci\'on a aquellas ejecuciones en donde la transici\'on etiquetada como \texttt{acci\'on1} se lleve a cabo siempre a menudo usando la siguiente restricci\'on de fairness:
+\begin{verbatim}
+FAIRNESS just(accion1)
+\end{verbatim}
 De similar manera, usando alguna de las siguientes declaraciones, podemos verificar si en toda ejecuci\'on del sistema aquella acci\'on se realiza en alg\'un momento de la ejecuci\'on:
-$$CTLSPEC~AF~just(accion1)$$
-$$LTLSPEC~F~just(accion1)$$
-Vale aclarar que \textit{just(x)}, donde \textit{x} es una acci\'on cualquiera, se toma como una f\'ormula booleana y puede combinarse dentro de otras f\'ormulas sin restricci\'on alguna al momento de especificar propiedades y realizar restricciones de fairness.
+\begin{verbatim}
+CTLSPEC AF just(accion1)
+LTLSPEC F just(accion1)
+\end{verbatim}
+Vale aclarar que \texttt{just(x)}, donde \texttt{x} es una acci\'on cualquiera, se toma como una f\'ormula booleana y puede combinarse dentro de otras f\'ormulas sin restricci\'on alguna al momento de especificar propiedades y realizar restricciones de fairness.
 
 
+\section{Discusi\'on}
+Hemos presentado un lenguaje que nos permite describir de manera intuitiva el comportamiendo del sistema. Es f\'acil distinguir como nuestro lenguaje describe de manera directa las maquinas de estado utilizando conceptos conocidos en formalismos como el LTS y estructuras de Kripke, revisados ambos en el cap\'itulo \ref{CapMC} de este trabajo. Vemos como por ejemplo hemos tomado las etiquetas del formalismo LTS para dar nombre a nuestras transiciones. Vemos tambi\'en como hemos distinguido entre los valores de las variables de estado en el estado actual y en el estado que sigue, tal como se plantea en las transiciones de una estructura de Kripke. En la secci\'on \textit{INIT} de nuestros \textit{proctypes} podemos ver claramente la especificaci\'on de los estados iniciales de las maquinas de estados que representan nuestros procesos.\\
+
+Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje de modelado de fallas. Esta caracter\'istica permite una inyecci\'on limpia de las mismas en el funcionamiento del sistema, dejando que nuestra herramienta se encargue del aspecto funcional de aquellas. De esta manera evitamos en gran medida la aparici\'on de errores debido a una mala inyecci\'on de fallas por parte del usuario, como as\'i tambi\'en mantenemos control sobre la explosi\'on de estados que puede acarrear el uso de variables innecesarias en lo que podr\'ia ser una inyecci\'on de fallas ineficiente. Evitamos por \'ultimo gran cantidad de trabajo al usuario, eliminando la aparici\'on de c\'odigo correspondiente a la ocurrencia de fallas en las dem\'as secciones del modelado del sistema, y permitiendo que este se concentre en otros aspectos de la funcionalidad. De este modo el usuario podr\'a una vez declaradas r\'apidamente las fallas concentrarse por ejemplo en los mecan\'ismos de tolerancia a las mismas sin involucrarse ni prestar mayor atenci\'on a la funcionalidad de las fallas.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
