@@ -1,7 +1,4 @@
 
-
-
-
 %TODO cambiar las palabras entre []
 %TODO rellenar los '...'
 %TODO Hablar sobre el interprete de trazas, y la manera de leer los resultados
@@ -34,6 +31,31 @@
 
 % Linea separadora para c\'odigo
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+%
+
+
+% MACROS
+
+\newcommand{\X}{\mathop{\mathsf{X}}}
+\newcommand{\G}{\mathop{\mathsf{G}}}
+\newcommand{\F}{\mathop{\mathsf{F}}}
+
+\newcommand{\U}{\mathbin{\textsf{U}}}
+\newcommand{\R}{\mathbin{\textsf{R}}}
+
+\newcommand{\A}{\mathbin{\textsf{A}}}
+\newcommand{\E}{\mathbin{\textsf{E}}}
+
+\newcommand{\AX}{\mathop{\mathsf{AX}}}
+\newcommand{\AG}{\mathop{\mathsf{AG}}}
+\newcommand{\AF}{\mathop{\mathsf{AF}}}
+\newcommand{\EX}{\mathop{\mathsf{EX}}}
+\newcommand{\EG}{\mathop{\mathsf{EG}}}
+\newcommand{\EF}{\mathop{\mathsf{EF}}}
+
+\newcommand{\AU}[2]{\mathsf{A}({#1}\U{#2})}
+\newcommand{\EU}[2]{\mathsf{E}({#1}\U{#2})}
+
 %
 
 \def\Falluto20{{\rm F\kern-.1667em\lower.5ex\hbox{A}\kern-.125emllutO2.0}}
@@ -115,15 +137,15 @@ Los sistemas computacionales juegan roles determinantes en muchas \'areas de nue
 
 Las fallas en el dise\~no del sistema, como as\'i tambi\'en aquellas fallas causadas por el entorno de ejecuci\'on, pueden llevar a un comportamiento erroneo del mismo.
 %
-%Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian a la aver\'ia o mal funcionamiento de los mismos. Estos sistemas por ende presentan una gran ventaja con respecto a aquellos que no lo son. Introducir la capacidad de tolerar fallas en un sistema computacional no es sencillo y es muy propenso a producir errores. La verificaci\'on de la correctitud de estos sistemas es entonces de vital importancia si se busca certificar que en efecto las fallas sean toleradas.\\
+%Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian a la aver\'ia o mal funcionamiento de los mismos. Estos sistemas por ende presentan una gran ventaja con respecto a aquellos que no lo son. Introducir la capacidad de tolerar fallas en un sistema computacional no es sencillo y es muy propenso a producir errores. La verificaci\'on de la corrección de estos sistemas es entonces de vital importancia si se busca certificar que en efecto las fallas sean toleradas.\\
 
-Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian al mal funcionamiento de los mismos. Dar la capacidad de tolerar fallas a un sistema computacional no es sencillo y es muy propenso a introducir errores. La verificaci\'on de la correctitud de estos sistemas es entonces de vital importancia.
+Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian al mal funcionamiento de los mismos. Dar la capacidad de tolerar fallas a un sistema computacional no es sencillo y es muy propenso a introducir errores. La verificaci\'on de la corrección de estos sistemas es entonces de vital importancia.
 
 %El model checking es una t\'ecnica formal que se encarga de verificar que el modelo de un sistema cumpla con un conjunto de propiedades. Este m\'etodo de verificaci\'on es exhaustivo y por lo tanto nos permite una verificaci\'on completa sobre el modelo del sistema a implementarse.\\
 
 El model checking es una t\'ecnica formal que se encarga de verificar exhaustivamente que el modelo de un sistema cumpla con un conjunto de propiedades.
 
-En este trabajo se presenta un lenguaje para el modelado de sistemas tolerantes a fallas y la especificaci\'on de propiedades sobre los mismos. Se provee adem\'as la herramienta de verificaci\'on Falluto2.0, construida como front-end para el model checker simb\'olico NuSMV, la cual utiliza el lenguaje descripto. Se analiza la simplicidad y practicidad del lenguaje como as\'i tambi\'en su correctitud. Por \'ultimo se observa el uso de la herramienta sobre dos casos particulares de modelado de sistemas tolerantes a fallas.
+En este trabajo se presenta un lenguaje para el modelado de sistemas tolerantes a fallas y la especificaci\'on de propiedades sobre los mismos. Se provee adem\'as la herramienta de verificaci\'on Falluto2.0, construida como front-end para el model checker simb\'olico NuSMV, la cual utiliza el lenguaje descripto. Se analiza la simplicidad y practicidad del lenguaje como as\'i tambi\'en su corrección. Por \'ultimo se observa el uso de la herramienta sobre dos casos particulares de modelado de sistemas tolerantes a fallas.
 
  
 \newpage
@@ -146,7 +168,7 @@ Podemos considerar a la falla en una componente de hardware o software como una 
 
 Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especificaci\'on describe) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.
 
-Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas computacionales, es conveniente comprobar la correctitud de los sistemas tolerantes a fallas. El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dif\'icil y \emph{propenso a errores}: la combinaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que genera una gran demanda a la capacidad intelectual del dise\~nador humano \cite{SteinerRushby}.
+Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas computacionales, es conveniente comprobar la corrección de los sistemas tolerantes a fallas. El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dif\'icil y \emph{propenso a errores}: la combinaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que genera una gran demanda a la capacidad intelectual del dise\~nador humano \cite{SteinerRushby}.
 
 En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on. La examinaci\'on autom\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}.
 
@@ -265,7 +287,7 @@ Formalmente podemos decir que un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:
 \end{itemize}
 Notemos entonces que si $s1$ y $s2$ son elementos en $S$, $l$ es un nombre en $L$, y $(s1,l,s2) \in R$, entonces estamos indicando que existe una transici\'on con nombre $l$ desde el estado $s1$ al estado $s2$. Usualmente, las etiquetas se utilizan para nombrar la acci\'on que la transici\'on realiza. De esta manera podemos modelar sistemas computacionales tomando cada elemento en $S$ como un estado particular del sistema y definiendo relaciones etiquetadas entre los mismos para representar su comportamiento.
 
-En particular nos interesa para este trabajo la capacidad que nos otorga este formalismo para representar sincronizaci\'on entre acciones de distintas componentes del sistema. En el ejemplo de la figura \ref{figura1} encontramos dos componentes, un productor y un consumidor, ambas con su representaci\'on en t\'erminos de LTS. Podemos, a partir de ellas, definir un sistema concurrente sincronizado en el cual las transiciones de igual nombre en cada componente deben ser ejecutadas de manera sincronizada, mientras que las transiciones propias de cada componente pueden ejecutarse independientemente. Vemos el sistema resultante en la figura \ref{figura2}. En ella la transici\'on punteada y etiquetada con `Listo' representa la acci\'on sincronizada entre el productor y el consumidor. A su vez podemos ver en el estado punteado un caso de \emph{interleaving} entre los procesos sincronizados. All\'i podemos elegir entre darle paso a la acci\'on `Producir' del productor, o dejar que el consumidor realice la acci\'on `Consumir'. 
+En particular nos interesa para este trabajo la capacidad que otorga este formalismo para representar sincronizaci\'on entre acciones de distintas componentes del sistema. En el ejemplo de la figura \ref{figura1} encontramos dos componentes, un productor y un consumidor, ambas con su representaci\'on en t\'erminos de LTS. Podemos, a partir de ellas, definir un sistema concurrente sincronizado en el cual las transiciones de igual nombre en cada componente deben ser ejecutadas de manera sincronizada, mientras que las transiciones propias de cada componente pueden ejecutarse independientemente. Vemos el sistema resultante en la figura \ref{figura2}. En ella la transici\'on punteada y etiquetada con `Listo' representa la acci\'on sincronizada entre el productor y el consumidor. A su vez podemos ver en el estado punteado un caso de \emph{interleaving} entre los procesos sincronizados. All\'i podemos elegir entre darle paso a la acci\'on `Producir' del productor, o dejar que el consumidor realice la acci\'on `Consumir'. 
 
 \begin{figure}[htp] %Al incluir el paquete float, [H] obliga a posicionar la imagen justo en este lugar por mas que a latex no le guste.
   \centering
@@ -326,7 +348,7 @@ Lo que hicimos fue entonces construir por cada estado $s_i$ y etiqueta $e$ en el
 \section{De estructuras de Kripke a f\'ormulas l\'ogicas}
 
 
-Si bien las estructuras de Kripke nos sirven para captar intuitivamente el comportamiento de los sistemas a modelar, los model checkers trabajan sobre el modelado del sistema en base a la l\'ogica proposicional. A continuaci\'on veremos como lograr la interpretaci\'on de estructuras de Kripke usando f\'ormulas proposicionales. En lo que a nosotros concierne, la l\'ogica proposicional estar\'a comprendida por los conectivos l\'ogicos usuales - $\neg,\wedge,\vee,\rightarrow,etc...$ -, y haremos uso tambi\'en de los cuantificadores $\forall$ y $\exists$ sobre dominios finitos como generalización del $\wedge$ y del $\vee$ respectivamente.
+Si bien las estructuras de Kripke sirven para captar intuitivamente el comportamiento de los sistemas a modelar, los model checkers trabajan sobre el modelado del sistema en base a la l\'ogica proposicional. A continuaci\'on veremos como lograr la interpretaci\'on de estructuras de Kripke usando f\'ormulas proposicionales. En lo que a nosotros concierne, la l\'ogica proposicional estar\'a comprendida por los conectivos l\'ogicos usuales - $\neg,\wedge,\vee,\rightarrow,etc...$ -, y haremos uso tambi\'en de los cuantificadores $\forall$ y $\exists$ sobre dominios finitos como generalización del $\wedge$ y del $\vee$ respectivamente.
 
 Supongamos que queremos modelar un sistema $P$. Consideremos el conjunto de variables $V = \lbrace v_0,v_1,...,v_n \rbrace$. Consideremos para el caso que todas estas variables toman valores de un domino finito $D$. Tenemos que una valuaci\'on de $V$ es una funci\'on total sobre el dominio, la cual asigna a cada variable en $V$ un valor en $D$. Notemos que dado que los valores de las variables del sistema son las que definen el estado del mismo en su totalidad, cada valuaci\'on estar\'ia definiendo el estado del sistema. Por lo tanto un sistema P con variables V sobre el dominio D se puede representar con una estructura de Kripke $M = (S,S_0,R,L)$ sobre $AP$ donde:
 
@@ -389,9 +411,9 @@ Estas reducciones no afectan la representaci\'on del BDD con respecto a la formu
 
 Si bien con estas reglas se logra reducir en gran proporci\'on cierto conjunto de BDDs, otros BDDs no son tan susceptibles a ser reducidos de esta manera. Un efecto negativo visible en mucho de estos es la reutilizaci\'on en sus nodos de una misma variable booleana, lo cual implica revisar el valor de aquellas m\'as de una vez. Otro defecto surge de que diferentes BDDs pueden representar una misma funci\'on booleana, por lo cual comparar la equidad de las funciones booleanas representadas en BDDs requiere de mucho trabajo.
 
-Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs llamados \textit{diagramas de decisi\'on binaria ordenados} (OBDD). Los OBDD imponen un orden sobre la aparici\'on de las variables en sus nodos, evitando de este modo los BDDs con m\'as de una aparici\'on de la misma variables. Podemos dar la siguiente definici\'on de un OBDD \cite{Huth}:
+Todas estas complicaciones logran ser evitadas usando un subconjunto de BDDs llamados \textit{diagramas de decisi\'on binaria ordenados} (OBDD). Los OBDD imponen un orden sobre la aparici\'on de las variables en sus nodos, evitando de este modo los BDDs con m\'as de una aparici\'on de la misma variables. Podemos dar la siguiente definici\'on de un OBDD \cite{Huth}:\\
 
-\textit{Sea $[x_1,x_2,...,x_n]$ una lista ordenada de variables sin duplicados y sea $B$ un BDD cuyas variables pertenecen a la lista. Decimos que $B$ tiene el ordenamiento $[x_1,x_2,...,x_n]$ si todas las variables en los nodos de $B$ ocurren en la lista, y para cada ocurrencia de $x_i$ seguida de $x_j$ en cualquier camino sobre $B$, $i < j$. Decimos entonces que un OBDD es un BDD que posee un orden para alguna lista de variables.}
+\textit{Sea $[x_1,x_2,...,x_n]$ una lista ordenada de variables sin duplicados y sea $B$ un BDD cuyas variables pertenecen a la lista. Decimos que $B$ tiene el ordenamiento $[x_1,x_2,...,x_n]$ si todas las variables en los nodos de $B$ ocurren en la lista, y para cada ocurrencia de $x_i$ seguida de $x_j$ en cualquier camino sobre $B$, $i < j$. Decimos entonces que un OBDD es un BDD que posee un orden para alguna lista de variables.}\\
 
 Notemos que como corolario de la definici\'on obtenemos que una variable no puede ocurrir m\'as de una vez en el OBDD. Estos diagramas poseen adem\'as la cualidad de que para cada funci\'on booleana y orden de variables existe un \'unico OBDD reducido que la representa. Osea que si $B_1$ y $B_2$ son dos OBDD reducidos con orden de variables compatible que representan a la funci\'on booleana $f$ entonces $B_1$ y $B_2$ son id\'enticos. Esto lleva a que la comparaci\'on por igualdad entre los mismos se reduzca a una simple comparaci\'on de isomorfismo. Cuando no podemos seguir reduciendo un OBDD seg\'un las reglas R1, R2 y R3, decimos que est\'a en su forma can\'onica. Son de inter\'es especial las formas can\'onicas de la figura \ref{canonicos} debido a que nos permiten identificar las siguientes situaciones:
 
@@ -406,7 +428,7 @@ El orden de variables elegido toma vital importancia, ya que de \'el depende el 
 
 \begin{figure}[htp]
   \centering
-    \includegraphics{Imagenes/canonicos.pdf}
+    \includegraphics[scale=0.5]{Imagenes/canonicos.pdf}
   \caption{OBDDs can\'onicos de relevancia}
   \label{canonicos}
 \end{figure}
@@ -438,50 +460,53 @@ Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subcon
 Las l\'ogicas temporales son lógicas modales que permiten describir y razonar sobre proposiciones en t\'erminos del tiempo. En el caso del model checking, son de gran utilidad para la especificaci\'on de las propiedades a verificar sobre el modelo del sistema. A continuaci\'on presentaremos dos l\'ogicas temporales de inter\'es para este trabajo. Ambas l\'ogicas difieren en expresividad, por lo que hacer uso de las dos nos permite una mayor versatilidad al momento de especificar las propiedades deseadas.
 
 \subsection*{LTL}
-La \textit{L\'ogica de Tiempo Lineal (LTL)} nos permite razonar sobre ejecuciones lineales a trav\'es del tiempo. En cada instante de tiempo solo existe una \'unica ejecuci\'on real a realizarse. Com\'unmente esta ejecuci\'on de la que hablamos comienza en este momento y se extiende al infinito. El tiempo es discreto y podemos realizar un paralelismo entre el salto de un momento al otro y cada paso en la ejecuci\'on del sistema que se analice. As\'i, cada momento representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas $AP$, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales $G, F, X, U, R$. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es $G$lobally, $F$inally, Ne$X$t, $U$ntil y $R$elease. A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
+La \textit{L\'ogica de Tiempo Lineal (LTL)} permite razonar sobre ejecuciones lineales a trav\'es del tiempo. Estas ejecuciones solo permiten ver los cambios de estado que se producen a lo largo del tiempo y cómo estos se ordenan temporalmente, pero no permiten ver el transcurso preciso del tiempo. As\'i, cada momento vvisible representa una configuraci\'on en el estado del sistema y cada salto en el tiempo representa una transici\'on desde un estado del sistema a uno nuevo. Estas l\'ogicas est\'an compuestas por un conjunto finito de proposiciones at\'omicas $AP$, los conectivos booleanos $\neg$, $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$ y los conectivos temporales $G, F, X, U, R$. Estos \'ultimos conectivos se corresponden con las palabras en idioma ingl\'es $G$lobally, $F$inally, ne$X$t, $U$ntil y $R$elease. A continuaci\'on damos una descripci\'on intuitiva del significado de cada conectivo:
 
 \begin{itemize}
-\item $G \phi$ expresa que en todo momento vale $\phi$.
-\item $F \phi$ expresa que $\phi$ se cumple en elg\'un momento.
-\item $X \phi$ expresa que $\phi$ se cumple en el momento inmediatamente posterior al actual.
-\item $\phi U \psi$ expresa que $\psi$ vale en alg\'un momento, y para todo momento anterior a aquel $\phi$ vale.
-\item $\phi R \psi$ expresa que o bien $\phi$ no vale nunca y $\psi$ vale siempre, o bien $\psi$ vale en cada momento hasta que $\phi$ valga.
+\item $\G \phi$ expresa que en todo momento durante la ejecución se satisface la fórmula $\phi$.
+\item $\F \phi$ expresa que en algún momento en el futuro se satisface la fórmula $\phi$.
+\item $\X \phi$ expresa que $\phi$ se satisface en el momento inmediatamente posterior al actual.
+\item $\phi \U \psi$ expresa que $\psi$ se satisface en alg\'un momento, y para todo momento anterior a aquel $\phi$ se satisface.
+\item $\phi \R \psi$ expresa que o bien $\phi$ no se satisface nunca y $\psi$ se satisface siempre, o bien $\psi$ se satisface en cada momento hasta que $\phi$ se satisfaga.
 \end{itemize}
 
-Usando LTL podemos expresar propiedades de \textit{liveness} y \textit{safety} de nuestro sistema de manera sencilla. Por ejemplo para expresar \textit{``En alg\'un momento algo bueno suceder\'a''} usamos  $F$ ``algo bueno'', o para expresar \textit{``En ning\'un momento algo malo sucede''} usar\'iamos $G$ $\neg$ ``algo malo''.\\
+Usando LTL podemos expresar propiedades de \textit{liveness} y \textit{safety} de nuestro sistema de manera sencilla. Por ejemplo para expresar \textit{``En alg\'un momento algo bueno suceder\'a''} usamos  $F$ ``algo bueno'', o para expresar \textit{``En ning\'un momento algo malo sucede''} usar\'iamos $G$ $\neg$ ``algo malo''.
 
-Es com\'un interpretar las f\'ormulas LTL sobre estructuras de Kripke. Una f\'ormula LTL puede ser satisfecha por una serie infinita de valuaciones sobre $AP$. Podemos ver a esta serie infinita como una palabra descripta por una ejecuci\'on sobre una estructura de Kripke. De este modo si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke $M$, basta con ver que el lenguaje de $M$ (todas las palabras posibles en $M$) satisfagan $\phi$. Definimos la sem\'antica de formulas LTL como sigue:\\
+Las fórmulas LTL se interpretan usualmente sobre ejecuciones de estructuras de Kripke, y si queremos saber si la formula $\phi$ se satisface en un sistema representado por la estructura de Kripke $M$, basta con ver que el lenguaje de $M$ (i.e. todas las ejecuciones posibles en $M$) satisfaga $\phi$. Definimos la sem\'antica de formulas LTL como sigue:
 
 Sea la palabra $\omega$ = $s_1s_2s_3...$ de valuaciones en $AP$. Definimos la relaci\'on de satisfactibilidad $\models$ de una formula LTL con respecto a la palabra $\omega$ a partir de las siguientes reglas:
 \begin{itemize}
-\item $\omega \models p $ si $ p \in \omega[0]$
+\item $\omega \models p $ si $ p \in L(\omega[0])$
 \item $\omega \models \neg p $ si no $\omega \models p$
 \item $\omega \models \phi \vee \psi$ si $\omega \models \phi$ o $\omega \models \psi$
-\item $\omega \models X \phi$ si $\omega[1...] \models \phi$
-\item $\omega \models \phi U \psi$ si existe $i \geq 0$ tal que  $\omega[i...] \models \psi$ y para todo $0 \leq k < i$, $\omega[k...] \models \phi$ 
+\item $\omega \models \X \phi$ si $\omega[1...] \models \phi$
+\item $\omega \models \phi \U \psi$ si existe $i \geq 0$ tal que  $\omega[i...] \models \psi$ y para todo $0 \leq k < i$, $\omega[k...] \models \phi$ 
 \end{itemize}
-Notar que los dem\'as conectivos son derivados de aquellos para los que hemos definido las reglas de satisfactibilidad. \\
+donde $\omega[i...]$ es el i-ésimo sufijo de $\omega$.
 
-Muchas veces es de inter\'es en model checking definir propiedades bajo \textit{condiciones de equidad (en ingl\'es ``Fairness Conditions'')} . Por ejemplo en el contexto del modelado de un planificador de tareas podemos requerir que el mismo atienda equitativamente a los diferentes procesos. LTL a diferencia de CTL nos da la posibilidad de definir estas equidades:
+Notar que los dem\'as conectivos son derivados de aquellos para los que hemos definido las reglas de satisfactibilidad: $F \phi \equiv true U \phi, G \phi \equiv \neg F \neg \phi$ y $\phi R \psi \equiv \neg(\neg\phi U \neg\psi).$
+
+Muchas veces es de inter\'es en model checking definir propiedades bajo \textit{condiciones de equidad (en ingl\'es ``Fairness Conditions'')} . Por ejemplo en el contexto del modelado de un planificador de tareas podemos requerir que el mismo atienda equitativamente a los diferentes procesos. LTL, a diferencia de CTL, nos da la posibilidad de definir estas equidades:
 
 \begin{enumerate}
-\item Equidad incondicional:\\[0.3cm] $G~F~p$ (siempre finalmente se cumple $p$, o a menudo se cumple $p$)
-\item Equidad fuerte:\\[0.3cm] $G~F~q \rightarrow G~F~p$ (si a menudo vale $q$ entonces a menudo vale $p$)
-\item Equidad d\'ebil:\\[0.3cm] $F~G~q \rightarrow G~F~p$ (si finalmente siempre vale $q$, entonces a menudo vale $p$)
+\item Equidad incondicional:\\[0.3cm] $\G~\F~p$ (a menudo se cumple $p$)
+\item Equidad fuerte:\\[0.3cm] $\G~\F~q \rightarrow \G~\F~p$ (si $q$ se satisface a menudo, entonces $p$ también)
+\item Equidad d\'ebil:\\[0.3cm] $\F~\G~q \rightarrow \G~\F~p$ (si en algún momento $q$ se satisface como invariante, entonces $p$ debe satisfacerse a menudo)
 \end{enumerate}
 
+En 2 y en 3, $q$ podría verse como la condición de habilitación de $p$.
 
 \subsection*{CTL}
-A diferencia de LTL, en la \textit{L\'ogica de \'arbol Computacional (en ingl\'es ``Computation tree logic'' (CTL))}  no existe en cada momento un \'unico camino a seguir. CTL es una l\'ogica de tiempo ramificado, en cada momento consideramos todos los posibles saltos hacia un estado posterior, y por lo tanto consideramos diferentes ejecuciones como posibles a realizarse en el futuro. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores $A$ (para todo camino) y $E$ (existe un camino). A su vez establece la regla de estar obligado a usar estos cuantificadores delante de cada conectivo temporal, definiendo as\'i f\'ormulas sobre estados y no sobre caminos como lo hacen la l\'ogica LTL. CTL, a diferencia de LTL, nos permite hablar sobre la existencia de al menos un camino. As\'i es que podemos especificar propiedades como  $E~X~p$ y $AG~EF~p$, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple $p$.
+A diferencia de LTL, la \textit{L\'ogica de \'arbol computacional (en ingl\'es ``Computation tree logic'' (CTL))} considero toda posible bifurcación de la ejecución. Por lo tanto, una fórmula CTL puede hacer referencia a cualquier ejecución que se desprenda de cualquier estado considerado. Adem\'as de los conectivos l\'ogicos y temporales introducidos en LTL, CTL implementa el uso de los cuantificadores $\A$ (para todo camino) y $\E$ (existe un camino). De hecho, CTL requiere que todo operador temporal esté cuantificado. Esto hace que las fórmulas sean interpretadas en estados en lugar de caminos y las cuantificaciones hacen referencia a la existencia o universalidad de los caminos partiendo de un estado. As\'i es que podemos especificar propiedades como  $\EX~p$ y $\AG~\EF~p$, las cuales no pueden ser especificadas en LTL ya que en ella no podemos hablar de la existencia de al menos un camino en el futuro en el cual se cumple $p$.
 
-Los conectivos ${\neg,\wedge,AX,AU,EU}$ comprenden un conjunto completo de conectivos para la l\'ogica CTL dado que los dem\'as pueden ser derivados a partir de ellos. Podemos decir que el siguiente es el significado intuitivo de estos conectivos:
+Los conectivos ${\neg,\wedge,\AX,\EX,\E\U}$ comprenden un conjunto completo de conectivos para la l\'ogica CTL dado que los dem\'as pueden ser derivados a partir de ellos. Podemos decir que el siguiente es el significado intuitivo de estos conectivos:
 
 \begin{itemize}
 \item $\neg$ es la negaci\'on booleana usual.
 \item $\wedge$ es la conjunci\'on booleana usual.
-\item $AX~q$ se cumple en un estado $s$ si para cualquier ejecuci\'on, $q$ vale en el estado que sucede a $s$.
-\item $EX~q$ se cumple en un estado $s$ si existe al menos una ejecuci\'on donde $q$ vale en el estado que sucede a $s$.
-\item $E[p~U~q]$ se cumple en un estado $s$ si existe al menos una ejecuci\'on $s_1s_2...s_n...$ con $s_1 = s$ donde $q$ vale en $s_n$ y $p$ vale para todo estado en $s_1...s_{n-1}$.
+\item $\AX~\phi$ se cumple en un estado $s$ si para cualquier ejecuci\'on, $\phi$ se satisface en todo estado sucesor de $s$.
+\item $\EX~\phi $ se cumple en un estado $s$ si existe al menos una ejecuci\'on con un estado sucesor a $s$ y donde $\phi$ se satisface.
+\item $\E[\phi~\U~\psi]$ se cumple en un estado $s$ si existe al menos una ejecuci\'on $s_1s_2...s_n...$ con $s_1 = s$ con un estado $s_k$ donde $\psi$ se hace verdadero y $\phi$ se satisface en cada estado $s_i, 1 \leq i \leq n-1$.
 \end{itemize}
 
 A continuaci\'on, utilizando estructuras de Kripke, definimos la sem\'antica formal de CTL por inducci\'on estructural sobre una f\'ormula $\phi$. Sea la estructura de Kripke $M =(S,S_0,R,L)$ sobre $AP$, sea $\phi$ una f\'ormula CTL bien formada sobre $AP$, y sean $s \in S$ y $p \in AP$:\\
@@ -490,11 +515,11 @@ A continuaci\'on, utilizando estructuras de Kripke, definimos la sem\'antica for
 % TODO arreglar esta tabla para que no quede fuera del margen derecho
 \begin{tabularx}{\textwidth}{@{\textbullet}lcX}
 $~M,s \models p$ & $\leftrightarrow$ & $p \in L(s)$\\
-$~M,s \models \neg\phi $ & $\leftrightarrow$ & $ \text{no } M,s \models \phi$\\
+$~M,s \models \neg\phi $ & $\leftrightarrow$ & $M,s \not\models \phi$\\
 $~M,s \models \phi_0 \wedge \phi_1 $ & $\leftrightarrow$ & $ M,s \models \phi_0 \text{ y } M,s \models \phi_1$\\
-$~M,s \models AX\phi $ & $\leftrightarrow$ & $ \forall (s,s') \in R,~ M,s' \models \phi$\\
-$~M,s \models EX\phi $ & $\leftrightarrow$ & $ \exists (s,s') \in R,~M \text{ tal que } s' \models \phi$\\
-$~M,s \models E(\phi_0 U \phi_1) $ & $\leftrightarrow$ & $\exists$ una ejecuci\'on $s_1s_2s_3...s_n...$ definida por $R$ tal que $s_0 = s,~M,s_n \models \phi_1,$ y $\forall 0<i<n~ M, s_i \models \phi_0$\\
+$~M,s \models \AX\phi $ & $\leftrightarrow$ & $ \forall (s,s') \in R,~ M,s' \models \phi$\\
+$~M,s \models \EX\phi $ & $\leftrightarrow$ & $ \exists (s,s') \in R$, tal que $M,s' \models \phi$\\
+$~M,s \models \E(\phi_0 \U \phi_1) $ & $\leftrightarrow$ & $\exists$ una ejecuci\'on $\omega$ definida por $R$ tal que $\omega[0] = s$ y $\exists n \geq 0 ~M,\omega[n] \models \phi_1,$ y $\forall 0<i<n~ M, \omega[i] \models \phi_0$\\
 \end{tabularx}
 
 
@@ -506,11 +531,12 @@ $~M,s \models E(\phi_0 U \phi_1) $ & $\leftrightarrow$ & $\exists$ una ejecuci\'
 
 
 \section{Caracter\'isticas del Model Checking}
-Existen diferentes m\'etodos para la verificaci\'on de sistemas complejos, entre ellos podemos destacar como principales la simulaci\'on, el testing, la verificaci\'on deductiva, y el model checking \cite{Clarke}. Tanto la simulaci\'on como el testing comprenden realizar experimentos antes de desplegar el sistema en el campo. Mientras que en el caso de la \textit{simulaci\'on} se trabaja sobre una abstracci\'on o modelo del sistema, en el \textit{testing} se trabaja sobre el producto real. En cuanto a costo-eficiencia, estos m\'etodos pueden ser ventajosos para detectar gran cantidad de errores. Sin embargo, revisar todas las posibles interacciones y potenciales errores usando simulaci\'on y testing es raramente posible.\\
 
-El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axiomas y reglas para probar la correctitud del sistema. Este m\'etodo si bien posee la ventaja de poder probar correctitud sobre sistemas de estados infinitos no es muy utilizado fuera de casos cr\'iticos. Esto se debe a que requiere de gran cantidad de tiempo y de la conducci\'on por parte de expertos en el campo del razonamiento l\'ogico.\\
+Existen diferentes m\'etodos para la verificaci\'on de sistemas complejos, entre ellos podemos destacar como principales la simulaci\'on, el testing, la verificaci\'on deductiva, y el model checking \cite{Clarke}. Tanto la simulaci\'on como el testing comprenden realizar experimentos antes de desplegar el sistema en el campo. Mientras que en el caso de la \textit{simulaci\'on} se trabaja sobre una abstracci\'on o modelo del sistema, en el \textit{testing} se trabaja sobre el producto real. En cuanto a costo-eficiencia, estos m\'etodos pueden ser ventajosos para detectar gran cantidad de errores. Sin embargo, revisar todas las posibles interacciones y potenciales errores usando simulaci\'on y testing es prácticamente imposible.
 
-\textit{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
+El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axiomas y reglas para probar la corrección del sistema. Este m\'etodo si bien posee la ventaja de poder probar corrección sobre sistemas de estados infinitos no es muy utilizado fuera de casos cr\'iticos. Esto se debe a que requiere de gran cantidad de tiempo y de la conducci\'on por parte de expertos en el campo del razonamiento l\'ogico.
+
+El \textit{Model checking} es un m\'etodo autom\'atico para la verificaci\'on de propiedades sobres sistemas concurrentes finitos. Trabaja sobre un modelo del sistema y explora exhaustivamente todos sus posibles estados con el fin de verificar si una propiedad especificada sobre el mismo es verdadera o no. Presenta ciertas ventajas sobre los m\'etodos anteriormente mencionados:
 
 \begin{itemize}
 \item Detecta errores en etapas tempranas de dise\~no, evitando tener que replantear todo al encontrar estos errores en etapas posteriores.
@@ -522,9 +548,9 @@ El t\'ermino \textit{verificaci\'on deductiva} normalmente refiere al uso de axi
 \item Ofrece clara evidencia del problema en el caso de encontrar que la propiedad deseada sobre el sistema no se cumpla.
 \end{itemize}
 
-Sin embargo el \textit{model checking} sufre del problema de explosi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe preservar la no satisfactibilidad de las propiedades a verificar, en el caso que esta exista. Como vemos este proceso de abstracci\'on y refinamiento requiere muchas veces de personal experto, y es una de las barreras a superar si se desea lograr que el model checking se convierta enteramente en una herramienta \text{``push-button''}.\\
+Sin embargo el \textit{model checking} sufre del problema de la explosi\'on de estados. Esto implica que f\'acilmente se llegue a sistemas en los que la cantidad de estados es tan grande que supera los l\'imites de memoria f\'isica del hardware sobre el que corre el programa de model checking. Muchos algoritmos y optimizaciones sobre los model checkers han ayudado a combatir este efecto, pero sin embargo el mismo persiste. Otra soluci\'on a este problema es llevar el modelado a una mayor abstracci\'on con el fin de disminuir la cantidad de estados finales. Al hacer esto debemos tomar en cuenta que la abstracci\'on debe asegurar que las propiedades que no se satisfacen en el sistema concreto, tampoco se satisfagan en el modelo abstracto.
 
-Christel Baier y Joost-Pieter Katoen \cite{Baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema:
+Christel Baier y Joost-Pieter Katoen \cite{Baier} identifican las siguientes tareas como pasos para realizar el \textit{proceso de model checking} sobre el dise\~no de un sistema (ver también la figura \ref{procMC}):
 
 \begin{enumerate}
 \item Fase de modelado:
@@ -549,22 +575,22 @@ Ejecutar el model cheker para verificar la validez de una propiedad sobre el sis
 \end{enumerate}
 
 
-\begin{figure}[H]
+\begin{figure}[htp]
   \centering
     \includegraphics{Imagenes/procesoMC4.pdf}
   \caption{El proceso de Model Checking}
   \label{procMC}
 \end{figure}
-~\\
 
 
-En la fase de modelado podemos distinguir entonces por un lado el modelado del sistema y por otro la especificaci\'on de las propiedades. El modelado del sistema si bien algunas veces suele ser una simple compilaci\'on al lenguaje de modelado espec\'ifico de la herramienta de model checkin, otras veces puede requerir depuraci\'on del modelo para eliminar caracter\'isticas innecesarias que puedan ocasionar una explosi\'on de estados a tal grado de agotarse la memoria. Por otro lado podemos destacar como asunto importante en la etapa de especificaci\'on de propiedades el hecho de lograr completitud sobre las caracter\'isticas deseadas del sistema. Es decir que es esencial en esta etapa lograr expresar en las propiedades el conjunto completo de caracter\'isticas que se desea que el sistema posea.\\
+En la fase de modelado podemos distinguir entonces por un lado el modelado del sistema y por otro la especificaci\'on de las propiedades. El modelado del sistema, si bien algunas veces suele ser una simple compilaci\'on al lenguaje de modelado espec\'ifico de la herramienta de model checking, otras veces puede requerir depuraci\'on del modelo para eliminar caracter\'isticas innecesarias que puedan ocasionar una explosi\'on de estados a tal grado de agotarse la memoria. Por otro lado podemos destacar como asunto importante en la etapa de especificaci\'on de propiedades el hecho de lograr completitud sobre las caracter\'isticas deseadas del sistema. Es decir que es esencial en esta etapa lograr expresar en las propiedades el conjunto completo de caracter\'isticas que se desea que el sistema posea.
 
-La fase de ejecuci\'on usualmente es autom\'atica y solo consta de proveer al model checker con el modelado del sistema y la especificaci\'on de una propiedad para que el mismo decida sobre su validez.\\
+La fase de ejecuci\'on usualmente es autom\'atica y solo consta de proveer al model checker con el modelado del sistema y la especificaci\'on de una propiedad para que el mismo decida sobre su validez.
 
-Por \'ultimo, es en la fase de an\'alisis donde podemos decidir ya sobre el resultado de la verificaci\'on. Se pueden presentar varios escenarios: por un lado puede que el proceso de verificaci\'on no se haya completado debido al agotamiento de memoria, en tal caso se deber\'a recurrir al refinamiento del sistema para conseguir disminuir la explosi\'on de estados, o bien se deber\'a usar un equipo de mayor potencial en el caso de que ya no se logre llegar a un refinamiento significativo. Puede ser el caso de que todas las propiedades hayan sido validadas por el model checker, lo que indicar\'ia que el modelo del sistema cumple con las caracter\'isticas expresadas en la especificaci\'on de las propiedades. Por \'ultimo puede suceder que una o m\'as propiedades hayan sido refutadas. En este usualmente un contraejemplo otorgado por la herramienta nos permite identificar el problema, el cual puede haber sido causado por una mal modelado del sistema, una falla en la especificaci\'on, o simplemente porque en efecto el sistema no cumple con la caracter\'istica deseada.\\
+Por \'ultimo, es en la fase de an\'alisis donde podemos decidir ya sobre el resultado de la verificaci\'on. Se pueden presentar varios escenarios: por un lado puede que el proceso de verificaci\'on no se haya completado debido al agotamiento de memoria, en cuyo caso se deber\'a recurrir al refinamiento del sistema para conseguir disminuir la explosi\'on de estados%, o bien se deber\'a usar un equipo de mayor potencial en el caso de que ya no se logre llegar a un refinamiento significativo. 
+Puede ser el caso de que todas las propiedades hayan sido validadas por el model checker, lo que indicar\'ia que el modelo del sistema cumple con las caracter\'isticas expresadas en la especificaci\'on de las propiedades. Por \'ultimo puede suceder que una o m\'as propiedades hayan sido refutadas. En este caso, la herramienta provee un contraejemplo que nos permite identificar el problema, el cual puede haber sido causado por una mal modelado del sistema, una falla en la especificaci\'on, o simplemente porque en efecto el sistema no cumple con la caracter\'istica deseada.\\
 
-Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuertemente de la correctitud en el modelado del sistema y la especificaci\'on de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto tambi\'en puede ser causa de una especificaci\'on incompleta o err\'onea de las caracter\'isticas a verificar.\\
+Es importante tomar en cuenta que el \'exito de la verificaci\'on depende fuertemente de la corrección en el modelado del sistema y la especificaci\'on de las propiedades. El sistema puede tener errores pero haber sido modelado evitando los mismos, lo cual puede llevar a que el model checker entregue falsos positivos. Este efecto tambi\'en puede ser causa de una especificaci\'on incompleta o err\'onea de las caracter\'isticas a verificar.\\
 
 \section{Discusi\'on}
 Veremos m\'as adelante, al momento de presentar las sintaxis de NuSMV y Falluto2.0, como se pone en pr\'actica la teor\'ia presentada en este cap\'itulo. Podremos distinguir por un lado que el lenguaje presentado por Falluto2.0 para modelar los sistemas se acerca en gran medida a la idea de LTS, mientras que por otro lado el de NuSMV ser\'a m\'as cercano a la representaci\'on de estructuras de Kripke. Esto nos llevar\'a a que la teor\'ia de traducci\'on de LTS a f\'ormulas de Kripke presentada en la secci\'on \ref{LTSaK} conforme la base de la sem\'antica de compilaci\'on de Falluto2.0.\\
@@ -581,17 +607,17 @@ Este cap\'itulo nos deja entrever as\'i tambi\'en el gran control que tendremos 
 \chapter{NuSMV}
 \section{El model checker NuSMV}
 
-NuSMV es un model chcker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.
+NuSMV es un model checker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.
 
-NuSMV nos permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre el modelado de sistemas finitos concurrentes, bajo condiciones de fairness.\\
+NuSMV permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre modelados finitos de sistemas concurrentes, bajo condiciones de fairness.
 
 Para este trabajo usamos como back-end el model checker \textit{NuSMV2} \cite{NuSMV2}, el cual integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
 
 
 \section{Lenguaje de modelado de NuSMV}
-Si bien el lenguaje de modelado de NuSMV es amplio y nos presenta diferentes posibilidades para la definici\'on de la maquina de estados, presentaremos en esta secci\'on solo aquella porci\'on que nos servir\'a m\'as adelante para compilar los modelos descriptos en el lenguaje de Falluto2.0.\\
+Si bien el lenguaje de modelado de NuSMV es amplio y ofrece diferentes posibilidades para la definici\'on de la maquina de estados, presentaremos en esta secci\'on solo aquella porci\'on que nos servir\'a m\'as adelante para compilar los modelos descriptos en el lenguaje de Falluto2.0.
 
-Cada proceso del sistema se describe en NuSMV como un m\'odulo, introducido por la palabra \texttt{MODULE}. Al menos uno de estos m\'odulos debe llamarse \textit{main}, y ser\'a el m\'odulo evaluado por el interprete. Podemos ver cada proceso como una maquina de estados independiente y al conjunto de estos y sus interacciones como la maquina de estados que representa al sistema completo. Veamos entonces como definir la maquina de estado de cada proceso:\\
+Cada proceso del sistema se describe en NuSMV como un m\'odulo, introducido por la palabra \texttt{MODULE}. Al menos uno de estos m\'odulos debe llamarse \textit{main}, y ser\'a el m\'odulo evaluado por el interprete. Podemos ver cada proceso como una maquina de estados independiente y al conjunto de estos y sus interacciones como la maquina de estados que representa al sistema completo. Veamos entonces como definir la maquina de estado de cada proceso:
 
 \subsection*{Variables}
 
@@ -604,11 +630,11 @@ MODULE main
         var3 : {a1, something, 42};
         var4 : array -1..2 of boolean;
 \end{verbatim}
-Vemos que en el ejemplo la variable \texttt{var1} es de tipo booleano (su dominio est\'a formado por los valores \texttt{TRUE} y \texttt{FALSE}) , \texttt{var2} es de tipo entero y su dominio se extiende desde el numero -2 al 3 y \texttt{var3} es de tipo enumerado y su dominio lo forman las 3 palabras encerradas en llaves. Por \'ultimo \texttt{var4} es un vector de 4 booleanos indexado desde el -1 al 2. Recordemos que las valuaciones sobre las variables representan el estado del proceso y una valuaci\'on sobre el conjunto de todas las variables de cada proceso representa el estado del sistema completo.\\
+Vemos que en el ejemplo la variable \texttt{var1} es de tipo booleano (su dominio est\'a formado por los valores \texttt{TRUE} y \texttt{FALSE}) , \texttt{var2} es de tipo entero y su dominio se extiende desde el numero -2 al 3 y \texttt{var3} es de tipo enumerado y su dominio lo forman las 3 palabras encerradas en llaves. Por \'ultimo \texttt{var4} es un vector de cuatro booleanos indexado sobre el rango -1 .. 2. Notemos que las valuaciones sobre las variables representan el estado del proceso y una valuaci\'on sobre el conjunto de todas las variables de cada proceso representa el estado del sistema completo, tal como se remarcó en la teoría presentada en el capítulo \ref{CapMC}.
 
 \subsection*{Estado inicial}
 
-Para definir el conjunto de estados inicial de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \texttt{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{boolBDD} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
+Para definir el conjunto de estados iniciales de cada proceso introducimos una nueva secci\'on dentro del m\'odulo usando la palabra clave \texttt{INIT}, y hacemos uso de una f\'ormula proposicional sobre las variables del m\'odulo para restringir el subconjunto de estados que deseamos sea el inicial. Recordemos que seg\'un lo visto en la secci\'on \ref{boolBDD} para cualquier conjunto de estados podemos definir una f\'ormula tal que solo ellos la cumplan.
 \begin{verbatim}
 MODULE auto
     VAR
@@ -617,11 +643,11 @@ MODULE auto
     INIT
         estado = apagado & nafta = 3
 \end{verbatim}
-~\\
+
 
 \subsection*{Transiciones}
 
-La palabra clave \texttt{TRANS} en NuSMV nos permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \texttt{x}, tenemos que \texttt{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una formula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on aleatoria por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
+La palabra clave \texttt{TRANS} en NuSMV permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \texttt{x}, tenemos que \texttt{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una formula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on aleatoria por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
 
 \begin{verbatim}
 MODULE auto
@@ -630,7 +656,6 @@ MODULE auto
         nafta: 0..3
     INIT
         estado = apagado & nafta = 3
-
     TRANS
         ( estado = encendido & nafta <= 0 ) 
         -> 
@@ -638,23 +663,23 @@ MODULE auto
 
 \end{verbatim}
 
-Notemos que en el ejemplo solo definimos condiciones para el caso en que \texttt{estado = encendido} y \texttt{nafta <= 0}, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da \texttt{estado = apagado} o \texttt{nafta > 0} el no-determinismo maneja la elecci\'on de un estado posterior.\\\\
+Notemos que en el ejemplo solo definimos condiciones para el caso en que \texttt{estado = encendido} y \texttt{nafta <= 0}, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da \texttt{estado = apagado} o \texttt{nafta > 0} el no-determinismo maneja la elecci\'on de un estado posterior.
 
 
 \subsection*{Restricciones y fairness}
 
-NuSMV nos permite establecer restricciones de fairness sobre la ejecuci\'on de nuestro sistema. Esto nos permite revisar nuestro sistema bajo ciertos supuestos con respecto a su ejecuci\'on. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
+NuSMV permite establecer restricciones de fairness sobre la ejecuci\'on de nuestro sistema. Esto permite revisar nuestro sistema bajo ciertos supuestos con respecto a su ejecuci\'on. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
 \begin{itemize}
 
-\item \textit{Fairness incondicional} Dada una f\'ormula \texttt{q} sobre el estado del sistema, escribimos \texttt{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on \texttt{q} se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla \texttt{G F q}.
+\item \textit{Fairness incondicional} Dada una f\'ormula $q$ sobre el estado del sistema, escribimos \texttt{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on $q$ se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla $\G \F q$.
 
-\item \textit{Strong Fairness} Dadas dos f\'ormulas \texttt{p} y \texttt{q} sobre el estado del sistema, escribimos \texttt{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si \texttt{p} se cumple siempre a menudo entonces \texttt{q} se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla \texttt{G F p $\rightarrow$ G F q}.
+\item \textit{Strong Fairness} Dadas dos f\'ormulas $p$ y $q$ sobre el estado del sistema, escribimos \texttt{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si $p$ se cumple siempre a menudo entonces $q$ se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla $\G \F p \rightarrow \G \F q$.
 
 \end{itemize}
 
 \subsection*{Propiedades y verificaci\'on}
 
-NuSMV nos permite verificar tanto propiedades LTL como CTL sobre nuestro sistema. Para cada una de ellas tenemos su respectiva palabra clave y la precedemos con la f\'ormula que exprese la propiedad a verificar. La verificaci\'on de estas propiedades se realizara bajo las condiciones que establecen las restricciones de fairness definidas. A continuaci\'on mostramos un ejemplo que ilustra la especificaci\'on de las propiedades:
+NuSMV permite verificar tanto propiedades LTL como CTL sobre nuestro sistema. Para cada una de ellas tenemos su respectiva palabra clave y la precedemos con la f\'ormula que exprese la propiedad a verificar. La verificaci\'on de estas propiedades se realizara bajo las condiciones que establecen las restricciones de fairness definidas. A continuaci\'on mostramos un ejemplo que ilustra la especificaci\'on de las propiedades:
 
 \begin{verbatim}
 MODULE auto
@@ -663,22 +688,18 @@ MODULE auto
         nafta: 0..3
     INIT
         estado = apagado & nafta = 3
-
     TRANS
         ( estado = encendido & nafta <= 0 ) 
         -> 
         ( next(estado) = apagado )
 
-
 FAIRNESS nafta > 0
 
 LTLSPEC F nafta = 0
-
 CTLSPEC EG estado = apagado
-
 \end{verbatim}
 
-En el ejemplo de arriba podemos encontramos la especificaci\'on de una propiedad LTL introducida por la palabra clave \texttt{LTLSPEC} y una CTL introducida por la palabra clave \texttt{CTLSPEC}. Ambas ser\'an verificadas sobre el sistema modelado pero bajo la condici\'on de fairness dada por \texttt{FAIRNESS F nafta = 0}.
+En el ejemplo de arriba podemos encontrar la especificaci\'on de una propiedad LTL introducida por la palabra clave \texttt{LTLSPEC} y una CTL introducida por la palabra clave \texttt{CTLSPEC}. Ambas ser\'an verificadas sobre el sistema modelado pero bajo la condici\'on de fairness dada por \texttt{FAIRNESS F nafta = 0}.
 
 \section*{Discusi\'on}
 
@@ -690,10 +711,10 @@ Si bien el lenguaje de NuSMV presenta una amplia variedad de posibilidades para 
 \chapter{La sintaxis de Falluto2.0}
 \label{sintaxisDeFalluto}
 
-En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar sobre el sistema. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars.
+En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars.
 
 \section{Lenguaje de modelado de comportamiento operacional}
-Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{proctypes} de Falluto2.0. Cada \textit{proctype} comprende en su totalidad el funcionamiento de una clase de proceso, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de cada \textit{proctype} esta delimitada por las palabras claves \texttt{PROCTYPE} y \texttt{ENDPROCTYPE}, y en ella podemos distinguir los siguientes elementos:
+Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{proctypes} de Falluto2.0. Cada \textit{proctype} define el funcionamiento interno de una clase de proceso en su totalidad, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de cada \textit{proctype} esta delimitada por las palabras claves \texttt{PROCTYPE} y \texttt{ENDPROCTYPE}, y en ella podemos distinguir los siguientes elementos:
 \begin{itemize}
 \item El encabezado.
 \item La declaraci\'on de variables de estado.
@@ -701,9 +722,10 @@ Para definir el comportamiento de cada proceso involucrado en el funcionamiento 
 \item La secci\'on de inicializaci\'on.
 \item La secci\'on de declaraci\'on de transiciones normales.
 \end{itemize} 
+
 A continuaci\'on buscaremos comprender el uso de cada una de estas secciones comenzando por el encabezado y mirando luego el cuerpo del proctype, el cual esta conformado por el resto de las secciones enumeradas arriba.\\
 
-Formando el encabezado del \textit{proctype} encontraremos, despu\'es de la palabra clave introductoria \texttt{PROCTYPE}, el nombre que denotar\'a a cada clase de procesos. A continuaci\'on una lista de nombres especifica si estos procesos poseer\'an o no variables de contexto, y acciones de sincronizaci\'on. A modo de ejemplo miremos el encabezado que sigue:
+Formando el \textit{encabezado} del proctype encontraremos, despu\'es de la palabra clave introductoria \texttt{PROCTYPE}, el nombre que denotar\'a a cada clase de procesos. A continuaci\'on una lista de nombres especifica si estos procesos poseer\'an o no variables de contexto, y acciones de sincronizaci\'on. A modo de ejemplo miremos el encabezado que sigue:
 
 \begin{verbatim}
 PROCTYPE miProceso (ctxVar1, ctxVar2 ; sinchroAct1, sinchroAct2)
@@ -712,14 +734,14 @@ PROCTYPE miProceso (ctxVar1, ctxVar2 ; sinchroAct1, sinchroAct2)
 En este encabezado estamos indicando que los procesos de tipo \texttt{miProceso} poseer\'an dos variables de contexto (\texttt{ctxVar1} y \texttt{ctxVar2}) y dos acciones de sincronizaci\'on (\texttt{sinchroAct1} y \texttt{sinchroAct2}).\\
 
 
-En el cuerpo del \textit{proctype} podemos distinguir tres secciones que definen su comportamiento operacional. Las describimos a continuaci\'on:
+En el \textit{cuerpo} del proctype podemos distinguir tres secciones que definen su comportamiento operacional. Las describimos a continuaci\'on:
 \begin{enumerate}
-\item \textit{Declaraci\'on de variables de estado.} Introducido por la palabra clave \texttt{VAR}, esta secci\'on se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Podemos entonces declarar variables de tipo:
+\item \textit{Declaraci\'on de variables de estado.} Introducido por la palabra clave \texttt{VAR}, esta secci\'on se utiliza para declarar las variables que representan el estado del proceso. Semejante a la sintaxis de NuSMV, podemos declarar tres tipos de variables, sumado a la posibilidad de poder declarar vectores de variables de un tipo determinado. Los siguientes tipos de variables estan disponibles:
 \begin{enumerate}
-\item \textit{Booleano.} Corresponden a aquellas variables que solo toman los valores \textit{TRUE} y \textit{FALSE}. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
+\item \textit{Booleano.} Corresponden a aquellas variables que solo toman los valores \texttt{TRUE} y \texttt{FALSE}. Las declaramos con la siguiente sintaxis: \begin{verbatim}nombre_de_variable : bool\end{verbatim}
 \item \textit{Entero.} A las variables de tipo entero las declaramos d\'andoles un nombre y acompa\~n\'andolas con la especificaci\'on del rango entero sobre el cual pueden tomar valor. Por ejemplo una variable declarada como sigue, solo podr\'a tomar valores enteros entre -5 y 7: \begin{verbatim}nombre_de_variable : -5..7\end{verbatim}
-\item \textit{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja al ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
-\item \textit{Vector.} Podemos declarar variables como vectores de alguno de los tipos anteriormente mencionados. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se debe indicar en la declaraci\'on de los vectores el rango de indexaci\'on que se desea para ellos. De esta manera no solo se define el tama\~no del vector, sino que tambi\'en se indica qu\'e \'indices ser\'an permitidos usar para acceder a sus elementos. El ejemplo que sigue es un vector de subtipo enumerado, y se indexa desde el -1 al 2: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
+\item \textit{Enumerado.} Corresponden a las variables de tipo enumerado. Los valores que toman estas variables son definidos como un conjunto de palabras elegidas por el usuario. La sintaxis declarativa de este tipo de variables se asemeja a la del ejemplo que sigue: \begin{verbatim}nombre_de_variable : {a, casa, 34, a2}\end{verbatim}
+\item \textit{Vector.} Podemos declarar variables como vectores de alguno de los tipos anteriormente mencionados. De este modo podemos declarar vectores de booleanos, o vectores de enteros o de tipo enumerado. Se debe indicar en la declaraci\'on de los vectores el rango de indexaci\'on que se desea para ellos. De esta manera no solo se define el tama\~no del vector, sino que tambi\'en se indica qu\'e \'indices ser\'an permitidos usar para acceder a sus elementos. El ejemplo que sigue es un vector de valores de tipo enumerado, se indexa sobre el rango entero -1 .. 2, y su dominio pertenece al conjunto enumerado \texttt{\{a,b,c\}}: \begin{verbatim}nombre_de_variable : array -1..2 of {a,b,c}\end{verbatim}
 \end{enumerate}
 
 \item \textit{Declaraci\'on de estados iniciales.}
@@ -748,7 +770,6 @@ nombre_de_instancia.nombre_de_variable
 
 En cuanto a los par\'ametros de acciones de sincronizaci\'on, basta con pasar un nombre a elecci\'on al par\'ametro. Todas las acciones con el mismo nombre a nivel de instanciaci\'on, ser\'an sincronizadas entre si. Es decir que si quiero sincronizar acciones entre distintas instancias debo tener presente estas acciones parametrizadas en el proctype, y debo otorgarles un mismo nombre en la instanciaci\'on de los procesos involucrados. Observemos un ejemplo:
 \begin{verbatim}
-
 PROCTYPE contador ( ; contar )
     VAR
         cuenta:0..5
@@ -762,15 +783,13 @@ INSTANCE contador1 = contardor(contar1)
 INSTANCE contador2 = contardor(contar2)
 INSTANCE contador3 = contardor(contar2)
 INSTANCE contador4 = contardor(contar1)
-
 \end{verbatim}
 
 En este ejemplo hemos instanciado cuatro procesos de tipo \textit{contador}. Si miramos la declaraci\'on del proctype \texttt{contador} veremos que posee un acci\'on de sincronizaci\'on denominada \texttt{contar}. En el momento de instanciaci\'on hemos logrado entonces que el proceso \texttt{contador1} sincronice esta acci\'on con \texttt{contador4} otorg\'andoles a ambos el nombre de sincronizaci\'on \texttt{contar1}, mientras que \texttt{contador2} sincronizar\'a con \texttt{contador3} a partir del nombre de sincronizaci\'on \texttt{contar2}.
 
-
 \section{Lenguaje de descripci\'on de fallas}
-En Falluto2.0 podemos inyectar f\'acilmente fallas en los procesos definidos. Las fallas forman parte de cada proceso y por lo tanto son declaradas dentro de los proctypes en una subsecci\'on introducida por la palabra clave \texttt{FAULT}. La sintaxis general para la inyecci\'on de una falla es la siguiente: \begin{verbatim}nombre : condicion_habilitacion => postcondicion is tipo\end{verbatim}
-Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una transici\'on com\'un. Esto se debe a que se toma en cuenta la falla como una transici\'on m\'as, aunque no deseada, del sistema. El nombre le otorga a la falla una identificaci\'on \'unica dentro del proctype. La condici\'on de habilitaci\'on es nuevamente una f\'ormula booleana sobre el estado actual del proceso (y el sistema global si tomamos en cuenta el uso de las variables de contexto). La postcondici\'on establece condiciones a cumplirse en el estado de llegada luego de la transici\'on de falla. De nuevo, se introduce aqu\'i una lista de asignaciones a las variables de estado a ser cumplidas por el estado de llegada. Las fallas pueden pertenecer a tres tipos en particular: \textit{transient, stop, byzantine}. Podemos distinguir dos clases de fallas seg\'un la prolongaci\'on de su actividad. Las fallas transient pertenecen a una clase de fallas en donde el efecto es instantaneo, mientras que las fallas de tipo stop y byzantine pertenecen a una clase de fallas de efecto permanente. A continuaci\'on daremos la sintaxis para declarar cada uno de estos tipos para las fallas:\\
+En Falluto2.0 podemos inyectar f\'acilmente fallas en los procesos modelados. Las fallas forman parte de cada proceso y por lo tanto son declaradas dentro de los proctypes en una subsecci\'on introducida por la palabra clave \texttt{FAULT}. La sintaxis general para la declaraci\'on de una falla es la siguiente: \begin{verbatim}nombre : condicion_habilitacion => postcondicion is tipo\end{verbatim}
+Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una transici\'on com\'un. Esto se debe a que se toma en cuenta la falla como una transici\'on m\'as, aunque no deseada, del sistema. El nombre le otorga a la falla una identificaci\'on \'unica dentro del proctype. La condici\'on de habilitaci\'on es nuevamente una f\'ormula booleana sobre el estado actual del proceso (y el sistema global si tomamos en cuenta el uso de las variables de contexto). La postcondici\'on establece condiciones a cumplirse en el estado de llegada luego de la transici\'on de falla. De nuevo, se introduce aqu\'i una lista de asignaciones a las variables de estado a ser cumplidas por el estado de llegada. Las fallas pueden pertenecer a tres tipos en particular: \textit{transient, stop, byzantine}. Podemos distinguir dos clases de fallas seg\'un la prolongaci\'on de su actividad. Las fallas transient pertenecen a una clase de fallas en donde el efecto es instantaneo, mientras que las fallas de tipo stop y byzantine pertenecen a una clase de fallas de efecto permanente. A continuaci\'on daremos la sintaxis para declarar cada uno de estos tipos para las fallas:
 
 \begin{itemize}
 \item \textit{Tipo Transient.} Simplemente usamos la palabra clave \texttt{TRANSIENT} para declarar que la falla pertenece a este tipo. Notar que los efectos de estas fallas se restringen a la postcondici\'on que se haya definido en la declaraci\'on de la misma. Ejemplo: \begin{verbatim}falla1 : TRUE => x' = 0 is TRANSIENT\end{verbatim}
@@ -781,11 +800,12 @@ Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una tran
 \section{Lenguaje de especificaci\'on de propiedades y restricciones}
 
 Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificaci\'on, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificaci\'on LTL y CTL. Se propone tambi\'en el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
-Para la especificaci\'on de una propiedad LTL usamos la palabra clave \texttt{LTLSPEC} y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como \texttt{G}(Globaly), \texttt{F}(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave \texttt{CTLSPEC} precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.\\
+Para la especificaci\'on de una propiedad LTL usamos la palabra clave \texttt{LTLSPEC} y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como $\G$(Globaly), $\F$(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave \texttt{CTLSPEC} precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las formulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.
+
 Falluto2.0 posee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
 \begin{itemize}
-\item \textit{Normal Behaiviour} Usamos esta propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave \texttt{NORMAL\_BEHAVIOUR} y la precedemos por una f\'ormula LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde $q$ es una f\'ormula expresada en LTL o CTL.
-\item \textit{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad $q$ se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre $fault1$, $fault2$, ..., $faultn$ en la ejecuci\'on del sistema. En este caso la propiedad $q$ solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad $q$ se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
+\item \textit{Normal Behaiviour} Usamos esta meta-propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave \texttt{NORMAL\_BEHAVIOUR} y la precedemos por una f\'ormula en el formalismo LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde \texttt{q} es una f\'ormula expresada en los formalismos LTL o CTL.
+\item \textit{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad \texttt{q} se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre \texttt{fault1, fault2, ..., faultn} en la ejecuci\'on del sistema. En este caso la propiedad \texttt{q} solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad \texttt{q} se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
 \item \textit{Deadlock check} La utilizaci\'on de la palabra clave \texttt{CHECK\_DEADLOCK} dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, ordena la verificaci\'on de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en alg\'un momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
 \end{itemize}
 
@@ -808,7 +828,7 @@ Vale aclarar que \texttt{just(x)}, donde \texttt{x} es una acci\'on cualquiera, 
 
 
 \section{Discusi\'on}
-Hemos presentado un lenguaje que nos permite describir de manera intuitiva el comportamiendo del sistema. Es f\'acil distinguir como nuestro lenguaje describe de manera directa las maquinas de estado utilizando conceptos conocidos en formalismos como el LTS y estructuras de Kripke, revisados ambos en el cap\'itulo \ref{CapMC} de este trabajo. Vemos como por ejemplo hemos tomado las etiquetas del formalismo LTS para dar nombre a nuestras transiciones. Vemos tambi\'en como hemos distinguido entre los valores de las variables de estado en el estado actual y en el estado que sigue, tal como se plantea en las transiciones de una estructura de Kripke. En la secci\'on \textit{INIT} de nuestros \textit{proctypes} podemos ver claramente la especificaci\'on de los estados iniciales de las maquinas de estados que representan nuestros procesos.\\
+Hemos presentado un lenguaje que nos permite describir de manera intuitiva el comportamiendo del sistema. Es f\'acil distinguir como nuestro lenguaje representa de manera directa las maquinas de estado utilizando conceptos conocidos en formalismos como el LTS y estructuras de Kripke, revisados ambos en el cap\'itulo \ref{CapMC} de este trabajo. Vemos como por ejemplo hemos tomado las etiquetas del formalismo LTS para dar nombre a nuestras transiciones. Vemos tambi\'en como hemos distinguido entre los valores de las variables de estado en el estado actual y en el estado que sigue, tal como se plantea en las transiciones de una estructura de Kripke. En la secci\'on \textit{INIT} de nuestros \textit{proctypes} podemos ver claramente la especificaci\'on de los estados iniciales de las maquinas de estados que representan nuestros procesos.\\
 
 Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje de modelado de fallas. Esta caracter\'istica permite una inyecci\'on limpia de las mismas en el funcionamiento del sistema, dejando que nuestra herramienta se encargue del aspecto funcional de aquellas. De esta manera evitamos en gran medida la aparici\'on de errores debido a una mala inyecci\'on de fallas por parte del usuario, como as\'i tambi\'en mantenemos control sobre la explosi\'on de estados que puede acarrear el uso de variables innecesarias en lo que podr\'ia ser una inyecci\'on de fallas ineficiente. Evitamos por \'ultimo gran cantidad de trabajo al usuario, eliminando la aparici\'on de c\'odigo correspondiente a la ocurrencia de fallas en las dem\'as secciones del modelado del sistema, y permitiendo que este se concentre en otros aspectos de la funcionalidad. De este modo el usuario podr\'a una vez declaradas r\'apidamente las fallas concentrarse por ejemplo en los mecan\'ismos de tolerancia a las mismas sin involucrarse ni prestar mayor atenci\'on a la funcionalidad de las fallas.
 
@@ -917,13 +937,13 @@ donde $T_{N_proc}$ es el conjunto de transiciones normales del proceso y $habili
 
 
 \section{Sem\'antica de propiedades}
-Como vimos al finalizar la el cap\'itulo \ref{sintaxisDeFalluto}, Falluto2.0 nos permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on $$just(accion)$$. Al momento de verificar, esta construcci\'on nos permite expresar la ocurrencia de \textit{accion} como acci\'on para llegar al estado actual. Por lo tanto \textit{just(accion1)} es v\'alido en un estado cualquiera solo si la acci\'on realizada para llegar a ese estado fue \textit{accion1}. Notemos que esta formula nunca vale al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Por lo tanto la compilaci\'on se reduce a una simple traducci\'on semejante a la que sigue: \textit{just(accion1)} se traduce a \textit{actvar = accion1}.\\
+Como vimos al finalizar la el cap\'itulo \ref{sintaxisDeFalluto}, Falluto2.0 permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on $$just(accion)$$. Al momento de verificar, esta construcci\'on permite expresar la ocurrencia de \textit{accion} como acci\'on para llegar al estado actual. Por lo tanto \textit{just(accion1)} es v\'alido en un estado cualquiera solo si la acci\'on realizada para llegar a ese estado fue \textit{accion1}. Notemos que esta formula nunca vale al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Por lo tanto la compilaci\'on se reduce a una simple traducci\'on semejante a la que sigue: \textit{just(accion1)} se traduce a \textit{actvar = accion1}.\\
 
 Vimos tambi\'en que podemos definir propiedades en LTL y CTL usando la sintaxis $LTLSPEC~q$ y $CTLSPEC~p$ donde $q$ es una formula LTL y $p$ una CTL. La compilaci\'on de estas f\'ormulas se hace de manera directa, tomando en cuenta lo expresado en el p\'arrafo anterior. Esto vale tambi\'en para las condiciones de fairness definidas por el usuario con las sintaxis $FAIRNESS~q$ y $COMPASSION(p,q)$.\\
 
-Miremos entonces la sem\'antica y compilaci\'on de las meta-propiedades que Falluto2.0 nos ofrece:
+Miremos entonces la sem\'antica y compilaci\'on de las meta-propiedades que Falluto2.0 ofrece:
 \begin{itemize}
-\item \textbf{Meta-propiedad Finitely Many Fault/s.} Esta meta-propiedad nos permite razonar sobre propiedades en el sistema bajo la suposici\'on de que ciertas fallas dejan de ocurrir a partir de cierto momento en la ejecuci\'on. La sintaxis que usamos es $FINMANYFAULT(f_1,f_2,...,f_n) \rightarrow q$ donde $f_1,f_2,...,f_n$ son nombres de fallas y $q$ es la propiedad LTL que queremos verificar en el sistema. Esta propiedad se compila como una f\'ormula LTL compuesta a partir de una implicancia, en donde el antecedente sugiere que en cierto memento las faltas mencionadas dejar\'an de ocurrir, y el precedente corresponde a la compilaci\'on directa de la propiedad $q$. El ejemplo quedar\'ia compilado entonces como:
+\item \textbf{Meta-propiedad Finitely Many Fault/s.} Esta meta-propiedad permite razonar sobre propiedades en el sistema bajo la suposici\'on de que ciertas fallas dejan de ocurrir a partir de cierto momento en la ejecuci\'on. La sintaxis que usamos es $FINMANYFAULT(f_1,f_2,...,f_n) \rightarrow q$ donde $f_1,f_2,...,f_n$ son nombres de fallas y $q$ es la propiedad LTL que queremos verificar en el sistema. Esta propiedad se compila como una f\'ormula LTL compuesta a partir de una implicancia, en donde el antecedente sugiere que en cierto memento las faltas mencionadas dejar\'an de ocurrir, y el precedente corresponde a la compilaci\'on directa de la propiedad $q$. El ejemplo quedar\'ia compilado entonces como:
 $$LTLSPEC~(~F~!~(~actvar~in~\lbrace f_1,f_2,...,f_n \rbrace~)~)~\rightarrow~q_{compilada}$$
 \item \textbf{Meta-propiedad Normal Behaiviour.} La meta-propiedad Normal Behaiviour puede ser usada para verificar propiedades bajo la suposici\'on de que la ejecuci\'on del sistema estar\'a libre de ocurrencia de fallas. Es decir que es utilizada para verificar si la propiedad deseada se cumple al menos en aquellos casos en los que el sistema avanza solo a partir de transiciones normales. La sintaxis para esta propiedad en el lenguaje de Falluto2.0 es la que sigue: $$NORMALBEHAIVIOUR -> q$$ donde $q$ puede ser una formula LTL o una CTL. La compilaci\'on para el caso en que $q$ esta redactada en LTL es la que sigue: 
 $$LTLSPEC~(~G~!~(~actvar~in~\lbrace f_1, f_2,..., f_n\rbrace~)~)~\rightarrow~q_{compilada}$$
@@ -934,7 +954,7 @@ En ambos casos $\lbrace f_1, f_2,..., f_n\rbrace$ es el conjunto de nombres de t
 
 ~\\
 
-Falluto2.0 nos ofrece la posibilidad de verificar que nuestro sistema no caiga en estado de \textbf{deadlock}. La instrucci\'on definida por la sintaxis \textit{CHECKDEADLOCK} busca verificar entonces la ausencia de estados a partir de los cuales no se pueda avanzar usando acciones normales. Es decir que revisa que no hayan estados en los cuales todas las acciones normales est\'en inhabilitadas. Recordando la sem\'antica de la transici\'on de deadlock presentada en este mismo cap\'itulo, vemos que su condici\'on de habilitaci\'on es en efecto la negaci\'on de las condiciones de habilitaci\'on de cada transici\'on normal del sistema. Gracias a esto es que podemos definir entonces la compilaci\'on de nuestra propiedad de ausencia de deadlock como sigue:
+Falluto2.0 ofrece la posibilidad de verificar que nuestro sistema no caiga en estado de \textbf{deadlock}. La instrucci\'on definida por la sintaxis \textit{CHECKDEADLOCK} busca verificar entonces la ausencia de estados a partir de los cuales no se pueda avanzar usando acciones normales. Es decir que revisa que no hayan estados en los cuales todas las acciones normales est\'en inhabilitadas. Recordando la sem\'antica de la transici\'on de deadlock presentada en este mismo cap\'itulo, vemos que su condici\'on de habilitaci\'on es en efecto la negaci\'on de las condiciones de habilitaci\'on de cada transici\'on normal del sistema. Gracias a esto es que podemos definir entonces la compilaci\'on de nuestra propiedad de ausencia de deadlock como sigue:
 $$LTLSPEC~G~!~actvar = deadlock$$
 Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en al menos un estado de la ejecuci\'on la variable de acci\'on tenga el valor representante de deadlock, sugiriendo por lo tanto que el estado anterior a este pose\'ia inhabilitadas todas las acciones buenas del sistema.
 
@@ -978,14 +998,14 @@ Cada proceso \textbf{j} en nuestro sistema poseer\'a las siguientes variables de
 
 El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos. Las lineas punteadas representan transiciones de falla en las que provocan que la componente se detenga:
 
-\begin{figure}[H]
+\begin{figure}[htp]
   \centering
     \includegraphics[scale=0.75]{Imagenes/2pcCoor.pdf}
   \caption{Diagrama de estados de una componente coordinador del protocolo de commit at\'omico de 2 fases}
   \label{2pcc}
 \end{figure}
 ~\\
-\begin{figure}[H]
+\begin{figure}[htp]
   \centering
     \includegraphics[scale=0.75]{Imagenes/2pcVoter.pdf}
   \caption{Diagrama de estados de una componente votante del protocolo de commit at\'omico de 2 fases}
@@ -1375,9 +1395,9 @@ ENDPROCTYPE
 
 \noindent \line(1,0){400}\\
 
-En el modelado de los canales tenemos que la variable \textit{buff} en la posici\'on $i$ define la cantidad de mensajes con n\'umero de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser le\'ida por el receptor. A su vez la variable \textit{empty} nos indica si el receptor ya ha le\'ido el dato que le lleg\'o o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducci\'on de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde ser\'a le\'ido; y por \'ultimo la transici\'on de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.\\
+En el modelado de los canales tenemos que la variable \textit{buff} en la posici\'on $i$ define la cantidad de mensajes con n\'umero de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser le\'ida por el receptor. A su vez la variable \textit{empty} indica si el receptor ya ha le\'ido el dato que le lleg\'o o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducci\'on de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde ser\'a le\'ido; y por \'ultimo la transici\'on de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.\\
 
-Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que nos otorga nuestra herramienta para la inyecci\'on de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de n\'umero de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condici\'on de habilitaci\'on representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de n\'umero de secuencia $i$ en el canal usando la post-condici\'on $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecuci\'on siempre que se cumpla su condici\'on de habilitaci\'on.\\
+Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que otorga nuestra herramienta para la inyecci\'on de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de n\'umero de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condici\'on de habilitaci\'on representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de n\'umero de secuencia $i$ en el canal usando la post-condici\'on $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecuci\'on siempre que se cumpla su condici\'on de habilitaci\'on.\\
 
 Por \'ultimo veamos como modelar el sincronizado de los canales con el emisor y el receptor mediante el pasaje de nombres de acci\'on comunes en la etapa de instanciaci\'on. Instanciamos entonces un emisor, un receptor, y dos canales, uno desde el emisor al receptor y otro en direcci\'on contraria. Hacemos esto de la siguiente manera:\\
 
@@ -1392,7 +1412,7 @@ INSTANCE buffRE   = channel  (receptor.NR , send2, read1)
 
 De esta manera hemos logrado que el emisor pueda leer los datos que llegan a trav\'es del canal \textit{buffER} al pasar como par\'ametro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a trav\'es de la variable \textit{bufferRE.data} pasada como par\'ametro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los par\'ametros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronizaci\'on de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como par\'ametro nombres equivalentes para las acciones.\\
 
-Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto n\'umero de secuencia llegue siempre a menudo al receptor. Usemos en particular el n\'umero m\'aximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con n\'umero de secuencia m\'aximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecuci\'on suceda que siempre a menudo \textbf{canalER.data = MSEQ $\&$ receptor lee el canal }}. Encontramos que la sintaxis de Falluto2.0 nos ofrece una manera muy sencilla de describir la acci\'on en la cual el receptor lee el canal, usando la construcci\'on \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente formula LTL para expresar la propiedad que hemos sugerido: \\
+Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto n\'umero de secuencia llegue siempre a menudo al receptor. Usemos en particular el n\'umero m\'aximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con n\'umero de secuencia m\'aximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecuci\'on suceda que siempre a menudo \textbf{canalER.data = MSEQ $\&$ receptor lee el canal }}. Encontramos que la sintaxis de Falluto2.0 ofrece una manera muy sencilla de describir la acci\'on en la cual el receptor lee el canal, usando la construcci\'on \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente formula LTL para expresar la propiedad que hemos sugerido: \\
 
 \noindent \textbf{Propiedad(1):}\\ \textit{LTLSPEC G F (canalER.data = MSEQ \& just(read2))}
 
@@ -1426,7 +1446,7 @@ Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que sol
 \addappheadtotoc
 
 \chapter{Manual de Falluto2.0}
-Mostraremos en este ap\'endice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos adem\'as como utilizarlo para la verificaci\'on de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta nos ofrece.
+Mostraremos en este ap\'endice los pasos a seguir para preparar el entorno operativo para Falluto2.0. Detallaremos adem\'as como utilizarlo para la verificaci\'on de nuestros sistemas tolerantes a fallas, describiendo cada una de las opciones y utilidades que la herramienta ofrece.
 
 \section{Instalaci\'on de Falluto2.0}
 Previo a poder utilizar Falluto2.0 en nuestra PC debemos preparar el entorno en nuestro sistema Linux. Para ello precisamos poseer instalado tanto NuSMV versi\'on 2.5.3 o superior, como as\'i tambi\'en Python versi\'on 2.6.5 o superior. Tanto NuSMV como Python deben ser accesible mediante la ruta de busqueda para ejecuci\'on 'PATH'.
