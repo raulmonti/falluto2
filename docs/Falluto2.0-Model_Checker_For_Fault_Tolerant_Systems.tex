@@ -186,6 +186,8 @@ Es objetivo de este trabajo elaborar una herramienta que contribuya a disminuir 
 
 Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV \cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errores evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo. Este trabajo se presenta como extensi\'on del trabajo realizado por Edgardo Hames \cite{Hames}, y toma como base los conocimientos adquiridos a partir del trabajo de caracter\'isticas similares realizado por Nicol\'as Bordenabe \cite{Bordenabe}.
 
+Comenzaremos este trabajo sentando las bases acerca de lo que entenderemos como falla y lo que significa que un sistema sea tolerante a las mismas, todo esto en el cap\'itulo \ref{CapToleranciaAFallas}. Continuaremos en el cap\'itulo \ref{CapMC} repasando conocimientos te\'oricos, que ser\'an luego aplicados a la implementaci\'on de nuestra herramienta de model checking. En los cap\'itulos \ref{CapNuSMV} y \ref{sintaxisDeFalluto} daremos una mirada al lenguaje de especificaci\'on de nuestro back-end NuSMV y de nuestra harramienta Falluto2.0 respectivamente. Distinguiremos en esta etapa la sencillez y practicidad de nuestra sintaxis de modelado de sistemas, observando en ello el logro de una de las metas de este trabajo. Siguiendo con la presentaci\'on de la herramienta, atenderemos en el cap\'itulo \ref{CapSemanticaDeFalluto} la sem\'antica de la misma. Veremos aplicada aqu\'i gran parte de la teor\'ia y las ideas presentadas en el cap\'itulo ref{CapMC}. En el \'ultimo cap\'itulo expondremos dos casos de estudio, con la intenci\'on de observar en la pr\'actica el comportamiento de nuestra herramienta y la interacci\'on con la misma. En los ap\'endices hallaremos por \'ultimo, ejemplos de modelado, compilaci\'on y resultados de verificaci\'on, como as\'i tambi\'en la sintaxis formal y el manual de uso de Falluto2.0, entre otras cosas.
+
 %TODO seguir hablando del trabajo y poner la distribucion de los temas en el trabajo.
 
 
@@ -198,7 +200,7 @@ Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orient
 
 
 \chapter{Tolerancia a fallas}
-
+\label{CapToleranciaAFallas}
 Mejorar la confiabilidad del sistema (el grado de confianza que se puede poner 
 de manera justificada sobre el sistema) es usualmente presentado como el 
 principal beneficio de la tolerancia a fallas. Introduciremos al comienzo de este cap\'itulo los conceptos b\'asicos de lo que entender\'emos como \textit{falla} en un sistema. Hablaremos luego de lo que significa que un sistema \textit{tolere fallas}, y concluiremos planteando el contexto en el cual nuestro trabajo tratar\'a la tolerancia a fallas.
@@ -240,7 +242,7 @@ Tomando como respaldo lo analizado en este cap\'itulo, es que tomaremos una seri
 
 En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones buenas del sistema y transiciones ocasionadas por fallas. Ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo. Esto difiere del punto de vista tomado por otros trabajos como \cite[etc...]{Arora,dCTL}
 
-Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transitorio}, y la tolerancia de los sistemas modelados con respecto a ambas clases de fallas ser\'a estudiada bajo ciertas condiciones de ocurrencia e interleaving entre estas y acciones normales.
+Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transitorio}. La tolerancia de los sistemas modelados con respecto a ambas clases de fallas ser\'a estudiada bajo ciertas condiciones de ocurrencia e interleaving entre estas y acciones normales.
 
 Es importante aclarar que si bien nos ocuparemos del modelado del sistema en general y nos centraremos por momentos en la inyecci\'on de fallas sobre el mismo, no nos detendremos en temas espec\'ificos al dise\~no de la tolerancia a fallas.
 
@@ -608,6 +610,7 @@ Este cap\'itulo nos deja entrever as\'i tambi\'en el gran control que tendremos 
 
 
 \chapter{NuSMV}
+\label{CapNuSMV}
 \section{El model checker NuSMV}
 
 NuSMV es un model checker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.
@@ -838,6 +841,7 @@ Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje
 
 
 \chapter{Sem\'antica de Falluto2.0}
+\label{CapSemanticaDeFalluto}
 Como ya mencionamos en la introducci\'on a este trabajo, Falluto2.0 es un front-end para NuSMV. Por lo tanto la descripci\'on del sistema en el lenguaje de Falluto2.0 debe ser compilada a una descripci\'on en el lenguaje de NuSMV, quien ser\'a el encargado de realizar la verificaci\'on solicitada sobre el modelo de sistema.  En este cap\'itulo abordaremos el tema de la sem\'antica de Falluto2.0, repasando las ideas detr\'as de su implementaci\'on y dando una mirada a la compilaci\'on al lenguaje de NuSMV.
 
 \section{Construcci\'on de un sistema de procesos concurrentes}
@@ -1187,7 +1191,7 @@ Si verificamos con Falluto2.0 el modelo que hemos ido definiendo, junto con las 
 
 \section{Protocolo de transmisi\'on satelital}
 
-Modelaremos en esta secci\'on, un protocolo de comunicaci\'on entre sat\'elites. El protocolo presentado a continuaci\'on pertenece a la familia de protocolos de ventana deslizante con \textit{GO-BACK-N}. Sin embargo distinguimos en el mismo algunas cualidades no muy comunes en estos protocolos. Una de estas diferencias se observa en nuestro sistema de retransmisi\'on el cual no se basa en timeouts de tramas, si no que es instant\'aneo y constante. Es decir que nuestro emisor retransmitir\'a constantemente tramas cada vez que este en estado ocioso y posea tramas a\'un no confirmadas en su ventana de env\'io.
+Modelaremos en esta secci\'on, un protocolo de comunicaci\'on entre sat\'elites. El protocolo presentado a continuaci\'on pertenece a la familia de protocolos de ventana deslizante con \textit{GO-BACK-N}. Sin embargo distinguimos en el mismo algunas cualidades no muy comunes en estos protocolos. Una de estas diferencias se observa en nuestro sistema de retransmisi\'on el cual no se basa en timeouts de tramas, si no que es instant\'aneo y constante. Es decir que nuestro emisor retransmitir\'a constantemente tramas cada vez que est\'e en estado ocioso y posea tramas a\'un no confirmadas en su ventana de env\'io.
 
 Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), com\'unmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{n\'umeros de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.
 
@@ -1662,7 +1666,7 @@ COMPASSION & $\longleftarrow$ & ``COMPASSION'' `(' EXPRESION `,' EXPRESION `)'\c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Protocolo de comunicaci\'on satelital defectuoso}
 \label{ApProtDef}
-A continuaci\'on encontramos el modelado del \textit{nodo receptor} segun la especificacion defectuosa del protocolo de comunicaci\'on satelital introducido en la discusi\'on del capitulo \ref{CapCasosDeEstudio}, junto con la ejecucion de contraejemplo otorgada como resultado de la verificacion a traves de Falluto2.0.
+A continuaci\'on encontramos el modelado del \textit{nodo receptor} seg\'un la especificaci\'on defectuosa del protocolo de comunicaci\'on satelital introducido en la discusi\'on del cap\'itulo \ref{CapCasosDeEstudio}, junto con la ejecuci\'on de contraejemplo otorgada como resultado de la verificaci\'on a trav\'es de Falluto2.0.
 
 \section*{El modelado del receptor}
 
@@ -1689,7 +1693,7 @@ ENDPROCTYPE
 \end{verbatim}
 \noindent \line(1,0){400}
 
-\section*{Ejecucion de contraejemplo}
+\section*{Ejecuci\'on de contraejemplo}
 {\fontsize{12pt}{9pt}\selectfont
 \begin{verbatim}
 |-|	Specification FINITELY_MANY_FAULTS 
