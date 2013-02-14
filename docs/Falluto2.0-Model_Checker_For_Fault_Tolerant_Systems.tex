@@ -13,7 +13,7 @@
 \author{Raul Monti}
 \date{Diciembre 2012}
 
-\usepackage{graphicx} %para poner im\'agenes
+\usepackage{graphicx} % para poner im\'agenes
 \usepackage{float}    % para establecer posici\'on de im\'agenes
 \usepackage{amsmath}  % para etiquetar flechas
 \usepackage{tabularx}
@@ -59,7 +59,7 @@
 %%
 % Falluto en forma copada
 \def\Falluto20{{\rm F\kern-.1667em\lower.5ex\hbox{A}\kern-.125emllutO2.0}}
-% Estilo para fórmulas
+% Estilo para f\'ormulas
 \newcommand{\textff}[1]{\begin{center}\texttt{#1}\end{center}}
 %%
 
@@ -987,6 +987,7 @@ Cada una de ellas cumple un prop\'osito claro y no hemos encontrado manera m\'as
 
 
 \chapter{Casos de estudio}
+\label{CapCasosDeEstudio}
 
 La intenci\'on de este cap\'itulo es la de hacer un repaso sobre el uso de Falluto2.0 y sus funcionalidades. Para ello se mostrar\'a el trabajo sobre una serie de problemas de car\'acter paradigm\'atico en el estudio de la verificaci\'on de sistemas. Mostraremos como usar Falluto2.0 en un principio para describir la funcionalidad de estos sistemas. Continuaremos pensando sobre las fallas que pueden afectar los mismos, y buscaremos probar ciertas propiedades de los sistemas descriptos. Finalizaremos cada secci\'on razonando sobre los resultados expuestos por nuestra herramienta.
 
@@ -1184,13 +1185,15 @@ Si verificamos con Falluto2.0 el modelo que hemos ido definiendo, junto con las 
 
 
 
-\section{Protocolo de ventana deslizante\\GO-BACK-N}
+\section{Protocolo de transmisi\'on satelital}
+
+Modelaremos en esta secci\'on, un protocolo de comunicaci\'on entre sat\'elites. El protocolo presentado a continuaci\'on pertenece a la familia de protocolos de ventana deslizante con \textit{GO-BACK-N}. Sin embargo distinguimos en el mismo algunas cualidades no muy comunes en estos protocolos. Una de estas diferencias se observa en nuestro sistema de retransmisi\'on el cual no se basa en timeouts de tramas, si no que es instant\'aneo y constante. Es decir que nuestro emisor retransmitir\'a constantemente tramas cada vez que este en estado ocioso y posea tramas a\'un no confirmadas en su ventana de env\'io.
 
 Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), com\'unmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{n\'umeros de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.
 
 En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de n\'umeros de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los n\'umeros de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on a\'un no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo n\'umero de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tama\~no inicial siempre \cite[tanembaum].
 
-El protocolo \textit{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En particular, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la \'ultima con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de paquetes, este se anticipa al reenv\'io de los mismos. Este tipo de protocolos es muy \'util en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados.
+El protocolo \textit{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En el caso particular del protocolo que modelaremos aqu\'i, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la \'ultima con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de tramas, este se anticipa al reenv\'io de las mismos. Este tipo de protocolos es muy \'util en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados y poco aprovechados.
 
 Con la intenci\'on de modelar el algoritmo que especifica este protocolo, dividiremos el mismo en cuatro partes:
 \begin{enumerate}
@@ -1201,7 +1204,7 @@ Con la intenci\'on de modelar el algoritmo que especifica este protocolo, dividi
 \end{enumerate}
 
 
-El emisor utilizar\'a entonces los algoritmos (1) y (4) mientras que el receptor los algoritmos (2) y (3). A continuaci\'on describiremos cada uno de estos algoritmos y mostraremos como modelarlos con Falluto2.0. Nuestra intenci\'on ser\'a modelar un nodo emisor y uno receptor, comunicados por canales no confiables, es decir por canales sujetos a la perdida de mensajes. Buscaremos demostrar con nuestra herramienta que este protocolo es tolerante a un numero de ocurrencia finito de estas fallas sobre los canales, en cuanto a que eventualmente todos las tramas podr\'an ser entregadas al receptor.
+Modelaremos el m\'odulo receptor de un sat\'elite, y el m\'odulo emisor de otro sat\'elite, los cuales se comunicar\'an usando el protocolo. El emisor utilizar\'a entonces los algoritmos (1) y (4) mientras que el receptor los algoritmos (2) y (3). A continuaci\'on describiremos cada uno de estos algoritmos y mostraremos como modelarlos con Falluto2.0. Nuestra intenci\'on ser\'a modelar un nodo emisor y uno receptor, comunicados por canales no confiables, es decir por canales sujetos a la perdida de mensajes. Buscaremos verificar con nuestra herramienta si este protocolo es tolerante a un numero de ocurrencia finito de estas fallas sobre los canales, en cuanto a que eventualmente todos las tramas puedan ser entregadas al receptor.
 
 
 \subsection*{Los algoritmos (1) y (4), y el modelado del emisor.}
@@ -1428,7 +1431,28 @@ Podemos constatar la veracidad de esta propiedad bajo escenarios en los que las 
 \textit{Propiedad(3):} \textff{FINITELY\_MANY\_FAULTS $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))}
 
 
-Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad(2). 
+Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad (2). 
+
+\section{Discusi\'on}
+
+El primer caso de estudio presentado en este cap\'itulo fue inspirado en la otros trabajos que poseen verificaciones similares. Pudimos notar la facilidad de inyectar fallas en el sistema. Pudimos observar tambi\'en la facilidad para extraer el modelo de la especificaci\'on y describirlo de manera directa a partir de nuestro lenguaje de modelado.
+
+El segundo caso de estudio por su parte, fue extra\'ido de un caso de investigaci\'on real. La especificaci\'on original contiene un error en sus algoritmos. El modelado y posterior verificaci\'on usando nuestra herramienta logr\'o sacar a luz este error al devolver una ejecuci\'on de contraejemplo para la cual no se cumple la propiedad (3): \textff{FINITELY\_MANY\_FAULTS $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))} Luego de inspeccionar este contraejemplo se lleg\'o a la conclusi\'on de que situaciones como la que describimos a continuaci\'on estaban causando que el sistema no sea capaz de tolerar las fallas en el canal de conversaci\'on. Para describir la ejecuci\'on en la que el sistema no cumple con la propiedad deseada, tomaremos en cuenta un emisor con tama\~no de ventana 1 y un n\'umero m\'aximo de secuencia 3. As\'i tambi\'en, entenderemos que el receptor no env\'ia confirmaci\'on de recepci\'on si la trama no contiene el n\'umero de secuencia esperado, tal cual lo especificaba el algoritmo original. La siguiente ejecuci\'on entonces representa un caso en el que la propiedad (3) no se cumple:
+
+\begin{enumerate}
+\item Emisor env\'ia trama con n\'umero de secuencia 1.
+\item Receptor recibe trama con n\'umero de secuencia 1, env\'ia confirmaci\'on de recepci\'on, y aumenta en 1 el valor de su ventana de recepci\'on.
+\item La confirmac\'ion de recepci\'on se pierde.
+\item \textit{Comienza ciclo:} Emisor reenv\'ia trama con n\'umero de secuencia 1, ya que no ha recibido confirmaci\'on.
+\item Receptor descarta trama con n\'umero de secuencia 1, ya que espera n\'umero de secuencia 2. \textit{Fin de ciclo}
+\end{enumerate}
+
+La inspecci\'on de la ejecuci\'on de contraejemplo otorgada por Falluto2.0, permiti\'o llegar a esta conclusi\'on. A partir de esto, se busc\'o resolver el problema y de esta manera mejorar los mecanismos de tolerancia a fallas de nuestro sistema. La nueva especificaci\'on responde al modelado que se detall\'o en este cap\'itulo, en donde el receptor envi\'a confirmaci\'on de recepci\'on tambi\'en cuando recibe tramas incorrectas, m\'as all\'a de no aceptarlas. Otras soluciones podr\'ian haberse implementado, pero como ya dijimos esto va m\'as all\'a del inter\'es de este trabajo. El output detallado de nuestra herramienta, junto con el modelado del \textit{receptor} del sistema original defectuoso, pueden encontrarse en el ap\'endice \ref{ApProtDef} de este trabajo.
+
+
+
+
+
 
 %\section{Ej\'ercitos bizantinos ?}
 %\section{Fil\'osofos comensales ?}
@@ -1629,12 +1653,270 @@ COMPASSION & $\longleftarrow$ & ``COMPASSION'' `(' EXPRESION `,' EXPRESION `)'\c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{Ejemplo paradigm\'atico de compilaci\'on.}
+\chapter{Ejemplo paradigm\'atico de compilaci\'on}
 
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Protocolo de comunicaci\'on satelital defectuoso}
+\label{ApProtDef}
+A continuaci\'on encontramos el modelado del \textit{nodo receptor} segun la especificacion defectuosa del protocolo de comunicaci\'on satelital introducido en la discusi\'on del capitulo \ref{CapCasosDeEstudio}, junto con la ejecucion de contraejemplo otorgada como resultado de la verificacion a traves de Falluto2.0.
+
+\section*{El modelado del receptor}
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+PROCTYPE receiver( NF; send, read)
+
+VAR
+        NR:0..2 -- Next request number
+        NA:bool -- Need to send ack
+
+INIT
+        NR = 0 & NA = FALSE
+
+TRANS
+        -- DESCARTAR TRAMA INVALIDA
+        [read]: NF != NR;
+        -- RECIBIR TRAMA VALIDA
+        [read]: NF = NR => NR' = (NR+1)%(MSP1), NA' = TRUE;
+        -- ENVIAR ACK DE SER NECESARIO
+        [send]: NA => NA' = FALSE;
+
+ENDPROCTYPE
+\end{verbatim}
+\noindent \line(1,0){400}
+
+\section*{Ejecucion de contraejemplo}
+{\fontsize{12pt}{9pt}\selectfont
+\begin{verbatim}
+|-|	Specification FINITELY_MANY_FAULTS 
+    GF((just( read2 )) & (buffER.data = MSEQ)) is false
+
+	as demonstrated by the following execution sequence:
+
+
+---> State: 0 <---
+  buffRE buff[0] = 0
+  buffRE buff[1] = 0
+  buffRE buff[2] = 0
+  buffRE buff[3] = 0
+  buffRE data = 0
+  buffRE empty = TRUE
+  receptor NR = 0
+  receptor NA = FALSE
+  buffER buff[0] = 0
+  buffER buff[1] = 0
+  buffER buff[2] = 0
+  buffER buff[3] = 0
+  buffER data = 0
+  buffER empty = TRUE
+  emisor DTX = 0
+  emisor NS = 0
+  emisor LA = 0
+  emisor RT = 0
+  emisor SENT = TRUE
+
+@ [action] emisor / new
+
+---> State: 1 <---
+  emisor NS = 1
+  emisor RT = 1
+  emisor SENT = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 2 <---
+  buffER buff[0] = 1
+  emisor SENT = TRUE
+
+@ [action] buffER / arrive
+
+---> State: 3 <---
+  buffER buff[0] = 0
+  buffER empty = FALSE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 4 <---
+  receptor NR = 1
+  receptor NA = TRUE
+  buffER empty = TRUE
+
+@ [action] emisor / new
+
+---> State: 5 <---
+  emisor DTX = 1
+  emisor NS = 2
+  emisor RT = 2
+  emisor SENT = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 6 <---
+  buffER buff[1] = 1
+  emisor SENT = TRUE
+
+@ [action] buffER / arrive
+
+---> State: 7 <---
+  buffER buff[1] = 0
+  buffER data = 1
+  buffER empty = FALSE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 8 <---
+  receptor NR = 2
+  buffER empty = TRUE
+
+@ [Synchro] send2 [buffRE/send || receptor/send]
+
+---> State: 9 <---
+  buffRE buff[2] = 1
+  receptor NA = FALSE
+
+@ [fault] buffRE / loose2 / Transient
+
+---> State: 10 <---
+  buffRE buff[2] = 0
+
+@ [action] emisor / startRetr
+
+---> State: 11 <---
+  emisor DTX = 0
+  emisor RT = 0
+  emisor SENT = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 12 <---
+  buffER buff[0] = 1
+  emisor SENT = TRUE
+
+@ [action] emisor / contRetr
+
+---> State: 13 <---
+  emisor RT = 1
+  emisor SENT = FALSE
+
+@ [action] buffER / arrive
+
+---> State: 14 <---
+  buffER buff[0] = 0
+  buffER data = 0
+  buffER empty = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 15 <---
+  buffER buff[0] = 1
+  emisor SENT = TRUE
+
+@ [action] emisor / contRetr
+
+---> State: 16 <---
+  emisor DTX = 1
+  emisor RT = 2
+  emisor SENT = FALSE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 17 <---
+  buffER empty = TRUE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 18 <---
+  buffER buff[1] = 1
+  emisor SENT = TRUE
+
+
+>> Loop starts here <<
+
+@ [action] buffER / arrive
+
+---> State: 19 <---
+  buffER buff[1] = 0
+  buffER data = 1
+  buffER empty = FALSE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 20 <---
+  buffER empty = TRUE
+
+@ [action] emisor / startRetr
+
+---> State: 21 <---
+  emisor DTX = 0
+  emisor RT = 0
+  emisor SENT = FALSE
+
+@ [action] buffER / arrive
+
+---> State: 22 <---
+  buffER buff[0] = 0
+  buffER data = 0
+  buffER empty = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 23 <---
+  buffER buff[0] = 1
+  emisor SENT = TRUE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 24 <---
+  buffER empty = TRUE
+
+@ [action] emisor / contRetr
+
+---> State: 25 <---
+  emisor RT = 1
+  emisor SENT = FALSE
+
+@ [action] buffER / arrive
+
+---> State: 26 <---
+  buffER buff[0] = 0
+  buffER empty = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 27 <---
+  buffER buff[0] = 1
+  emisor SENT = TRUE
+
+@ [Synchro] read2 [buffER/read || receptor/read]
+
+---> State: 28 <---
+  buffER empty = TRUE
+
+@ [action] emisor / contRetr
+
+---> State: 29 <---
+  emisor DTX = 1
+  emisor RT = 2
+  emisor SENT = FALSE
+
+@ [Synchro] send1 [buffER/send || emisor/send]
+
+---> State: 30 <---
+  buffER buff[1] = 1
+  emisor SENT = TRUE
+
+@ [action] buffER / arrive
+
+---> State: 31 <---
+  buffER buff[1] = 0
+  buffER data = 1
+  buffER empty = FALSE
+\end{verbatim}
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
