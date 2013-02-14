@@ -112,6 +112,6 @@ INSTANCE buffPC = buffer(producer.DTX, send1, read2)
 INSTANCE buffCP = buffer(consumer.NR, send2, read1)
 
 
-NORMAL_BEHAIVIOUR -> G F (just(read2) & buffPC.data = MSEQ)
-LTLSPEC G F (just(read2) & buffPC.data = MSEQ)
+--NORMAL_BEHAIVIOUR -> G F (just(read2) & buffPC.data = MSEQ)
+--LTLSPEC G F (just(read2) & buffPC.data = MSEQ)
 FINITELY_MANY_FAULTS -> G F (just(read2) & buffPC.data = MSEQ)
