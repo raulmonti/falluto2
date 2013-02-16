@@ -987,6 +987,8 @@ Dado que en el model checking el problema de la explosi\'on de estados es el pri
 \item Las variables de program counter.
 \end{enumerate}
 Cada una de ellas cumple un prop\'osito claro y no hemos encontrado manera m\'as eficiente de lograr este prop\'osito.
+
+La introducci\'on de estas nuevas variables va acompañada tambi\'en del renombrado de variables y acciones presentes en el modelo original. Como sabemos, es parte esencial del model checking la presentaci\'on de una ejecuci\'on de contraejemplo en el caso del incumplimiento de alguna de las propiedades verificadas. Al verificar a partir de nuestro back-end el modelo compilado, y en caso de que se constate que una propiedad sobre el modelo no se cumple, NuSMV devolver\'a una ejecuci\'on de contraejemplo sucia. Decimos sucia en cuanto a que poseer\'a informaci\'on a cerca de los cambios de valores en variables introducidas en compilaci\'on y por lo tanto ajenas a la comprensi\'on del usuario. Encontraremos tambi\'en en este contraejemplo que los nombres de las variables originales del sistema han cambiado, y hayaremos muy dificultoso distinguir los diferentes pasos de la ejecuci\'on. Por esta raz\'on fue necesario implementar en nuestra herramienta una utilidad para la re-interpretaci\'on de estas ejecuciones. De esta manera podemos devolver al usuario un contraejemplo limpio y comprensible. El re-interprete de trazas se encarga de ocultar variables ajenas al modelado original, y dejar en evidencia cada paso de ejecuci\'on, nombrando la acci\'on llevada a cabo y distinguiendo claramente cada estado. Las decisiones de presentaci\'on de trazas de contraejemplo que se tomaron, aseguran que las mismas sean intuitivas y com\'un al uso habitual en el \'ambito del model checking. Podemos observar convenciones para la representaci\'on de ciclos en la ejecuci\'on y para la representaci\'on detallada de acciones sincronizadas, entre otras.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -1226,7 +1228,7 @@ El siguiente pseudoc\'odigo representa el algoritmo de env\'io de trama de secue
 \indent else \\
 \indent \indent inicio retransmision;\\
 \noindent else \\
-\indent continuar \\		
+\indent continuar \\
 }
 \noindent \line(1,0){400}\\
 
@@ -1467,12 +1469,13 @@ La inspecci\'on de la ejecuci\'on de contraejemplo otorgada por Falluto2.0, perm
 %\section{Red satelital ultra secreta?}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Conclusi\'on}
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
 \appendixpage
 \noappendicestocpagenum
@@ -1500,7 +1503,7 @@ filename & Ruta del archivo de input donde se encuentra \\
 --version           & muestra la versi\'on de este programa y sale.\\
 -s path, --s path, -save path & guardar la versi\'on compilada a NuSMV de este \\
                               & sistema en el archivo dado por la ruta 'path'.\\
--co 		        & output con color.\\
+-co                 & output con color.\\
 \end{tabular}
 
 
@@ -1513,7 +1516,7 @@ filename & Ruta del archivo de input donde se encuentra \\
 
 A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico y a los s\'imbolos y puntuaciones entre comillas.
 
-\section{Palabras reservadas de Falluto2.0}
+\section*{Palabras reservadas de Falluto2.0}
 
 Las siguientes palabras son de caracter reservado, son usadas para fines espec\'ificos en la especificaci\'on del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
 
@@ -1527,7 +1530,7 @@ RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAM
 
 
 
-\section{Algunas producciones simples}
+\section*{Algunas producciones simples}
 
 Identificadores pueden contener `.' para indicar pertenencia a un proceso espec\'ifico ( por ejemplo instancia.variable ). Nombres en cambio no.\\
 
@@ -1546,7 +1549,7 @@ INCLUSION & $\longleftarrow$ & IDENT ``in'' (SET / RANGE)\\
 \end{tabularx}
 ~\\\\
 
-\section{Expresiones}
+\section*{Expresiones}
 Las expresiones describen f\'ormulas booleanas o enteras. A continuaci\'on encontramos su sintaxis:
 
 \begin{tabularx}{\textwidth}{>{\bfseries}llX }
@@ -1567,7 +1570,7 @@ NEXTASSIGN & $\longleftarrow$  & NEXTREF ( = EXPRESION / ``in'' ( SET / RANGE ) 
 
 
 
-\section{Proctypes}
+\section*{Proctypes}
 Un sistema falluto se modela con un encabezado de opciones de configuraci\'on (opcional) y una serie de objetos pertenecientes a la lista -- PROCTYPE, DEFINE, INSTANCE, SPEC, CONTRAINT --:\\\\
 
 %\noindent \begin{longtable}{>{\bfseries}lll}
@@ -1595,7 +1598,7 @@ TRANSDECL & $\longleftarrow$ & ``['' NAME? ``]'' ``:'' EXPRESION? ( $=>$ NEXTEXP
 
 
 
-\section{Instanciaci\'on}
+\section*{Instanciaci\'on}
 Para especificar que un proceso forma parte del sistema, debemos instanciar el mismo a partir de un proctype previamente definido. La sintaxis de instanciaci\'on de procesos es la que sigue:\\\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.65\textwidth} }
@@ -1606,15 +1609,15 @@ INSTPARAMS & $\longleftarrow$ & ( (IDENT / INT / BOOL) (``,'' (IDENT / INT / BOO
 
 
 
-\section{Especificaci\'on de propiedades}
+\section*{Especificaci\'on de propiedades}
 Usamos las siguientes reglas para especificar las propiedades a verificar sobre el sistema modelado. Encontramos que podemos definir propiedades tanto en l\'ogica LTL como en CTL. Podemos adem\'as hacer uso de mete-propiedades predefinidas para facilitar la verificaci\'on:\\
 
 Para la elaboraci\'on de propiedades LTL y CTL, se ofrece la siguiente sintaxis:\\
 
 \begin{longtable}{>{\bfseries}ll >{\raggedright}p{0.7\textwidth} }
-SPEC 	  & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
+SPEC      & $\longleftarrow$ & CTLSPEC / LTLSPEC / NORMALBEHAIVIOUR / FINMANYFAULTS / FINMANYFAULT\cr\cr
 CTLSPEC   & $\longleftarrow$ & ``CTLSPEC'' CTLEXP\cr\cr
-CTLEXP 	  & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP / (\textit{A} / \textit{E}) `[' CTLEXP \textit{U} CTLEXP `]' / CTLVALUE\cr\cr
+CTLEXP    & $\longleftarrow$ & CTLVALUE CTLBINOP CTLEXP / (\textit{A} / \textit{E}) `[' CTLEXP \textit{U} CTLEXP `]' / CTLVALUE\cr\cr
 CTLBINOP  & $\longleftarrow$ & \& / $|$ / \textit{xor} / \textit{xnor} / $->$ / $<->$\cr\cr
 CTLVALUE  & $\longleftarrow$ & CTLUNOP CTLEXP /`(' CTLEXP `)' / EXPRESION\cr\cr
 CTLUNOP   & $\longleftarrow$ & \textit{! / EG / EX / EF / AG / AX / AF}\cr\cr
@@ -1639,7 +1642,7 @@ FINMANYFAULT & $\longleftarrow$ & ``FINITELY\_MANY\_FAULT'' `(' IDENT (`,' IDENT
 
 
 
-\section{Restricciones y fairness}
+\section*{Restricciones y fairness}
 
 Las siguientes son reglas sint\'acticas para la elaboraci\'on de restricciones de fairness sobre la verificaci\'on del sistema. Espec\'ificamente podemos definir dos tipos de restricciones de fairness: inconditional fairness (\textit{FAIRNESS}) y strong fairness (\textit{COMPASSION}).
 
@@ -1659,9 +1662,145 @@ COMPASSION & $\longleftarrow$ & ``COMPASSION'' `(' EXPRESION `,' EXPRESION `)'\c
 
 \chapter{Ejemplo paradigm\'atico de compilaci\'on}
 
+Encontramos a continuaci\'on el modelado en Falluto2.0 de un sistema de ejemplo, junto con su compilaci\'on al lenguaje NuSMV realizada por nuestra herramienta. En el modelado podemos distinguir dos procesos que sincronizan acciones para transmitir archivos de igual identificador al mimo tiempo:
 
+\noindent \line(1,0){400}
+\begin{verbatim}
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
 
+PROCTYPE module( other ; transfer)
+        VAR
+                file : 0..9
+        FAULT
+                clear: => file' in 0..9 is TRANSIENT
+        INIT
+                file = 0
+        TRANS
+                [transfer]: other.file = file 
+                            => 
+                            file' = (file + 1) % 10;
+                [restart]: other.file != file 
+                           => 
+                           file' = 0;
+ENDPROCTYPE
 
+INSTANCE mod1 = module(mod2,sync)
+INSTANCE mod2 = module(mod1,sync)
+
+CTLSPEC AG mod1.file = mod2.file
+
+LTLSPEC G ! (mod1.file != mod2.file & just(sync))
+
+FINITELY_MANY_FAULTS -> G F mod1.file = 9
+\end{verbatim}
+\noindent \line(1,0){400}\\
+
+Vemos que el sistema sufre de fallas de tipo \texttt{TRANSIENT} que des-sincronizan el env\'io de los archivos. Podemos observar que el mecanismo de tolerancia implementado es simplemente reiniciar la transferencia. Al final del modelado se ven especificadas tres propiedades que se desean verificar sobre el sistema. A continuaci\'on encontramos el modelado de arriba compilado por Falluto2.0 a c\'odigo NuSMV para su verificaci\'on mediante nuestro back-end. 
+
+\noindent \line(1,0){400}
+\begin{verbatim}
+--******** F A L L U T O 2.0 COMPILED SYSTEM FOR NuSMV ********
+
+MODULE main()
+
+    -- @@@ DEFINITIONS.
+
+    -- @@@ VARIABLES DECLARATION SECTION.
+    VAR
+        action#:{ fault#mod1#clear, trans#mod2#restart,
+                  synchro#sync, trans#mod1#restart, 
+                  dk#action, fault#mod2#clear};
+        lvar#mod1#file : 0 .. 9 ;
+        lvar#mod2#file : 0 .. 9 ;
+        ipc#mod1 : 0..1;
+        ipc#mod2 : 0..1;
+
+    -- @@@ INITIALIZATION SECTION.
+    INIT
+        ( lvar#mod1#file = 0 ) & 
+        ( lvar#mod2#file = 0 )
+
+    -- @@@ TRANSITION SECTION.
+    TRANS
+        
+        ((next(action#) = trans#mod1#restart) & 
+        (( lvar#mod2#file != lvar#mod1#file ) ) & 
+        (next(lvar#mod1#file) = 0 ) & (next(ipc#mod1) = 1) & 
+        (next(lvar#mod2#file) = lvar#mod2#file) & 
+        (next(ipc#mod2) = ipc#mod2)) | 
+        
+        ((next(action#) = trans#mod2#restart) & [...] |
+         
+        ((next(action#) = synchro#sync) & 
+        (( lvar#mod2#file = lvar#mod1#file ) ) &
+        (( lvar#mod1#file = lvar#mod2#file ) ) &
+        (next(lvar#mod1#file) = ((lvar#mod1#file + 1) mod 10)) &
+        (next(ipc#mod1) = 0) &
+        (next(lvar#mod2#file) = ((lvar#mod2#file + 1) mod 10)) &
+        (next(ipc#mod2) = 0)) | 
+
+        ((next(action#) = fault#mod1#clear) & (TRUE ) &
+        (next(lvar#mod1#file) in ( 0 .. 9 ) ) &
+        (next(lvar#mod2#file) = lvar#mod2#file) &
+        (next(ipc#mod1) = ipc#mod1) & 
+        (next(ipc#mod2) = ipc#mod2)) |
+
+        ((next(action#) = fault#mod2#clear) & [...] | 
+        (
+        --  @@ DEADLOCK TRANSITION
+        (next(action#) = dk#action) & 
+        (!(( lvar#mod2#file != lvar#mod1#file ) )) &
+        (!(( lvar#mod1#file != lvar#mod2#file ) )) &
+        ((!(( lvar#mod2#file = lvar#mod1#file ) )) |
+        (!(( lvar#mod1#file = lvar#mod2#file ) ))) &
+        (next(lvar#mod1#file) = lvar#mod1#file) &
+        (next(lvar#mod2#file) = lvar#mod2#file) &
+        (next(ipc#mod1) = ipc#mod1) &
+        (next(ipc#mod2) = ipc#mod2))
+
+-- @@@ SYSTEM CONTRAINTS
+
+--  @@ MODULE FAIRNESS FOR mod1
+
+FAIRNESS ((!(( lvar#mod2#file != lvar#mod1#file ) )) &
+         ((!(( lvar#mod2#file = lvar#mod1#file ) )) |
+         (!(( lvar#mod1#file = lvar#mod2#file ) )))) |
+         (action# in { trans#mod1#restart, synchro#sync})
+
+--  @@ MODULE FAIRNESS FOR mod2
+
+FAIRNESS ((!(( lvar#mod1#file != lvar#mod2#file ) )) & [...]
+
+--  @@ FAULT SYSTEM FAIRNESS
+FAIRNESS (action# in { synchro#sync, dk#action, 
+                       trans#mod1#restart, 
+                       trans#mod2#restart})
+
+-- @@@ PROPERTIES 
+
+--  @@ PROPERTIE: NEVER FALLS IN DEADLOCK
+CTLSPEC AX AG action# != dk#action
+
+--  @@ PROPERTIE: LTLSPEC G!((mod1.file != mod2.file) 
+--                        & (just( sync )))
+LTLSPEC ( G !( ( lvar#mod1#file != lvar#mod2#file ) &
+        ( action# = synchro#sync ) ) ) 
+
+--  @@ PROPERTIE: FINITELY_MANY_FAULTS GF(mod1.file = 9)
+LTLSPEC (F G !(action# in {fault#mod1#clear, fault#mod2#clear}))
+        -> ( G F ( lvar#mod1#file = 9 ) ) 
+
+--  @@ PROPERTIE: LTLSPEC GF(mod1.file = 9)
+LTLSPEC ( G F ( lvar#mod1#file = 9 ) ) 
+
+--  @@ PROPERTIE: CTLSPEC AG(mod1.file = mod2.file)
+CTLSPEC AG ( lvar#mod1#file = lvar#mod2#file ) 
+\end{verbatim}
+\noindent \line(1,0){400}\\
+
+Algunas palabras han sido omitidas en el c\'odigo de arriba siendo reemplazadas por  \texttt{[...]} debido a similitud con otras partes del c\'odigo. Recomendamos revisar los cap\'itulos \ref{CapNuSMV} y \ref{CapSemanticaDeFalluto} para comprender correctamente cada secci\'on del c\'odigo compilado en el contexto del modelo original.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Protocolo de comunicaci\'on satelital defectuoso}
@@ -1696,10 +1835,10 @@ ENDPROCTYPE
 \section*{Ejecuci\'on de contraejemplo}
 {\fontsize{12pt}{9pt}\selectfont
 \begin{verbatim}
-|-|	Specification FINITELY_MANY_FAULTS 
+|-| Specification FINITELY_MANY_FAULTS 
     GF((just( read2 )) & (buffER.data = MSEQ)) is false
 
-	as demonstrated by the following execution sequence:
+    as demonstrated by the following execution sequence:
 
 
 ---> State: 0 <---
@@ -1925,9 +2064,9 @@ ENDPROCTYPE
 
 
 \chapter{extra}
-	- falencias de falluto??? 
-	- fallas por omisi\'on de input.
-	- recuperci\'on de fallas por parte del usuario.
+    - falencias de falluto??? 
+    - fallas por omisi\'on de input.
+    - recuperci\'on de fallas por parte del usuario.
 %TODO Algo que le falta a Falluto 2.0 es la posibilidad de simular interactivamente sobre el sistema modelado para depurar el modelado mismo.
 
 
