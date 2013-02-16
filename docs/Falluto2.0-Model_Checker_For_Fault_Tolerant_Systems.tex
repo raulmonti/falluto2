@@ -1473,6 +1473,14 @@ La inspecci\'on de la ejecuci\'on de contraejemplo otorgada por Falluto2.0, perm
 
 \chapter{Conclusi\'on}
 
+Entre los logros alcanzados en este trabajo podemos destacar haber llegado a definir un lenguaje simple, intuitivo y prolijo para el modelado de sistemas, e inyecci\'on de fallas. Estas caracter\'isticas en nuestro lenguaje se lograron a partir de respaldarnos en representaciones formales ampliamente usadas y estudiadas como lo son LTS y estructuras de Kripke. El lenguaje de Falluto2.0 logra una clara abstracci\'on sobre el amplio lenguaje de NuSMV, creando un entorno espec\'ifico para el estudio de sistemas tolerantes a fallas, cumpliendo as\'i con uno de los objetivos principales del trabajo. El uso de un back-end de alta confiabilidad otorga a nuestra herramienta cierto grado de utilidad en entornos industriales o cient\'ificos. Otro logro importante ha sido poder definir claramente el contexto de fairness para el an\'alisis del sistema, lo cual junto con las meta-propiedades automatizan en gran medida el trabajo de verificaci\'on.
+
+Por otro lado, podemos enumerar algunas tareas que quedaron en el camino, y que ser\'ia importante lograr a futuro. El model checker NuSMV ofrece numerosas opciones de ejecuci\'on de gran utilidad para el usuario, las cuales no son aprovechadas por nuestra herramienta. Entre ellas podemos encontrar por ejemplo la verificaci\'on mediante \textit{bounded model checking}, o la posibilidad de verificar estados inalcanzables o estados de deadlock previo a la verificaci\'on del sistema. Ampliar la bater\'ia de meta-propiedades de Falluto ser\'ia otra meta a futuro. En particular qued\'o en proceso de implementaci\'on una meta-propiedad basada en el trabajo \cite{dippolito}, la cual busca probar que una propiedad se cumpla mientras exista un lapso de no ocurrencia de fallas establecido por alguna invariante.
+
+Una \'ultima mejora a nuestra herramienta consistir\'ia en ampliar su sintaxis, y de esta manera agilizar la escritura de los modelos. Esta mejora se lograr\'ia mejorando características como el uso de definiciones sint\'acticas, las cuales en este momento est\'an limitadas a ser usadas solo en algunas secciones del c\'odigo del modelado. As\'i tambi\'en, aportar\'ia a esta tarea relajar las restricciones sint\'acticas en diferentes sectores del modelado como puede ser el listado de cambios en la postcondici\'on de las transiciones o la declaraci\'on de dominios para las variables. Para lograr esta meta, se podr\'ia aprovechar en gran medida las facilidades sint\'acticas ofrecidas por NuSMV.
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1514,11 +1522,11 @@ filename & Ruta del archivo de input donde se encuentra \\
 \chapter{Sint\'axis formal de Falluto}
 \label{sintaxisFormal}
 
-A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea. Consideramos aqu\'i terminales a las letras en it\'alico y a los s\'imbolos y puntuaciones entre comillas.
+A continuaci\'on presentamos la sint\'axis formal de Falluto2.0 en t\'erminos de Parsing Expression Grammars (PEG) y Regular Expressions (RE). Estas producciones pasan por alto los espacios en blanco, tabulaciones y saltos de linea.
 
 \section*{Palabras reservadas de Falluto2.0}
 
-Las siguientes palabras son de caracter reservado, son usadas para fines espec\'ificos en la especificaci\'on del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
+Las siguientes palabras son de caracter reservado. Son usadas en casos puntuales de la especificaci\'on del sistema, y no pueden ser usadas como identificadores de variables o nombres.\\
 
 %\begin{tabular}{>{\bfseries}l>{\itshape}l}
 \begin{tabularx}{\textwidth}{>{\bfseries}l>{\itshape}X }
@@ -1527,7 +1535,10 @@ RESERVED $\longleftarrow$ & in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAM
 \end{tabularx}
 %\end{tabular}
 ~\\
-
+%
+%\begin{tabularx}{\textwidth}{>{\bfseries}lcX }
+%RESERVED & $\longleftarrow$ & \texttt{in / CHECK\_DEADLOCK / OPTIONS / ENDOPTIONS / SYSNAME / just / is / FAIRNESS / COMPASSION / U / V / S / T / xor / xnor / G / X / F / H / O / Z / Y / PROCTYPE / ENDPROCTYPE / INSTANCE / TRANS / INIT / VAR / FAULT / TRUE / FALSE / AG / AX / AF / EX / EF / EG / INST\_WEAK\_FAIR\_DISABLE / FAULT\_FAIR\_DISABLE / in / FINITELY\_MANY\_FAULT / FINITELY\_MANY\_FAULTS / LTLSPEC / CTLSPEC / DEFINE / FAIRNESS / COMPASSION/ NORMAL\_BAHAIVIOUR}\\
+%\end{tabularx}
 
 
 \section*{Algunas producciones simples}
@@ -2193,6 +2204,13 @@ Roberto; and Tacchella, Armando.
 \newblock {\em NuSMV 2: An OpenSource Tool for Symbolic Model Checking.}
 \newblock Computer Science Department. Paper 430. 2002.
 \newblock \texttt{http://repository.cmu.edu/compsci/430}
+
+
+\bibitem{dippolito} 
+N. D'Ippolito, V. Braberman, N. Piterman, S. Uchitel.
+\newblock {\em Synthesis of Live Behaviour Models for Fallible Domains.}
+\newblock Software Engineering (ICSE), 2011 33rd International Conference.
+
 
 
 \end{thebibliography}
