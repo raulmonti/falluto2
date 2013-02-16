@@ -421,10 +421,14 @@ class Checker(object):
                         + pt.name + "\'.")
                 
                 t1 = self.getTypeFromTable(inst, nrname)
-                t2 = self.getExpresionType(inst, expr)
+                if p[1] == '=':
+                    t2 = self.getExpresionType(inst, expr)
+                elif p[1] == 'in':
+                    t2 = self.getSetOrRangeType(inst, expr)
+                        
                 
                 if (p[1] == '=' and t1 != t2) \
-                    or (p[1] == 'in' and t2 == Types.Int and t1 != t2):
+                    or (p[1] == 'in' and not t1 in t2):
                     line = nextref.__name__.line
                     raise LethalE( "Wrong types <" + Types.Types[t1] \
                                  + "> (from \'" + nrname + "\') and <" \
@@ -527,6 +531,10 @@ class Checker(object):
 
     #.......................................................................
     def getSetOrRangeType(self, inst, expr):
+        """
+            Returns list of types for expr (sets can have diferent types 
+            inside).
+        """
         assert isinstance(expr, pyPEG.Symbol)
         assert expr.__name__ in ["RANGE", "SET"]
         if expr.__name__ == "RANGE":
