@@ -1,11 +1,4 @@
-
-%TODO cambiar las palabras entre []
-%TODO rellenar los '...'
-%TODO Hablar sobre el interprete de trazas, y la manera de leer los resultados
-
-
-
-\documentclass[titlepage, 12pt]{book}
+\documentclass[titlepage, pdftex,a4paper,12pt]{book}
 \usepackage[spanish]{babel}
 
 \pagestyle{plain}
@@ -78,25 +71,28 @@
 % only works if a paragraph has started.
 \includegraphics[width=0.30\textwidth]{./Imagenes/logo}~\\[0.5cm]
 
-\textsc{\Large Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[0.5cm]
+\textsc{\Large Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[1.5cm]
 
 \textsc{\large Trabajo final de grado}\\
 
 % Title
 \HRule \\[0.4cm]
 { \huge \bfseries Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}\\
-\HRule \\[1.0cm]
+\HRule \\[1.5cm]
 
 
 
-\hspace{0.5\textwidth}
+\hspace{0.3\textwidth}
 \begin{minipage}{0.45\textwidth}
 \begin{flushleft}
-{\large
-Ra\'ul \textsc{Monti}\\
-Directores:\\
-Dr. Pedro R. \textsc{D'Argenio},\\
-Dr. Nazareno \textsc{Aguirre}
+{
+Ra\'ul E. \textsc{Monti}
+\begin{tabbing}
+	Directores: \=\kill % seteo de tab stops
+	Directores: \> Pedro R. \textsc{D'Argenio},\\
+		        \> Nazareno \textsc{Aguirre}
+\end{tabbing}
+
 }
 \end{flushleft}
 \end{minipage}
@@ -187,8 +183,6 @@ Es objetivo de este trabajo elaborar una herramienta que contribuya a disminuir 
 Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV \cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errores evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo. Este trabajo se presenta como extensi\'on del trabajo realizado por Edgardo Hames \cite{Hames}, y toma como base los conocimientos adquiridos a partir del trabajo de caracter\'isticas similares realizado por Nicol\'as Bordenabe \cite{Bordenabe}.
 
 Comenzaremos este trabajo sentando las bases acerca de lo que entenderemos como falla y lo que significa que un sistema sea tolerante a las mismas, todo esto en el cap\'itulo \ref{CapToleranciaAFallas}. Continuaremos en el cap\'itulo \ref{CapMC} repasando conocimientos te\'oricos, que ser\'an luego aplicados a la implementaci\'on de nuestra herramienta de model checking. En los cap\'itulos \ref{CapNuSMV} y \ref{sintaxisDeFalluto} daremos una mirada al lenguaje de especificaci\'on de nuestro back-end NuSMV y de nuestra harramienta Falluto2.0 respectivamente. Distinguiremos en esta etapa la sencillez y practicidad de nuestra sintaxis de modelado de sistemas, observando en ello el logro de una de las metas de este trabajo. Siguiendo con la presentaci\'on de la herramienta, atenderemos en el cap\'itulo \ref{CapSemanticaDeFalluto} la sem\'antica de la misma. Veremos aplicada aqu\'i gran parte de la teor\'ia y las ideas presentadas en el cap\'itulo ref{CapMC}. En el \'ultimo cap\'itulo expondremos dos casos de estudio, con la intenci\'on de observar en la pr\'actica el comportamiento de nuestra herramienta y la interacci\'on con la misma. En los ap\'endices hallaremos por \'ultimo, ejemplos de modelado, compilaci\'on y resultados de verificaci\'on, como as\'i tambi\'en la sintaxis formal y el manual de uso de Falluto2.0, entre otras cosas.
-
-%TODO seguir hablando del trabajo y poner la distribucion de los temas en el trabajo.
 
 
 
@@ -405,7 +399,6 @@ Podemos reducir el tama\~no de los BDD logrando una mejora de eficiencia en el e
 
 Estas reducciones no afectan la representaci\'on del BDD con respecto a la f\'ormula booleana original, y presenta una gran ventaja con respecto al espacio necesario para almacenar tablas de verdad por ejemplo. En la figura \ref{reduccionBDD} podemos ver un ejemplo de aplicaci\'on de estas reducciones. En la figura (A) vemos el BDD original. La figura (B) es el resultado de unificar las hojas seg\'un R1. La figura (C) es el resultado de eliminar uno de los nodos de etiqueta `y' seg\'un R3. Finalmente (D) es el resultado de aplicar la regla R2 eliminando el nodo de etiqueta `x'.
 
-%TODO demasiado tonto el ejemplo?
 \begin{figure}[htp]
   \centering
     \includegraphics[scale=0.75]{Imagenes/reduccionBDD.pdf}
@@ -451,9 +444,6 @@ Para el caso de la relaci\'on de transici\'on recordemos que \'esta es un subcon
 
 
 
-
-
-%TODO ver qu\'e hizo Pablo Dal Lago con esto, para ampliar la teor\'ia de reducci\'on.
 
 %..................................................................................................................................................................
 
@@ -2071,16 +2061,6 @@ ENDPROCTYPE
   buffER empty = FALSE
 \end{verbatim}
 }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\chapter{extra}
-    - falencias de falluto??? 
-    - fallas por omisi\'on de input.
-    - recuperci\'on de fallas por parte del usuario.
-%TODO Algo que le falta a Falluto 2.0 es la posibilidad de simular interactivamente sobre el sistema modelado para depurar el modelado mismo.
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
