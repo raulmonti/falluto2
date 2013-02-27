@@ -176,6 +176,15 @@ En model checking usualmente sucede que:\\[0.5cm]
 %_____________________________________________________________
 \begin{frame}
 \frametitle{LTS}
+Un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:\\[0.3cm]
+\begin{itemize}\itemsep10pt
+\item $S$ es un conjunto de estados
+\item $S_0 \subseteq S$ es un conjunto de estados iniciales
+\item $L$ es un conjunto de etiquetas (nombres de transiciones)
+\item $R \subseteq S \times L \times S$ es una relaci\'on ternaria de transiciones etiquetadas
+\end{itemize}
+~\\
+Si $s1, s2 \in S$, $l \in L$, y $(s1,l,s2) \in R$, entonces existe una transici\'on con nombre $l$ desde el estado $s1$ al estado $s2$.
 \end{frame}
 %_____________________________________________________________
 
@@ -600,6 +609,16 @@ inst var1 = TRUE
 \end{itemize}
 \end{frame}
 %_____________________________________________________________
+
+
+\section{Ejemplo de uso}
+%_____________________________________________________________
+\begin{frame}
+\frametitle{Ejemplo}
+\begin{center}{\LARGE \emph{Cómo usar Falluto2.0}}\end{center}
+\end{frame}
+%_____________________________________________________________
+
 
 
 
