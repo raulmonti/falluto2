@@ -1,10 +1,8 @@
-\documentclass[titlepage, pdftex,a4paper,12pt]{book}
+\documentclass[pdftex,a4paper,12pt]{book}
 \usepackage[spanish]{babel}
 
 \pagestyle{plain}
-\title{Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}
-\author{Raul Monti}
-\date{Diciembre 2012}
+
 
 \usepackage{graphicx} % para poner im\'agenes
 \usepackage{float}    % para establecer posici\'on de im\'agenes
@@ -12,6 +10,12 @@
 \usepackage{tabularx}
 \usepackage{enumerate}
 \usepackage{longtable}
+
+
+% para la caratula
+\usepackage{wrapfig}	% Imágenes envueltas en texto (para el título)
+\usepackage{graphicx}	% Inclusión de imágenes
+
 
 
 % APENDICES
@@ -25,6 +29,10 @@
 % Linea separadora para c\'odigo
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 %
+
+\newcommand{\Hline}{\rule{1.1\textwidth}{0.5mm}}
+
+
 
 
 % MACROS
@@ -56,74 +64,18 @@
 \newcommand{\textff}[1]{\begin{center}\texttt{#1}\end{center}}
 %%
 
+
+
+
 \begin{document}
 
-%\maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CARATULA
+
+\input{titulo.tex}
+
 %
-
-\begin{titlepage}
-\begin{center}
-
-% Upper part of the page. The '~' is needed because \\
-% only works if a paragraph has started.
-\includegraphics[width=0.30\textwidth]{./Imagenes/logo}~\\[0.5cm]
-
-\textsc{\Large Universidad Nacional de C\'ordoba.\\ Facultad de Matem\'atica, Astronom\'ia y F\'isica}\\[1.5cm]
-
-\textsc{\large Trabajo final de grado}\\
-
-% Title
-\HRule \\[0.4cm]
-{ \huge \bfseries Falluto2.0 Un Model Checker para la verificaci\'on autom\'atica de sistemas tolerantes a fallas.}\\
-\HRule \\[1.5cm]
-
-
-
-\hspace{0.3\textwidth}
-\begin{minipage}{0.45\textwidth}
-\begin{flushleft}
-{
-Ra\'ul E. \textsc{Monti}
-\begin{tabbing}
-	Directores: \=\kill % seteo de tab stops
-	Directores: \> Pedro R. \textsc{D'Argenio},\\
-		        \> Nazareno \textsc{Aguirre}
-\end{tabbing}
-
-}
-\end{flushleft}
-\end{minipage}
-
-% Author and supervisor
-%\begin{minipage}{0.4\textwidth}
-%\begin{flushleft} \large
-%\emph{Alumno:}\\
-%Ra\'ul E.~\textsc{Monti}
-%\end{flushleft}
-%\end{minipage}
-%\begin{minipage}{0.4\textwidth}
-%\begin{flushright} \large
-%\emph{Director:} \\
-%Dr.~Pedro~R.~\textsc{D'Argenio}\\
-%\emph{Codirector:} \\
-%Lc.~Nazareno \textsc{Aguirre}
-%\end{flushright}
-%\end{minipage}
-
-\vfill
-
-% Bottom of the page
-\begin{flushright}
-{C\'ordoba, \today}
-\end{flushright}
-
-\end{center}
-\end{titlepage}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 ~\\
@@ -601,13 +553,12 @@ Este cap\'itulo nos deja entrever as\'i tambi\'en el gran control que tendremos 
 
 \chapter{NuSMV}
 \label{CapNuSMV}
-\section{El model checker NuSMV}
 
-NuSMV es un model checker simb\'olico originado en la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.
+NuSMV es un model checker simb\'olico originado a partir la reingenier\'ia, reimplementaci\'on y extensi\'on de SMV, el primer model checker basado en BDD. NuSMV fue dise\~nado para ser una plataforma bien estructurada, de c\'odigo abierto, flexible, y ampliamente documentada, para el model checking. Con el fin de permitir que NuSMV sea utilizado en proyectos para la transferencia de tecnolog\'ias, fue dise\~nado para ser muy robusto, cercano a los est\'andares industriales, y para permitir lenguajes de especificaci\'on ampliamente expresivos \cite{Cimatti}.
 
 NuSMV permite la verificaci\'on de propiedades en los formalismos LTL y CTL, sobre modelados finitos de sistemas concurrentes, bajo condiciones de fairness.
 
-Para este trabajo usamos como back-end el model checker \textit{NuSMV2} \cite{NuSMV2}, el cual integra la verificaci\'on en base a \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
+Para este trabajo usamos como back-end el model checker \textit{NuSMV2} \cite{NuSMV2}, el cual integra la verificaci\'on de propiedades LTL y CTL mediante model checking simb\'olico sobre \textit{BDD} junto con la verificaci\'on acotada de propiedades LTL mediante \textit{SAT-Solving}. Otra particularidad de esta versi\'on es el uso de una licencia \textit{OpenSource} para programaci\'on y distribuci\'on abierta de su c\'odigo, lo cual permite, a cualquier persona interesada, usar la herramienta gratuitamente y colaborar con el desarrollo de la misma.
 
 
 \section{Lenguaje de modelado de NuSMV}
@@ -643,7 +594,7 @@ MODULE auto
 
 \subsection*{Transiciones}
 
-La palabra clave \texttt{TRANS} en NuSMV permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \texttt{x}, tenemos que \texttt{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una f\'ormula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on aleatoria por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
+La palabra clave \texttt{TRANS} en NuSMV permite introducir dentro de los m\'odulos una secci\'on donde definir las transiciones de nuestra maquina de estados. As\'i como ya hemos planteado anteriormente, las transiciones hablar\'an sobre dos clases de estados: los estados actuales, y los estados posteriores, de manera de definir la relaci\'on sobre los mismos. Dada una variable de estado \texttt{x}, tenemos que \texttt{next(x)} representa el estado de la variables en el momento inmediatamente posterior al actual. Una f\'ormula proposicional establece entonces las caracter\'isticas de la relaci\'on de transici\'on. Las ambigüedades en esta f\'ormula con respecto a la maquina de estados representada introducen una elecci\'on no determinista por parte de NuSMV. Esto es \'util para representar no determinismo entre saltos de estados.
 
 \begin{verbatim}
 MODULE auto
@@ -659,17 +610,17 @@ MODULE auto
 
 \end{verbatim}
 
-Notemos que en el ejemplo solo definimos condiciones para el caso en que \texttt{estado = encendido} y \texttt{nafta <= 0}, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da \texttt{estado = apagado} o \texttt{nafta > 0} el no-determinismo maneja la elecci\'on de un estado posterior.
+Notemos que en el ejemplo solo definimos condiciones para el caso en que \texttt{estado = encendido} y \texttt{nafta <= 0}, caso en el que el auto deber\'ia apagarse en el pr\'oximo estado. En los casos en que se da \texttt{estado = apagado} o \texttt{nafta > 0} el no-determinismo maneja la elecci\'on de un estado posterior arbitrario.
 
 
 \subsection*{Restricciones y fairness}
 
-NuSMV permite establecer restricciones de fairness sobre la ejecuci\'on de nuestro sistema. Esto permite revisar nuestro sistema bajo ciertos supuestos con respecto a su ejecuci\'on. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
+NuSMV permite establecer restricciones de fairness sobre la ejecuci\'on de nuestro sistema. Esto permite restringir nuestro sistema bajo ciertos supuestos con respecto a su ejecuci\'on. Tenemos la posibilidad de definir dos tipos de condiciones de fairness sobre nuestro sistema modelado:
 \begin{itemize}
 
-\item \textit{Fairness incondicional} Dada una f\'ormula $q$ sobre el estado del sistema, escribimos \texttt{FAIRNESS q} para establecer una la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on $q$ se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla $\G \F q$.
+\item \textit{Fairness incondicional.} Dada una f\'ormula $q$ sobre el estado del sistema, escribimos \texttt{FAIRNESS q} para establecer la condici\'on de fairness incondicional sobre nuestro sistema modelado. Establece que cierta condici\'on $q$ se cumple frecuentemente durante la ejecuci\'on del sistema. En t\'erminos de l\'ogicas de tiempo lineal, esto corresponder\'ia a restringir la ejecuci\'on del sistema a solo aquellas trazas donde se cumpla $\G \F q$.
 
-\item \textit{Strong Fairness} Dadas dos f\'ormulas $p$ y $q$ sobre el estado del sistema, escribimos \texttt{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a la revisi\'on de aquellas ejecuciones del sistema en donde valga que si $p$ se cumple siempre a menudo entonces $q$ se cumple siempre a menudo. En t\'erminos de LTL esto corresponder\'ia a revisar solo aquellas ejecuciones donde se cumpla $\G \F p \rightarrow \G \F q$.
+\item \textit{Strong Fairness.} Dadas dos f\'ormulas $p$ y $q$ sobre el estado del sistema, escribimos \texttt{COMPASSION(p,q)} para establecer una condici\'on de fairness fuerte sobre el sistema. Esta condici\'on restringe a aquellas ejecuciones del sistema en donde valga que si $p$ se cumple a menudo entonces $q$ tambi\'en se cumple a menudo. En t\'erminos de LTL esto corresponder\'ia a restringir a aquellas ejecuciones donde se cumpla $\G \F p \rightarrow \G \F q$.
 
 \end{itemize}
 
@@ -695,7 +646,7 @@ LTLSPEC F nafta = 0
 CTLSPEC EG estado = apagado
 \end{verbatim}
 
-En el ejemplo de arriba podemos encontrar la especificaci\'on de una propiedad LTL introducida por la palabra clave \texttt{LTLSPEC} y una CTL introducida por la palabra clave \texttt{CTLSPEC}. Ambas ser\'an verificadas sobre el sistema modelado pero bajo la condici\'on de fairness dada por \texttt{FAIRNESS F nafta = 0}.
+En el ejemplo de arriba podemos encontrar la especificaci\'on de una propiedad LTL introducida por la palabra clave \texttt{LTLSPEC} y una CTL introducida por la palabra clave \texttt{CTLSPEC}. Ambas ser\'an verificadas sobre el sistema modelado pero bajo la condici\'on de fairness dada por \texttt{FAIRNESS nafta >~0} (es decir \textit{G F nafta $>$ 0} ).
 
 \section*{Discusi\'on}
 
@@ -707,10 +658,10 @@ Si bien el lenguaje de NuSMV presenta una amplia variedad de posibilidades para 
 \chapter{La sintaxis de Falluto2.0}
 \label{sintaxisDeFalluto}
 
-En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre este sistema, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar. Para una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, en el ap\'endice \ref{sintaxisFormal} de este mismo trabajo se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars.
+En este cap\'itulo repasaremos de manera detallada la sintaxis de Falluto2.0. Comenzaremos explicando como modelar el comportamiento operacional de nuestro sistema. A continuaci\'on mostraremos el mecanismo para la inyecci\'on de fallas sobre el modelo operacional, y concluiremos describiendo la sintaxis para la especificaci\'on de restricciones y propiedades a verificar. El ap\'endice \ref{sintaxisFormal} contiene una referencia a\'un m\'as completa y precisa sobre las reglas sint\'acticas, donde se puede encontrar una descripci\'on de la sintaxis en t\'erminos de Parsing Expresion Grammars.
 
-\section{Lenguaje de modelado de comportamiento operacional}
-Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema, usaremos los \textit{proctypes} de Falluto2.0. Cada \textit{proctype} define el funcionamiento interno de una clase de proceso en su totalidad, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de cada \textit{proctype} esta delimitada por las palabras claves \texttt{PROCTYPE} y \texttt{ENDPROCTYPE}, y en ella podemos distinguir los siguientes elementos:
+\section{Lenguaje para el modelado del comportamiento normativo}
+Para definir el comportamiento de cada proceso involucrado en el funcionamiento de nuestro sistema (el "normado"), usaremos los \textit{proctypes} de Falluto2.0. Cada \textit{proctype} define el funcionamiento interno de una clase de proceso en su totalidad, y los procesos reales pueden ser instanciados a partir del mismo. La declaraci\'on de cada \textit{proctype} esta delimitada por las palabras claves \texttt{PROCTYPE} y \texttt{ENDPROCTYPE}, y en ella podemos distinguir los siguientes elementos:
 \begin{itemize}
 \item El encabezado.
 \item La declaraci\'on de variables de estado.
@@ -740,25 +691,25 @@ En el \textit{cuerpo} del proctype podemos distinguir tres secciones que definen
 \end{enumerate}
 
 \item \textit{Declaraci\'on de estados iniciales.}
-Esta secci\'on es introducida por la palabra clave \texttt{INIT}, y define el conjunto de estados iniciales de los procesos de este tipo mediante una f\'ormula proposicional sobre las variables de estado del proceso. Similar a la secci\'on \textit{INIT} de los m\'odulos de NuSMV, la f\'ormula que se describe aqu\'i busca restringir o no los valores que puede adoptar cada variables de estado en el estado inicial de la ejecuci\'on del proceso. Se permite aqu\'i el uso de conectivos l\'ogicos y proposicionales como $\rightarrow, |, \&, \leftrightarrow, etc$, adem\'as de conectivos matem\'aticos, valores booleanos y otros elementos. La restricci\'on m\'as importante es que la f\'ormula final sea de tipo booleano.
+Esta secci\'on es introducida por la palabra clave \texttt{INIT}, y define el conjunto de estados iniciales de los procesos de este tipo mediante una f\'ormula proposicional sobre las variables de estado del proceso. Similar a la secci\'on \texttt{INIT} de los m\'odulos de NuSMV, la f\'ormula que se describe aqu\'i busca restringir o no los valores que puede adoptar cada variables de estado en el estado inicial de la ejecuci\'on del proceso. Se permite aqu\'i el uso de conectivos l\'ogicos y proposicionales como $\rightarrow, |, \&, \leftrightarrow, etc$, adem\'as de conectivos matem\'aticos, valores booleanos y otros elementos. La restricci\'on m\'as importante es que la f\'ormula final sea de tipo booleano.
 
 \item \textit{Definici\'on de las transiciones.}
 Para definir la relaci\'on de transici\'on de nuestros procesos, tomaremos en cuenta cada transici\'on por separado. Podremos etiquetar las transiciones con un nombre, y de esta manera poder referir a la misma al momento de declarar las propiedades a ser verificadas. Llamaremos acci\'on al nombre de la transici\'on. La sintaxis general para la declaraci\'on de una transici\'on es la que sigue: 
 \begin{verbatim}
 [accion] condicion_de_habilitacion => postcondicion ;
 \end{verbatim}
-Como ya dijimos \texttt{accion} es el nombre de la transici\'on (representa a la acci\'on que lleva a cabo el sistema para pasar a un nuevo estado), la \texttt{condicion\_de\_habilitacion} es una f\'ormula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transici\'on a aquellos que la cumplan. Por \'ultimo, \texttt{postcondicion} es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las caracter\'isticas de los estados de destino de esta transici\'on. Para indicar que estamos asignando un valor a una variable en el pr\'oximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente pr\'oximo. El siguiente es un ejemplo un poco mas claro para la declaraci\'on de una transici\'on:
+Como ya dijimos \texttt{accion} es el nombre de la transici\'on (representa a la acci\'on que lleva a cabo el sistema para pasar a un nuevo estado). Este nombre no es indispensable, y por lo tanto puede omitirse en aquellos casos en los que no sea necesario para la definición y an\'alisis del sistema. La \texttt{condicion\_de\_habilitacion} es una f\'ormula booleana sobre el estado actual del sistema, que restringe los estados de partida de la transici\'on a aquellos que la cumplan. Por \'ultimo, \texttt{postcondicion} es un lista de asignaciones a las variables en el estado de llegada. Estas asignaciones definen las caracter\'isticas de los estados de destino de esta transici\'on. Para indicar que estamos asignando un valor a una variable en el pr\'oximo estado usamos el apostrofe al final del nombre de la variable, por ejemplo si $x$ es una variable en el estado actual entonces $x'$ es una variables en el estado inmediatamente pr\'oximo. El siguiente es un ejemplo un poco mas claro para la declaraci\'on de una transici\'on:
 \begin{verbatim}
 [transicion1] x > 3 & y => x' = x - 1, y' = !y;
 \end{verbatim}
-Vemos en el ejemplo que la precondici\'on restringe los estados origen a aquellos en los que el valor de verdad de \texttt{y} sea \textit{TRUE} y el valor num\'erico de \texttt{x} sea mayor a $3$. Por su parte se restrige a los estados de llegada al subconjunto de estados que cumplan con la condici\'on de que el valor de \texttt{x} sea su valor actual menos $1$ y el de \texttt{y} sea la negaci\'on de su valor actual.
+Vemos en el ejemplo que la precondici\'on restringe los estados origen a aquellos en los que el valor de \texttt{y} sea \texttt{TRUE} y el valor num\'erico de \texttt{x} sea mayor a $3$. Por su parte se restrige a los estados de llegada al subconjunto de estados que cumplan con la condici\'on de que el valor de \texttt{x} sea su valor actual menos $1$ y el de \texttt{y} sea la negaci\'on de su valor actual.
 \end{enumerate}
 
-Una vez descripto el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave \texttt{INSTANCE} y pasamos a la instanciaci\'on los par\'ametros pertinentes, seg\'un se haya definido en el proctype correspondiente. La sintaxis ser\'ia entonces la siguiente: 
+Una vez descrito el funcionamiento de los procesos dentro de cada proctype, podemos instanciar una o mas veces cada uno de ellos para en efecto definir los procesos involucrados en el sistema. Usamos para ello la palabra clave \texttt{INSTANCE} y pasamos a la instanciaci\'on los par\'ametros pertinentes, seg\'un se haya definido en el proctype correspondiente. La sintaxis ser\'ia entonces la siguiente: 
 \begin{verbatim}
 INSTANCE nombre = nombre_proctype(param1, param2, ..., paramN)
 \end{verbatim}
-Como ya hemos mencionado, podemos pasar variables de contexto como par\'ametros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el par\'ametro correspondiente. Para referir a una variable en particular de alguna instancia colocamos el nombre de la instancia precedido por un punto y el nombre de la variable en cuesti\'on:
+Como ya hemos mencionado, podemos pasar variables de contexto como par\'ametros a nuestras instancias. Estas variables de contexto pueden ser referencias a instancias, o a variables de otras instancias. Para pasar una instancia completa como variable de contexto simplemente colocamos su nombre en el par\'ametro correspondiente. Para referir a una variable de alguna instancia en particular colocamos el nombre de la instancia seguido por un punto y el nombre de la variable en cuesti\'on:
 \begin{verbatim}
 nombre_de_instancia.nombre_de_variable
 \end{verbatim}
@@ -788,7 +739,7 @@ Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una tran
 
 \begin{itemize}
 \item \textit{Tipo Transient.} Simplemente usamos la palabra clave \texttt{TRANSIENT} para declarar que la falla pertenece a este tipo. Notar que los efectos de estas fallas se restringen a la postcondici\'on que se haya definido en la declaraci\'on de la misma. Ejemplo: \begin{verbatim}falla1 : TRUE => x' = 0 is TRANSIENT\end{verbatim}
-\item \textit{Tipo Stop.} Declara que la falla tiene la capacidad de detener total o parcialmente el funcionamiento del proceso, impidiendo que el mismo realice ciertas transiciones. Usamos la palabra clave \texttt{STOP} y opcionalmente la precedemos de una lista con los nombres de transiciones que esta falla, en el caso de ocurrir, inhabilita. Notemos que si optamos por no otorgar dicha lista, la falla detendr\'a todas las transiciones normales del sistema, entendiendo por normales a aquellas que no son transici\'on de falla. Ejemplo: \begin{verbatim}falla1 : x => y' = FALSE is STOP(trans1,trans2) \end{verbatim}
+\item \textit{Tipo Stop.} Declara que la falla tiene la capacidad de detener total o parcialmente el funcionamiento del proceso, impidiendo que el mismo realice ciertas transiciones. Usamos la palabra clave \texttt{STOP} y opcionalmente la precedemos de una lista con los nombres de transiciones que ser\'an inhabilitadas en caso de que la falla ocurra. Si se omite dicha lista, la falla detendr\'a todas las transiciones normales del sistema, entendiendo por normales a aquellas que no son transici\'on de falla. Ejemplo: \begin{verbatim}falla1 : x => y' = FALSE is STOP(trans1,trans2) \end{verbatim}
 \item \textit{Tipo Byzantine.} Declara que la falla provoca un efecto bizantino sobre ciertas variables del proceso. Es decir que una vez ocurrida la falla las variables mencionadas podr\'an en cualquier momento cambiar su valor actual por alg\'un otro valor dentro de su dominio, provocando asi un cambio de estado en el sistema. Debemos preceder a la palabra clave \texttt{BYZ} con una lista de nombres de variables que ser\'an afectadas. Ejemplo: \begin{verbatim}falla1: TRUE => ... is BYZ(var1, var2) \end{verbatim}
 \end{itemize}
 
