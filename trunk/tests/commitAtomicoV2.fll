@@ -79,7 +79,7 @@ NORMAL_BEHAIVIOUR -> G ((coord.phase = 1 & coord.d & voter0.phase = 1 & voter0.d
 --
 -- Un proceso llega a la decisión de commit solo si todos los procesos votaron \textbf{SI}.
 --
-LTLSPEC G ( ((coord.phase = 2 & coord.d ) | (voter0.phase = 2 & voter0.d) | (voter1.phase = 2 & voter1.d) | (voter2.phase = 2 & voter2.d) | (voter3.phase = 2 & voter3.d)) -> (voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d) )
+LTLSPEC G ( ((coord.phase = 2 & coord.d ) | (voter0.phase = 2 & voter0.d) | (voter1.phase = 2 & voter1.d) | (voter2.phase = 2 & voter2.d) | (voter3.phase = 2 & voter3.d)) -> (coord.phase != 0 & coord.d & voter0.phase != 0 & voter0.d & voter1.phase != 0 & voter1.d & voter2.phase != 0 & voter2.d & voter3.phase != 0 & voter3.d) )
 
 
 --

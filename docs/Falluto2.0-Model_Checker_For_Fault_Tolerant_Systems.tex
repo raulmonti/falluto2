@@ -63,7 +63,8 @@
 % Estilo para f\'ormulas
 \newcommand{\textff}[1]{\begin{center}\texttt{#1}\end{center}}
 %%
-
+% Escape form format and go into new format
+\newcommand{\etextit}[1]{\textnormal{\textit{#1}}}
 
 
 
@@ -86,11 +87,11 @@
 
 Los sistemas computacionales juegan roles determinantes en muchas \'areas de nuestra vida cotidiana. En algunos casos la dependencia hacia estos sistemas es cr\'itica, y el mal funcionamiento de los mismos puede acarrear grandes perdidas econ\'omicas o hasta de vidas humanas.
 
-Las fallas en el dise\~no del sistema, como as\'i tambi\'en aquellas fallas causadas por el entorno de ejecuci\'on, pueden llevar a un comportamiento erroneo del mismo.
+Las fallas en el dise\~no del sistema, como as\'i tambi\'en aquellas fallas causadas por el entorno de ejecuci\'on, pueden llevar a un comportamiento erróneo del mismo.
 %
 %Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian a la aver\'ia o mal funcionamiento de los mismos. Estos sistemas por ende presentan una gran ventaja con respecto a aquellos que no lo son. Introducir la capacidad de tolerar fallas en un sistema computacional no es sencillo y es muy propenso a producir errores. La verificaci\'on de la correcci\'on de estos sistemas es entonces de vital importancia si se busca certificar que en efecto las fallas sean toleradas.\\
 
-Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian al mal funcionamiento de los mismos. Dar la capacidad de tolerar fallas a un sistema computacional no es sencillo y es muy propenso a introducir errores. La verificaci\'on de la correcci\'on de estos sistemas es entonces de vital importancia.
+Los sistemas tolerantes a fallas son capaces de lidiar con la presencia de fallas y sobrellevar estas situaciones que en otros casos llevar\'ian al mal funcionamiento de los mismos. Dar la capacidad de tolerar fallas a un sistema computacional no es sencillo y es muy propenso a introducir nuevos errores. La ve\-ri\-fi\-ca\-ci\'on de la correcci\'on de estos sistemas es entonces de vital importancia.
 
 %El model checking es una t\'ecnica formal que se encarga de verificar que el modelo de un sistema cumpla con un conjunto de propiedades. Este m\'etodo de verificaci\'on es exhaustivo y por lo tanto nos permite una verificaci\'on completa sobre el modelo del sistema a implementarse.\\
 
@@ -98,14 +99,23 @@ El model checking es una t\'ecnica formal que se encarga de verificar exhaustiva
 
 En este trabajo se presenta un lenguaje para el modelado de sistemas tolerantes a fallas y la especificaci\'on de propiedades sobre los mismos. Se provee adem\'as la herramienta de verificaci\'on Falluto2.0, construida como front-end para el model checker simb\'olico NuSMV, la cual utiliza el lenguaje descripto. Se analiza la simplicidad y practicidad del lenguaje como as\'i tambi\'en su correcci\'on. Por \'ultimo se observa el uso de la herramienta sobre dos casos particulares de modelado de sistemas tolerantes a fallas.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
  
 \newpage
-ABSTRACT
-\newpage
-AGRADECIMIENTOS
+\chapter*{Agradecimientos}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \newpage
 \tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 \newpage
 
@@ -113,28 +123,28 @@ AGRADECIMIENTOS
 \chapter{Introducci\'on}
 \label{introduccion}
 
-Es f\'acil notar la amplia dependibilidad que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes tareas, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocasiona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes monetarias o hasta de vidas humanas.
+Es f\'acil notar la amplia dependencia que las personas hemos formado alrededor de dispositivos computacionales. A medida que crece la confianza hacia estos dispositivos para la realizaci\'on de diferentes tareas, crece tambi\'en el peligro que puede acarrear la ocurrencia de una falla en los mismos. En algunos casos, las actividades a las que son dedicados estos sistemas son actividades de bajo riesgo, como por ejemplo en un reloj de pulsera o un reproductor de m\'usica, y el incorrecto funcionamiento de los mismos no ocasiona da\~nos mayores. En otros casos las actividades realizadas son de car\'acter cr\'itico, como es por ejemplo en el caso de controladores de vuelo, o controladores de compuertas de contenci\'on fluvial. Es en estos \'ultimos donde el incorrecto funcionamiento del sistema puede provocar grandes monetarias o hasta de vidas humanas.
 
-Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional \cite{faultInjection} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.
+Podemos considerar a la falla en una componente de hardware o software como una desviaci\'on de su funci\'on esperada. Las fallas pueden surgir durante todas las etapas de evoluci\'on del sistema computacional - especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, instalaci\'on- y durante toda su vida operacional \cite{FaultInject} (debido a eventos externos). Este comportamiento fuera de lo normal puede llevar a un falla funcional del sistema, provocando que se comporte de manera incorrecta, o simplemente deje de funcionar.
 
 Es importante entonces, para lograr una mayor confiabilidad del software (confiabilidad de que se comporte como su especificaci\'on describe) tomar acci\'on sobre la ocurrencia de estas fallas. Existen diferentes enfoques para tratar con fallas. Uno de ellos es elaborar sistemas tolerantes a fallas. A diferencia de otros enfoques en los que se busca eliminar o disminuir la ocurrencia de fallas, en estos sistemas se busca disminuir los efectos de las fallas y en el mejor de los casos recuperarse de estos y evitar que acarreen en fallas funcionales del sistema.
 
 Queda claro entonces que un sistema tolerante a fallas provee grandes ventajas en comparaci\'on a uno que no contempla la ocurrencia de las mismas. Al igual que con el resto de los sistemas computacionales, es conveniente comprobar la correcci\'on de los sistemas tolerantes a fallas. El dise\~no de algoritmos de tiempo real distribuidos tolerantes a fallas es notoriamente dif\'icil y \emph{propenso a errores}: la combinaci\'on de la ocurrencia de fallas, conviviendo con eventos concurrentes, y las variaciones en las duraciones de tiempos reales llevan a una explosi\'on de estados que genera una gran demanda a la capacidad intelectual del dise\~nador humano \cite{SteinerRushby}.
 
-En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on. La examinaci\'on autom\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{SteinerRushby}.
+En un mundo idealizado, los algoritmos son derivados por un proceso sistem\'atico conducido por argumentos formales que aseguran su correcci\'on respecto a la especificaci\'on original. En cambio, en la realidad contempor\'anea, los dise\~nadores suelen tener un argumento informal en mente y desarrollan el algoritmo final y sus par\'ametros explorando variaciones locales contra este argumento y contra escenarios que resalten casos dif\'iciles o problem\'aticos. La exploraci\'on contra escenarios puede ser parcialmente automatizada usando un simulador y prototipos \'agiles y esta automatizaci\'on puede llegar a incrementar el n\'umero de escenarios que ser\'an examinados y la confiabilidad de la examinaci\'on. La examinaci\'on autom\'atica de escenarios puede ser llevada a un nivel a\'un m\'as avanzado usando \emph{Model Checking} \cite{Baier}.
 
-En ciencias de la computaci\'on \emph{Model Checking} refiere al siguiente problema: dada una estructura formal del modelo de un sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si el sistema satisface la propiedad. El sistema normalmente representa a un componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
+En ciencias de la computaci\'on \emph{Model Checking} refiere al siguiente problema: dado un modelo formal del sistema, y dada una propiedad escrita en alguna l\'ogica espec\'ifica, verificar de manera autom\'atica y exhaustiva si el modelo satisface la propiedad. El sistema normalmente representa a una componente de hardware o software, y la f\'ormula a cumplirse representa una propiedad de \emph{safety} o \emph{liveness} que se desea verificar que el sistema cumpla, y de esta manera incrementar la confiabilidad sobre el mismo.
 
-El reducido nivel de interacci\'on que presenta este m\'etodo con el usuario es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad des ser usad por individuos no expertos \cite{RuysBrinksma}. %TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
-Sin embargo es preciso modelar el sistema y definir las propiedades, lidiando mientras tanto con el principal problema del Model Checking: \emph{la explosi\'on de estados} debido al incremento exponencial de los mismos a ra\'iz de la introducci\'on de variables en la especificaci\'on del sistema.
+El reducido nivel de interacci\'on que presenta este m\'etodo con el usuario es visto como un ventaja para la aplicaci\'on en la industria, ya que incrementa las posibilidad de ser usado por individuos no expertos \cite{RuysBrinksma}. %TODO quiz\'as quitar esto y ponerlo en la seccion que sigue 
+Sin embargo es preciso modelar el sistema y definir las propiedades, lidiando mientras tanto con el principal problema del Model Checking: \emph{la explosi\'on de estados}, es decir, el incremento exponencial del espacio de estados a ra\'iz de la introducci\'on de variables en la especificaci\'on del sistema.
 
 %Es objetivo de este trabajo elaborar una herramienta que logre contribuir a disminuir los problemas al momento de verificar sistemas tolerantes a fallas. Por un lado se intenta evitar la introducci\'on de errores en el modelado del sistema en el que conviven fallas con procesos concurrentes. Por otro lado se busca evitar la introducci\'on excesiva de nuevas variables al representar el comportamiento de las fallas, evitando as\'i la nociva explosi\'on de estados al momento de la verificaci\'on.
 
 Es objetivo de este trabajo elaborar una herramienta que contribuya a disminuir el esfuerzo y a evitar la introducci\'on de errores en el modelado y verificaci\'on mediante model checking de sistemas tolerantes a fallas. Buscamos con nuestra herramienta evitar tanto la introducci\'on de errores en el modelado como as\'i tambi\'en contener la explosi\'on de estados de la cual sufre el model checking. Queremos tambi\'en que nuestro lenguaje de modelado ofrezca facilidades al momento de especificar las propiedades a verificar, de manera especial en el caso en que las mismas involucren la ocurrencia de fallas.
 
-Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, orientada a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV \cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errores evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo. Este trabajo se presenta como extensi\'on del trabajo realizado por Edgardo Hames \cite{Hames}, y toma como base los conocimientos adquiridos a partir del trabajo de caracter\'isticas similares realizado por Nicol\'as Bordenabe \cite{Bordenabe}.
+Para ello presentamos la herramienta de model checking \emph{Falluto2.0}, o\-rien\-ta\-da a la verificaci\'on de sistemas tolerantes a fallas. Esta herramienta presenta una capa de abstracci\'on sobre NuSMV \cite{NuSMV}, un model checker basado en diagramas de decisi\'on binaria. Falluto2.0 presenta un lenguaje de car\'acter declarativo para la introducci\'on de fallas en el modelado del sistema, generando un marco de seguridad contra la introducci\'on de errores evitando que el usuario deba explicitar el funcionamiento de la falla dentro del modelo. Este trabajo se presenta como extensi\'on del trabajo realizado por Edgardo Hames \cite{Hames}, y toma como base los conocimientos adquiridos a partir del trabajo de caracter\'isticas similares realizado por Nicol\'as Bordenabe \cite{Bordenabe}.
 
-Comenzaremos este trabajo sentando las bases acerca de lo que entenderemos como falla y lo que significa que un sistema sea tolerante a las mismas, todo esto en el cap\'itulo \ref{CapToleranciaAFallas}. Continuaremos en el cap\'itulo \ref{CapMC} repasando conocimientos te\'oricos, que ser\'an luego aplicados a la implementaci\'on de nuestra herramienta de model checking. En los cap\'itulos \ref{CapNuSMV} y \ref{sintaxisDeFalluto} daremos una mirada al lenguaje de especificaci\'on de nuestro back-end NuSMV y de nuestra harramienta Falluto2.0 respectivamente. Distinguiremos en esta etapa la sencillez y practicidad de nuestra sintaxis de modelado de sistemas, observando en ello el logro de una de las metas de este trabajo. Siguiendo con la presentaci\'on de la herramienta, atenderemos en el cap\'itulo \ref{CapSemanticaDeFalluto} la sem\'antica de la misma. Veremos aplicada aqu\'i gran parte de la teor\'ia y las ideas presentadas en el cap\'itulo ref{CapMC}. En el \'ultimo cap\'itulo expondremos dos casos de estudio, con la intenci\'on de observar en la pr\'actica el comportamiento de nuestra herramienta y la interacci\'on con la misma. En los ap\'endices hallaremos por \'ultimo, ejemplos de modelado, compilaci\'on y resultados de verificaci\'on, como as\'i tambi\'en la sintaxis formal y el manual de uso de Falluto2.0, entre otras cosas.
+Comenzaremos este trabajo sentando las bases acerca de lo que entenderemos como falla y lo que significa que un sistema sea tolerante a éstas, todo esto en el cap\'itulo \ref{CapToleranciaAFallas}. Continuaremos en el cap\'itulo \ref{CapMC} repasando conocimientos te\'oricos, que ser\'an luego aplicados a la implementaci\'on de nuestra herramienta de model checking. En los cap\'itulos \ref{CapNuSMV} y \ref{sintaxisDeFalluto} daremos una mirada al lenguaje de especificaci\'on de nuestro back-end NuSMV y de nuestra harramienta Falluto2.0 respectivamente. Distinguiremos en esta etapa la sencillez y practicidad de nuestra sintaxis de modelado de sistemas, observando en ello el logro de una de las metas de este trabajo. Siguiendo con la presentaci\'on de la herramienta, atenderemos en el cap\'itulo \ref{CapSemanticaDeFalluto} la sem\'antica del lenguaje Falluto2.0. Veremos aplicada aqu\'i gran parte de la teor\'ia y las ideas presentadas en el cap\'itulo \ref{CapMC}. En el \'ultimo cap\'itulo expondremos dos casos de estudio, con la intenci\'on de observar en la pr\'actica el comportamiento de nuestra herramienta y la interacci\'on con la misma. En los ap\'endices hallaremos por \'ultimo, ejemplos de modelado, compilaci\'on y resultados de verificaci\'on, como as\'i tambi\'en la sintaxis formal y el manual de uso de Falluto2.0, entre otras cosas.
 
 
 
@@ -160,9 +170,9 @@ principal beneficio de la tolerancia a fallas. Introduciremos al comienzo de est
 \section{Fallas}
 Intuitivamente, y dentro del contexto que nos compete, podemos definir a una \textit{falla} (``fault'' en ingl\'es) en una componente de hardware o software como una perturbaci\'on de su estado la cual pone en peligro su correcto funcionamiento. Las fallas pueden ser introducidas en cualquier etapa de la evoluci\'on del sistema computacional en cuesti\'on -especificaci\'on, dise\~no, desarrollo, elaboraci\'on, ensamblado, e instalaci\'on- y pueden ocurrir en cualquier momento durante su vida operacional \cite{FaultInject}.
 
-Una definici\'on ligeramente m\'as formal nos sugiere definir el termino \textit{falla} basado en la observaci\'on de que los sistemas cambian su estado como resultado de dos clases de eventos muy similares: operaciones normales de sistema y ocurrencia de fallas. Por lo tanto, un falla puede ser modelada como una no deseada (pero sin embargo posible) transici\'on de estado en un proceso \cite{Felix}.
+Una definici\'on ligeramente m\'as formal nos sugiere definir el termino \textit{falla} basado en la observaci\'on de que los sistemas cambian su estado como resultado de dos clases de eventos muy similares: operaciones normales de sistema y ocurrencia de fallas. Por lo tanto, un falla puede ser modelada como una transici\'on de estado no deseada (pero sin embargo posible) en un proceso \cite{Felix}.
 
-Denotaremos con el t\'ermino \textit{error} (en ingl\'es ``failure'') al efecto no deseado que puede llegar a producir una falla en el comportamiento del sistema en cuesti\'on. Queda as\'i distinguida la falla de su posible efecto negativo sobre el comportamiento del sistema.
+Denotaremos con el t\'ermino \textit{error} (en ingl\'es ``failure'') al efecto no deseado que puede llegar a producir una falla en el comportamiento del sistema en cuesti\'on. Queda as\'i distinguida la falla de su posible efecto negativo sobre el comportamiento del sistema (es decir, el error).
 
 
 
@@ -175,7 +185,7 @@ Existen sistemas dise\~nados para ser tolerantes a fallas: ellos o bien exhiben 
 
 En este trabajo podremos distinguir dos clases de fallas en particular. Un primer grupo de fallas es de tipo \textit{permanente}: \'estas com\'unmente representan fallas reales causadas por problemas irreversibles en la componente. Una vez que una falla permanente ocurre, permanece activa y afectando al sistema durante el resto de su ejecuci\'on. Por otro lado, un segundo grupo de fallas se caracteriza por ser de duraci\'on instant\'anea. Afectan el estado del sistema solo en los puntos espec\'ificos de se ejecuci\'on en los cuales estas fallas ocurren. Por lo tanto su efecto sobre el sistema solo resulta como consecuencia de los cambios particulares ocasionados en el momento de ocurrencia de la falla. Las mismas pueden repetirse indefinidamente durante la ejecuci\'on del sistema, permaneciendo activas solo en el momento en que afectan al sistema. Diremos que estas fallas son de clase \textit{transitoria}.
 
-Al establecer el grado de tolerancia de fallas de un sistema, no basta solo con indicar las caracter\'isticas intr\'insecas de las fallas mismas, sino que es de inter\'es presentar el contexto de ocurrencia de estas. Por ello, al tratar con fallas, tomamos en cuenta diferentes condiciones y suposiciones sobre la ocurrencia de las mismas durante la ejecuci\'on del sistema. Muchas veces es de inter\'es por ejemplo evitar tratar situaciones en las que las fallas ocurren constantemente, ya que esto suele presentar un escenario irreal. Otras veces la ocurrencia de fallas en el modelo se observa en cantidades finitas y por lo tanto buscaremos poder establecer estos escenarios de an\'alisis tambi\'en. Todas estas condiciones nos permiten generar un contexto sobre el interleaving de las transiciones de falla y transiciones normales o buenas durante la ejecuci\'on del sistema. A partir de esto es que podemos analizar la tolerancia a fallas de manera mas espec\'ifica y certera. La tolerancia a fallas de nuestros sistemas quedar\'a entonces caracterizada no solo por el tipo de fallas sino que tambi\'en a partir de las condiciones de ocurrencia de las mismas.
+Al establecer el grado de tolerancia de fallas de un sistema, no basta solo con indicar las caracter\'isticas intr\'insecas de las fallas mismas, sino que es de inter\'es presentar el contexto de ocurrencia de estas. Por ello, al tratar con fallas, tomamos en cuenta diferentes condiciones y suposiciones sobre la ocurrencia de las mismas durante la ejecuci\'on del sistema. Muchas veces es de inter\'es por ejemplo evitar tratar situaciones en las que las fallas ocurren constantemente, ya que esto suele presentar un escenario irreal. Otras veces la ocurrencia de fallas en el modelo se observa en cantidades finitas y por lo tanto buscaremos poder establecer estos escenarios de an\'alisis tambi\'en. Todas estas condiciones nos permiten especificar un contexto de interacción entre las transiciones de falla y transiciones normales durante la ejecuci\'on del sistema. A partir de esto es que podemos analizar la tolerancia a fallas de manera mas espec\'ifica y certera. La tolerancia a fallas de nuestros sistemas quedar\'a entonces caracterizada no solo por el tipo de fallas sino que tambi\'en a partir de las condiciones de ocurrencia de las mismas.
 
 
 
@@ -186,9 +196,9 @@ Al establecer el grado de tolerancia de fallas de un sistema, no basta solo con 
 \section{Discusi\'on}
 Tomando como respaldo lo analizado en este cap\'itulo, es que tomaremos una serie de decisiones sobre nuestro trabajo.
 
-En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones buenas del sistema y transiciones ocasionadas por fallas. Ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo. Esto difiere del punto de vista tomado por otros trabajos como \cite[etc...]{Arora,dCTL}
+En este trabajo entonces no realizaremos mayor diferencia formal entre transiciones normales del sistema y transiciones ocasionadas por fallas. Ambas ser\'an consideradas como transiciones posibles del sistema que podr\'an afectar o no el estado del mismo. Esto difiere del punto de vista tomado por otros trabajos como \cite[etc...]{Arora,dCTL}
 
-Distinguiremos adem\'as como dijimos dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transitorio}. La tolerancia de los sistemas modelados con respecto a ambas clases de fallas ser\'a estudiada bajo ciertas condiciones de ocurrencia e interleaving entre estas y acciones normales.
+Distinguiremos, adem\'as, dos clases de falla, las de tipo \textit{Permanente} y las de tipo \textit{Transitorio}. La tolerancia de los sistemas modelados con respecto a ambas clases de fallas ser\'a estudiada bajo ciertas condiciones de ocurrencia e interacción entre estas y acciones normales.
 
 Es importante aclarar que si bien nos ocuparemos del modelado del sistema en general y nos centraremos por momentos en la inyecci\'on de fallas sobre el mismo, no nos detendremos en temas espec\'ificos al dise\~no de la tolerancia a fallas.
 
@@ -206,7 +216,7 @@ Es importante aclarar que si bien nos ocuparemos del modelado del sistema en gen
 \chapter{Model Checking}
 \label{CapMC}
 
-En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, y para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas \cite{prinMC}.
+En el dise\~no de software y hardware de sistemas complejos, se consume m\'as tiempo y esfuerzo en verificaci\'on que en construcci\'on. Se entiende que la aplicaci\'on de t\'ecnicas reduce y aligera los esfuerzos en verificaci\'on a la vez que acrecientan su cobertura. Los m\'etodos formales ofrecen un gran potencial para obtener una integraci\'on temprana de la verificaci\'on en el proceso de dise\~no, y para proveer de t\'ecnicas de verificaci\'on m\'as afectivas y reducir el tiempo invertido en aplicarlas \cite{Baier}.
 
 El \textit{Model Checking} es una t\'ecnica formal que permite la verificaci\'on exhaustiva de modelos finitos de sistemas. Logra esta verificaci\'on explorando todos los estados posibles del sistema modelado con la intenci\'on de constatar la veracidad un conjunto de propiedades sobre el mismo.
 
@@ -745,20 +755,20 @@ Como vemos cada falla tiene un nombre, y su sintaxis es similar a la de una tran
 
 \section{Lenguaje de especificaci\'on de propiedades y restricciones}
 
-Con el fin de poder especificar propiedades a cerca de nuestro sistema para su posterior verificaci\'on, Falluto2.0 nos ofrece la posibilidad de trabajar sobre los lenguajes de especificaci\'on LTL y CTL. Se propone tambi\'en el uso de meta-propiedades para razonar sobre el comportamiento del sistema bajo los efectos de fallas.
-Para la especificaci\'on de una propiedad LTL usamos la palabra clave \texttt{LTLSPEC} y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como $\G$(Globaly), $\F$(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave \texttt{CTLSPEC} precedida por la f\'ormula correspondiente. La sintaxis completa para la formaci\'on de las f\'ormulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.
+Con el fin de poder especificar propiedades sobre el sistema bajo estudio, Falluto2.0 permite utilizar las l\'ogicas LTL y CTL. Además, Falluto2.0 provee un conjunto de meta-propiedades para facilitar la especificación de propiedades bajo diversos tipos de comportamientos de las fallas.
+Para la especificaci\'on de una propiedad LTL usamos la palabra clave \texttt{LTLSPEC} y la precedemos de una f\'ormula LTL que defina la propiedad deseada sobre el total del sistema. Podemos usar para ello operadores LTL comunes como $\G$(Globaly), $\F$(Finaly), etc, adem\'as de los conectivos y operadores de la l\'ogica proposicional. Similarmente para definir propiedades en l\'ogica CTL usamos la palabra clave \texttt{CTLSPEC} precedida por la f\'ormula correspondiente. La sintaxis completa de las f\'ormulas puede encontrarse en el ap\'endice \ref{sintaxisFormal}.
 
-Falluto2.0 posee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
+Falluto2.0 provee adem\'as las siguientes meta-propiedades para la verificaci\'on del sistema:
 \begin{itemize}
-\item \textit{Normal Behaiviour} Usamos esta meta-propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave \texttt{NORMAL\_BEHAVIOUR} y la precedemos por una f\'ormula en el formalismo LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde \texttt{q} es una f\'ormula expresada en los formalismos LTL o CTL.
-\item \textit{Finitely Many Fault/s} Utilizando la sintaxis \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} podemos verificar si la propiedad \texttt{q} se cumple bajo la suposici\'on de que eventualmente dejan de ocurrir las fallas de nombre \texttt{fault1, fault2, ..., faultn} en la ejecuci\'on del sistema. En este caso la propiedad \texttt{q} solo puede estar escrita en LTL debido a restricciones intr\'insecas de la l\'ogica CTL. De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad \texttt{q} se cumple bajo la suposici\'on de que finalmente deja de ocurrir falla alguna en el sistema, y el mismo pasa a transitar por transiciones normales.
-\item \textit{Deadlock check} La utilizaci\'on de la palabra clave \texttt{CHECK\_DEADLOCK} dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, ordena la verificaci\'on de que nuestro sistema no caiga en deadlock. Es decir que con esta palabra clave podemos verificar si en alg\'un momento el sistema se ve impedido a realizar transiciones normales, y debe optar por detenerse o realizar transiciones de falla.
+\item \textit{Normal Behaiviour.} Usamos esta meta-propiedad para verificar propiedades bajo la premisa de que no ocurren fallas durante la ejecuci\'on del sistema. Usamos la palabra clave \texttt{NORMAL\_BEHAVIOUR} y la precedemos por una f\'ormula en el formalismo LTL o CTL especificando la propiedad deseada. Luego la propiedad ser\'a satisfecha por el sistema si el mismo la satisface en todas aquellas ejecuciones donde no ocurren fallas. La sintaxis es entonces: \begin{verbatim}NORMAL_BEHAVIOUR -> q \end{verbatim} donde \texttt{q} es una f\'ormula expresada en los formalismos LTL o CTL.
+\item \textit{Finitely Many Fault/s.} La expresi\'on \begin{verbatim}FINITELY_MANY_FAULT(fault1, fault2, ..., faultn) -> q\end{verbatim} verifica si la propiedad \texttt{q} se cumple bajo la suposici\'on de que eventualmente las fallas \texttt{fault1, fault2, ..., faultn} dejan de ocurrir en la ejecuci\'on del sistema. En este caso la propiedad \texttt{q} solo puede estar escrita en LTL debido a que la precondici\'on de la meta-propiedad no es expresable en CTL (sí lo es en LTL) . De manera similar el uso de la construcci\'on \begin{verbatim}FINITELY_MANY_FAULTS -> q \end{verbatim} permite verificar si la propiedad \texttt{q} se cumple bajo la suposici\'on de que finalmente todas las fallas dejan de ocurrir en el sistema, y el mismo pasa a transitar por transiciones normales.
+\item \textit{Deadlock check.} La utilizaci\'on de la palabra clave \texttt{CHECK\_DEADLOCK} dentro de la secci\'on de opciones en la especificaci\'on de nuestro sistema, indica la verificaci\'on de que el sistema bajo estudio no tiene deadlock. Entendemos por deadlock a la imposibilidad de progreso por parte del sistema propiamente dicho, sin considerar las posibles ocurrencias de las fallas (las cuales no se consideran parte del sistema).
 \end{itemize}
 
-Podemos restringir la verificaci\'on de las propiedades sobre nuestro sistema utilizando condiciones de fairness. Para ello poseemos las dos siguientes construcciones:
+Podemos restringir la verificaci\'on de las propiedades sobre nuestro sistema utilizando condiciones de fairness. Para ello Falluto2.0 incluye las siguientes construcciones:
 \begin{itemize}
-\item \textit{Fairness incondicional.} Para restringir la verificaci\'on del sistema a solo aquellas ejecuciones donde una propiedad \texttt{q} se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde \texttt{q} es una f\'ormula proposicional que habla a cerca del estado del sistema.
-\item \textit{Fairnes fuerte.} Dadas dos f\'ormulas proposicionales \texttt{p} y \texttt{q} sobre nuestro sistema, podemos restringir la verificaci\'on de propiedades LTL a ejecuciones en las cuales se cumpla la condici\'on de justicia fuerte de \texttt{p} con respecto a \texttt{q} usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificaci\'on solo a ejecuciones donde se cumpla que si \texttt{p} vale siempre a menudo, entonces \texttt{q} vale siempre a menudo. Tomemos en cuenta que el uso de esta construcci\'on no es compatible con propiedades definidas en CTL y puede dar resultados err\'oneos.
+\item \textit{Fairness incondicional.} Para restringir la verificaci\'on del sistema a solo aquellas ejecuciones donde una propiedad \texttt{q} se cumpla siempre a menudo, usamos la siguiente sintaxis: \begin{verbatim}FAIRNESS q\end{verbatim} donde \texttt{q} es una f\'ormula proposicional sobre el estado del sistema.
+\item \textit{Fairness fuerte.} Dadas dos f\'ormulas proposicionales \texttt{p} y \texttt{q} sobre nuestro sistema, Falluto2.0 puede restringir la verificaci\'on de propiedades LTL a ejecuciones en las cuales se cumpla la condici\'on de justicia fuerte de \texttt{p} con respecto a \texttt{q} usando la siguiente sintaxis: \begin{verbatim}COMPASSION(p,q)\end{verbatim} De esta manera restringimos la verificaci\'on solo a ejecuciones donde se cumpla que si \texttt{p} vale siempre a menudo, entonces \texttt{q} vale siempre a menudo. Tomemos en cuenta que el uso de esta construcci\'on no es compatible con propiedades definidas en CTL y puede dar resultados err\'oneos.
 \end{itemize}
 
 En el an\'alisis de propiedades sobre nuestro sistema, no solo podemos hablar sobre el estado del sistema en cuanto a las variables de estado, sino que tambi\'en podemos analizar las acciones que nos llevan a esos estados. La construcci\'on \texttt{just(accion)} nos permite hablar a cerca de la ocurrencia de la transici\'on etiquetada con el nombre \texttt{accion}. Por ejemplo podemos restringir nuestra verificaci\'on a aquellas ejecuciones en donde la transici\'on etiquetada como \texttt{acci\'on1} se lleve a cabo siempre a menudo usando la siguiente restricci\'on de fairness:
@@ -774,9 +784,9 @@ Vale aclarar que \texttt{just(x)}, donde \texttt{x} es una acci\'on cualquiera, 
 
 
 \section{Discusi\'on}
-Hemos presentado un lenguaje que nos permite describir de manera intuitiva el comportamiendo del sistema. Es f\'acil distinguir como nuestro lenguaje representa de manera directa las maquinas de estado utilizando conceptos derivados de los formalismos como el LTS y estructuras de Kripke, revisados ambos en el cap\'itulo \ref{CapMC} de este trabajo. Vemos como por ejemplo hemos tomado las etiquetas del formalismo LTS para dar nombre a nuestras transiciones. Vemos tambi\'en como hemos distinguido entre los valores de las variables de estado en el estado actual y en el estado que sigue, tal como se plantea en las transiciones de una estructura de Kripke. En la secci\'on \textit{INIT} de nuestros \textit{proctypes} podemos ver claramente la especificaci\'on de los estados iniciales de las maquinas de estados que representan nuestros procesos.
+Hemos presentado un lenguaje que nos permite describir de manera intuitiva el comportamiendo del sistema. Es f\'acil distinguir como nuestro lenguaje representa de manera directa las m\'aquinas de estado utilizando conceptos derivados de los formalismos como el LTS y estructuras de Kripke, revisados ambos en el cap\'itulo \ref{CapMC} de este trabajo. Por ejemplo, Falluto2.0 toma las etiquetas del formalismo LTS para dar nombre a las transiciones. Falluto2.0 tambi\'en distingue entre los valores de las variables de estado en el estado actual y en el estado que sigue, tal como se plantea en las transiciones de una estructura de Kripke. En la secci\'on \texttt{INIT} de nuestros \textit{proctypes} podemos ver claramente la especificaci\'on de los estados iniciales de las maquinas de estados que representan nuestros procesos.
 
-Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje de modelado de fallas. Esta caracter\'istica permite una inyecci\'on limpia de las mismas en el funcionamiento del sistema, dejando que nuestra herramienta se encargue del aspecto funcional de aquellas. De esta manera evitamos en gran medida la aparici\'on de errores debido a una mala inyecci\'on de fallas por parte del usuario, como as\'i tambi\'en mantenemos control sobre la explosi\'on de estados que puede acarrear el uso de variables innecesarias en lo que podr\'ia ser una inyecci\'on de fallas ineficiente. Evitamos por \'ultimo gran cantidad de trabajo al usuario, eliminando la aparici\'on de c\'odigo correspondiente a la ocurrencia de fallas en las dem\'as secciones del modelado del sistema, y permitiendo que este se concentre en otros aspectos de la funcionalidad. De este modo el usuario podr\'a una vez declaradas r\'apidamente las fallas concentrarse por ejemplo en los mecan\'ismos de tolerancia a las mismas sin involucrarse ni prestar mayor atenci\'on a la funcionalidad de las fallas.
+Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje de modelado de fallas. Esta caracter\'istica permite una inyecci\'on limpia de las mismas en el funcionamiento del sistema, dejando que nuestra herramienta se encargue del aspecto operacional de aquellas. De esta manera evitamos en gran medida la aparici\'on de errores debido a una mala inyecci\'on de fallas por parte del usuario, como as\'i tambi\'en mantenemos control sobre la explosi\'on de estados que puede acarrear el uso de variables innecesarias en lo que podr\'ia ser una inyecci\'on de fallas ineficiente. Evitamos por \'ultimo gran cantidad de trabajo al usuario, eliminando la aparici\'on de c\'odigo correspondiente a la ocurrencia de fallas en las dem\'as secciones del modelado del sistema, y permitiendo que este se concentre en otros aspectos de la funcionalidad. De este modo el usuario podr\'a, una vez declaradas las fallas, concentrarse por ejemplo en los mecan\'ismos de tolerancia a las mismas sin involucrarse ni prestar mayor atenci\'on al modo en el cual la falla interact\'ua con las operaciones del sistema.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -786,7 +796,7 @@ Es muy importante tambi\'en el car\'acter declarativo que se ha dado al lenguaje
 Como ya mencionamos en la introducci\'on a este trabajo, Falluto2.0 es un front-end para NuSMV. Por lo tanto la descripci\'on del sistema en el lenguaje de Falluto2.0 debe ser compilada a una descripci\'on en el lenguaje de NuSMV, quien ser\'a el encargado de realizar la verificaci\'on solicitada sobre el modelo de sistema.  En este cap\'itulo abordaremos el tema de la sem\'antica de Falluto2.0, repasando las ideas detr\'as de su implementaci\'on y dando una mirada a la compilaci\'on al lenguaje de NuSMV.
 
 \section{Construcci\'on de un sistema de procesos concurrentes}
-En la estructura de la especificaci\'on del sistema en Falluto2.0 podemos distinguir por un lado la definici\'on del comportamiento de los procesos, llevado a cabo a partir de los proctypes, y por otro lado la instanciaci\'on de los diferentes procesos y la especificaci\'on de la interacci\'on entre ellos. Se busca que los procesos se desarrollen de manera concurrente en el entorno del sistema global, donde cada uno pueda tener acceso a cierta informaci\'on del sistema seg\'un lo defina el usuario. Se busca as\'i tambi\'en que los procesos puedan sincronizar acciones y que se pueda controlar de manera general el interleaving del resto de las acciones.
+En la estructura de la especificaci\'on del sistema en Falluto2.0 podemos distinguir por un lado la definici\'on del comportamiento de los procesos, lle\-va\-do a cabo a partir de los \texttt{proctypes}, y por otro lado la instanciaci\'on de los diferentes procesos y la especificaci\'on de la interacci\'on entre ellos. Se busca que los procesos se desarrollen de manera concurrente en el entorno del sistema global, donde cada uno pueda tener acceso a cierta informaci\'on del sistema seg\'un lo defina el usuario. Se busca as\'i tambi\'en que los procesos puedan sincronizar acciones y que se pueda controlar de manera general el interleaving del resto de las acciones.
 
 La representaci\'on del sistema completo se logra en la compilaci\'on a partir del uso de un solo m\'odulo de NuSMV con el siguiente aspecto:
 \begin{verbatim}
@@ -798,42 +808,44 @@ INIT
 TRANS
 ...
 \end{verbatim}
-A continuaci\'on describiremos como se construye cada secci\'on de este m\'odulo con el fin de lograr la compilaci\'on del sistema original descripto usando el lenguaje de Falluto2.0.
+A continuaci\'on describiremos como se construye cada secci\'on de este m\'odulo con el fin de lograr la compilaci\'on del sistema original descrito usando el lenguaje de Falluto2.0.
 
 \subsection*{Variables del sistema}
-Podemos ver el estado del sistema como aquel formado por la conjunci\'on del estado de cada proceso que lo compone. De este modo las variables de estado del sistema compilado ser\'an la uni\'on de todas las variables de estado de cada instancia declarada en el sistema original. Por lo tanto en la secci\'on \texttt{VAR} de nuestro m\'odulo compilado colocaremos por cada variables de cada instancia del sistema original, una variables en representaci\'on. La univocidad de las mismas estar\'a dada por la univocidad del nombre de cada instancia con respecto a sus pares. Otras variables formar\'an parte de esta secci\'on tambi\'en:
+Podemos ver el estado del sistema como aquel formado por la conjunci\'on del estado de cada proceso que lo compone. De este modo las variables de estado del sistema compilado ser\'an la uni\'on de todas las variables de estado de cada instancia declarada en el sistema original. Por lo tanto en la secci\'on \texttt{VAR} de nuestro m\'odulo compilado colocaremos por cada variables de cada instancia del sistema original, una variable en representaci\'on. La univocidad de las mismas estar\'a dada por el nombre de cada instancia con respecto a sus pares. Por ejemplo para representar a la variable \texttt{var1} de la instancia \texttt{inst1} utilizaremos el nombre \texttt{inst1\#var1}. Esta variable será la única con ese nombre, dado que no puede haber otra instancia con nombre \texttt{inst1} ni puede haber nombres de variables repetidos dentro de los \texttt{proctype}. Otras variables formar\'an parte de esta secci\'on tambi\'en:
 \begin{itemize}
-\item \textit{Variable de acci\'on.} Esta variables nos permitir\'a denotar cual fue la \'ultima acci\'on llevada a cabo por el sistema. Su utilidad sin embargo va mas all\'a de una simple denotaci\'on, ya que nos permitir\'a especificar sobre las acciones llevadas a cabo por el sistema. A partir de esta variable nos ser\'a posible manejar la compilaci\'on en aquellas situaciones en las que necesitemos hablar sobre propiedades o establecer restricciones sobre el accionar de nuestro sistema. El dominio de esta variables consta de palabras denotando la realizaci\'on de cada acci\'on del sistema, entre ellas las acciones comunes de cada instancia de proceso, las acciones de falla de cada instancia de proceso, y acciones de efectos de fallas bizantinas. Un \'ultimo valor en el dominio de esta variable nos permite denotar una transici\'on al estado de deadlock.
-\item \textit{Variables de activaci\'on de fallas.} Las fallas permanentes, es decir las de tipo \textit{stop} y \textit{byzantine}, poseen una variable booleana que nos permite conocer si estas fallas han ocurrido y est\'an afectando el funcionamiento del sistema.
-\item \textit{Variables de program counter.} Estas variables permiten distinguir entre las acciones de igual nombre dentro de un mismo proceso. Existe entonces un variable de este tipo por cada proceso instanciado. Nos permiten eliminar casos de ambigüedad en el salto de estados del sistema, que de otro modo nos llevar\'ia a una representaci\'on err\'onea del sistema original.
+\item \textit{Variable de acci\'on.} Esta variable nos permitir\'a denotar cual fue la \'ultima acci\'on llevada a cabo por el sistema. Su utilidad sin embargo va mas all\'a de una simple denotaci\'on, ya que nos permitir\'a especificar sobre las acciones llevadas a cabo por el sistema. A partir de esta variable nos ser\'a posible manejar la compilaci\'on en aquellas situaciones en las que necesitemos hablar sobre propiedades o establecer restricciones sobre el accionar de nuestro sistema. El dominio de esta variables consta de palabras denotando la realizaci\'on de cada acci\'on del sistema, entre ellas las acciones comunes de cada instancia de proceso, las acciones de falla de cada instancia de proceso, y acciones de efectos de fallas bizantinas. Un \'ultimo valor en el dominio de esta variable nos permite denotar una transici\'on al estado de deadlock. Proposiciones como \texttt{next(act\#var) = nombre\_de\_accion} nos permitirán denotar que la acción llamada \texttt{nombre\_de\_accion} se lleva a cabo en esta transición. Notemos que si \texttt{nombre\_de\_accion} es un nombre de falla entonces estamos indicando la ocurrencia de esa falla en el sistema.
+
+\item \textit{Variables de activaci\'on de fallas.} Las fallas permanentes, es decir las de tipo \textit{stop} y \textit{byzantine}, poseen una variable booleana que nos permite conocer si estas fallas han ocurrido y est\'an afectando el funcionamiento del sistema. Supongamos por ejemplo que hemos declarado una falla de tipo \texttt{STOP} con nombre \texttt{f1} en el \texttt{proctype} de nombre \texttt{p1}, y lo hemos instanciado con nombre \texttt{i1}. Entonces el nombre de la variable de activación de falla será \texttt{factive\#i1\#f1}. Denotaremos que esta falla está activa usando la proposición \texttt{factive\#i1\#f1 = TRUE} (o simplemente \texttt{factive\#i2\#f1}.
+
+\item \textit{Variables de program counter.} Estas variables permiten distinguir entre las acciones de igual nombre dentro de un mismo proceso. Existe entonces un variable de este tipo por cada proceso instanciado. Nos permiten eliminar casos de ambig\"{u}edad en el salto de estados del sistema, que de otro modo nos llevar\'ia a una representaci\'on err\'onea del sistema original. Supongamos el caso en que hemos instanciado un \texttt{proctype} otorgando el nombre \texttt{i0} a la instancia. Supongamos a su vez que este \texttt{proctype} posee dos transiciones de nombre \texttt{t0}. Entonces al momento de definir las transiciones de nuestro sistema compilado poseeremos dos transiciones diferentes, y la distinción entre las mismas no estará dada por los nombres de acción (los cuales serán iguales) sino por el valor de la variable de program counter \texttt{i0\#pc}. La proposición \texttt{act\#var = trans\#i0\#t0 \& i0\#pc = 0} denotará la primera transición de nombre t0, mientras que \texttt{act\#var = trans\#i0\#t0 \& i0\#pc = 1} denotará a la segunda. Esto es directamente generalizable a aquellos casos en los que hay mas de dos transiciones con el mismo nombre en un mismo \texttt{proctype}.
 \end{itemize}
 
 
 \subsection*{Estados iniciales}
-Como ya dijimos, la restricci\'on de estados iniciales en NuSMV se lleva a cabo a partir de una f\'ormula booleana dentro de la secci\'on \textit{INIT} del m\'odulo. Nuestra f\'ormula booleana ser\'a entonces la conjunci\'on booleana de todas las f\'ormulas presentes en la secci\'on \textit{INIT} de cada proceso instanciado. Agregaremos tambi\'en en esta f\'ormula condiciones para la inicializaci\'on de variables introducidas por la compilaci\'on como ser\'ian las variables de actividad de falla y las de program counter.
+Como ya dijimos, la restricci\'on de estados iniciales en NuSMV se lleva a cabo a partir de una f\'ormula booleana dentro de la secci\'on \texttt{INIT} del m\'odulo. Nuestra f\'ormula booleana ser\'a entonces la conjunci\'on booleana de todas las f\'ormulas presentes en la secci\'on \texttt{INIT} de cada proceso instanciado. Agregaremos tambi\'en en esta f\'ormula condiciones para la inicializaci\'on de variables introducidas por la compilaci\'on como ser\'ian las variables de actividad de falla y las de program counter.
 
 \subsection*{Transiciones}
-La relaci\'on de transici\'on esta representada en la secci\'on \textit{TRANS} del m\'odulo compilado mediante una f\'ormula booleana que captura cuatro tipos de transiciones sin realizar distinci\'on entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo dise\~nado en el lenguaje de Falluto2.0. Esta exclusi\'on se lleva a cabo a partir de la variable de acci\'on introducida en el momento de compilaci\'on, y en el caso de no ser suficiente con ella, usamos tambi\'en las variables de program counter (por ejemplo cuando hay mas de una acci\'on con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
+La relaci\'on de transici\'on esta representada en la secci\'on \texttt{TRANS} del m\'odulo compilado mediante una f\'ormula booleana que captura cuatro tipos de transiciones sin realizar distinci\'on entre ellas. Nos aseguramos que estas transiciones sean excluyentes de manera de representar correctamente el modelo dise\~nado en el lenguaje de Falluto2.0. Esta exclusi\'on se lleva a cabo a partir de la variable de acci\'on introducida en el momento de compilaci\'on, y en el caso de no ser suficiente con ella, usamos tambi\'en las variables de program counter (por ejemplo cuando hay mas de una acci\'on con el mismo nombre dentro del mismo proctype). Los cuatro tipos de transiciones corresponden a:
 
 \begin{itemize}
-\item \textit{Acciones comunes.} Son las transiciones definidas dentro de cada la secci\'on \textit{TRANS} de cada proctype.
-\item \textit{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de la ocurrencia de las fallas declaradas en la secci\'on \textit{FAULT} de cada proctype.
+\item \textit{Acciones comunes.} Son las transiciones definidas dentro de cada secci\'on \texttt{TRANS} de cada proctype.
+\item \textit{Acciones de falla.} Son las correspondiente a las transiciones de estados llevadas a cabo a partir de la ocurrencia de las fallas declaradas en la secci\'on \texttt{FAULT} de cada proctype.
 \item \textit{Acciones de efecto bizantino.} Representan el cambio de estado del sistema como consecuencia del accionar de los efectos de una falla bizantina.
 \item \textit{Acci\'on de deadlock.} Representa la imposibilidad de realizar cualquier acci\'on normal. Decimos entonces que el sistema ha realizado una transici\'on hacia un estado de deadlock. Veremos mas adelante la utilidad de poseer esta transici\'on.
 \end{itemize}
-La disyunci\'on excluyente de estas transiciones forma la f\'ormula de transici\'on final que introducimos en la secci\'on \textit{TRANS} de nuestro m\'odulo compilado, el cual quedar\'a definido en t\'erminos de lo que sigue:\\
+La disyunci\'on excluyente de estas transiciones forma la f\'ormula de transici\'on final que introducimos en la secci\'on \textit{TRANS} de nuestro m\'odulo compilado, el cual quedar\'a definido esquemáticamente de la siguiente manera:\\
 
-\noindent \textit{MODULE main\\
-VAR\\
+\noindent \texttt{MODULE main\\
+VAR}\textit{\\
 \indent    * Por cada instancia de proceso, introducimos la lista \\
 \indent      de variables declaradas en su respectivo proctype.\\
 \indent    * Variable de accion.\\
 \indent    * Variables de actividad de fallas permanentes.\\
 \indent    * Variables de program counter por cada proceso instanciado.\\
-INIT\\
-\indent    Conjuncion de f\'ormulas de la seccion INIT de procesos instanciados\\
+}\texttt{INIT}\textit{\\
+\indent    Conjuncion de f\'ormulas de la seccion \texttt{INIT} de procesos instanciados\\
 \indent    \& Inicializacion de variables introducidas en compilacion.\\
-TRANS\\
+}\texttt{TRANS}\textit{\\
 \indent    disyuncion de transiciones comunes compiladas \\
 \indent    $|$ disyuncion de transiciones de falla compiladas\\ 
 \indent    $|$ disyuncion de transiciones de efectos bizantinos\\ 
@@ -845,68 +857,72 @@ Veremos a continuaci\'on como se realiza el proceso de compilaci\'on de cada una
 
 \subsection*{Transiciones normales}
 Recordemos que la siguiente era la sintaxis general de la declaraci\'on de una transici\'on normal en el lenguaje de Falluto2.0 (Para mas detalles referirse al cap\'itulo \ref{sintaxisDeFalluto}):
-$$[nombre]~habilitacion => postcondicion;$$
+\textff{[\etextit{nombre}]~\etextit{habilitación} => \etextit{ postcondición};}
 La versi\'on compilada de esta acci\'on tendr\'a el siguiente aspecto:
-$$next(actvar)=nombre~\&~!faultact~\&~habilitacion~\&~postcondicion~\&~resto$$
-Notar que de ocurrir esta transici\'on, el nombre de la misma quedar\'a guardado como valor de actvar en el pr\'oximo estado, indicando que, en efecto, \'esta fue la acci\'on que se llevo a cabo para llegar a ese estado. \textit{!faultact} es una f\'ormula que asegura que no est\'en activas aquellas fallas de tipo STOP que afectan esta transici\'on. En efecto esta f\'ormula es simplemente la conjunci\'on de la negaci\'on de las variables de actividad de falla para aquellas fallas que afectan esta transici\'on. \textit{habilitaci\'on} es simplemente una compilaci\'on directa de la f\'ormula de habilitaci\'on original al igual que \textit{postcondicion} la cual es la conjunci\'on de la compilaci\'on directa de las asignaciones establecidas en la postcondici\'on original. Por \'ultimo en \textit{resto} nos aseguramos que en el pr\'oximo estado no cambie el valor de las variables cuyo valor no es definido en esta transici\'on. En efecto esta f\'ormula es la conjunci\'on de las asignaciones \texttt{next(x)=x} por cada variable \texttt{x} que debe mantener su valor en el estado destino. Notemos por \'ultimo que si la transici\'on se realiza a partir de una acci\'on de sincronizaci\'on entonces \textit{habilitaci\'on} es la conjunci\'on de todas las condiciones de habilitaci\'on dadas en cada proceso involucrado. De manera similar la postcondici\'on es la conjunci\'on de todas las asignaciones establecidas en la postcondici\'on de la transici\'on correspondiente en cada proceso involucrado, y se debe tomar en cuenta la inactividad de las fallas de tipo STOP de los diferentes procesos.
+\textff{next(act\#var)=\etextit{ nombre}~\&~\etextit{notfaultact}~\&~\etextit{habilitación}~\&\\\etextit{postcondición}~\&~\etextit{resto}}
+Notar que de ocurrir esta transici\'on, el nombre de la misma quedar\'a guardado como valor de \texttt{act\#var} en el pr\'oximo estado, indicando que, en efecto, \'esta fue la acci\'on que se llevo a cabo para llegar a ese estado. \textit{notfaultact} es una f\'ormula que asegura que no est\'en activas aquellas fallas de tipo STOP que afectan esta transici\'on. En efecto esta f\'ormula es simplemente la conjunci\'on de la negaci\'on de las variables de activación de falla para aquellas fallas que afectan esta transici\'on. \textit{habilitaci\'on} es simplemente una compilaci\'on directa de la f\'ormula de habilitaci\'on original al igual que \textit{postcondici\'on} la cual es la conjunci\'on de la compilaci\'on directa de las asignaciones establecidas en la postcondici\'on original. Por \'ultimo en \textit{resto} nos aseguramos que en el pr\'oximo estado no cambie el valor de las variables cuyo valor no es definido en esta transici\'on. En efecto esta f\'ormula es la conjunci\'on de las asignaciones \texttt{next(x)=x} por cada variable \texttt{x} que debe mantener su valor en el estado destino. Notemos por \'ultimo que si la transici\'on se realiza a partir de una acci\'on de sincronizaci\'on entonces \textit{habilitaci\'on} es la conjunci\'on de todas las condiciones de habilitaci\'on dadas en cada proceso involucrado. De manera similar la postcondici\'on es la conjunci\'on de todas las asignaciones establecidas en la postcondici\'on de la transici\'on correspondiente en cada proceso involucrado, y se debe tomar en cuenta la inactividad de las fallas de tipo STOP de los diferentes procesos.
 
 
 
 \subsection*{Transiciones de falla}
 Recordemos que en cuanto a nosotros respecta, una falla es una transici\'on m\'as del sistema. Por lo tanto, ser\'an compiladas de manera muy parecida a las transiciones normales, tomando en cuenta algunas caracter\'isticas especiales intr\'insecas al tipo de falla. Hab\'iamos dicho que para la inyecci\'on de una falla introduc\'iamos de manera declarativa las caracter\'isticas de la misma usando la siguiente sintaxis:
-$$nombre~:~habilitacion~=>~postcondicion~is~tipo$$
+\textff{\etextit{nombre}~:~\etextit{habilitacion}~=>~\etextit{postcondicion}~is~\etextit{tipo}}
 La compilaci\'on de esta falla dar\'a como resultado la siguiente f\'ormula booleana:
-$$next(actvar)=nombre~\&~!fallaactiva~\&~next(fallaactiva)~\&$$ $$habilitacion~\&~postcondicion~\&~resto$$
-Como en el caso de las transiciones normales, el valor de la variable de acci\'on relacionar\'a el estado destino a \'esta transici\'on, la cual en este caso es de falla. \textit{!fallaactiva} es la condici\'on que impide que las fallas permanentes ocurran mas de una vez, en efecto esta condici\'on es TRUE si la falla es de tipo \textit{transient}. En el caso de ser falla permanente y de llevarse a cabo esta transici\'on, la activaci\'on de la falla quedar\'a registrada en el pr\'oximo estado debido a la condici\'on \textit{next(fallaactiva)} presente en la f\'ormula. El resto de la f\'ormula se puede intuir de lo redactado en el caso de las transiciones normales.
+\textff{next(act\#var)=\etextit{nombre}~\&~!fallaactiva~\&~next(fallaactiva)~\& \\\etextit{habilitacion}~\&~\etextit{postcondicion}~\&~\etextit{resto}}
+Como en el caso de las transiciones normales, el valor de la variable de acci\'on relacionar\'a el estado destino a \'esta transici\'on, la cual en este caso es de falla. \textit{!fallaactiva} es la condici\'on que impide que las fallas permanentes ocurran mas de una vez, en efecto esta condici\'on es TRUE si la falla es de tipo \textit{transient}. En el caso de ser falla permanente y de llevarse a cabo esta transici\'on, la activaci\'on de la falla quedar\'a registrada en el pr\'oximo estado debido a la condici\'on \textit{next(fallaactiva)} presente en la f\'ormula. El resto de la f\'ormula es exactamente como el caso de las transiciones normales.
 
 
 \subsection*{Transiciones de efectos de fallas bizantinas}
 Una vez ocurrida una falla bizantina, sus efectos comienzan a suceder espont\'aneamente a lo largo de toda le ejecuci\'on del sistema. Las variables afectadas por estas fallas cambiar\'an aleatoriamente de valor en distintos instantes de tiempo durante la ejecuci\'on. Para simular este efecto, es que hemos introducido transiciones especiales que describen estos cambios. Una vez ocurrida la falla, su transici\'on de efecto bizantina queda habilitada y puede ocurrir aleatoriamente en cualquier momento posterior. La compilaci\'on entonces de estas transiciones resulta en f\'ormulas semejantes a la que sigue:
-$$fallaactiva~\&~next(actvar)=bizefect~\&~permanecen$$
-Aqu\'i \textit{fallaactiva} es la condici\'on de habilitaci\'on de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en alg\'un momento de la ejecuci\'on. Como en el resto de las transiciones, \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar la ocurrencia de esta transici\'on. Por \'ultimo \textit{permanecen} se forma por la conjunci\'on de las f\'ormulas \texttt{next(x)=x} para todo \texttt{x} variable del sistema excepto por \texttt{actvar} y por aquellas variables afectadas por la falla bizantina. NuSMV entonces elegir\'a un valor aleatorio para estas variables afectadas ya que no encuentra restricci\'on alguna en la f\'ormula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destino posibles.
+\textff{fallaactiva~\&~next(act\#var)=\etextit{bizefect}~\&~\etextit{no\_afectar}}
+Aqu\'i \textit{fallaactiva} es la condici\'on de habilitaci\'on de estas transiciones, las cuales solo pueden ocurrir si la falla bizantina ya ha ocurrido en alg\'un momento de la ejecuci\'on. Como en el resto de las transiciones, \textit{next(actvar)=bizefect} se encarga de colocar el valor correcto a la variable \textit{actvar} con el fin de indicar la ocurrencia de esta transici\'on. Por \'ultimo \textit{no\_afectar} se forma por la conjunci\'on de las f\'ormulas \texttt{next(x)=x} para todo \texttt{x} variable del sistema excepto \texttt{actvar} y aquellas variables afectadas por la falla bizantina. NuSMV entonces elegir\'a no determinísticamente un valor cualquiera para estas variables afectadas ya que no tienen restricci\'on alguna en la f\'ormula. En efecto solo restringimos los valores de ciertas variables y de esta manera definimos un conjunto de estados destino posibles.
 
 \subsection*{Transici\'on de deadlock}
 Consideramos que nuestro sistema cae en situaci\'on de \textit{deadlock} cuando todas sus transiciones normales quedan inhabilitadas. La implementaci\'on de una transici\'on que exprese el movimiento del sistema hacia este estado nos es \'util para la verificaci\'on de diferentes propiedades y para la implementaci\'on de ciertas restricciones de fairness. La compilaci\'on de la transici\'on de deadlock tiene la siguiente forma:
-$$!trans\_habilitadas~\&~next(actvar)=deadlock~\&~resto$$
-Como es evidente, la condici\'on de habilitaci\'on de esta transici\'on esta dada por la conjunci\'on de la negaci\'on de las condiciones de habilitaci\'on de todas las transiciones normales del sistema. De este modo la ejecuci\'on del sistema realizar\'a la transici\'on de deadlock solo cuando no este habilitada a realizar ninguna de las transiciones normales del sistema. \textit{next(actvar)=deadlock} se encarga de otorgar valor a la acci\'on que nos lleva al deadlock. En \textit{resto} encontramos las asignaciones correspondientes al estado posterior de cada variable en el sistema excepto \textit{actvar}, asegurando que ninguna de ellas cambie de valor en el pr\'oximo estado.
+\textff{!\etextit{trans\_habilitadas}~\&~next(act\#var)=deadlock~\&~\etextit{resto}}
+La condici\'on de habilitaci\'on de esta transici\'on esta dada por la conjunci\'on de la negaci\'on de las condiciones de habilitaci\'on de todas las transiciones normales del sistema. De este modo la ejecuci\'on del sistema realizar\'a la transici\'on de deadlock solo cuando el sistema no este habilitado a realizar ninguna de las transiciones normales. La indicación de que el sistema entra en deadlock se hace con \textit{next(actvar)=deadlock}, que indica que la variable \texttt{act\#var} toma el valor \textit{deadlock} a partir del próximo estado. \textit{resto} es la fórmula que indica que todas las variables, a excepción de \texttt{act\#var}, deben mantener el valor en el estado siguiente.
 
 \subsection*{Construcci\'on de la f\'ormula de transici\'on}
-Una vez compilada cada una de estas transiciones, las mismas son colocadas en la secci\'on \textit{TRANS} del m\'odulo compilado. Como ya mencionamos, es a partir de las disyunci\'on exclusiva de cada una de ellas, que se construye la f\'ormula que define la relaci\'on de transici\'on de nuestro sistema compilado. Es importante notar el car\'acter exclusivo de esta disyunci\'on, ya que de no poseer esta caracter\'istica, estar\'iamos permitiendo transiciones que llevan a cambios de estados no presentes en el modelado original. En cada momento de la ejecuci\'on solo una componente de esta disyunci\'on debe ser satisfecha. Notemos que dado que no hay m\'as de una instancia con el mismo nombre, la disyunci\'on exclusiva se da de manera directa entre acciones de distintas instancias. Esto se debe a que el valor que toma la variable \texttt{actvar} representa de manera univoca a la instancia que esta provocando la transici\'on de estados. Si tomamos en cuenta dos acciones cualquiera de una misma instancia, encontramos que no hay problema si el nombre de las acciones difiere entre una y otra ya que esto se ve reflejado nuevamente en el valor que tomar\'a \texttt{actvar}. Sin embargo el valor de \texttt{actvar} no nos permite distinguir entre dos acciones de igual nombre dentro de una misma instancia. Este problema nos obliga a introducir alg\'un otro mecanismo para lograr la exclusividad en la disyunci\'on de la f\'ormula de transiciones. En Falluto2.0 se soluciona esto presentando un valor particular de la variables de \textit{program counter} para cada transici\'on dentro de la instancia. El valor que tome esta variable, junto con el valor que tome la variable \texttt{actvar} son entonces suficiente para poder distinguir entre las diferentes transiciones y lograr la disyunci\'on en la f\'ormula.
+La fórmula que define la relación de transición (que se incluye en la sección \texttt{TRANS} del código NuSMV) se construye como una disyunción exclusiva de todas las traducciones indicadas en el apartado anterior. Es importante notar el car\'acter exclusivo de esta disyunci\'on, ya que de no poseer esta caracter\'istica, estar\'iamos permitiendo transiciones que llevan a cambios de estados no presentes en el modelado original. En cada momento de la ejecuci\'on solo una componente de esta disyunci\'on debe ser satisfecha. Notemos que dado que no hay m\'as de una instancia con el mismo nombre, la disyunci\'on exclusiva se da de manera directa entre acciones de distintas instancias. Esto se debe a que el valor que toma la variable \texttt{act\#var} representa de manera univoca a la instancia que esta provocando la transici\'on de estados. Si tomamos en cuenta dos acciones cualquiera de una misma instancia, encontramos que no hay problema si el nombre de las acciones difiere entre una y otra ya que esto se ve reflejado nuevamente en el valor que tomar\'a \texttt{act\#var}. Sin embargo el valor de \texttt{act\#var} no nos permite distinguir entre dos acciones de igual nombre dentro de una misma instancia. Este problema nos obliga a introducir alg\'un otro mecanismo para lograr la exclusividad en la disyunci\'on de la f\'ormula de transiciones. En Falluto2.0 se soluciona esto presentando un valor particular de la variables de \textit{program counter} para cada transici\'on dentro de la instancia. El valor que tome esta variable, junto con el valor que tome la variable \texttt{actvar} son entonces suficiente para poder distinguir entre las diferentes transiciones y lograr la disyunci\'on en la f\'ormula. En el apéndice \ref{ApCompilacion} encontramos un ejemplo paradigmático de compilación en el que podemos apreciar la construcción de la fórmula que representa la relación de transición del sistema.
 
 \section{Fairness de fallas y procesos}
 En general nos interesa trabajar sobre dise\~nos de sistemas en los cuales se den ciertas condiciones de fairness comunes al comportamiento real de los mismos. Por ejemplo dado un sistema en el que est\'an involucrados varios procesos no es com\'un buscar verificar propiedades sobre ejecuciones en las que solo uno de estos procesos sea el que act\'ue. En el caso de presencia de fallas, tampoco es com\'un atender a ejecuciones en donde las fallas se apoderan de los saltos de estado, y no se da lugar a ejecuciones normales en el sistema. Es por ello que en Falluto2.0 se establecen por defecto dos condiciones de fairness espec\'ificas, las cuales por supuesto pueden ser desactivadas.
 
 La primera de ellas es una condici\'on de \textit{fairness incondicional para las acciones normales} del sistema. Esta condici\'on evita prestar atenci\'on a aquellas ejecuciones en donde el avance en la ejecuci\'on es dado solo por transiciones de falla. Para lograr esto, introducimos en el sistema compilado la siguiente f\'ormula de justicia incondicional (mas conocida como fairness incondicional):
-$$FAIRNESS \bigvee_{t \in T_N} actvar = t_{name} \vee actvar = deadlock$$
-Donde $T_N$ es el conjunto de transiciones normales del sistema y $t_{name}$ representa el nombre de la transici\'on $t$. De esta manera estamos pidiendo que durante a ejecuci\'on del sistema ocurra que a menudo se realice una transici\'on normal o se caiga en deadlock. Recordemos que para poder caer en deadlock, todas las transiciones normales deben estar inhabilitadas.
+$$\texttt{FAIRNESS} \bigvee_{t \in T_N} \texttt{act\#var} = t_{name} \vee \texttt{act\#var = deadlock}$$
+Donde $T_N$ es el conjunto de transiciones normales del sistema y $t_{name}$ representa el nombre de la transici\'on $t$. De esta manera estamos pidiendo que durante la ejecuci\'on del sistema ocurra que a menudo se realice una transici\'on normal o el sistema entre en deadlock. Recordemos que para que el sistema caiga en deadlock debe pasar que todas las transiciones normales deben estar inhabilitadas.
 
-Nuestra segunda condici\'on de fairness por defecto se forma a partir de varias condiciones de fairness que aseguran que si un proceso cualquiera esta habilitado siempre a partir de un momento, entonces siempre a menudo sea atendido para realizar una transici\'on normal. Decimos entonces que \'esta es una \textit{condici\'on de fairness d\'ebil para procesos}. Para implementar esta condici\'on pediremos, por cada proceso, que siempre a menudo o bien el proceso este en deadlock, o bien se lo atienda para realizar alguna acci\'on normal. Definimos que el proceso esta en deadlock si todas sus acciones nomrales est\'an deshabilitadas. Agregamos entonces por defecto la siguiente condici\'on de fairness a nuestro sistema compilado:
-$$FAIRNESS \bigvee_{t \in T_{N_{proc}}} actvar = t_{name} \vee proc\_deadlock$$
-donde $T_{N_{proc}}$ es el conjunto de transiciones normales del proceso en cuesti\'on, \textit{proc\_deadlock} es la f\'ormula que expresa que este proceso cay\'o en deadlock y la construimos como sigue:
+Nuestra segunda condici\'on de fairness por defecto se forma a partir de varias condiciones de fairness que aseguran que si un proceso cualquiera esta habilitado siempre a partir de un momento, entonces siempre a menudo sea atendido para realizar una transici\'on normal. Decimos entonces que \'esta es una \textit{condici\'on de fairness d\'ebil para procesos}. Para implementar esta condici\'on pediremos, por cada proceso, que a menudo o bien el proceso este en deadlock, o bien se lo realizará alguna acci\'on normal. Definimos que el proceso esta en deadlock si todas sus acciones normales est\'an deshabilitadas. Agregamos entonces por defecto la siguiente condici\'on de fairness a nuestro sistema compilado:
+$$\texttt{FAIRNESS} \bigvee_{t \in T_{N_{proc}}} \texttt{act\#var} = t_{name} \vee proc\_bloqueado$$
+donde $T_{N_{proc}}$ es el conjunto de transiciones normales del proceso en cuesti\'on, \textit{proc\_deadlock} es la f\'ormula que expresa que este proceso está bloqueado y, por consiguiente, se define por:
 $$\bigwedge_{t \in T_{N_{proc}}}! habilitacion_{t}$$
-donde $habilitacion_{t}$ es la condici\'on de habilitaci\'on para la transici\'on $t$. Notemos que un proceso puede caer y salir de deadlock sucesivamente debido a cambios en el estado del resto del sistema. Por lo tanto puede darse el caso de que este fairness se cumpla y sin embargo no se atienda al proceso nunca, ya que cada vez que se lo intenta atender \'este haya ca\'ido en deadlock. Por lo tanto decimos que la condici\'on de fairness es d\'ebil y solo se asegurar\'a atender al proceso si el mismo, a partir de cierto momento de la ejecuci\'on, permanece continueamente habilitado para realizar acciones normales.
+donde $habilitacion_{t}$ es la condici\'on de habilitaci\'on para la transici\'on $t$. Notemos que un proceso puede bloquearse y desbloquearse sucesivamente debido a cambios en el estado del resto del sistema. Por lo tanto puede darse el caso de que este fairness se cumpla y sin embargo no se atienda al proceso nunca, ya que cada vez que se lo intenta atender el mismo esté momentáneamente bloqueado . Por lo tanto decimos que la condici\'on de fairness es d\'ebil y solo se asegurar\'a atender al proceso si el mismo, a partir de cierto momento de la ejecuci\'on, permanece continueamente habilitado para realizar acciones normales.
+
+
 
 
 \section{Sem\'antica de propiedades}
 Como vimos al finalizar el cap\'itulo \ref{sintaxisDeFalluto}, Falluto2.0 permite razonar y verificar sobre las acciones que se llevan a cabo en la ejecuci\'on del sistema para realizar los saltos de estado. Recordemos que para referirse a la ocurrencia de una acci\'on del sistema us\'abamos la construcci\'on:
 \begin{center}\texttt{ just(accion)}\end{center}
-Esta construcci\'on permite expresar el nombre de la transici\'on que se ha tomado para llegar al estado actual, en el caso de arriba el nombre de la transici\'on es \texttt{accion}. Por lo tanto, la f\'ormula \texttt{just(accion1)} se satisface en un estado cualquiera solo si \texttt{accion1} fue la acci\'on realizada para llegar a ese estado. Notemos que esta f\'ormula nunca se satisface al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Es decir que la compilaci\'on se reduce a traducir f\'ormulas de la forma \texttt{just(x)} a f\'ormulas de la forma \texttt{actvar = x}.
+Esta construcci\'on permite expresar el nombre de la transici\'on que se ha tomado para llegar al estado actual. Por lo tanto, la f\'ormula \texttt{just(accion1)} se satisface en un estado cualquiera solo si \texttt{accion1} fue la acci\'on realizada para llegar a ese estado. Notemos que esta f\'ormula nunca se satisface al comienzo de una ejecuci\'on, ya que no se realiza ninguna acci\'on para llegar al estado inicial en este momento. La compilaci\'on de estas f\'ormulas se realiza de manera muy simple, verificando en el estado correspondiente, el valor de la variable de acci\'on introducida por Falluto2.0. Es decir que la compilaci\'on se reduce a traducir f\'ormulas de la forma \texttt{just(x)} a f\'ormulas de la forma \texttt{actvar = x}.
 \subsection*{Compilaci\'on de propiedades simples}
-Falluto permite al usuario definir propiedades en los formalismos LTL y CTL usando la sintaxis \texttt{LTLSPEC~q} y \texttt{CTLSPEC~p} donde \texttt{q} es una f\'ormula en el formalismo LTL y \texttt{p} una en el formalismo CTL. La compilaci\'on de estas f\'ormulas se hace de manera directa debido a la similitud entre el valor sem\'antico definido por Falluto2.0 y el definido por NuSMV para este tipo de expresiones. Esto vale tambi\'en para las condiciones de fairness definidas por el usuario con las sintaxis \texttt{FAIRNESS~q} y \texttt{COMPASSION(p,q)}.
+Falluto permite al usuario definir propiedades en los formalismos LTL y CTL usando la sintaxis \texttt{LTLSPEC~q} y \texttt{CTLSPEC~p} donde \texttt{q} es una f\'ormula LTL y \texttt{p} una fórmula CTL. La compilaci\'on de estas f\'ormulas se hace de manera directa debido a la similitud entre el valor sem\'antico definido por Falluto2.0 y el definido por NuSMV para este tipo de expresiones. Esto vale tambi\'en para las condiciones de fairness definidas por el usuario con las sintaxis \texttt{FAIRNESS~q} y \texttt{COMPASSION(p,q)}.
+
+
 \subsection*{Compilaci\'on de meta-propiedades}
 En el caso de las meta-propiedades ofrecidas por Falluto2.0, la compilaci\'on no se realiza de manera directa, y por lo tanto conlleva otro tipo de trabajo. A continuaci\'on describimos c\'omo es el proceso de compilaci\'on de cada una de ellas:
 \begin{itemize}
-\item \textit{Meta-propiedad Finitely Many Fault/s.} Esta meta-propiedad permite razonar sobre propiedades en el sistema bajo la suposici\'on de que ciertas fallas dejan de ocurrir a partir de cierto momento en la ejecuci\'on. La sintaxis que usamos es \texttt{FINMANYFAULT(f$_1$,f$_2$,...,f$_n$) $\rightarrow$ q} donde \texttt{f$_1$,f$_2$,...,f$_n$} son nombres de fallas y \texttt{q} es la propiedad LTL que queremos verificar en el sistema. Esta propiedad se compila como una f\'ormula LTL compuesta a partir de una implicancia, en donde el antecedente sugiere que en cierto memento las faltas mencionadas dejar\'an de ocurrir, y el precedente corresponde a la compilaci\'on directa de la propiedad \texttt{q}. El ejemplo quedar\'ia compilado entonces como:
+\item \textit{Finitely Many Fault/s.} Esta meta-propiedad permite razonar sobre propiedades en el sistema bajo la suposici\'on de que ciertas fallas dejan de ocurrir a partir de cierto momento en la ejecuci\'on. La sintaxis que usamos es \texttt{FINMANYFAULT(f$_1$,f$_2$,...,f$_n$) $\rightarrow$ q} donde \texttt{f$_1$,f$_2$,...,f$_n$} son nombres de fallas y \texttt{q} es la propiedad LTL que queremos verificar en el sistema. Esta propiedad se compila como una f\'ormula LTL compuesta a partir de una implicación, en donde el antecedente sugiere que en cierto momento las fallas mencionadas dejar\'an de ocurrir, y el consecuente corresponde a la compilaci\'on directa de la propiedad \texttt{q}. El ejemplo entonces quedar\'ia compilado como:
 \begin{center}
-\texttt{LTLSPEC~(~F~!~(~actvar~in~{f$_1$,f$_2$,...,f$_n$}~)~)~$\rightarrow$~q$_{compilada}$}
+\texttt{LTLSPEC~(~F~G~!~(~act\#var~in~\{f$_1$,f$_2$,...,f$_n$\}~)~)~$\rightarrow$~q$_{compilada}$}
 \end{center}
 \item \textit{Meta-propiedad Normal Behaiviour.} La meta-propiedad Normal Behaiviour puede ser usada para verificar propiedades bajo la suposici\'on de que la ejecuci\'on del sistema estar\'a libre de ocurrencia de fallas. Es decir que es utilizada para verificar si la propiedad deseada se cumple al menos en aquellos casos en los que el sistema avanza solo a partir de transiciones normales. La sintaxis para esta propiedad en el lenguaje de Falluto2.0 es la que sigue: \begin{center}\texttt{NORMALBEHAIVIOUR -> q}\end{center} donde \texttt{q} puede ser una f\'ormula en formalismo LTL o CTL. La compilaci\'on para el caso en que \texttt{q} est\'a redactada en LTL es la que sigue:
 \begin{center}
-\texttt{LTLSPEC~(~G~!(~actvar~in~$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$~))~$\rightarrow$~q$_{compilada}$}
+\texttt{LTLSPEC~(~G~!(~act\#var~in~$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$~))~$\rightarrow$~$q_{compilada}$}
 \end{center}
 De manera muy similar logramos compilar el caso en que \texttt{q} es una f\'ormula CTL:
 \begin{center}
-\texttt{CTLSPEC~(~AG~!(~actvar~in~$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$~))~$\rightarrow$~q$_{compilada}$}
+\texttt{CTLSPEC~(~AG~!(~act\#var~in~$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$~))~$\rightarrow$~$q_{compilada}$}
 \end{center}
 En ambos casos \texttt{$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$} es el conjunto de nombres de todas las fallas declaradas en el sistema por el usuario.
 \end{itemize}
@@ -915,13 +931,13 @@ En ambos casos \texttt{$\lbrace$f$_1$, f$_2$,..., f$_n \rbrace$} es el conjunto 
 
 Falluto2.0 ofrece la posibilidad de verificar que nuestro sistema no caiga en estado de \textit{deadlock}. La instrucci\'on especificada por la sintaxis \texttt{CHECKDEADLOCK} busca verificar entonces la ausencia de estados a partir de los cuales no se pueda avanzar usando acciones normales. Es decir que revisa que no hayan estados en los cuales todas las acciones normales est\'en inhabilitadas. Recordando la sem\'antica de la transici\'on de deadlock presentada en este mismo cap\'itulo, vemos que su condici\'on de habilitaci\'on es en efecto la negaci\'on de las condiciones de habilitaci\'on de cada transici\'on normal del sistema. Gracias a esto es que podemos definir entonces la compilaci\'on de nuestra propiedad de ausencia de deadlock como sigue:
 \begin{center}
-\texttt{LTLSPEC~G~!~actvar = deadlock}
+\texttt{LTLSPEC~G~!~act\#var = deadlock}
 \end{center}
 Luego en presencia de deadlock NuSMV encontrar\'a un contraejemplo en donde en al menos un estado de la ejecuci\'on la variable de acci\'on tenga el valor representante de deadlock, sugiriendo por lo tanto que el estado anterior a este pose\'ia inhabilitadas todas las acciones buenas del sistema.
 
 \section{Discusi\'on}
 
-Dado que en el model checking el problema de la explosi\'on de estados es el principal defecto, Falluto2.0 busca en evitar la introducci\'on de complejidad con respecto al sistema original al momento de la compilaci\'on. Los mecan\'ismos implementados para la compilaci\'on apuntan a evitar la introducci\'on de nuevas variables, y a su vez de lograr f\'ormulas de sencillas de verificar. Notemos que las \'unicas variables introducidas en momento de compilaci\'on son pr\'acticamente indispensables. En efecto hemos introducido solo tres tipos de variables en esta etapa: 
+Dado que en el model checking el problema de la explosi\'on de estados es el principal defecto, Falluto2.0 busca evitar la introducci\'on de complejidad con respecto al sistema original al momento de la compilaci\'on. Los mecan\'ismos implementados para la compilaci\'on apuntan a evitar la introducci\'on de nuevas variables, y a su vez de lograr f\'ormulas sencillas de verificar. Notemos que las \'unicas variables introducidas en momento de compilaci\'on son pr\'acticamente indispensables. En efecto hemos introducido solo tres tipos de variables en esta etapa: 
 \begin{enumerate}
 \item La variable de acci\'on.
 \item Las variables de actividad de fallas permanentes.
@@ -929,7 +945,7 @@ Dado que en el model checking el problema de la explosi\'on de estados es el pri
 \end{enumerate}
 Cada una de ellas cumple un prop\'osito claro y no hemos encontrado manera m\'as eficiente de lograr este prop\'osito.
 
-La introducci\'on de estas nuevas variables va acompañada tambi\'en del renombrado de variables y acciones presentes en el modelo original. Como sabemos, es parte esencial del model checking la presentaci\'on de una ejecuci\'on de contraejemplo en el caso del incumplimiento de alguna de las propiedades verificadas. Al verificar a partir de nuestro back-end el modelo compilado, y en caso de que se constate que una propiedad sobre el modelo no se cumple, NuSMV devolver\'a una ejecuci\'on de contraejemplo sucia. Decimos sucia en cuanto a que poseer\'a informaci\'on a cerca de los cambios de valores en variables introducidas en compilaci\'on y por lo tanto ajenas a la comprensi\'on del usuario. Encontraremos tambi\'en en este contraejemplo que los nombres de las variables originales del sistema han cambiado, y hayaremos muy dificultoso distinguir los diferentes pasos de la ejecuci\'on. Por esta raz\'on fue necesario implementar en nuestra herramienta una utilidad para la re-interpretaci\'on de estas ejecuciones. De esta manera podemos devolver al usuario un contraejemplo limpio y comprensible. El re-interprete de trazas se encarga de ocultar variables ajenas al modelado original, y dejar en evidencia cada paso de ejecuci\'on, nombrando la acci\'on llevada a cabo y distinguiendo claramente cada estado. Las decisiones de presentaci\'on de trazas de contraejemplo que se tomaron, aseguran que las mismas sean intuitivas y com\'un al uso habitual en el \'ambito del model checking. Podemos observar convenciones para la representaci\'on de ciclos en la ejecuci\'on y para la representaci\'on detallada de acciones sincronizadas, entre otras.
+La introducci\'on de estas nuevas variables va acompañada tambi\'en del renombrado de variables y acciones presentes en el modelo original. Como sabemos, es parte esencial del model checking la presentaci\'on de una ejecuci\'on de contraejemplo en el caso del incumplimiento de alguna de las propiedades verificadas. Al verificar a partir de nuestro back-end el modelo compilado, y en caso de que se constate que una propiedad sobre el modelo no se cumple, NuSMV devolver\'a una ejecuci\'on de contraejemplo ``sucia''. Decimos sucia en cuanto a que poseer\'a informaci\'on acerca de los cambios de valores en variables introducidas en compilaci\'on y por lo tanto ajenas a la comprensi\'on del usuario. Encontraremos tambi\'en en este contraejemplo que los nombres de las variables originales del sistema han cambiado, y hallaremos muy dificultoso distinguir los diferentes pasos de la ejecuci\'on. Por esta raz\'on fue necesario implementar en nuestra herramienta una utilidad para la re-interpretaci\'on de estas ejecuciones. De esta manera podemos devolver al usuario un contraejemplo limpio y comprensible, y que refleje el comportamiento del modelo original en lenguaje de Falluto2.0. El re-interprete de trazas se encarga de ocultar variables ajenas al modelado original, y dejar en evidencia cada paso de ejecuci\'on, nombrando la acci\'on llevada a cabo y distinguiendo claramente cada estado. Las decisiones de presentaci\'on de trazas de contraejemplo que se tomaron, aseguran que las mismas sean intuitivas y com\'un al uso habitual en el \'ambito del model checking. Podemos observar convenciones para la representaci\'on de ciclos en la ejecuci\'on y para la representaci\'on detallada de acciones sincronizadas, entre otras.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -953,37 +969,39 @@ La especificaci\'on del algoritmo busca lo siguiente. Cada proceso votar\'a por 
 \item Todos los procesos que llegan a una decisi\'on, llegan a la misma.
 \end{enumerate}
 
-Este algoritmo se ejecuta (como bien dice su nombre) en dos fases: En una primera fase los procesos votaran si se comprometen a realizar el commit. En una segunda fase el coordinador tomara una decisi\'on basada sobre los votos obtenidos, e informar\'a del resultado de su decisi\'on a cada uno de los procesos involucrados en la transacci\'on \cite{Arora}.
+Este algoritmo se ejecuta (como bien dice su nombre) en dos fases: En una primera fase los procesos votar\'an si se comprometen a realizar el commit. En una segunda fase el coordinador tomara una decisi\'on basada sobre los votos obtenidos, e informar\'a del resultado de su decisi\'on a cada uno de los procesos involucrados en la transacci\'on \cite{Arora}.
 
 El proceso coordinador, de ahora en mas \textit{C}, posee tres acciones. En la primera acci\'on \textit{C} emite su voto, pasa a su fase dos, y espera a que los dem\'as procesos voten. En la segundo acci\'on, \textit{C} detecta que todos los dem\'as procesos han votado \textit{SI} y llega a la decisi\'on de commit. En la tercera acci\'on \textit{C} detecta que alg\'un proceso ha votado \textit{NO} o se ha detenido, y por lo tanto llega a la decisi\'on de abortar.
 
 Todos los otros procesos, de ahora en mas \textit{V}, tambi\'en poseen tres acciones. En su primera acci\'on, \textit{V} detecta que \textit{C} ha emitido su voto por commit y emite su propio voto. En su segunda acci\'on \textit{V} detecta que \textit{C} se ha detenido y decide abortar. En la tercera acci\'on, \textit{V} detecta que alg\'un proceso ha llegado a su fase dos, y toma la misma decisi\'on que aquel.
 
-Cada proceso \textit{j} en nuestro sistema poseer\'a las siguientes variables de estado:
+Cada proceso \textit{j} en nuestro sistema tiene las siguientes variables de estado:
 \begin{itemize}
-\item \textit{j.p} Indica la fase del proceso. Comenzar\'a con el valor 0, pasar\'a a tener valor 1 cuando el proceso haya emitido su voto, y finalmente valdr\'a 2 cuando el proceso haya tomado su decisi\'on final.
-\item \textit{j.d} Dependiendo de la fase en la que se encuentre el proceso esta variable representar\'a el voto emitido (fase 1), o la decisi\'on tomada (fase 2). El valor \textit{TRUE} indicara voto a favor o decisi\'on de commit, el valor \textit{FALSE} indicar\'a voto en contra, o decisi\'on de abortar.
-\item \textit{j.up} Esta variable indicar\'a si el proceso est\'a en ejecuci\'on (tomando valor \textit{TRUE}) o se ha detenido por alg\'un error (tomando valor \textit{FALSE}).
+\item \textit{j.p}: Indica la fase del proceso. Comienza con el valor 0, pasa a tener valor 1 cuando el proceso haya emitido su voto, y finalmente valdr\'a 2 cuando el proceso haya tomado su decisi\'on final.
+\item \textit{j.d}: Dependiendo de la fase en la que se encuentre el proceso, esta variable representar\'a el voto emitido (fase 1), o la decisi\'on tomada (fase 2). El valor \textit{TRUE} indicará voto a favor o decisi\'on de commit, el valor \textit{FALSE} indicar\'a voto en contra, o decisi\'on de abortar.
+\item \textit{j.up}: Esta variable indicar si el proceso est\'a en ejecuci\'on (tomando valor \textit{TRUE}) o se ha detenido por alg\'un error (tomando valor \textit{FALSE}).
 \end{itemize}
 
-El siguiente es un diagrama de estados representando a cada uno de los procesos descriptos. Las lineas punteadas representan transiciones de falla en las que provocan que la componente se detenga:
+Las figuras \ref{2pcc} y \ref{2pcv} representan los diagramas de estados del coordinador y de los votantes respectivamente. Las líneas punteadas representan transiciones de falla en las que provocan que la componente se detenga:
 
 \begin{figure}[htp]
   \centering
-    \includegraphics[scale=0.75]{Imagenes/2pcCoor.pdf}
-  \caption{Diagrama de estados de una componente coordinador del protocolo de commit at\'omico de 2 fases}
+    \includegraphics[scale=0.35]{Imagenes/2pcCoor.pdf}
+  \caption{Diagrama de estados del coordinador}
   \label{2pcc}
 \end{figure}
 
 \begin{figure}[htp]
   \centering
-    \includegraphics[scale=0.75]{Imagenes/2pcVoter.pdf}
-  \caption{Diagrama de estados de una componente votante del protocolo de commit at\'omico de 2 fases}
+    \includegraphics{Imagenes/2pcVoter.pdf}
+  \caption{Diagrama de estados un votante}
   \label{2pcv}
 \end{figure}
 
 
-En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicaci\'on entre los procesos, solo simularemos fallas de tipo STOP, representando as\'i la ca\'ida en inactividad de alg\'un proceso interviniente. Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de cuatro votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:
+En nuestro caso de estudio no tomaremos en cuenta fallas en la comunicaci\'on entre los procesos, solo simularemos fallas de tipo STOP, representando as\'i la ca\'ida de alg\'un proceso interviniente.
+
+Miremos entonces el modelado de este protocolo en Falluto2.0, tomando el caso de cuatro votantes y un coordinador. Comenzamos modelando la clase de proceso coordinador:
 
 \noindent \line(1,0){400}
 \begin{verbatim}
@@ -1020,7 +1038,7 @@ ENDPROCTYPE
 \line(1,0){400}
 ~\\
 
-Como vemos el modelado surge de manera directa a partir de la especificaci\'on. Miremos sin embargo con detenci\'on la secci\'on \textit{FAULT} del modelado del proceso coordinador. En ella encontramos la especificaci\'on de una \'unica falla, representando la detenci\'on del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de car\'acter permanente, es decir que una vez que ocurre, el proceso instanciado quedar\'a infinitamente inhabilitado para realizar cualquier transici\'on buena. Dado que es de nuestro inter\'es que los dem\'as procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detenci\'on del proceso coordinador, hemos agregado a la falla de detenci\'on la postcondici\'on \textit{up' = FALSE}. Veremos mas adelante como los dem\'as procesos pueden acceder a esta variable, en funci\'on de variable de contexto, y de esta manera enterarse de la situaci\'on del coordinador. Vale la pena tambi\'en revisar los par\'ametros de contexto de esta declaraci\'on. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas ser\'a una referencia a cada votante en el sistema, y ser\'an especificados en la instanciaci\'on al realizar el pasaje de par\'ametros. De este modo el proceso coordinador podr\'a en cualquier momento acceder a las variables de estado de los votantes en condici\'on de solo lectura.
+Como vemos el modelado surge de manera directa a partir de la especificaci\'on. Miremos sin embargo con detenci\'on la secci\'on \texttt{FAULT} del modelado del proceso coordinador. En ella encontramos la especificaci\'on de una \'unica falla, representando la detenci\'on del proceso. Esta falla es por ende de tipo \textit{STOP}, y como vimos es de car\'acter permanente, es decir que una vez que ocurre, el proceso instanciado quedar\'a definitivamente inhabilitado para realizar cualquier transici\'on. Dado que es de nuestro inter\'es que los dem\'as procesos puedan enterarse de la ocurrencia de la falla, o mas bien de la detenci\'on del proceso coordinador, hemos agregado a la falla de detenci\'on la postcondici\'on \texttt{up' = FALSE}. Veremos mas adelante como los dem\'as procesos pueden acceder a esta variable, en funci\'on de variable de contexto, y de esta manera enterarse de la situaci\'on del coordinador. Vale la pena tambi\'en revisar los par\'ametros de contexto de esta declaraci\'on. Como vemos posee 4 variables de contexto: \textit{--~v0, v1, v2, v3~--}. Cada una de estas ser\'a una referencia a cada votante en el sistema, y ser\'an especificados en la instanciaci\'on al realizar el pasaje de par\'ametros. De este modo el proceso coordinador podr\'a en cualquier momento acceder a las variables de estado de los votantes en condici\'on de solo lectura.
 
 Continuando con el modelado, miremos ahora los procesos votantes:
 
@@ -1054,9 +1072,9 @@ ENDPROCTYPE
 \line(1,0){400}
 ~\\
 
-Nuevamente el modelado se extrae de manera directa de la especificaci\'on del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los dem\'as procesos en el sistema, incluyendo al coordinador (\textit{coo}). La falla declarada es id\'entica a la declarada en el modelado del coordinador. Por \'ultimo la acci\'on \textit{commit} fue separada para cada caso en que se detecta la toma de decisi\'on de un proceso diferente. Si bien comparten el nombre, solo una de ellas ser\'a elegida para realizar la transici\'on.
+Nuevamente el modelado se extrae de manera directa de la especificaci\'on del algoritmo. Vemos como cada proceso tiene acceso en forma de solo lectura a cada uno de los dem\'as procesos en el sistema, incluyendo al coordinador (\texttt{coo}). La falla declarada es id\'entica a la declarada en el modelado del coordinador. Por \'ultimo la acci\'on \texttt{commit} fue separada para cada caso en que se detecta la toma de decisi\'on de un proceso diferente. Si bien comparten el nombre, solo una de ellas ser\'a elegida para realizar la transici\'on.
 
-Miremos ahora como organizar los procesos en la etapa de instanciaci\'on de manera que cada uno pueda ver el estado de los dem\'as. Para instanciar los procesos usaremos el siguiente c\'odigo:
+Miremos ahora cómo organizar los procesos en la etapa de instanciaci\'on de manera que cada uno pueda ver el estado de los dem\'as. Para instanciar los procesos usaremos el siguiente c\'odigo:
 
 \noindent \line(1,0){400}
 \begin{verbatim}
@@ -1069,9 +1087,9 @@ INSTANCE voter3 = RegularVoter(coord, voter0, voter2, voter1)
 \noindent \line(1,0){400}
 ~\\
 
-Como vemos, hemos instanciado un proceso coordinador y cuatro procesos votantes. Hemos asignado los nombres de instanciaci\'on de cada proceso como par\'ametros de los dem\'as procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes. Esto queda claro en el caso de los procesos votantes, donde el \'indice del par\'ametro para el proceso coordinador en la instanciaci\'on coincide con el \'indice de la variable de contexto \textit{coo} en el proctype \textit{RegularVoter}.
+Como vemos, hemos instanciado un proceso coordinador y cuatro procesos votantes. Hemos asignado los nombres de instanciaci\'on de cada proceso como par\'ametros de los dem\'as procesos en el orden correspondiente de manera que tenga sentido el modelado de los proctypes. Esto queda claro en el caso de los procesos votantes, donde el \'indice del par\'ametro para el proceso coordinador en la instanciaci\'on coincide con el \'indice de la variable de contexto \texttt{coo} en el proctype \texttt{RegularVoter}.
 
-Una vez modelado el sistema, es necesario especificar las propiedades deseadas sobre el mismo, para su posterior verificaci\'on con la herramienta. Vimos en la especificaci\'on del algoritmo que estamos trabajando, que buscamos que el mismo cumpla con tres propiedades especificas. Las recordamos a continuaci\'on y miramos el c\'odigo usado para especificarlas en Falluto2.0:
+Una vez modelado el sistema, es necesario especificar las propiedades deseadas sobre el mismo, para su posterior verificaci\'on con la herramienta. Vimos que la especificaci\'on del algoritmo requiere que éste cumpla con tres propiedades específicas:
 \begin{enumerate}
 \item \textit{Si no ocurren errores y todos los procesos votan por SI, entonces todos los procesos llegan a la decisi\'on de commit.}\\ Esta propiedad supone que no ocurren errores y en ese contexto busca probar que si todos los procesos votaron por hacer commit entonces todos llegan a la decisi\'on de hacer commit. Podemos aprovechar entonces la metapropiedad \textit{NORMAL\_BEHAIVIOUR} para este caso, y la especificaci\'on en Falluto2.0 tomar\'a entonces la siguiente forma:\\
 \noindent \line(1,0){350}
@@ -1102,7 +1120,8 @@ LTLSPEC G ( ((coord.p = 2 & coord.d) |
              (voter3.p = 2 & voter3.d) |
             )
             -> 
-            (voter0.p != 0 & voter0.d & 
+            (coord.p  != 0 & coord.d   &
+             voter0.p != 0 & voter0.d & 
              voter1.p != 0 & voter1.d & 
              voter2.p != 0 & voter2.d & 
              voter3.p != 0 & voter3.d
@@ -1138,7 +1157,7 @@ Modelaremos en esta secci\'on, un protocolo de comunicaci\'on entre sat\'elites.
 
 Los \textit{protocolos de ventana deslizante} pertenecen al conjunto de protocolos de transmisi\'on de datos con control de error (ARQ), com\'unmente presentes en los algoritmos de capas de enlace de datos. Estos protocolos se caracterizan por el uso de \textit{n\'umeros de secuencia} en sus tramas, y el env\'io de \textit{mensajes de confirmaci\'on de recepci\'on}.
 
-En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de n\'umeros de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los n\'umeros de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on a\'un no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo n\'umero de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tama\~no inicial siempre \cite[tanembaum].
+En los \textit{protocolos de ventana deslizante}, en cualquier instante, el emisor mantiene un grupo de de n\'umeros de secuencia que corresponde a las tramas que tiene permitido enviar. Se dice que estas tramas caen dentro de la ventana emisora. De manera semejante, el receptor mantiene una ventana receptora correspondiente al grupo de tramas que tiene permitido aceptar. Los n\'umeros de secuencia en la ventana del emisor representan tramas enviadas, o que pueden ser enviadas, pero cuya recepci\'on a\'un no ha sido confirmada. Una vez que se recibe la confirmaci\'on de alguna trama en la ventana, se hace lugar en la misma para el env\'io de una nueva trama. La ventana receptora corresponde, como ya dijimos, a las tramas que puede aceptar. Toda trama que caiga fuera de la ventana se descarta sin m\'as. Cuando se recibe una trama cuyo n\'umero de secuencia se corresponde con el l\'imite inferior de la ventana, esta trama se acepta, se genera un mensaje de confirmaci\'on de recepci\'on, y la ventana avanza para permitir la recepci\'on de una nueva trama de ser necesario. De este evento surge el nombre de este grupo de protocolos. Las ventanas de recepci\'on conservan su tama\~no inicial siempre \cite{tanembaum}.
 
 El protocolo \textit{GO-BACK-N} es un caso espec\'ifico de protocolos de ventana deslizante, en donde el \textit{tama\~no de la ventana de recepci\'on es 1}. Este protocolo se caracteriza por la retransmisi\'on de tramas en tiempos en que el emisor en otro caso quedar\'ia ocioso. En el caso particular del protocolo que modelaremos aqu\'i, si el emisor ha enviado todas las tramas de su ventana y no ha recibido confirmaci\'on de recepci\'on para ninguna de ellas, entonces proceder\'a a retransmitir todas las tramas desde la \'ultima con confirmaci\'on de recepci\'on. Esta caracter\'istica representa un uso mas eficiente de la conexi\'on con respecto a los protocolos de detenci\'on y espera, ya que por un lado el emisor no debe esperar confirmaci\'on de recepci\'on para seguir enviando tramas dentro de su ventana, y por otro lado en el caso de p\'erdidas de tramas, este se anticipa al reenv\'io de las mismos. Este tipo de protocolos es muy \'util en situaciones en las que retardo en los canales de transmisi\'on es muy grande, ya que en el caso de no retransmitir los tiempos de ocio del emisor ser\'ian muy elevados y poco aprovechados.
 
@@ -1161,28 +1180,28 @@ El siguiente pseudoc\'odigo representa el algoritmo de env\'io de trama de secue
 
 \noindent \line(1,0){400}
 \textit{\\\\
-\noindent if( buffer de envio vacio )\\
+\noindent if( buffer de envío vacío )\\
 \indent if( estoy restransmitiendo )\\
-\indent \indent continuo con la retransmision;\\
+\indent \indent continúo con la retransmisión;\\
 \indent else if( tengo tramas y la ventana no esta llena )\\
-\indent \indent envio trama nueva;\\
+\indent \indent envío trama nueva;\\
 \indent else \\
-\indent \indent inicio retransmision;\\
+\indent \indent inicio retransmisión;\\
 \noindent else \\
 \indent continuar \\
 }
 \noindent \line(1,0){400}\\
 
-mientras que este otro pseudoc\'odigo representa al de recepci\'on de confirmaci\'on de recepci\'on:
+EL siguiente pseudoc\'odigo representa al de recepci\'on de confirmaci\'on de recepci\'on:
 
 \noindent \line(1,0){400}
 \textit{\\\\
-if( la confirmacion cae dentro de la ventana de emision)\\
+if( la confirmación cae dentro de la ventana de emisión)\\
 \indent    deslizo la ventana;\\
 \indent    if( estoy retransmitiendo)\\
 \indent \indent dejo de retransmitir;\\
 else\\
-\indent descarto la confirmacion;\\
+\indent descarto la confirmación;\\
 }
 \noindent \line(1,0){400}\\
 
@@ -1249,9 +1268,9 @@ ENDPROCTYPE
 \end{verbatim}
 \noindent \line(1,0){400}\\
 
-Hemos simulado un emisor sin fallas, el cual memoriza el valor de la \'ultima confirmaci\'on de recepci\'on, el n\'umero de secuencia del pr\'oximo paquete a ser enviado y el \'indice de retransmisi\'on. De esta manera la ventana de transmisi\'on queda definida entre los \'indices dados por \textit{LA} y \textit{NS}, y en caso de retransmisi\'on, el \'indide \textit{RT} recorre esta ventana simulando enviar las tramas correspondientes.
+Hemos modelado un emisor sin fallas, el cual memoriza el valor de la \'ultima confirmaci\'on de recepci\'on, el n\'umero de secuencia del pr\'oximo paquete a ser enviado y el \'indice de retransmisi\'on. De esta manera la ventana de transmisi\'on queda definida entre los \'indices dados por \textit{LA} y \textit{NS}, y en caso de retransmisi\'on, el \'indide \textit{RT} recorre esta ventana simulando enviar las tramas correspondientes.
 
-La secci\'on \textit{TRANS} del emisor, se ha definido tomando en cuenta el sentido de las construcciones \textit{IF-ELSEIF-ELSE}. Por lo tanto la guarda de cada transici\'on definida se conforma, en parte, por la negaci\'on de las guardas de las transiciones correspondientes a los casos anteriores dentro de la construcci\'on \textit{IF-ELSEIF-ELSE}. Las tres primeras transiciones se corresponden al algoritmo para env\'io de tramas de secuencia, mientras que las transiciones 4 y 5 pertenecen al de recepci\'on de tramas de confirmaci\'on de recepci\'on.
+La secci\'on \textit{TRANS} del emisor, se ha definido tomando en cuenta el sentido de las construcciones \textit{IF-ELSEIF-ELSE} del pseudocódigo al principio de la sección. Por lo tanto la guarda de cada transici\'on definida se conforma, en parte, por la negaci\'on de las guardas de las transiciones correspondientes a los casos anteriores dentro de la construcci\'on \textit{IF-ELSEIF-ELSE}. Las tres primeras transiciones se corresponden al algoritmo para env\'io de tramas de secuencia, mientras que las transiciones etiquetadas con \texttt{read} pertenecen al de recepci\'on de tramas de confirmaci\'on de recepci\'on.
 
 
 
@@ -1266,10 +1285,10 @@ El siguiente pseudoc\'odigo describe el algoritmo de recepci\'on de tramas de se
 \textit{\\\\
 if( es la trama que esperaba )\\
 \indent    aceptar trama y correr ventana;\\
-\indent    generar confirmacion de recepcion;\\
+\indent    generar confirmación de recepción;\\
 else\\
 \indent    descartar trama;\\
-\indent    re-generar confirmacion de recepcion;\\
+\indent    re-generar confirmación de recepción;\\
 }
 \noindent \line(1,0){400}\\
 
@@ -1303,8 +1322,10 @@ ENDPROCTYPE
 \end{verbatim}
 \noindent \line(1,0){400}\\
 
-Hemos modelado entonces un receptor sin fallas, el cual mantiene memoria el n\'umero de secuencia de la pr\'oxima trama que se espera recibir. En su secci\'on \textit{TRANS} podemos distinguir el modelado de los algoritmos (2) y (3). Las dos primeras transiciones forman parte de la recepci\'on de tramas de secuencia, mientras que la \'ultima transici\'on describe el env\'io de la una trama de confirmaci\'on de recepci\'on.
+Hemos modelado entonces un receptor sin fallas, el cual mantiene memoria del n\'umero de secuencia de la pr\'oxima trama que se espera recibir. En su secci\'on \textit{TRANS} podemos distinguir el modelado de los algoritmos (2) y (3). Las dos primeras transiciones forman parte de la recepci\'on de tramas de secuencia, mientras que la \'ultima transici\'on describe el env\'io de la trama de confirmaci\'on de recepci\'on.
 
+
+\subsection*{Canales de comunicaci\'on}
 A continuaci\'on modelaremos los canales de comunicaci\'on entre el emisor y el receptor. Estos canales estar\'an sujetos a fallas, en particular a fallas que implican la perdida de los mensajes que intentan atravesarlos. A continuaci\'on encontramos el modelo de los canales en el lenguaje de Falluto2.0:
 
 \noindent \line(1,0){400}
@@ -1350,10 +1371,11 @@ ENDPROCTYPE
 
 \noindent \line(1,0){400}\\
 
-En el modelado de los canales tenemos que la variable \textit{buff} en la posici\'on $i$ define la cantidad de mensajes con n\'umero de secuencia $i$ que presentes en el canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser le\'ida por el receptor. A su vez la variable \textit{empty} indica si el receptor ya ha le\'ido el dato que le lleg\'o o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducci\'on de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde ser\'a le\'ido; y por \'ultimo la transici\'on de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.
+En el modelado de los canales tenemos que la variable \textit{buff} en la posici\'on $i$ define la cantidad de mensajes con n\'umero de secuencia $i$ que están siendo transmitidos a través del canal. Por otro lado la variable \textit{data} representa la trama que ha arribado a destino para ser le\'ida por el receptor. A su vez la variable \textit{empty} indica si el receptor ya ha le\'ido el dato que le lleg\'o o no. Podemos distinguir tres tipos de transiciones en este modelado: las de nombre \textit{send} representan la introducci\'on de un mensaje en el canal por parte del emisor del mismo; las de nombre \textit{arrive} representan el arribo de la trama al extremo del canal donde ser\'a le\'ido; y por \'ultimo la transici\'on de nombre \textit{read} representa la lectura de la trama por parte del receptor del canal.
 
-Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que otorga nuestra herramienta para la inyecci\'on de las mismas. De esta manera en una simple linea de la forma: $$ loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT $$ hemos definido la falla que representa la perdida de una trama de n\'umero de secuencia $i$. Notemos que el nombre de la falla es $loosei$, mientras que la condici\'on de habilitaci\'on representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda $( buff[i] > 0 )$. Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de n\'umero de secuencia $i$ en el canal usando la post-condici\'on $buff[i]' = buff[i]-1$, y declaramos que la falla es de tipo $TRANSIENT$ indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecuci\'on siempre que se cumpla su condici\'on de habilitaci\'on.
+Hemos modelado las fallas de manera muy sencilla gracias a la lenguaje declarativo que otorga nuestra herramienta para la inyecci\'on de las mismas. De esta manera en una simple linea de la forma: \textff{loosei:~buff[i]~>~0~=>~buff[i]'~=~buff[i]-1~is~TRANSIENT} hemos definido la falla que representa la perdida de una trama de n\'umero de secuencia $i$. Notemos que el nombre de la falla es \texttt{loosei}, mientras que la condici\'on de habilitaci\'on representa la necesidad de que en efecto exista un mensaje en el canal para que el mismo se pierda (\texttt{ buff[i] > 0 }). Por otro lado declaramos el efecto de perdida reduciendo la cantidad de tramas de n\'umero de secuencia $i$ en el canal usando la post-condici\'on \texttt{buff[i]' = buff[i]-1}, y declaramos que la falla es de tipo \texttt{TRANSIENT} indicando que la misma puede ocurrir reiteradamente en cualquier momento durante la ejecuci\'on siempre que se cumpla su condici\'on de habilitaci\'on.
 
+\subsection*{Modelo completo}
 Por \'ultimo veamos como modelar el sincronizado de los canales con el emisor y el receptor mediante el pasaje de nombres de acci\'on comunes en la etapa de instanciaci\'on. Instanciamos entonces un emisor, un receptor, y dos canales, uno desde el emisor al receptor y otro en direcci\'on contraria. Hacemos esto de la siguiente manera:
 
 \noindent \line(1,0){400}
@@ -1367,7 +1389,8 @@ INSTANCE buffRE   = channel  (receptor.NR , send2, read1)
 
 De esta manera hemos logrado que el emisor pueda leer los datos que llegan a trav\'es del canal \textit{buffER} al pasar como par\'ametro la variable \textit{buffRE.data}. De manera similar el receptor recibe los datos desde el canal \textit{bufferRE} a trav\'es de la variable \textit{bufferRE.data} pasada como par\'ametro. A su vez cada canal puede leer los datos de salida de su emisor correspondiente a partir del pasaje de los par\'ametros \textit{emisor.DTX} y \textit{receptor.NR}. La sincronizaci\'on de las acciones \textit{read} y \textit{send} tanto del emisor y el receptor con sus canales correspondientes se logra pasando como par\'ametro nombres equivalentes para las acciones.
 
-Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto n\'umero de secuencia llegue siempre a menudo al receptor. Usemos en particular el n\'umero m\'aximo de secuencia y revisemos si se cumple que el receptor lo recibe siempre a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con n\'umero de secuencia m\'aximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecuci\'on suceda que siempre a menudo canalER.data = MSEQ $\&$ receptor lee el canal}. Encontramos que la sintaxis de Falluto2.0 ofrece una manera muy sencilla de describir la acci\'on en la cual el receptor lee el canal, usando la construcci\'on \textit{just()}. Obtenemos entonces usando el lenguaje de Falluto2.0. la siguiente f\'ormula LTL para expresar la propiedad que hemos sugerido: \\
+\subsection*{Verificación y análisis}
+Nos interesa probar ciertas propiedades sobre este modelo. Una de ellas expresa que cierto n\'umero de secuencia llegue a menudo al receptor. Usemos en particular el n\'umero m\'aximo de secuencia y revisemos si se cumple que el receptor lo recibe a menudo. De acuerdo al modelado que hemos realizado podemos identificar la llegada de una trama con n\'umero de secuencia m\'aximo como la ocurrencia de una lectura del canal por parte del emisor, en momento en que la variable \textit{data} del canal correspondiente contiene el valor \textit{MSEQ}. Queremos entonces describir en lenguaje de Falluto una propiedad que exprese que \textit{para toda ejecuci\'on suceda que a menudo} \texttt{canalER.data = MSEQ} \textit{$\&$ receptor lee el canal}. Haciendo uso del constructor \texttt{just()} podemos fácilmente escribir la propiedad en términos de la siguiente fórmula LTL: \\
 
 \textit{Propiedad(1):} \textff{LTLSPEC G F (canalER.data = MSEQ \& just(read2))}
 
@@ -1378,13 +1401,13 @@ Podemos constatar la veracidad de esta propiedad bajo escenarios en los que las 
 \textit{Propiedad(3):} \textff{FINITELY\_MANY\_FAULTS $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))}
 
 
-Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que solo las propiedades (1) y (3) se cumplen, mientras que un contraejemplo sera presentado para refutar la propiedad (2). 
+Como resultado de la verificaci\'on realizada por Falluto2.0 obtendremos que solo las propiedades (2) y (3) se cumplen. Para el caso de la propiedad (1) Falluto2.0 presentará un contraejemplo en el cual la pérdida constante de mensajes en los canales hará imposible el arribo de un paquete con número de secuencia \texttt{MSEQ} al receptor.
 
 \section{Discusi\'on}
 
-El primer caso de estudio presentado en este cap\'itulo fue inspirado en la otros trabajos que poseen verificaciones similares. Pudimos notar la facilidad de inyectar fallas en el sistema. Pudimos observar tambi\'en la facilidad para extraer el modelo de la especificaci\'on y describirlo de manera directa a partir de nuestro lenguaje de modelado.
+El primer caso de estudio presentado en este cap\'itulo fue inspirado en otros trabajos que poseen verificaciones similares \cite{Hames,Arora}. Pudimos notar la facilidad de inyectar fallas en el sistema. Pudimos observar tambi\'en la facilidad para extraer el modelo de la especificaci\'on y describirlo de manera directa a partir de nuestro lenguaje de modelado.
 
-El segundo caso de estudio por su parte, fue extra\'ido de un caso de investigaci\'on real. La especificaci\'on original contiene un error en sus algoritmos. El modelado y posterior verificaci\'on usando nuestra herramienta logr\'o sacar a luz este error al devolver una ejecuci\'on de contraejemplo para la cual no se cumple la propiedad (3): \textff{FINITELY\_MANY\_FAULTS $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))} Luego de inspeccionar este contraejemplo se lleg\'o a la conclusi\'on de que situaciones como la que describimos a continuaci\'on estaban causando que el sistema no sea capaz de tolerar las fallas en el canal de conversaci\'on. Para describir la ejecuci\'on en la que el sistema no cumple con la propiedad deseada, tomaremos en cuenta un emisor con tama\~no de ventana 1 y un n\'umero m\'aximo de secuencia 3. As\'i tambi\'en, entenderemos que el receptor no env\'ia confirmaci\'on de recepci\'on si la trama no contiene el n\'umero de secuencia esperado, tal cual lo especificaba el algoritmo original. La siguiente ejecuci\'on entonces representa un caso en el que la propiedad (3) no se cumple:
+El segundo caso de estudio por su parte, fue extra\'ido de un caso de investigaci\'on real. La especificaci\'on original contiene un error en sus algoritmos. El modelado y posterior verificaci\'on usando nuestra herramienta logr\'o sacar a luz este error al devolver una ejecuci\'on de contraejemplo para la cual no se cumple la propiedad (3): \textff{FINITELY\_MANY\_FAULTS $\rightarrow$ G~F~(canalER.data = MSEQ~\&~just(read2))} Luego de inspeccionar este contraejemplo se lleg\'o a la conclusi\'on de que situaciones como la que describimos a continuaci\'on estaban causando que el sistema no sea capaz de tolerar las fallas en el canal de conversaci\'on. Para describir la ejecuci\'on en la que el sistema no cumple con la propiedad deseada, tomaremos en cuenta un emisor con tama\~no de ventana 1 y un n\'umero m\'aximo de secuencia 3. As\'i tambi\'en, entenderemos que el receptor \textit{no env\'ia confirmaci\'on} de recepci\'on si la trama no contiene el n\'umero de secuencia esperado, tal cual lo especificaba el algoritmo original. La siguiente ejecuci\'on entonces representa un caso en el que la propiedad (3) no se cumple:
 
 \begin{enumerate}
 \item Emisor env\'ia trama con n\'umero de secuencia 1.
@@ -1613,7 +1636,7 @@ COMPASSION & $\longleftarrow$ & ``COMPASSION'' `(' EXPRESION `,' EXPRESION `)'\c
 
 
 \chapter{Ejemplo paradigm\'atico de compilaci\'on}
-
+\label{ApCompilacion}
 Encontramos a continuaci\'on el modelado en Falluto2.0 de un sistema de ejemplo, junto con su compilaci\'on al lenguaje NuSMV realizada por nuestra herramienta. En el modelado podemos distinguir dos procesos que sincronizan acciones para transmitir archivos de igual identificador al mimo tiempo:
 
 \noindent \line(1,0){400}
@@ -2020,35 +2043,17 @@ ENDPROCTYPE
 \begin{thebibliography}{99}
 
 
-\bibitem{faultInjection}
-Clarke, J.A.; Pradhan, D.K.
-\newblock {\em Fault injection: a method for validating computer-system dependability.}
-\newblock {June.1995}
+
+\bibitem{Arora} 
+A. Arora and M. G. Gouda. 
+\newblock {\em Closure and convergence: A foundation of fault-tolerant computing.}
+\newblock IEEE Trans. Software Eng., 19(11):1015–1027, 1993.
 
 
-\bibitem{SteinerRushby} 
-Steiner-etal:DSN04; Wilfried Steiner and John Rushby and Maria Sorea and Holger Pfeifer;
-\newblock {\em Model Checking a Fault-Tolerant Startup Algorithm: From Design Exploration To Exhaustive Fault Simulation.}
-\newblock The International Conference on Dependable Systems and Networks, IEEE Computer Society, Florence, Italy, june, 2004
-
-
-\bibitem{RuysBrinksma}
-Theo C. Ruys and Ed Brinksma.
-\newblock {\em Model Checking: Verification or Debugging?} 
-\newblock Faculty of Computer Science, University of Twente. P.O. Box 217, 7500 AE Enschede, The Netherlands.
-
-
-\bibitem{NuSMV}
-Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev.
-\newblock {\em NuSMV 2.5 User Manual.}  
-\newblock \texttt{http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf}
-
-
-\bibitem{Hames}
-Edgardo~E.\ Hames.
-\newblock \textsc{Falluto}: {U}n model checker para la verificaci\'on de
-  sistemas tolerantes a falla.
-\newblock Trabajo de grado, FaMAF, Universidad Nacional de C\'ordoba, 2009.
+\bibitem{Baier} 
+Christel Baier and Joost-Pieter Katoen.
+\newblock {\em Principles of Model Checking.}
+\newblock The MIT Press, 2008.
 
 
 \bibitem{Bordenabe}
@@ -2058,69 +2063,10 @@ Nicol\'as Bordenabe.
 \newblock Trabajo de grado, FaMAF, Universidad Nacional de C\'ordoba, 2011.
 
 
-\bibitem{Python} 
-\newblock {\em Python.} 
-\newblock \texttt{http://www.python.org/about/}
-
-
-\bibitem{PEG}
-Bryan Ford.
-\newblock{ \em Parsing Expression Grammars: A Recognition-Based Syntactic Foundation.}
-\newblock{ Massachusetts Institute of Technology; Cambridge, MA.}
-
-
-\bibitem{Felix} 
-FELIX C. GÄRTNER.
-\newblock {\em Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments.}
-\newblock Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
-
-
-\bibitem{FaultInject} 
-Jeffrey A. Clarke Mitre Corporation, Dhiraj K. Pradhan.
-\newblock {\em  Fault Injection. A Method For Validating Fomputer-System Dependability.}
-\newblock  Texas A\&M University. June 1995
-
-
-\bibitem{Cristian} 
-Flavin Cristian.
-\newblock {\em Understanding fault tolerant distributed systems.} 
-\newblock COMMUNICATIONS OF THE ACM, February 1991, Vol.34, No.2
-
-
-\bibitem{prinMC} 
-Christel Baier and Joost-Pieter Katoen.
-\newblock{\em Principles of model checking.} 
-\newblock The MIT Press Cambridge, Massachusetts London, England.
-
-
-\bibitem{Clarke} 
-Edmund M. Clarke, Orna Grumberg, David E. Long.
-\newblock {\em Model checking.}
-\newblock NATO ASI DPD 1996: 305-349
-
-
-\bibitem{Baier} 
-Christel Baier and Joost-Pieter Katoen.
-\newblock {\em Principles of Model Checking (Representation and Mind Series).}
-\newblock The MIT Press, 2008.
-
-
-\bibitem{Huth} 
-Michael R A Huth, Mark D Ryan.
-\newblock {\em Logic in Computer Science, Modeling and reasoning about systems.}
-\newblock Cambridge University Press. 2000.
-
-
-\bibitem{Cimatti} 
-A. Cimatti, E. Clarke, F. Giunchiglia, M. Roveri. 
-\newblock {\em \textsc{NuSMV}: a new Symbolic Model Verifier.}
-\newblock In N. Halbwachs and D. Peled, editors. Proceeding of International Conference on Computer-Aided Verification (CAV'99). In Lecture Notes in Computer Science, number 1633, pages 495-499, Trento, Italy, July 1999. Springer.
-
-
-\bibitem{Arora} 
-A. Arora and M. G. Gouda. 
-\newblock {\em Closure and convergence: A foundation of fault-tolerant computing.}
-\newblock IEEE Trans. Software Eng., 19(11):1015–1027, 1993.
+\bibitem{NuSMV}
+Roberto Cavada, Alessandro Cimatti, Charles Arthur Jochim, Gavin Keighren, Emanuele Olivetti, Marco Pistore, Marco Roveri and Andrei Tchaltsev.
+\newblock {\em NuSMV 2.5 User Manual.}  
+\newblock \texttt{http://nusmv.fbk.eu/NuSMV/userman/v25/nusmv.pdf}
 
 
 \bibitem{dCTL} 
@@ -2130,19 +2076,89 @@ P. F. Castro, C. Kilmurray, A. Acosta, N. Aguirre.
 
 
 \bibitem{NuSMV2}
-Cimatti, Alessandro; Clarke, Edmund M.; Giunchiglia, Enrico; Giunchiglia, Fausto; Pistore, Marco; Rovere, Marco; Sebastiani,
-Roberto; and Tacchella, Armando.
+Alessandro Cimatti; Edmund M. Clarke; Enrico Giunchiglia; Fausto Giunchiglia; Marco Pistore; Marco Rovere; Roberto Sebastiani; and Armando Tacchella.
 \newblock {\em NuSMV 2: An OpenSource Tool for Symbolic Model Checking.}
 \newblock Computer Science Department. Paper 430. 2002.
 \newblock \texttt{http://repository.cmu.edu/compsci/430}
 
 
+\bibitem{Cimatti} 
+A. Cimatti, E. Clarke, F. Giunchiglia, M. Roveri. 
+\newblock {\em \textsc{NuSMV}: a new Symbolic Model Verifier.}
+\newblock In N. Halbwachs and D. Peled, editors. Proceeding of International Conference on Computer-Aided Verification (CAV'99). In Lecture Notes in Computer Science, number 1633, pages 495-499, Trento, Italy, July 1999. Springer.
+
+
+
+\bibitem{Clarke} 
+Edmund M. Clarke, Orna Grumberg, David E. Long.
+\newblock {\em Model checking.}
+\newblock NATO ASI DPD 1996: 305-349
+
+
+\bibitem{FaultInject} 
+Jeffrey A. Clarke, Dhiraj K. Pradhan.
+\newblock {\em Fault Injection. A Method For Validating Fomputer-System Dependability.}
+\newblock  Texas A\&M University. June 1995
+
+
 \bibitem{dippolito} 
 N. D'Ippolito, V. Braberman, N. Piterman, S. Uchitel.
 \newblock {\em Synthesis of Live Behaviour Models for Fallible Domains.}
-\newblock Software Engineering (ICSE), 2011 33rd International Conference.
+\newblock 33rd International Conference on Software Engineering (ICSE), 2011.
 
 
+\bibitem{Cristian} 
+Cristian Flavin.
+\newblock {\em Understanding fault tolerant distributed systems.} 
+\newblock Comunications of the ACM, February 1991, Vol.34, No.2
+
+
+\bibitem{PEG}
+Bryan Ford.
+\newblock{ \em Parsing Expression Grammars: A Recognition-Based Syntactic Foundation.}
+\newblock{ Massachusetts Institute of Technology; Cambridge, MA.}
+
+
+\bibitem{Felix} 
+Felix C. G\"{a}rtner.
+\newblock {\em Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments.}
+\newblock Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
+
+
+\bibitem{Hames}
+Edgardo~E.\ Hames.
+\newblock \textsc{Falluto}: {U}n model checker para la verificaci\'on de
+  sistemas tolerantes a falla.
+\newblock Trabajo de grado, FaMAF, Universidad Nacional de C\'ordoba, 2009.
+
+
+\bibitem{Huth} 
+Michael R A Huth, Mark D Ryan.
+\newblock {\em Logic in Computer Science, Modeling and reasoning about systems.}
+\newblock Cambridge University Press. 2000.
+
+
+\bibitem{Python} 
+\newblock {\em Python.} 
+\newblock \texttt{http://www.python.org/about/}
+
+
+\bibitem{RuysBrinksma}
+Theo C. Ruys and Ed Brinksma.
+\newblock {\em Model Checking: Verification or Debugging?} 
+\newblock Faculty of Computer Science, University of Twente. P.O. Box 217, 7500 AE Enschede, The Netherlands.
+
+
+\bibitem{SteinerRushby} 
+Wilfried Steiner and John Rushby and Maria Sorea and Holger Pfeifer;
+\newblock {\em Model Checking a Fault-Tolerant Startup Algorithm: From Design Exploration To Exhaustive Fault Simulation.}
+\newblock The International Conference on Dependable Systems and Networks, IEEE Computer Society, Florence, Italy, june, 2004
+
+
+\bibitem{tanembaum}
+Andrew S. Tanembaum
+\newblock {\em Redes de computadoras. 4ta edici\'on.}
+\newblock PEARSON EDUCATION, M\'exico, 2003.
 
 \end{thebibliography}
 

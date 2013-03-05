@@ -1,4 +1,6 @@
-\documentclass[serif]{beamer}
+\documentclass[serif]{beamer}  
+
+%compress
 
 % Goettingen / Berkeley / Hannover / Singapore / Warsaw
 \usetheme{Berlin}
@@ -17,7 +19,8 @@
 
 \title[Falluto2.0] % (optional, only for long titles)
 {Falluto2.0.}
-\subtitle{ Un model checker para sistemas tolerantes a fallas.}
+%\subtitle{ Un model checker para sistemas tolerantes a fallas}
+\subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
 {R.~Monti \and P.~D'Argenio \and N.~Aguirre}
 \institute[FaMAF - UNC] % (optional)
@@ -51,7 +54,7 @@ Córdoba
 %-------------------------------------------------------------
 
 %-------------------------------------------------------------
-\section{Introducción}
+\section[Intro]{Introducción}
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Sistemas tolerantes a fallas}
@@ -85,7 +88,7 @@ Córdoba
 {\Large \bfseries Model Checking.}
 \begin{itemize}\itemsep15pt
 \item Método formal para la verificación de propiedades sobre sistemas.
-\item Exahustivo sobre el espacio de estados del modelo finito.
+\item Exhaustivo sobre el espacio de estados del modelo finito.
 \item NuSMV es un model checker basado en BDD.
 \end{itemize}
 \end{frame}
@@ -134,7 +137,7 @@ fallas y provea facilidades para la especificación de propiedades.
 %-------------------------------------------------------------
 
 
-\section{Sistemas de transición de estados}
+\section[Teoría]{Sistemas de transición de estados}
 
 %_____________________________________________________________
 \begin{frame}
@@ -168,7 +171,7 @@ En model checking usualmente sucede que:\\[0.5cm]
 
 %_____________________________________________________________
 \begin{frame}
-\frametitle{Ejemplo de structura de Kripke}
+\frametitle{Ejemplo de estructura de Kripke}
 \end{frame}
 %_____________________________________________________________
 
@@ -181,10 +184,12 @@ Un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:\\[0.3cm]
 \item $S$ es un conjunto de estados
 \item $S_0 \subseteq S$ es un conjunto de estados iniciales
 \item $L$ es un conjunto de etiquetas (nombres de transiciones)
-\item $R \subseteq S \times L \times S$ es una relaci\'on ternaria de transiciones etiquetadas
+\item $R \subseteq S \times L \times S$ es una relación ternaria de transiciones 
+etiquetadas
 \end{itemize}
 ~\\
-Si $s1, s2 \in S$, $l \in L$, y $(s1,l,s2) \in R$, entonces existe una transici\'on con nombre $l$ desde el estado $s1$ al estado $s2$.
+Si $s1, s2 \in S$, $l \in L$, y $(s1,l,s2) \in R$, entonces existe una 
+transición con nombre $l$ desde el estado $s1$ al estado $s2$.
 \end{frame}
 %_____________________________________________________________
 
@@ -199,7 +204,7 @@ Si $s1, s2 \in S$, $l \in L$, y $(s1,l,s2) \in R$, entonces existe una transici\
 %-------------------------------------------------------------
 
 
-\section{Lenguaje de Falluto2.0}
+\section[Lenguaje]{Lenguaje de Falluto2.0}
 
 
 %_____________________________________________________________
@@ -320,7 +325,7 @@ valores: $$v1' = f1,~v2' = f2,~v3' = f3,~...$$
 La inyección de fallas se realiza de modo declarativo, en la 
 sección introducida por la palabra reservada \texttt{FAULT} de 
 cada proctype:\\[0.5cm]
-\texttt{nombre : cond\_habilitaci\'on => post\_condicin is TYPE} \\[0.5cm]
+\texttt{nombre : cond\_habilitaci\'on => post\_condición is TYPE} \\[0.5cm]
 donde \texttt{TYPE} puede ser: \\[0.5cm]
 \begin{itemize}
 \item \texttt{STOP[(trans1, trans2, ...)]}
@@ -397,7 +402,7 @@ verdadera'':\\[0.2cm]
 %_____________________________________________________________
 
 
-\section{Compilación de Falluto2.0}
+\section[Compilaci\'on]{Compilación de Falluto2.0}
 
 
 %_____________________________________________________________
@@ -492,7 +497,7 @@ $\bigcup$ transiciones\_de\_falla $\bigcup$ transicion\_de\_deadlock
 \end{frame}
 %_____________________________________________________________
 
-\section{Fairness en Falluto2.0}
+\section[Fairness]{Fairness en Falluto2.0}
 
 %_____________________________________________________________
 \begin{frame}
@@ -529,7 +534,7 @@ $FAIRNESS~(\bigvee_{t \in {T_N}} act\#var = t)~|~act\#var = dk\#trans$
 \end{frame}
 %_____________________________________________________________
 
-\section{Interpretación de trazas}
+\section[Trazas]{Interpretación de trazas}
 
 %_____________________________________________________________
 \begin{frame}[fragile]
@@ -584,11 +589,13 @@ inst var1 = TRUE
 \frametitle{A favor}
 \begin{itemize}
 
-\item Lenguaje simple y declarativo para la verificación de sistemas tolerantes a fallas.
+\item Lenguaje simple y declarativo para la verificación de sistemas tolerantes 
+a fallas.
 
 \item Herramienta que abstrae y automatiza la verificación de manera eficiente.
 
-\item Efectividad comprobada en casos reales de verificación (sistema de comunicación inter-satelital).
+\item Efectividad comprobada en casos reales de verificación (sistema de 
+comunicación inter-satelital).
 
 \end{itemize}
 \end{frame}
@@ -600,9 +607,9 @@ inst var1 = TRUE
 \frametitle{En contra}
 \begin{itemize}
 
-\item Soporta solo una pequeña porsión de las capacidades de NuSMV.
+\item Soporta solo una pequeña porción de las capacidades de NuSMV.
 
-\item La bateria de metapropiedades puede y debería ser ampliada.
+\item La batería de meta-propiedades puede y debería ser ampliada.
 
 \item El lenguaje de modelado podría hacerse más flexible.
 
@@ -611,7 +618,7 @@ inst var1 = TRUE
 %_____________________________________________________________
 
 
-\section{Ejemplo de uso}
+\section[Ejemplo]{Ejemplo de uso}
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Ejemplo}
