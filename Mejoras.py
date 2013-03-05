@@ -48,4 +48,4 @@ debugTODO( "Opcion de guardar resultados en un archivo")
 
 debugTODO( "Representar internamente las fallas biz como transient para "\
          + "ahorrar una transicion si es posible (no creo que sea correcto)" )
-debugTODO( "Reemplazar en la compilación tabs por espacios.")
+debugTODO( "Reemplazar en la compilacion tabs por espacios.")
