@@ -10,6 +10,7 @@
 \usepackage{verbatim}
 \usepackage{framed}				% marcos para texto
 \usepackage{color}              % colores para el texto
+\usepackage{graphicx}           % para poner im\'agenes
 
 
 
@@ -22,7 +23,7 @@
 %\subtitle{ Un model checker para sistemas tolerantes a fallas}
 \subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
-{Raúl.~Monti \and Pedro~R.~D'Argenio}
+{Raúl~E.~Monti \and Pedro~R.~D'Argenio}
 \institute[FaMAF - UNC] % (optional)
 {
 Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de 
@@ -98,25 +99,45 @@ Córdoba
 %_____________________________________________________________
 \begin{frame}[fragile]
 \frametitle{Motivación}
-{\fontsize{9pt}{11pt}\selectfont
+{\fontsize{9pt}{13pt}\selectfont
+\begin{minipage}{0.5\textwidth}
 \begin{verbatim}
-int y1 = 0;
-int y2 = 0;
-short in_critical = 0;
+int file1 = 0, file2 = 0;
 
-
-active proctype process_1() {     active proctype process_2() {
-    do                                do
-    :: true ->                        :: true ->
-        y1 = y2+1;                        y2 = y1+1;
-        ((y2==0) || (y1<=y2));            ((y1==0) || (y2<y1));
-        in_critical++;                    in_critical++;
-        in_critical--;                    in_critical--;
-        y1 = 0;                           y2 = 0;
-    od                                od
-}                                 }
+proctype process_1()
+   bool on = false;
+   while true:
+      if on:
+         if file1 == file2:
+            synchronize();
+            file1 = (file1+1)%10;
+            send1();
+         else:
+            file1 = 0;
+      else:
+         on = true;
 \end{verbatim}
-}
+\end{minipage}
+\begin{minipage}{0.48\textwidth}
+\begin{verbatim}
+
+
+
+proctype process_2()
+   bool on = false;
+   while true:
+      if on:
+         if file1 == file2:
+            synchronize();
+            file2 = (file2+1)%10;
+            send2();
+         else:
+            file2 = 0;
+      else:
+         on = true;
+\end{verbatim}
+\end{minipage}
+} % end font size
 \end{frame}
 %_____________________________________________________________
 
@@ -172,6 +193,10 @@ En model checking usualmente sucede que:\\[0.5cm]
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Ejemplo de estructura de Kripke}
+\begin{figure}
+  \centering
+    \includegraphics[scale=0.65]{imagenes/kripke.pdf}
+\end{figure}
 \end{frame}
 %_____________________________________________________________
 
@@ -197,6 +222,10 @@ transición con nombre $l$ desde el estado $s1$ al estado $s2$.
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Ejemplo de LTS}
+\begin{figure}
+  \centering
+    \includegraphics[scale=0.65]{imagenes/lts.pdf}
+\end{figure}
 \end{frame}
 %_____________________________________________________________
 
@@ -493,7 +522,7 @@ transiciones del sistema:
 $$\bigvee_{t \in T} t $$
 \end{framed}
 Con $T =$ transiciones\_comunes $\bigcup$ transiciones\_sincronizadas 
-$\bigcup$ transiciones\_de\_falla $\bigcup$ transicion\_de\_deadlock
+$\bigcup$ transiciones\_de\_falla $\bigcup$ transición\_de\_deadlock
 \end{frame}
 %_____________________________________________________________
 
@@ -605,7 +634,7 @@ comunicación inter-satelital).
 \begin{itemize}\itemsep15pt
 \item Soporta solo una pequeña porción de las capacidades de NuSMV.
 \item Se debería ampliar la batería de meta-propiedades.
-\item El lenguaje de modelado podría hacerse más práctico en ciertos apectos.
+\item El lenguaje de modelado podría hacerse más práctico en ciertos aspectos.
 \end{itemize}
 \vspace{15pt}
 \begin{center}{\LARGE ~}\end{center}
@@ -619,7 +648,7 @@ comunicación inter-satelital).
 \begin{itemize}\itemsep15pt
 \item Soporta solo una pequeña porción de las capacidades de NuSMV.
 \item Se debería ampliar la batería de meta-propiedades.
-\item El lenguaje de modelado podría hacerse más práctico en ciertos apectos.
+\item El lenguaje de modelado podría hacerse más práctico en ciertos aspectos.
 \end{itemize}
 \vspace{15pt}
 \begin{center}{\color{red} \LARGE En realidad es trabajo a futuro ;)}\end{center}
