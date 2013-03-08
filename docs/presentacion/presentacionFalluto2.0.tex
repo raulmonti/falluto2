@@ -22,7 +22,7 @@
 %\subtitle{ Un model checker para sistemas tolerantes a fallas}
 \subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
-{R.~Monti \and P.~D'Argenio \and N.~Aguirre}
+{Raúl.~Monti \and Pedro~R.~D'Argenio}
 \institute[FaMAF - UNC] % (optional)
 {
 Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de 
@@ -33,13 +33,13 @@ Córdoba
 \subject{Trabajo final de grado}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\AtBeginSection[]
-{
-  \begin{frame}
-    \frametitle{Tabla de contenidos}
-    \tableofcontents[currentsection]
-  \end{frame}
-}
+%\AtBeginSection[]
+%{
+%  \begin{frame}
+%    \frametitle{Tabla de contenidos}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -55,17 +55,17 @@ Córdoba
 
 %-------------------------------------------------------------
 \section[Intro]{Introducción}
-%_____________________________________________________________
-\begin{frame}
-\frametitle{Sistemas tolerantes a fallas}
-\begin{itemize}\itemsep15pt
-\item Sistemas críticos.
-\item Fallas != Errores.
-\item Sistemas tolerantes a fallas.
-\item Model checking.
-\end{itemize}
-\end{frame}
-%_____________________________________________________________
+%%_____________________________________________________________
+%\begin{frame}
+%\frametitle{Sistemas tolerantes a fallas}
+%\begin{itemize}\itemsep15pt
+%\item Sistemas críticos.
+%\item Fallas != Errores.
+%\item Sistemas tolerantes a fallas.
+%\item Model checking.
+%\end{itemize}
+%\end{frame}
+%%_____________________________________________________________
 
 
 %_____________________________________________________________
@@ -73,9 +73,9 @@ Córdoba
 \begin{itemize}\itemsep15pt
 \item {\Large \bfseries Sistemas críticos.}\\[5pt]
 \hspace{0.5cm}Ejemplos: aviónica, equipos médicos, etc...
-\item {\Large \bfseries Fallas != Errores.}\\[5pt]
-\hspace{0.5cm}Falla = cambio de estado interno.\\
-\hspace{0.5cm}Error = desviación del comportamiento esperado.
+\item {\Large \bfseries Fallas (Fault) != Errores (Failure)}\\[5pt]
+\hspace{0.5cm}\textbf{Falla} = cambio de estado que ``desestabiliza'' al sistema.\\[5pt]
+\hspace{0.5cm}\textbf{Error} = desviación del comportamiento esperado.
 \item {\Large \bfseries Sistemas tolerantes a fallas.}\\[5pt]
 \hspace{0.5cm}No podemos evitar las fallas $\longrightarrow$ las superamos.
 \end{itemize}
@@ -179,7 +179,7 @@ En model checking usualmente sucede que:\\[0.5cm]
 %_____________________________________________________________
 \begin{frame}
 \frametitle{LTS}
-Un LTS es una tres-upla $M = (S,S_{0},L,R)$ donde:\\[0.3cm]
+Un LTS es una 4-upla $M = (S,S_{0},L,R)$ donde:\\[0.3cm]
 \begin{itemize}\itemsep10pt
 \item $S$ es un conjunto de estados
 \item $S_0 \subseteq S$ es un conjunto de estados iniciales
@@ -282,7 +282,7 @@ ENDPROCTYPE
 \end{minipage}
 \hspace{0.04\textwidth}
 \begin{minipage}{0.44\textwidth}
-{\large \bfseries Instanciación y verificación}
+{\large \bfseries Instanciación, propiedades y fairness}
 \begin{framed}
 \begin{verbatim}
 INSTANCE inst1 =
@@ -344,7 +344,7 @@ donde \texttt{TYPE} puede ser: \\[0.5cm]
 {\large \bfseries Modelado}
 \begin{framed} 
 \begin{verbatim}
-PROCTYPE machine(; transfer)
+PROCTYPE machine(; send)
   VAR
     on : bool
     file : 0..9
@@ -427,13 +427,13 @@ $$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - POS - act\#var$$
 \textbf{\Large Transiciones sincronizadas:}\\[0.3cm]
 Por cada sincronizaci\'on tendremos:
 \begin{framed}
-$act\#var' = syncname~\wedge~!STOP~\wedge~pre1~\wedge~pre2~\wedge~...$
-$~\wedge~POS1~\wedge~POS2~\wedge~...~\wedge~unchanged$\\[0.3cm]
+$act\#var' = syncname~\wedge~!stop~\wedge~pre1~\wedge~pre2~\wedge~...$
+$~\wedge~pos1~\wedge~pos2~\wedge~...~\wedge~unchanged$\\[0.3cm]
 \end{framed}
 Donde
 $$unchanged = \bigwedge_{v \in V}(v' = v) \text{ con }V = Vars 
-- \bigcup (POS_j) - act\#var$$
-$STOP$ involucra las fallas que afectan cada una de las 
+- \bigcup (pos_j) - act\#var$$
+$stop$ involucra las fallas que afectan cada una de las 
 transiciones sincronizadas.
 \end{frame}
 %_____________________________________________________________
@@ -502,18 +502,16 @@ $\bigcup$ transiciones\_de\_falla $\bigcup$ transicion\_de\_deadlock
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Weak fairness entre procesos}
-
 \begin{framed}
-$G~habilitada \rightarrow G~F~atendida$
+$F~G~habilitada \rightarrow G~F~atendida$
 \end{framed}
-
-\texttt{INST\_WEAK\_FAIR\_DISABLE:}\\[0.3cm]
-deshabilita la condición de fairness entre los procesos.\\[0.3cm]
 Compilación:
 \begin{framed}
-$FAIRNESS~(\bigvee_{t \in T_{N_i}} act\#var = t)~|~instanceDK$
+$FAIRNESS~(\bigvee_{t \in T_{N_i}} act\#var = t)~\vee~instanceDK$
 \end{framed}
-Donde $instanceDK = \bigwedge_{t \in T_i}~!~pre_t~$
+Donde $instanceDK = \bigwedge_{t \in T_i}~!~pre_t~$\\[0.5cm]
+\texttt{INST\_WEAK\_FAIR\_DISABLE:}\\
+deshabilita la condición de fairness entre los procesos.
 \end{frame}
 %_____________________________________________________________
 
@@ -524,13 +522,12 @@ Donde $instanceDK = \bigwedge_{t \in T_i}~!~pre_t~$
 \begin{framed}
 $G~F~transicion\_buena$
 \end{framed}
-\texttt{FAULT\_FAIR\_DISABLE:}\\[0.3cm]
-deshabilita la condición de que a menudo se haga una transición normal.\\[0.3cm]
 Compilación:
 \begin{framed}
-$FAIRNESS~(\bigvee_{t \in {T_N}} act\#var = t)~|~act\#var = dk\#trans$
+$FAIRNESS~(\bigvee_{t \in {T_N}} act\#var = t)~\vee~act\#var = dk\#trans$
 \end{framed}
-
+\texttt{FAULT\_FAIR\_DISABLE:}\\
+deshabilita la condición de que a menudo se haga una transición normal.\\[0.3cm]
 \end{frame}
 %_____________________________________________________________
 
@@ -587,7 +584,7 @@ inst var1 = TRUE
 %_____________________________________________________________
 \begin{frame}
 \frametitle{A favor}
-\begin{itemize}
+\begin{itemize}\itemsep15pt
 
 \item Lenguaje simple y declarativo para la verificación de sistemas tolerantes 
 a fallas.
@@ -605,17 +602,30 @@ comunicación inter-satelital).
 %_____________________________________________________________
 \begin{frame}
 \frametitle{En contra}
-\begin{itemize}
-
+\begin{itemize}\itemsep15pt
 \item Soporta solo una pequeña porción de las capacidades de NuSMV.
-
-\item La batería de meta-propiedades puede y debería ser ampliada.
-
-\item El lenguaje de modelado podría hacerse más flexible.
-
+\item Se debería ampliar la batería de meta-propiedades.
+\item El lenguaje de modelado podría hacerse más práctico en ciertos apectos.
 \end{itemize}
+\vspace{15pt}
+\begin{center}{\LARGE ~}\end{center}
 \end{frame}
 %_____________________________________________________________
+
+
+%_____________________________________________________________
+\begin{frame}
+\frametitle{En contra}
+\begin{itemize}\itemsep15pt
+\item Soporta solo una pequeña porción de las capacidades de NuSMV.
+\item Se debería ampliar la batería de meta-propiedades.
+\item El lenguaje de modelado podría hacerse más práctico en ciertos apectos.
+\end{itemize}
+\vspace{15pt}
+\begin{center}{\color{red} \LARGE En realidad es trabajo a futuro ;)}\end{center}
+\end{frame}
+%_____________________________________________________________
+
 
 
 \section[Ejemplo]{Ejemplo de uso}
