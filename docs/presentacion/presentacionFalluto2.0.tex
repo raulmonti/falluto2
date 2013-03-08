@@ -14,12 +14,37 @@
 
 
 
-%TODO hacer anotaciones ;)
+% MACROS
+
+\newcommand{\X}{\mathop{\mathsf{X}}}
+\newcommand{\G}{\mathop{\mathsf{G}}}
+\newcommand{\F}{\mathop{\mathsf{F}}}
+
+\newcommand{\U}{\mathbin{\textsf{U}}}
+\newcommand{\R}{\mathbin{\textsf{R}}}
+
+\newcommand{\A}{\mathbin{\textsf{A}}}
+\newcommand{\E}{\mathbin{\textsf{E}}}
+
+\newcommand{\AX}{\mathop{\mathsf{AX}}}
+\newcommand{\AG}{\mathop{\mathsf{AG}}}
+\newcommand{\AF}{\mathop{\mathsf{AF}}}
+\newcommand{\EX}{\mathop{\mathsf{EX}}}
+\newcommand{\EG}{\mathop{\mathsf{EG}}}
+\newcommand{\EF}{\mathop{\mathsf{EF}}}
+
+\newcommand{\AU}[2]{\mathsf{A}({#1}\U{#2})}
+\newcommand{\EU}[2]{\mathsf{E}({#1}\U{#2})}
+
+%%
+% Falluto en forma copada
+\def\Falluto20{{\rm F\kern-.1667em\lower.5ex\hbox{A}\kern-.125emllutO2.0}}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title[Falluto2.0] % (optional, only for long titles)
-{Falluto2.0.}
+\title[\Falluto20] % (optional, only for long titles)
+{Falluto2.0}
 %\subtitle{ Un model checker para sistemas tolerantes a fallas}
 \subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
@@ -163,14 +188,13 @@ fallas y provea facilidades para la especificación de propiedades.
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Estructuras de Kripke}
-Una estructura de Kripke sobre AP se define
-como una 4-upla M = (S, I, R, L) donde\\[0.5cm]
+Una estructura de Kripke sobre $AP$ se define
+como una 4-upla $M = (S, I, R, L)$ donde\\[0.5cm]
 \begin{itemize}
-\item S es un conjunto finito de estados
-\item I ⊆ S estados iniciales
-\item R ⊆ S × S relación de transición left-total.
-\item L: S → P(AP) función de etiquetado o
-interpretación.
+\item $S$ es un conjunto finito de estados
+\item $I ⊆ S$ estados iniciales
+\item $R ⊆ S × S$ relación de transición left-total.
+\item $L: S → P(AP)$ función de etiquetado o interpretación.
 \end{itemize}
 \end{frame}
 %_____________________________________________________________
@@ -441,10 +465,10 @@ verdadera'':\\[0.2cm]
 \texttt{[trans]: pre => pos1, pos2, ...}\\[0.3cm]
 Se compila como:
 \begin{framed}
-$act\#var'~=~trans~\wedge~!stop~\wedge~pre~\wedge~pos1~\wedge~pos2~\wedge...\wedge~unchanged$
+$\texttt{act\#var'}~=~trans~\wedge~!stop~\wedge~pre~\wedge~pos1~\wedge~pos2~\wedge...\wedge~unchanged$
 \end{framed}
 Donde:
-$$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - POS - act\#var$$
+$$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - Pos - act\#var$$
 
 \end{frame}
 %_____________________________________________________________
@@ -456,7 +480,7 @@ $$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - POS - act\#var$$
 \textbf{\Large Transiciones sincronizadas:}\\[0.3cm]
 Por cada sincronizaci\'on tendremos:
 \begin{framed}
-$act\#var' = syncname~\wedge~!stop~\wedge~pre1~\wedge~pre2~\wedge~...$
+$\texttt{act\#var'} = syncname~\wedge~!stop~\wedge~pre1~\wedge~pre2~\wedge~...$
 $~\wedge~pos1~\wedge~pos2~\wedge~...~\wedge~unchanged$\\[0.3cm]
 \end{framed}
 Donde
@@ -475,7 +499,7 @@ transiciones sincronizadas.
 \texttt{fault: pre => pos1, pos2, ... is Type}\\[0.3cm]
 Compila a:
 \begin{framed}
-$act\#var' = fault~\wedge~!fault\_active~\wedge~pre~\wedge~fault\_active'$
+$\texttt{act\#var'} = fault~\wedge~!fault\_active~\wedge~pre~\wedge~fault\_active'$
 $~\wedge~pos1~\wedge~pos2~\wedge~...~\wedge~unchanged$
 \end{framed}
 $!fault\_active$ y $fault\_active'$ solo en caso de fallas permanentes.
@@ -488,7 +512,7 @@ $!fault\_active$ y $fault\_active'$ solo en caso de fallas permanentes.
 \frametitle{Compilación de transiciones}
 \textbf{\Large Transición de deadlock:}\\[0.3cm]
 \begin{framed}
-$act\#var' = dk\#trans~\wedge~neg\_pre~\wedge~unchanged$
+$\texttt{act\#var' = dk\#trans}~\wedge~neg\_pre~\wedge~unchanged$
 \end{framed}
 $neg\_pre~=~\bigwedge_{i \in instances}~\bigwedge_{t \in transN_i}~(~!~pre_{i,t}~|~Stop_{i,t}~)$\\[0.3cm]
 $~~~~~~~~~~~~~~~~\bigwedge_{s \in sincro}~(~!~pre_s~|~Stop_s~)$\\[0.3cm]
@@ -504,7 +528,7 @@ $unchanged = \bigwedge_{v \in V}(v' = v) \text{ con } v \in Var - act\#var$
 Usamos la propiedad \texttt{CHECK\_DEADLOCK}.\\[0.3cm]
 Es compilada como:
 \begin{framed}
-$CTLSPEC~AG~act\#var~!=~dk\#trans$
+\texttt{CTLSPEC~$\AG$~act\#var~!=~dk\#trans}
 \end{framed}
 Notar relación con la transición de deadlock.
 \end{frame}
@@ -532,11 +556,11 @@ $\bigcup$ transiciones\_de\_falla $\bigcup$ transición\_de\_deadlock
 \begin{frame}
 \frametitle{Weak fairness entre procesos}
 \begin{framed}
-$F~G~habilitada \rightarrow G~F~atendida$
+$\F~\G~habilitada \rightarrow \G~\F~atendida$
 \end{framed}
 Compilación:
 \begin{framed}
-$FAIRNESS~(\bigvee_{t \in T_{N_i}} act\#var = t)~\vee~instanceDK$
+$\texttt{FAIRNESS}~(\bigvee_{t \in T_{N_i}} \texttt{act\#var} = t)~\vee~instanceDK$
 \end{framed}
 Donde $instanceDK = \bigwedge_{t \in T_i}~!~pre_t~$\\[0.5cm]
 \texttt{INST\_WEAK\_FAIR\_DISABLE:}\\
@@ -549,11 +573,11 @@ deshabilita la condición de fairness entre los procesos.
 \begin{frame}
 \frametitle{Fairness con respecto a fallas}
 \begin{framed}
-$G~F~transicion\_buena$
+$\G~\F~transicion\_buena$
 \end{framed}
 Compilación:
 \begin{framed}
-$FAIRNESS~(\bigvee_{t \in {T_N}} act\#var = t)~\vee~act\#var = dk\#trans$
+$\texttt{FAIRNESS}~(\bigvee_{t \in {T_N}} \texttt{act\#var} = t)~\vee~\texttt{act\#var = dk\#trans}$
 \end{framed}
 \texttt{FAULT\_FAIR\_DISABLE:}\\
 deshabilita la condición de que a menudo se haga una transición normal.\\[0.3cm]
