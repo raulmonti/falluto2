@@ -48,7 +48,7 @@
 %\subtitle{ Un model checker para sistemas tolerantes a fallas}
 \subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
-{Raúl~E.~Monti \and Pedro~R.~D'Argenio}
+{Raúl~E.~Monti \and\\ Director: Pedro~R.~D'Argenio}
 \institute[FaMAF - UNC] % (optional)
 {
 Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de 
@@ -125,42 +125,24 @@ Córdoba
 \begin{frame}[fragile]
 \frametitle{Motivación}
 {\fontsize{9pt}{13pt}\selectfont
-\begin{minipage}{0.5\textwidth}
+\hspace{0.2\textwidth}
+\begin{minipage}{0.6\textwidth}
+\begin{framed}
 \begin{verbatim}
-int file1 = 0, file2 = 0;
-
 proctype process_1()
+
+   int file = 0;
    bool on = false;
-   while true:
-      if on:
-         if file1 == file2:
-            synchronize();
-            file1 = (file1+1)%10;
-            send1();
-         else:
-            file1 = 0;
-      else:
-         on = true;
+
+   do forever
+      if
+      [] on -> file = (file+1)%10;
+               send(file);
+      [] true -> on = !on;
+      fi
+   od
 \end{verbatim}
-\end{minipage}
-\begin{minipage}{0.48\textwidth}
-\begin{verbatim}
-
-
-
-proctype process_2()
-   bool on = false;
-   while true:
-      if on:
-         if file1 == file2:
-            synchronize();
-            file2 = (file2+1)%10;
-            send2();
-         else:
-            file2 = 0;
-      else:
-         on = true;
-\end{verbatim}
+\end{framed}
 \end{minipage}
 } % end font size
 \end{frame}
@@ -192,9 +174,9 @@ Una estructura de Kripke sobre $AP$ se define
 como una 4-upla $M = (S, I, R, L)$ donde\\[0.5cm]
 \begin{itemize}
 \item $S$ es un conjunto finito de estados
-\item $I ⊆ S$ estados iniciales
-\item $R ⊆ S × S$ relación de transición left-total.
-\item $L: S → P(AP)$ función de etiquetado o interpretación.
+\item $I \subseteq S$ estados iniciales
+\item $R \subseteq S \times S$ relación de transición left-total.
+\item $L: S \rightarrow P(AP)$ función de etiquetado o interpretación.
 \end{itemize}
 \end{frame}
 %_____________________________________________________________
@@ -363,7 +345,7 @@ COMPASSION( ... )
 %_____________________________________________________________
 \begin{frame}
 \frametitle{Descripción de transiciones}
-\texttt{[nombre]: cond\_habilitación $=>$ post\_condición}\\[0.5cm]
+\texttt{[nombre]:} \textit{cond\_habilitación} \texttt{=>} \textit{post\_condición}\\[0.5cm]
 La condición de habilitación es una fórmula
 booleana sobre el estado actual del sistema.\\[0.5cm]
 Las post condiciones son listas de next-
@@ -378,10 +360,9 @@ valores: $$v1' = f1,~v2' = f2,~v3' = f3,~...$$
 La inyección de fallas se realiza de modo declarativo, en la 
 sección introducida por la palabra reservada \texttt{FAULT} de 
 cada proctype:\\[0.5cm]
-\texttt{nombre : cond\_habilitaci\'on => post\_condición is TYPE} \\[0.5cm]
-donde \texttt{TYPE} puede ser: \\[0.5cm]
-\begin{itemize}
-\item \texttt{STOP[(trans1, trans2, ...)]}
+\texttt{nombre :} \textit{cond\_habilitaci\'on} \texttt{=>} \textit{post\_condición} \texttt{is} \textit{type} \\[0.5cm]
+donde \textit{type} puede ser: \\[0.5cm]
+\begin{itemize}\item \texttt{STOP[(trans1, trans2, ...)]}
 \item \texttt{BYZ([var1, var2, ...])}
 \item \texttt{TRANSIENT}
 \end{itemize}
@@ -462,13 +443,13 @@ verdadera'':\\[0.2cm]
 \begin{frame}
 \frametitle{Compilación de transiciones}
 \textbf{\Large Transiciones comunes:}\\[0.3cm]
-\texttt{[trans]: pre => pos1, pos2, ...}\\[0.3cm]
+\texttt{[trans]:} \textit{pre} \texttt{=>} \textit{pos1, pos2, ...}\\[0.3cm]
 Se compila como:
 \begin{framed}
-$\texttt{act\#var'}~=~trans~\wedge~!stop~\wedge~pre~\wedge~pos1~\wedge~pos2~\wedge...\wedge~unchanged$
+\texttt{act\#var'}~=~\textit{trans~$\wedge$~!stop~$\wedge$~pre~$\wedge$~pos1~$\wedge$~pos2~$\wedge$ ... $\wedge$~unchanged}
 \end{framed}
 Donde:
-$$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - Pos - act\#var$$
+$$\textit{unchanged} = \bigwedge_{v\in V}(v' = v) \text{ con }V = \textit{Vars} - \textit{Pos} - \{\texttt{act\#var}\}$$
 
 \end{frame}
 %_____________________________________________________________
@@ -480,12 +461,12 @@ $$unchanged = \bigwedge_{v\in V}(v' = v) \text{ con }V = Vars - Pos - act\#var$$
 \textbf{\Large Transiciones sincronizadas:}\\[0.3cm]
 Por cada sincronizaci\'on tendremos:
 \begin{framed}
-$\texttt{act\#var'} = syncname~\wedge~!stop~\wedge~pre1~\wedge~pre2~\wedge~...$
-$~\wedge~pos1~\wedge~pos2~\wedge~...~\wedge~unchanged$\\[0.3cm]
+\texttt{act\#var'} = \textit{syncname~$\wedge$~\\!stop~$\wedge$~pre1~$\wedge$~pre2~$\wedge$~...$
+$~$\wedge$~pos1~$\wedge$~pos2~$\wedge$~...~$\wedge$~unchanged}\\[0.3cm]
 \end{framed}
 Donde
-$$unchanged = \bigwedge_{v \in V}(v' = v) \text{ con }V = Vars 
-- \bigcup (pos_j) - act\#var$$
+$$\textit{unchanged} = \bigwedge_{v \in V}(v' = v) \text{ con }V = \textit{Vars} 
+- \bigcup (\textit{pos}_j) - \{\texttt{act\#var}\}$$
 $stop$ involucra las fallas que afectan cada una de las 
 transiciones sincronizadas.
 \end{frame}
@@ -496,13 +477,12 @@ transiciones sincronizadas.
 \begin{frame}
 \frametitle{Compilación de transiciones}
 \textbf{\Large Transiciones de falla:}\\[0.3cm]
-\texttt{fault: pre => pos1, pos2, ... is Type}\\[0.3cm]
+\texttt{fault:} \textit{pre} \texttt{=>} \textit{pos1, pos2, ...} \texttt{is} \textit{type}\\[0.3cm]
 Compila a:
 \begin{framed}
-$\texttt{act\#var'} = fault~\wedge~!fault\_active~\wedge~pre~\wedge~fault\_active'$
-$~\wedge~pos1~\wedge~pos2~\wedge~...~\wedge~unchanged$
+\texttt{act\#var'} \textit{= fault~$\wedge$~!fault\_active~$\wedge$~fault\_active'~$\wedge$~\\pre~$\wedge$~pos1~$\wedge$~pos2~$\wedge$~...~$\wedge$~unchanged}
 \end{framed}
-$!fault\_active$ y $fault\_active'$ solo en caso de fallas permanentes.
+\textit{!fault\_active} y \textit{fault\_active'} solo en caso de fallas permanentes.
 \end{frame}
 %_____________________________________________________________
 
@@ -512,12 +492,12 @@ $!fault\_active$ y $fault\_active'$ solo en caso de fallas permanentes.
 \frametitle{Compilación de transiciones}
 \textbf{\Large Transición de deadlock:}\\[0.3cm]
 \begin{framed}
-$\texttt{act\#var' = dk\#trans}~\wedge~neg\_pre~\wedge~unchanged$
+\texttt{act\#var' = dk\#trans} $\wedge$ \textit{neg\_pre} $\wedge$ \textit{unchanged}
 \end{framed}
-$neg\_pre~=~\bigwedge_{i \in instances}~\bigwedge_{t \in transN_i}~(~!~pre_{i,t}~|~Stop_{i,t}~)$\\[0.3cm]
+\textit{neg\_pre} $=~\bigwedge_{i \in instances}~\bigwedge_{t \in transN_i}~(~!~pre_{i,t}~|~Stop_{i,t}~)$\\[0.3cm]
 $~~~~~~~~~~~~~~~~\bigwedge_{s \in sincro}~(~!~pre_s~|~Stop_s~)$\\[0.3cm]
 Donde:\\[0.3cm]
-$unchanged = \bigwedge_{v \in V}(v' = v) \text{ con } v \in Var - act\#var$
+\textit{unchanged} $= \bigwedge_{v \in V}(v' = v) \text{ con } v \in \textit{Vars} - \{\texttt{act\#var}\}$
 \end{frame}
 %_____________________________________________________________
 
@@ -556,13 +536,13 @@ $\bigcup$ transiciones\_de\_falla $\bigcup$ transición\_de\_deadlock
 \begin{frame}
 \frametitle{Weak fairness entre procesos}
 \begin{framed}
-$\F~\G~habilitada \rightarrow \G~\F~atendida$
+$\F~\G~$\textit{habilitada} $\rightarrow \G~\F~$\textit{atendida}
 \end{framed}
 Compilación:
 \begin{framed}
-$\texttt{FAIRNESS}~(\bigvee_{t \in T_{N_i}} \texttt{act\#var} = t)~\vee~instanceDK$
+$\texttt{FAIRNESS}~(\bigvee_{t \in T_{N_i}} \texttt{act\#var} = t)~\vee~$\textit{instanceBlocked}
 \end{framed}
-Donde $instanceDK = \bigwedge_{t \in T_i}~!~pre_t~$\\[0.5cm]
+Donde \textit{instanceBlocked} $= \bigwedge_{t \in T_i}~!~pre_t~$\\[0.5cm]
 \texttt{INST\_WEAK\_FAIR\_DISABLE:}\\
 deshabilita la condición de fairness entre los procesos.
 \end{frame}
@@ -573,7 +553,7 @@ deshabilita la condición de fairness entre los procesos.
 \begin{frame}
 \frametitle{Fairness con respecto a fallas}
 \begin{framed}
-$\G~\F~transicion\_buena$
+$\G~\F~$\textit{transicion\_normal}
 \end{framed}
 Compilación:
 \begin{framed}
