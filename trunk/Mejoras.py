@@ -39,6 +39,9 @@ debugTODO("Opcion para mostrar el output de NuSMV sin procesar")
 
 debugTODO("El archivo temporal deberia tener nombre unico por cada corrida.")
 
+debugTODO("Crear carpeta temp si es que no existe. Opciones para configurar" \
+         +" rutas como la de esta carpeta por ejemplo.")
+
 debugTODO( "Efectos de falla bizantina no deberian apoderarse de la ejecucion" \
          + "por defecto asi como las fallas en gral.")
 
