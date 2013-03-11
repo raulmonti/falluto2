@@ -48,7 +48,8 @@
 %\subtitle{ Un model checker para sistemas tolerantes a fallas}
 \subtitle{ UN MODEL CHECKER PARA SISTEMAS TOLERANTES A FALLAS}
 \author[Monti] % (optional, for multiple authors)
-{Raúl~E.~Monti \and\\ Director: Pedro~R.~D'Argenio}
+{Raúl~E.~Monti\\\hspace{73pt}Director: Pedro~R.~D'Argenio}
+%~~~~~~~~~~~~~~~~~~~~
 \institute[FaMAF - UNC] % (optional)
 {
 Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de 
@@ -154,7 +155,7 @@ proctype process_1()
 \begin{itemize}\itemsep15pt
 \item Continuar con el trabajo hecho en Falluto(Hames) y Offbeat(Bordenabe). 
 \item Definir un lenguaje práctico para el modelado y verificación de 
-sistemas tolerantes a fallas, que oculte las funcionalidad de las 
+sistemas tolerantes a fallas, que oculte la funcionalidad de las 
 fallas y provea facilidades para la especificación de propiedades.
 \item Elaborar un front-end para \textbf{NuSMV} que use este lenguaje.
 \end{itemize}
@@ -362,8 +363,8 @@ sección introducida por la palabra reservada \texttt{FAULT} de
 cada proctype:\\[0.5cm]
 \texttt{nombre :} \textit{cond\_habilitaci\'on} \texttt{=>} \textit{post\_condición} \texttt{is} \textit{type} \\[0.5cm]
 donde \textit{type} puede ser: \\[0.5cm]
-\begin{itemize}\item \texttt{STOP[(trans1, trans2, ...)]}
-\item \texttt{BYZ([var1, var2, ...])}
+\begin{itemize}\item \texttt{STOP(trans1, trans2, ...)}
+\item \texttt{BYZ(var1, var2, ...)}
 \item \texttt{TRANSIENT}
 \end{itemize}
 \end{frame}
@@ -529,6 +530,26 @@ Con $T =$ transiciones\_comunes $\bigcup$ transiciones\_sincronizadas
 $\bigcup$ transiciones\_de\_falla $\bigcup$ transición\_de\_deadlock
 \end{frame}
 %_____________________________________________________________
+
+
+%_____________________________________________________________
+\begin{frame}
+\frametitle{Compilación de transiciones}
+\textbf{\large Compilación de la relación de transición final:}\\[0.5cm]
+\texttt{TRANS}\\[0.3cm]
+\hspace{0.1\textwidth}
+\begin{minipage}{0.85\textwidth}
+\textit{(} \texttt{act\#var =} \textit{trans1 $\wedge$ pre1 $\wedge$ pos1 )}  $\vee$\\
+\textit{(} \texttt{act\#var =} \textit{trans2 $\wedge$ pre1 $\wedge$ pos1 )}  $\vee$\\
+\textit{\hspace{75pt}...}\\
+\textit{(} \texttt{act\#var =} \textit{fault1 $\wedge$ pre1 $\wedge$ pos1 )}  $\vee$\\
+\textit{(} \texttt{act\#var =} \textit{fault2 $\wedge$ pre1 $\wedge$ pos1 )}  $\vee$\\
+\textit{\hspace{75pt}...}\\
+\textit{(} \texttt{act\#var = dk\#trans} \textit{$\wedge$ pre1 $\wedge$ pos1 )}
+\end{minipage}
+\end{frame}
+%_____________________________________________________________
+
 
 \section[Fairness]{Fairness en Falluto2.0}
 
