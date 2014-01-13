@@ -1,0 +1,37 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE proc()
+	VAR
+		var1:bool
+	FAULT
+		fault1: is STOP
+		fault2: is TRANSIENT
+	INIT
+		var1 = TRUE
+	TRANS
+		[trans1]: 3 < 5 => var1' = ! var1;
+
+ENDPROCTYPE
+
+
+INSTANCE inst = proc()
+
+
+LTLSPEC X G just(inst.trans1)
+
+NORMAL_BEHAIVIOUR -> X G just(inst.trans1)
+
+LTLSPEC F just(inst.trans1)
+
+FAIRNESS just(inst.fault2)
+
+LTLSPEC G F just(inst.fault2)
+
+FINITELY_MANY_FAULTS -> F just(inst.trans1)
+
+LTLSPEC F G ! just(inst.fault2)
+
+FINITELY_MANY_FAULTS -> F G ! just(inst.fault2)
+
