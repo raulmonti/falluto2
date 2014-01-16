@@ -1,0 +1,27 @@
+OPTIONS
+CHECK_DEADLOCK
+SYSNAME sytem
+ENDOPTIONS
+
+
+PROCTYPE proceso1(context1, context2; sincro1, sincro2)
+
+	VAR
+		variable: 1..10;
+	FAULT
+		falla: is STOP(t1);
+	INIT
+		True;
+	TRANS
+		[t1]: 3>=someNumber & !True => variable'=2;
+
+ENDPROCTYPE
+
+
+INSTANCE instance = proceso1(True, False, s1, s2)
+
+FINITELY_MANY_FAULTS -> EG True # algo para que la gente lea;
+
+LTLSPEC F G la_manzana_se_vuelve_pera;
+
+

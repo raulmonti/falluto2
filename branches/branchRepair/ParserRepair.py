@@ -8,15 +8,19 @@
 #
 #===============================================================================
 #
-from Debug import *
-from Config import *
+from DebugRepair import *
+from ConfigRepair import *
 from Exceptions import *
 from Types import Types
 import pyPEG
-from GrammarRules import GRAMMAR, COMMENT, EXPRESION
+from GrammarRulesRepair import GRAMMAR, COMMENT, EXPRESION
 import fileinput
 from Utils import _cl, _str, getBestLineNumberForExpresion
 import Utils
+import shutil
+import os.path
+import sys
+import os
 #
 #===============================================================================
 
@@ -33,11 +37,11 @@ def getTrueExpresion():
 
 
 ################################################################################
+################################################################################
 
 class ParserBaseElem(object):
     """
         Class to be enheritate when representing a parsed element.
-        Los elementos interpretados por pyPEG llegan con la forma 
     """
     #.......................................................................
     def __init__(self):
@@ -78,29 +82,63 @@ class ParserBaseElem(object):
 
 
 ################################################################################
-def parse( _file):
+################################################################################
+def parse(filePath = None):
+    """
+        Use PyPEG to parse de file into a PyPEG structure. Use this structure
+        to fill up our specific structures which are easier to work with.
+    """
 
-    if _file == None:
-        raise Exception("No file to parse :S")
+    if _file == None or not os.path.isfile(filePath):
+        raise Exception("Path <"+ str(filePath) +"> is not a valid file to " +\
+                        "parse :S.")
 
-    # packrat = True seems to be brocken :S
-    _ast = pyPEG.parse(GRAMMAR, _file, True, COMMENT, packrat = False)
+    # get a copy of the original file and prepare it for pyPEG.
+    backup = TEMP_DIR__+'/'+(_file.split('/')[-1]).split('.')[0]+".fllaux"
 
+    debug('debugLBLUE', "backup file: "+ backup)
+
+    shutil.copy2(_file, backup)
+    try:
+        # If something goes wrong we should be sure to remove the backup file
+        # and recover the original one.
+        f = open(_file, 'a')
+        f.write("//Line to avoid problems with pyPEG line count.")
+        f.close()
+
+        # packrat = True seems to be brocken :S TODO check if it is
+        debug('debugGREEN',"Parsing ...")
+          
+
+        _ast = pyPEG.parse(GRAMMAR, 
+                           fileinput.input(_file), 
+                           True, 
+                           COMMENT, 
+                           packrat = False)
+        # recover original file
+        shutil.copy2(backup, _file)
+        os.remove(backup)        
+    except Exception, e:
+        # recover original file
+        shutil.copy2(backup, _file)
+        os.remove(backup)
+        raise e
+    # get everything inside our structures:
     _res = System()
+    
+    print "Going out here ..."
+    exit(0)
 
     _res.parse(_ast[0])
 
     return _res
 
-    # TODO copiar el archivo a uno nuevo al cual le agregamos la linea  
-    # '//Line to avoid problems with pyPEG line count.' para que pyPEG cuente 
-    # bien la ultima linea del codigo original.
 
 ################################################################################
-
+################################################################################
 class System(ParserBaseElem):
     """
-        This class represents the full parsed system from the .fll file.
+        This class represents the full parsed model from the .fll file.
     """
     def __init__(self):
         ParserBaseElem.__init__(self)
@@ -536,7 +574,10 @@ class Transition(ParserBaseElem):
 # TESTS ........................................................................
 if __name__ == "__main__":
 
-    _file = fileinput.input()
+    wd = os.getcwd()
+    _file = sys.argv[1]
+    _file = os.path.join(os.getcwd(), _file)
+    debug('debugLBLUE', "original file: " + _file)
 
     _sys = parse(_file)
 

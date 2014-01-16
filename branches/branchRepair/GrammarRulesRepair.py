@@ -45,7 +45,7 @@ from pyPEG import *
 from pyPEG import _not
 import pyPEG
 import re, fileinput
-from Debug import *
+from DebugRepair import *
 from Utils import _cl, _str, putBrackets
 #
 #===============================================================================
@@ -55,75 +55,110 @@ from Utils import _cl, _str, putBrackets
 # Asegurarse de que solo se revise la estructura sintáctica, y no la
 # semantica ni nada por el estilo.
 
-
+# TODO Everything should be in english (or everyone will hate me). I'm proud
+# of my beautiful language though.
 
 ################################################################################
 
-# GRAMMAR is the grammar to parse
-def GRAMMAR():   return [SYSTEM] # Brackets so we don't ommit the big Symbol
-# And for comments
-def COMMENT():  return [re.compile(r"//.*"), re.compile("/\*.*?\*/", re.S)]
+def GRAMMAR():
+    """ This is the grammar rule to parse for Falluto2.0.
+    """
+    return [SYSTEM] # Brackets so we don't ommit the big Symbol
+
+#..............................................................................
+def COMMENT():
+    """ Comments syntax for Falluto2.0., just as in C :D.
+    """
+    return [re.compile(r"//.*"), re.compile("/\*.*?\*/", re.S)]
 
 
-# IDENTIFIERS -----------------------------------------------------------------
-def RESERVED():     return [re.compile(r"""
+# IDENTIFIERS #################################################################
+def RESERVED():
+    """ Reserved names with specific uses, not to be used as user variable 
+        names.
+    """
+    return [re.compile( r"""
 
-                            # Global options
-                            \bOPTIONS\b|\bENDOPTIONS\b|\bCHECKDEADLOCK\b|
-                            \bFLLNAME\b|
+                        # Global options
+                        \bOPTIONS\b|\bENDOPTIONS\b|\bCHECKDEADLOCK\b|
+                        \bMODELNAME\b|
 
-                            \bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|
-                            \bT\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|
+                        # Fairness and LTL                        
+                        \bFAIRNESS\b|\bCOMPASSION\b|\bU\b|\bV\b|\bS\b|
+                        \bT\b|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b|
 
-                            # CTL
-                            \bAX\b|\bEX\b|\bAF\b|\bEF\b|\bAG\b|\bEG\b|
+                        # CTL
+                        \bAX\b|\bEX\b|\bAF\b|\bEF\b|\bAG\b|\bEG\b|
 
-                            # Proctypes
-                            \bPROCTYPE\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|
-                            \bVAR\b|\bFAULT\b|\bENDPROCTYPE\b| 
+                        # Proctypes
+                        \bPROCTYPE\b|\bINSTANCE\b|\bTRANS\b|\bINIT\b|
+                        \bVAR\b|\bFAULT\b|\bENDPROCTYPE\b| 
 
-                            # Math
-                            \bxor\b|\bxnor\b|\bFalse\b|\bTrue\b|
+                        # Math
+                        \bxor\b|\bxnor\b|\bFalse\b|\bTrue\b|
 
-                            # Others
-                            \bin\b|\bjust\b|\bis\b|\barray\b|\bof\b
+                        # Others
+                        \bin\b|\bjust\b|\bis\b|\barray\b|\bof\b
 
-                            """, re.X)]
+                        """, re.X)]
+
+#..............................................................................
+def NAME(): return pyPEG._not(RESERVED), re.compile(r"[a-zA-Z_]+\w*")
+
+#..............................................................................
+def IDENT():
+    """ Name construction used to identify diferent kind of variables and 
+        actions from any instance or proctype. The '.' represents 'belonging', 
+        for example 'instance.variable' would identify the variable named 
+        'variable' from the instance named 'instance'.
+    """
+    return pyPEG._not(RESERVED), re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
+
+#..............................................................................
+def INT(): return [re.compile(r"\-?\d+")]
+
+#..............................................................................
+def BOOL(): return [re.compile(r"\bFalse\b|\bTrue\b")]
+
+#..............................................................................
+def EVENT(): return [(re.compile(r"just\(") , IDENT, re.compile(r"\)"))]
+
+#..............................................................................
+def NEWLINE(): return re.compile('\n')
+
+#..............................................................................
+def SUBSCRIPT():
+    """ List subscripts, to access its elements. Subscripts opening bracket
+        should be just after the list name, no white spaces would be tolerated
+        beteween the list name and the opening bracket.
+    """
+    return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
+           IDENT, re.compile(r"\["), [IDENT, INT], re.compile(r"\]")
+
+#..............................................................................
+def NEXTREF():
+    """ A reference to the value of a variable in the next state.
+    """
+    return [([SUBSCRIPT,IDENT], "'")]
+
+#..............................................................................
+def SET(): return re.compile(r"\{"), 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
+               , -1, (re.compile(r"\,") \
+               , [SUBSCRIPT, IDENT, INT, BOOL])), re.compile(r"\}")
+
+#..............................................................................
+def RANGE(): return INT, re.compile(r"\.\."), INT
+
+#..............................................................................
+def INCLUSION(): return [SUBSCRIPT,IDENT], re.compile(r"\bin\b"), [SET,RANGE]
 
 
-def NAME():         return pyPEG._not(RESERVED), \
-                                re.compile(r"[a-zA-Z_]+\w*")
 
-def IDENT():        return pyPEG._not(RESERVED), \
-                                re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?")
-
-def INT():          return [re.compile(r"\-?\d+")]
-
-def BOOL():         return [re.compile(r"\bFalse\b|\bTrue\b")]
-
-def EVENT():        return [(re.compile(r"just\(") , IDENT, re.compile(r"\)"))]
-
-def NEWLINE():      return re.compile('\n')
-
-def SUBSCRIPT():    return IDENT, re.compile(r"\["), [IDENT, INT] \
-                           , re.compile(r"\]")
-
-def NEXTREF():      return [([SUBSCRIPT,IDENT], "'")]
-
-def SET():          return re.compile(r"\{"), 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
-                           , -1, (re.compile(r"\,") \
-                           , [SUBSCRIPT, IDENT, INT, BOOL])), re.compile(r"\}")
-
-def RANGE():        return INT, re.compile(r"\.\."), INT
-
-def INCLUSION():    return [SUBSCRIPT,IDENT], re.compile(r"\bin\b"), [SET,RANGE]
-
-
-
-# EXPRESION -------------------------------------------------------------------
+# EXPRESION ###################################################################
 
 def EXPRESION(): return [PROP]
 
+#..............................................................................
 def VALUE():    return [ (re.compile(r"\("), PROP, re.compile(r"\)"))
                        , INCLUSION
                        , NEXTREF
@@ -136,18 +171,28 @@ def VALUE():    return [ (re.compile(r"\("), PROP, re.compile(r"\)"))
                        , (re.compile(r"\-"), VALUE)
                        ]
 
+#..............................................................................
 def PROD():     return [ ( VALUE, 0, ( re.compile(r"\*|\/|\%"), PROD)) ]
+
+#..............................................................................
 def SUM():      return [ ( PROD, 0, ( re.compile(r"\+|\-"), SUM)) ]
+
+#..............................................................................
 def COMP():     return [ ( SUM, 0, 
                          ( re.compile(r"(?!\=\>)\=|\!\=|\>\=|\<\=|\<|\>"), COMP)
                          ) 
                        ]
+
+#..............................................................................
 def LOGIC():    return [ ( COMP, 0, ( re.compile(r"\||\&"), LOGIC)) ]
+
+#..............................................................................
 def PROP():     return [ ( LOGIC, 0, ( re.compile(r"\-\>|\<\-\>"), PROP)) ]
 
-
-
+#..............................................................................
 def NEXTLIST():     return NEXTASSIGN, -1, ( ",", NEXTASSIGN)
+
+#..............................................................................
 def NEXTASSIGN():   return NEXTREF, \
                             [ (re.compile(r"\="), EXPRESION)
                             , (re.compile(r"in"), [ SET, RANGE])
@@ -179,62 +224,81 @@ def DEFINE():       return keyword("DEFINE"), NAME, ":=", EXPRESION
 
 
 
-# PROCTYPES -------------------------------------------------------------------
+# PROCTYPES ###################################################################
 
 def PROCTYPE():     return keyword("PROCTYPE"), NAME, "(", CTXVARS, \
                            SYNCACTS, ")", PROCTYPEBODY, \
                            keyword("ENDPROCTYPE")
 
-
+#..............................................................................
 def CTXVARS():      return 0, (NAME, -1, (",", NAME))
+
+#..............................................................................
 def SYNCACTS():     return 0, (";", 0, ( NAME, -1, (",", NAME)))
 
-
+#..............................................................................
 #TODO quizas seria mejor no dar un orden para las secciones:
 def PROCTYPEBODY(): return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 
-
+#..............................................................................
 def VAR():          return keyword("VAR"), -1, VARDECL
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
+
+#..............................................................................
 def VARDECL():      return NAME, r":", [ BOOLEANT, ENUMT, RANGET, ARRAYT], r";"
+
+#..............................................................................
 def BOOLEANT():     return [keyword("boolean")]
+
+#..............................................................................
 def ENUMT():        return re.compile(r"\{"), 0, ([NAME, INT]\
                            , -1, (re.compile(r"\,") \
                            , [NAME, INT])), re.compile(r"\}")
+
+#..............................................................................
 def ARRAYT():       return re.compile(r"array"), INT, re.compile(r"\.\."), INT \
                            , re.compile(r"of\b"), [RANGET, BOOLEANT, ENUMT]
 #TODO RANGET es lo mismo que range, pero tiene otro sentido:
+
+#..............................................................................
 def RANGET():        return INT, re.compile(r"\.\."), INT
 
-
-
+#..............................................................................
 def FAULT():        return keyword("FAULT"), -1, FAULTDECL
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
+
+#..............................................................................
 def FAULTDECL():    return NAME, ":", 0, (0, EXPRESION, "=>", 0, NEXTLIST) \
                            , keyword("is"), [BYZ, STOP, TRANSIENT], r";"
+
+#..............................................................................
 def BYZ():          return keyword("BYZ"), "(", NAME, -1, (",", NAME), ")"
+
+#..............................................................................
 def TRANSIENT():    return [keyword("TRANSIENT")]
+
+#..............................................................................
 def STOP():         return [(keyword("STOP"), "(", NAME, -1 \
                            , (",", NAME), ")"), keyword("STOP")]
 
-
+#..............................................................................
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
 def INIT():         return keyword("INIT"), 0, EXPRESION, r";"
 
-
-
+#..............................................................................
 def TRANS():        return keyword("TRANS"), -1, TRANSDECL
 #TODO el ; aca si es necesario para no confundir los corchetes del nombre
 # de transicion con los de subscription:
+
+#..............................................................................
 def TRANSDECL():    return r"[", 0, NAME, r"]", r":" \
                             , 0, EXPRESION, 0, (r"=>", NEXTLIST), r";"
-
 
 
 # INSTANCES -------------------------------------------------------------------
@@ -246,11 +310,14 @@ def PARAMLIST():    return 0, ( EXPRESION, -1, ( ",", EXPRESION))
 
 
 
-# PROPERTIES DECLARATION ------------------------------------------------------
+# PROPERTIES DECLARATION ######################################################
 
 
-# Texto "Human readible" para caracterizar o dar nombre a las propiedades.
-def EXPLAIN():      return [("#", re.compile(r"[\w\s]*"))]
+def EXPLAIN():
+    """ Human readible name or description of the properties for better 
+        understanding.
+    """
+    return [("#", re.compile(r"[\w\s]*"))]
 
 
 def PROPERTY():       return [([ LTLSPEC
@@ -300,12 +367,14 @@ def LTLVAL():       return [ EXPRESION
 
 
 
-# common properties
+# common properties ###########################################################
 
 # TODO check for the correct time expresion in this cases, for example only 
 # LTLEXP can be used for FINMANYFAULTS.
-def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "->", [LTLEXP, CTLEXP]
-def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "->", [LTLEXP, CTLEXP]
+def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), "->",\
+                               [LTLEXP, CTLEXP]
+def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), "->",\
+                               [LTLEXP, CTLEXP]
 def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT") \
                                , "(", IDENT, -1, (",", IDENT), ")", "->"\
                                , [LTLEXP, CTLEXP]
@@ -313,7 +382,7 @@ def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT") \
 
 
 
-# CONTRAINTS ------------------------------------------------------------------
+# CONTRAINTS ##################################################################
 def CONSTRAINT():   return [FAIRNESS, COMPASSION]
 def FAIRNESS():     return [(keyword("FAIRNESS"), EXPRESION)]
 def COMPASSION():   return keyword("COMPASSION") \
@@ -330,12 +399,15 @@ def COMPASSION():   return keyword("COMPASSION") \
 
 if __name__ == "__main__":
 
-    def TEST(): return SYSTEM
+    def TEST(): return [ SYSTEM ]
 
     _file = fileinput.input()
-    _ast = parse(TEST, _file, True, COMMENT, packrat = False)
-      
-    print "\n\t:::: Parsed AST ::::\n\n",_ast , "\n"
+
+    print "Parsing ...."
+
+    _ast = parse(TEST, _file, True, COMMENT, packrat = True)
+
+    print "Parsed:\n\n",_ast , "\n"
 
     debugGREEN(_ast)
 
