@@ -3,11 +3,12 @@ CHECK_DEADLOCK
 MODELNAME dummy
 ENDOPTIONS
 
+DEFINE algo 2..9 || nadamas sfasfa?'''##  \\ // 12""    {{}}}{\\\^}^^^
 
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
 	VAR
-		OPTIONS: 1..10;
+		variable: 1..10;
 	FAULT
 		falla: is STOP(t1);
 	INIT
@@ -19,6 +20,7 @@ ENDPROCTYPE
 
 
 INSTANCE instance = proceso1(True, False, s1, s2)
+INSTANCE instance2 = proceso1(True, False, s1, s2)
 
 FINITELY_MANY_FAULTS -> EG True # algo para que la gente lea;
 

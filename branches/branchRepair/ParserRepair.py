@@ -175,8 +175,8 @@ class Model(ParserBaseElem):
             elif elem.__name__ == "DEFINE":
                 d = Define()
                 d.parse(elem)
-                d.name = "define" + str(len(self.defines))
-                self.defines[d.name] = d
+                d.name = "define" + str(len(self.defs))
+                self.defs[d.name] = d
             elif elem.__name__ == "PROCTYPE":
                 p = Proctype()
                 p.parse(elem)
@@ -208,6 +208,8 @@ class Model(ParserBaseElem):
 
     def __str__(self):
         string = "> Model <" + self.name + "> parsed structure:\n\n"
+        for i in self.defs.itervalues():
+            string += str(i) + "\n"
         for m in self.proctypes.itervalues():
             string += str(m) + "\n"
         for i in self.instances.itervalues():
@@ -262,6 +264,11 @@ class Define(ParserBaseElem):
         self.line = Utils.getBestLineNumberForExpresion(ast)
         self.dname = ast.what[0]
         self.dvalue = ast.what[1]
+
+    def __str__(self):
+        _string = ">> Define <" + _str(self.dname) + ">"
+        _string += " @value: " + _str(self.dvalue)
+        return _string
 
         
 ################################################################################

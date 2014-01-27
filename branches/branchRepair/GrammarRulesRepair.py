@@ -220,7 +220,7 @@ def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 
 # DEFINES ---------------------------------------------------------------------
-def DEFINE():       return keyword("DEFINE"), NAME, ":=", EXPRESION
+def DEFINE():       return keyword("DEFINE"), NAME, re.compile(r"[^\n]+\n")
 
 
 
