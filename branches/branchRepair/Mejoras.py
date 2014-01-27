@@ -10,7 +10,7 @@ debugTODO("Eliminar las restricciones sintacticas para nombres reservados de "\
          + "mas expresivo de lo que esta pasando")
         
 debugTODO( "En vez de usar el nombre del proceso en el valor proctype de las "\
-         + "instancias, usar directamente una referencia las mismas.")
+         + "instancias, usar directamente una referencia a las mismas.")
          
 debugTODO( "Levantar warning cuando dos asignaciones a una misma next ref en " \
          + "una postcondiciones hacen o pueden hacer imposible la transicion " \

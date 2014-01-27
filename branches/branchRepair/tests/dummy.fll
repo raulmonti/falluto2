@@ -1,13 +1,13 @@
 OPTIONS
 CHECK_DEADLOCK
-SYSNAME sytem
+MODELNAME dummy
 ENDOPTIONS
 
 
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
 	VAR
-		variable: 1..10;
+		OPTIONS: 1..10;
 	FAULT
 		falla: is STOP(t1);
 	INIT

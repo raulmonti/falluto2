@@ -63,7 +63,7 @@ from Utils import _cl, _str, putBrackets
 def GRAMMAR():
     """ This is the grammar rule to parse for Falluto2.0.
     """
-    return [SYSTEM] # Brackets so we don't ommit the big Symbol
+    return [MODEL] # Brackets so we don't ommit the big Symbol
 
 #..............................................................................
 def COMMENT():
@@ -199,21 +199,21 @@ def NEXTASSIGN():   return NEXTREF, \
                             ]
 
 
-# SYSTEM SINTAX ---------------------------------------------------------------
-def SYSTEM(): return 0, OPTIONS , -1, [ DEFINE
-                                      , PROCTYPE
-                                      , INSTANCE
-                                      , PROPERTY
-                                      , CONSTRAINT ]
+# MODEL SINTAX ---------------------------------------------------------------
+def MODEL(): return 0, OPTIONS , -1, [ DEFINE
+                                     , PROCTYPE
+                                     , INSTANCE
+                                     , PROPERTY
+                                     , CONSTRAINT ]
 
 # OPTIONS ---------------------------------------------------------------------
-def OPTIONS(): return keyword("OPTIONS"), -1, [ SYSNAME
+def OPTIONS(): return keyword("OPTIONS"), -1, [ MODNAME
                                               , CHECKDEADLOCK
                                               , FAULTFAIRDISABLE
                                               , MODULEWFAIRDISABLE ], \
                       keyword("ENDOPTIONS")
                       
-def SYSNAME():              return [("SYSNAME", re.compile(r"[\w\.\d\_]*"))]
+def MODNAME():              return [("MODELNAME", re.compile(r"[\w\.\d\_]*"))]
 def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
 def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
 def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
@@ -242,11 +242,11 @@ def PROCTYPEBODY(): return 0, VAR, 0, FAULT, 0, INIT, 0, TRANS
 
 #..............................................................................
 def VAR():          return keyword("VAR"), -1, VARDECL
+
+#..............................................................................
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
-
-#..............................................................................
 def VARDECL():      return NAME, r":", [ BOOLEANT, ENUMT, RANGET, ARRAYT], r";"
 
 #..............................................................................
@@ -292,12 +292,12 @@ def STOP():         return [(keyword("STOP"), "(", NAME, -1 \
 def INIT():         return keyword("INIT"), 0, EXPRESION, r";"
 
 #..............................................................................
-def TRANS():        return keyword("TRANS"), -1, TRANSDECL
+def TRANS():        return keyword("TRANS"), -1, TRANSITION
 #TODO el ; aca si es necesario para no confundir los corchetes del nombre
 # de transicion con los de subscription:
 
 #..............................................................................
-def TRANSDECL():    return r"[", 0, NAME, r"]", r":" \
+def TRANSITION():    return r"[", 0, NAME, r"]", r":" \
                             , 0, EXPRESION, 0, (r"=>", NEXTLIST), r";"
 
 
@@ -399,7 +399,7 @@ def COMPASSION():   return keyword("COMPASSION") \
 
 if __name__ == "__main__":
 
-    def TEST(): return [ SYSTEM ]
+    def TEST(): return [ MODEL ]
 
     _file = fileinput.input()
 
