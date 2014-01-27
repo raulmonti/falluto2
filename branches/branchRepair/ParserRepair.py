@@ -34,32 +34,32 @@ def parse(filePath = None):
         Returns a 'Model' instance with the parsed model.
     """
 
-    if _file == None or not os.path.isfile(filePath):
+    if filePath == None or not os.path.isfile(filePath):
         raise Error( "Path <"+ str(filePath) +"> is not a valid file to " +\
                      "parse :S.")
     # get a copy of the original file and prepare it for pyPEG.
-    _backup = TEMP_DIR__+'/'+(_file.split('/')[-1]).split('.')[0]+".fllaux"
+    _backup = TEMP_DIR__+'/'+(filePath.split('/')[-1]).split('.')[0]+".fllaux"
     debug('debugLBLUE', "backup file: "+ _backup)
-    shutil.copy2(_file, _backup)
+    shutil.copy2(filePath, _backup)
     try:
         # If something goes wrong we should be sure to remove the backup file
         # and recover the original one.
-        _f = open(_file, 'a')
+        _f = open(filePath, 'a')
         _f.write("//Line to avoid problems with pyPEG line count.")
         _f.close()
         # packrat = True seems to be brocken :S TODO check if it is
         debug('debugGREEN',"Parsing ...")
         _ast = pyPEG.parse(GRAMMAR, 
-                           fileinput.input(_file), 
+                           fileinput.input(filePath), 
                            True, 
                            COMMENT, 
                            packrat = False)
         # recover original file
-        shutil.copy2(_backup, _file)
+        shutil.copy2(_backup, filePath)
         os.remove(_backup)        
     except Exception, _e:
         # recover original file
-        shutil.copy2(_backup, _file)
+        shutil.copy2(_backup, filePath)
         os.remove(_backup)
         raise Error(str(_e))
     # get everything inside our Model structure:
@@ -71,7 +71,7 @@ def parse(filePath = None):
 # Auxiliary functions #########################################################
 
 def getTrueExpresion():
-    string = "TRUE"
+    string = "True"
     ast = pyPEG.parseLine(string, EXPRESION,[],True,COMMENT)
     return ast[0][0]
 
@@ -511,8 +511,8 @@ class Fault(ParserBaseElem):
                     self.affects.append(y)
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
-            self.pre.file = AST[0].__name__.file
-            self.pre.line = AST[0].__name__.line
+            self.pre.__name__.file = AST[0].__name__.file
+            self.pre.__name__.line = AST[0].__name__.line
 
     def __str__(self):
         string = ">>> Fault \'" + str(self.name) + "\'"
@@ -555,8 +555,8 @@ class Transition(ParserBaseElem):
 
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
-            self.pre.file = mfile
-            self.pre.line = line
+            self.pre.__name__.file = mfile
+            self.pre.__name__.line = line
 
     def __str__(self):
         return ParserBaseElem.__str__(self)

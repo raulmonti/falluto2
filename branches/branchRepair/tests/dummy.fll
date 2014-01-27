@@ -4,26 +4,29 @@ MODELNAME dummy
 ENDOPTIONS
 
 DEFINE algo 2..9 || nadamas sfasfa?'''##  \\ // 12""    {{}}}{\\\^}^^^
+DEFINE la_manzana_se_vuelve_pera 4
 
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
 	VAR
 		variable: 1..10;
+        boolvar: boolean;
 	FAULT
 		falla: is STOP(t1);
 	INIT
 		True;
 	TRANS
-		[t1]: 3>=someNumber & !True => variable'=2;
+		[t1]: 3>=variable & !True => variable'= 5+7%2;
 
 ENDPROCTYPE
 
 
-INSTANCE instance = proceso1(True, False, s1, s2)
-INSTANCE instance2 = proceso1(True, False, s1, s2)
+INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
+INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
 
 FINITELY_MANY_FAULTS -> EG True # algo para que la gente lea;
 
-LTLSPEC F G la_manzana_se_vuelve_pera;
+LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
+        # la_manzana_se_vuelve_pera; 
 
 
