@@ -261,3 +261,11 @@ def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
         return string
         
 ################################################################################
+def commaSeparatedString(array, symb = ','):
+    result = ''
+    for x in array[:-1]:
+        result += str(x) + ', '
+    result += str(array[-1])
+    return result
+
+################################################################################

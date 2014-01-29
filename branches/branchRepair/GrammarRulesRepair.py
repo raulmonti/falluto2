@@ -220,7 +220,7 @@ def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 
 # DEFINES ---------------------------------------------------------------------
-def DEFINE():       return keyword("DEFINE"), NAME, LINE
+def DEFINE():       return keyword("DEFINE"), NAME, EXPRESION
 
 def LINE():         return re.compile(r"[^\n]+\n")
 
@@ -318,7 +318,7 @@ def EXPLAIN():
     """ Human readible name or description of the properties for better 
         understanding.
     """
-    return [("#", re.compile(r"[\w\s]*"))]
+    return [("\"", re.compile(r"[\w\s]*"), "\"")]
 
 
 def PROPERTY():       return [([ LTLSPEC

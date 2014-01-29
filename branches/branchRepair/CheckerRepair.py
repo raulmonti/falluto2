@@ -77,7 +77,7 @@ class Checker(object):
         self.checkInstancedProctypes()
         self.checkProperties()
         self.checkContraints()
-    #    self.checkDefines()
+        self.checkDefines()
 
     #.......................................................................
     def checkRedeclared(self):
@@ -247,8 +247,7 @@ class Checker(object):
 
     #.......................................................................
     def checkDefines(self):
-
-        # look for redeclared define names
+        """Look for redeclared define names. Also get the types for table."""
         # TODO los nombres de defines pueden chocar con los de tipos enumerados
         # solucionar para que eso no ocurra.
         defines = []
@@ -260,7 +259,6 @@ class Checker(object):
                            + "\' at <" + line + ">.")
             else:
                 defines.append(dname)
-
         # check for circular dependence in definitions
         adj = {}
         ss = set([])
@@ -268,15 +266,12 @@ class Checker(object):
             dname = UtilsRepair.ss(d.dname)
             adj[dname] = [x for x in _cl(d.dvalue) if x in defines]
             ss = ss.union(set(adj[dname]))
-
         ss = ss.intersection(set(defines))
         cy = self.hasCycleDfs(adj, list(ss))
         if cy != []:
             raise Error( "Circular dependence in DEFINES declaration: " \
-                       + symbolSeparatedTupleString(cy, symb = ',') + ".")
-
+                       + commaSeparatedString(cy) + ".")
         self.fillDefinesTypes(adj)
-
 
     #....................................
     def hasCycleDfs(self, adj, leafs):
@@ -316,8 +311,8 @@ class Checker(object):
     def fillDefinesTypes(self, adj):
         self.visited = {}
         for d in self.mdl.defs.itervalues():
-            dname = ss(d.dname)
-            self.visited[dname] = False
+            _dname = UtilsRepair.ss(d.dname)
+            self.visited[_dname] = False
         for d,v in self.visited.iteritems():
             if not v:
                 self.fillTypesDfs(adj,d)
@@ -334,7 +329,7 @@ class Checker(object):
             dname = ss(d.dname)
             if  dname == r:
                 # TODO darle tipo a los defines
-                t = None #self.getExpresionType(self.globalinst, d.dvalue)
+                t = self.getExpresionType(self.globalinst, d.dvalue)
                 # TODO dname puede estar pisando un nombre de tipo enumerado
                 self.typetable[self.globalinst.name][dname] = t
 
