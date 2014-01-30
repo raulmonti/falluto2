@@ -174,6 +174,55 @@ class Definer():
             replacements in it or not.
         """
         
+        return
+
+
+
+
+class REPL():
+    """ Intended to open a file and return a string with it's the file content 
+        modified by some replacements, attending to some expetions.
+
+        @input path
+        @input rpl
+        @input expt
+    """
+    def __init__( self, path="", rpl={}, expt=[])
+        self.canrpl = False
+        self.path = path
+        self.rpl = rpl
+        self.expt = expt
+        self.s = ""   # string to place the resulting replaced file.
+        self.f = None # the file
+
+    def replace(self):
+        """ Make the replacements and return the string """        
+        self.f = open(self.path,'r')
+        for _l inf self.f:
+            while _l != "":
+                _r, _l = self.readWhile( _l, NOTALPHA)
+                self.s += _r
+                if _l != "": 
+                    _r, _l = self.readWhile( _l, ALPHA)
+                    if _r in self.expt:
+                        self.s += _r
+                        
+
+
+    def readWhile(self, line, reg):
+        """ Read from line while reg matches. Return whatever read and the
+            rest of the line.
+
+            @input line: string from whitch to read
+            @input reg: python regular expresion being the condition for reading
+        """
+        while reg.match(line):
+            res = line[0]
+            line = line[1:]
+        return res, line
+
+
+
 
 
 if __name__ == "__main__":
