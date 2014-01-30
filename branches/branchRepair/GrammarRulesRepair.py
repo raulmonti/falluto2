@@ -46,7 +46,6 @@ import pyPEG
 import re, fileinput
 from DebugRepair import *
 import UtilsRepair
-from Utils import _cl, _str, putBrackets
 #
 #===============================================================================
 
@@ -145,7 +144,7 @@ def SUBSCRIPT():
 def NEXTREF():
     """ A reference to the value of a variable in the next state.
     """
-    return [([SUBSCRIPT,IDENT], "'")]
+    return [([SUBSCRIPT,IDENT], cp(r"\'"))]
 
 #..............................................................................
 def SET(): return re.compile(r"\{"), B, 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
@@ -201,7 +200,7 @@ def PROP():     return [ ( LOGIC, 0, ( B, re.compile(r"\-\>|\<\-\>"), B
                        ]
 
 #..............................................................................
-def NEXTLIST():     return NEXTASSIGN, -1, ( B, ",", B, NEXTASSIGN)
+def NEXTLIST():     return NEXTASSIGN, -1, ( B, cp(r"\,"), B, NEXTASSIGN)
 
 #..............................................................................
 def NEXTASSIGN():   return NEXTREF, B,\
@@ -218,14 +217,14 @@ def MODEL(): return B, 0, OPTIONS , -1, ( B, [ DEFINE
                                              , CONSTRAINT ]) , B
 
 # OPTIONS ---------------------------------------------------------------------
-def OPTIONS(): return keyword("OPTIONS"), -1, ( B, [ MODNAME
+def OPTIONS(): return cp("OPTIONS"), -1, ( B, [ MODNAME
                                                    , CHECKDEADLOCK
                                                    , FAULTFAIRDISABLE
                                                    , MODULEWFAIRDISABLE 
                                                    ]
-                                              ), B, keyword("ENDOPTIONS")
+                                              ), B, cp("ENDOPTIONS")
                       
-def MODNAME():              return [("MODELNAME", B
+def MODNAME():              return [(cp(r"MODELNAME"), B
                                     , re.compile(r"[\w\.\d\_]*"))]
 def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
 def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
@@ -233,36 +232,37 @@ def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 
 # DEFINES ---------------------------------------------------------------------
-def DEFINE():       return keyword("DEFINE"), B, NAME, B, EXPRESION
+def DEFINE():       return cp("DEFINE"), B, NAME, B, EXPRESION
 
 # PROCTYPES ###################################################################
 
-def PROCTYPE():     return keyword("PROCTYPE"), B, NAME, B, "(", B, CTXVARS, \
-                           B, SYNCACTS, B, ")", B, PROCTYPEBODY, B, \
-                           keyword("ENDPROCTYPE")
+def PROCTYPE():     return cp("PROCTYPE"), B, NAME, B, cp(r"\("), B\
+                           , CTXVARS, B, SYNCACTS, B, cp(r"\)"), B\
+                           , PROCTYPEBODY, B, cp("ENDPROCTYPE")
 
 #..............................................................................
-def CTXVARS():      return 0, (NAME, -1, ( B, ",", B, NAME))
+def CTXVARS():      return 0, (NAME, -1, ( B, cp(r"\,"), B, NAME))
 
 #..............................................................................
-def SYNCACTS():     return 0, (";", 0, ( B, NAME, -1, ( B, ",", B, NAME)))
+def SYNCACTS():     return 0, (cp(r"\;"), 0\
+                           , ( B, NAME, -1, ( B, cp(r"\,"), B, NAME)))
 
 #..............................................................................
 #TODO quizas seria mejor no dar un orden para las secciones:
 def PROCTYPEBODY(): return 0, VAR, 0, (B, FAULT), 0, ( B, INIT), 0, ( B, TRANS)
 
 #..............................................................................
-def VAR():          return keyword("VAR"), -1, ( B, VARDECL)
+def VAR():          return cp("VAR"), -1, ( B, VARDECL)
 
 #..............................................................................
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
-def VARDECL():      return NAME, B, r":", B, [ BOOLEANT, ENUMT, RANGET, ARRAYT]\
-                           , B, r";"
+def VARDECL():      return NAME, B, cp(r"\:"),\
+                           B, [ BOOLEANT, ENUMT, RANGET, ARRAYT], B, cp(r"\;")
 
 #..............................................................................
-def BOOLEANT():     return [keyword("boolean")]
+def BOOLEANT():     return [cp("boolean")]
 
 #..............................................................................
 def ENUMT():        return re.compile(r"\{"), 0, ( B, [NAME, INT]\
@@ -279,35 +279,37 @@ def ARRAYT():       return re.compile(r"array"), B, INT, re.compile(r"\.\.")\
 def RANGET():        return INT, re.compile(r"\.\."), INT
 
 #..............................................................................
-def FAULT():        return keyword("FAULT"), -1, ( B, FAULTDECL)
+def FAULT():        return cp("FAULT"), -1, ( B, FAULTDECL)
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
 
 #..............................................................................
-def FAULTDECL():    return NAME, B, ":", 0, ( B, 0, EXPRESION, B, "=>"\
-                           , 0, ( B, NEXTLIST)), B\
-                           , keyword("is"), B, [BYZ, STOP, TRANSIENT], B, r";"
+def FAULTDECL():    return NAME, B, cp(r"\:"), 0, ( B, 0, EXPRESION, B\
+                           , cp(r"\=\>"), 0, ( B, NEXTLIST)), B\
+                           , cp("is"), B, [BYZ, STOP, TRANSIENT]\
+                           , B, cp(r"\;")
 
 #..............................................................................
-def BYZ():          return keyword("BYZ"), B, "(", B, NAME\
-                           , -1, ( B, ",", B, NAME), B, ")"
+def BYZ():          return cp("BYZ"), B, cp(r"\("), B, NAME\
+                           , -1, ( B, cp(r"\,"), B, NAME), B, cp(r"\)")
 
 #..............................................................................
-def TRANSIENT():    return [keyword("TRANSIENT")]
+def TRANSIENT():    return [cp("TRANSIENT")]
 
 #..............................................................................
-def STOP():         return [(keyword("STOP"), B, "(", B, NAME, -1 \
-                           , ( B, ",", B, NAME), B, ")"), keyword("STOP")]
+def STOP():         return [(cp("STOP"), B, cp(r"\("), B, NAME, -1 \
+                           , ( B, cp(r"\,"), B, NAME), B, cp(r"\)"))\
+                           , cp("STOP")]
 
 #..............................................................................
 #TODO el ; al final quizas no sea necesario, pero me parece que queda
 # de alguna manera mas consistente si todas las declaraciones terminan en ;
 # y no solo las transiciones:
-def INIT():         return keyword("INIT"), 0, ( B, EXPRESION), B, r";"
+def INIT():         return cp("INIT"), 0, ( B, EXPRESION), B, cp(r"\;")
 
 #..............................................................................
-def TRANS():        return keyword("TRANS"), -1, ( B, TRANSITION)
+def TRANS():        return cp("TRANS"), -1, ( B, TRANSITION)
 #TODO el ; aca si es necesario para no confundir los corchetes del nombre
 # de transicion con los de subscription:
 
@@ -318,13 +320,9 @@ def TRANSITION():    return cp(r"\["), 0,( B, NAME), B, cp(r"\]"), B, cp(r"\:")\
 
 
 # INSTANCES -------------------------------------------------------------------
-
-def INSTANCE():     return keyword("INSTANCE"), B, NAME, B, "=", B, NAME \
+def INSTANCE():     return cp("INSTANCE"), B, NAME, B, cp(r"\="), B, NAME\
                            , B, cp(r"\("), B, PARAMLIST, B, cp(r"\)")
 def PARAMLIST():    return 0, ( EXPRESION, -1, ( B, cp(r"\,"), B, EXPRESION))
-
-
-
 
 # PROPERTIES DECLARATION ######################################################
 
@@ -341,8 +339,7 @@ def PROPERTY():       return [([ LTLSPEC
                                , NORMALBEHAIVIOUR
                                , FINMANYFAULTS
                                , FINMANYFAULT]
-                              , 0, ( B, EXPLAIN), B, r";")]
-
+                              , 0, ( B, EXPLAIN), B, cp(r"\;"))]
 
 # CTL
 CTLUNOP = r"""
@@ -353,8 +350,7 @@ CTLBINOP = r"""
                 \& | \| | \bxor\b | \bxnor\b | \-\> | \<\-\>
            """
 
-
-def CTLSPEC():          return [(keyword("CTLSPEC"), B, CTLEXP)]
+def CTLSPEC():          return [(cp("CTLSPEC"), B, CTLEXP)]
 def CTLEXP():           return [ ( CTLVALUE, B, re.compile(CTLBINOP,re.X)
                                  , B, CTLEXP
                                  )
@@ -376,7 +372,7 @@ def CTLVALUE():         return [ (re.compile(CTLUNOP,re.X), B, CTLEXP)
 ltlbinops = re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
 ltluops = re.compile(r"\!|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
 
-def LTLSPEC():      return [(keyword("LTLSPEC"), B, LTLEXP)] 
+def LTLSPEC():      return [(cp("LTLSPEC"), B, LTLEXP)] 
 def LTLEXP():       return [LTLBOP, LTLUOP]
 def LTLBOP():       return LTLUOP , B, ltlbinops, B, LTLEXP
  # TODO may need to force space between unary operators in LTLUOP
@@ -391,27 +387,20 @@ def LTLVAL():       return [ EXPRESION, (re.compile(r"\("), B
 
 # TODO check for the correct time expresion in this cases, for example only 
 # LTLEXP can be used for FINMANYFAULTS.
-def NORMALBEHAIVIOUR(): return keyword("NORMAL_BEHAIVIOUR"), B, "->", B,\
-                               [LTLEXP, CTLEXP]
-def FINMANYFAULTS():    return keyword("FINITELY_MANY_FAULTS"), B, "->", B,\
-                               [LTLEXP, CTLEXP]
-def FINMANYFAULT():     return keyword("FINITELY_MANY_FAULT"), B \
-                               , "(", B, IDENT, -1, ( B, ",", B, IDENT)\
-                               , B, ")", B, "->", B, [LTLEXP, CTLEXP]
-
-
-
+def NORMALBEHAIVIOUR(): return cp("NORMAL_BEHAIVIOUR"), B, cp(r"\-\>")\
+                               , B, [LTLEXP, CTLEXP]
+def FINMANYFAULTS():    return cp("FINITELY_MANY_FAULTS"), B, cp(r"\-\>")\
+                               , B, [LTLEXP, CTLEXP]
+def FINMANYFAULT():     return cp("FINITELY_MANY_FAULT"), B \
+                               , cp(r"\("), B, IDENT, -1, ( B, cp(r"\,"), B\
+                               , IDENT), B, cp(r"\)"), B, cp(r"\-\>")\
+                               , B, [LTLEXP, CTLEXP]
 
 # CONTRAINTS ##################################################################
 def CONSTRAINT():   return [FAIRNESS, COMPASSION]
-def FAIRNESS():     return [(keyword("FAIRNESS"), B, EXPRESION)]
-def COMPASSION():   return keyword("COMPASSION"), B, "(", B, EXPRESION,\
-                           B, ",", B, EXPRESION, B, ")"
-
-
-
-
-
+def FAIRNESS():     return [(cp("FAIRNESS"), B, EXPRESION)]
+def COMPASSION():   return cp("COMPASSION"), B, cp(r"\("), B, EXPRESION,\
+                           B, cp(r"\,"), B, EXPRESION, B, cp(r"\)")
 
 # -----------------------------------------------------------------------------
 # TESTS .......................................................................

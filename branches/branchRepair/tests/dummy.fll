@@ -13,7 +13,6 @@ DEFINE la_manzana_se_vuelve_pera 4
 
 // COMMENT //FASFAS****///\\\sfas\n\n\/\/
 
-
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
 	VAR
@@ -39,6 +38,3 @@ FINITELY_MANY_FAULTS -> EG True "algo para que la gente lea";
 
 LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
         " la_manzana_se_vuelve_pera"; 
-
-
-//Line to avoid problems with pyPEG line count.
