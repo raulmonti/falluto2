@@ -1,14 +1,18 @@
+// DUMMY FOR TESTING
+
+/* Thu 30 Jan 2014 05:21:23 PM ART */ 
+
 OPTIONS
 CHECK_DEADLOCK
 MODELNAME dummy
 ENDOPTIONS
 
-
 DEFINE algo 1+4 > la_manzana_se_vuelve_pera
 
-// 2..9 || nadamas sfasfa?'''##  \\ // 12""    {{}}}{\\\^}^^^
-
 DEFINE la_manzana_se_vuelve_pera 4
+
+// COMMENT //FASFAS****///\\\sfas\n\n\/\/
+
 
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
@@ -28,6 +32,8 @@ ENDPROCTYPE
 
 INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
 INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
+
+FINITELY_MANY_FAULTS -> EG True;
 
 FINITELY_MANY_FAULTS -> EG True "algo para que la gente lea";
 

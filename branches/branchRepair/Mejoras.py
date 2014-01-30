@@ -56,3 +56,9 @@ debugTODO( "Reemplazar en la compilacion tabs por espacios.")
 debugTODO( "Quizas permitir comentarios al costado de defines.")
 
 debugTODO( "Usar traceback para dar mas informacion en caso de error.")
+
+
+# NOT SUPPORTED YET ############################################################
+
+#TODO support expresions inside subscripts
+
