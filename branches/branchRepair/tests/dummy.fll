@@ -1,6 +1,6 @@
-// DUMMY FOR TESTING
+// comment0
 
-/* Thu 30 Jan 2014 05:21:23 PM ART */ 
+/* comment1 */ 
 
 OPTIONS
 CHECK_DEADLOCK
@@ -11,7 +11,7 @@ DEFINE algo 1+4 > la_manzana_se_vuelve_pera
 
 DEFINE la_manzana_se_vuelve_pera 4
 
-// COMMENT //FASFAS****///\\\sfas\n\n\/\/
+// comment2
 
 PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
@@ -37,4 +37,6 @@ FINITELY_MANY_FAULTS -> EG True;
 FINITELY_MANY_FAULTS -> EG True "algo para que la gente lea";
 
 LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
-        " la_manzana_se_vuelve_pera"; 
+        " la_manzana_se_vuelve_pera";
+
+// comment3

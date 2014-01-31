@@ -269,3 +269,92 @@ def commaSeparatedString(array, symb = ','):
     return result
 
 ################################################################################
+
+def ast2str(ast=[], skipcomments=False, skipwhites=False):
+    """ Take a pyAST and return a string with the parsed text in it.
+
+        @input ast: the pyAST structure with the parsed text
+        @input skipcomments: if don't want to compose the 'COMMENTS' from 'ast'
+        @input skipwhites: if don't want to compose the 'BL' from 'ast'
+        @return: a unicode string with the text parsed inside 'ast'
+    """
+    res = ""
+    if isinstance( ast, unicode):
+        res = ast
+    elif isinstance(ast, pyPEG.Symbol):
+        if ast.__name__ == u"COMMENT" and skipcomments:
+            res = ""
+        elif ast.__name__ == "BL" and skipwhites:
+            res = ""
+        else:
+            res = ast2str(ast.what, skipcomments, skipwhites)
+    elif isinstance(ast , list):
+        for x in ast:
+            res += ast2str(x, skipcomments, skipwhites)
+    else:
+        raise TypeError(str(ast))
+    return unicode(res)
+
+################################################################################
+
+def cleanAst(ast=[], cleanList=[]):
+    """ Take a pyAST and return a new one which is equal except for certain 
+        pySymbol elements that will be removed.
+
+        @input ast: the pyAST structure with the parsed text.
+        @input cleanList: list of pySymbol names (unicode attr __name__) to 
+                          remove.
+        @return: a new ast without the pySymbols with names from 'cleanList'.
+    """
+    _res = []
+    if isinstance( ast, unicode):
+        _res = ast
+    elif isinstance(ast, pyPEG.Symbol):
+        if ast.__name__ in cleanList:
+            _res = []
+        else:
+            _res = ast
+            _res.what = cleanAst(_res.what, cleanList)
+    elif isinstance(ast , list):
+        for _x in ast:
+            _r = cleanAst(_x, cleanList)
+            if _r != []:
+                # TODO may need extend instead of append?
+                _res.append(_x)
+    else:
+        raise TypeError(str(ast))
+    return _res
+
+
+################################################################################
+
+def getAst(ast=[], getList=[]):
+    """ Something like the inverse of cleanAst, and puts everything into a list
+        
+        @input ast: the pyAST structure with the parsed text.
+        @input getList: list of pySymbol names (unicode attr __name__) that 
+                        you want to keep.
+        @return: a list without the pySymbols with names not in 'getList'.
+    """
+    _res = []
+    if isinstance( ast, unicode):
+        _res = []
+    elif isinstance(ast, pyPEG.Symbol):
+        if ast.__name__ in getList:
+            _res = ast
+        else:
+            _res = getAst(ast.what, getList)
+    elif isinstance(ast , list):
+        for _x in ast:
+            _r = getAst(_x, getList)
+            if _r != []:
+                if isinstance(_r, pyPEG.Symbol):
+                    _res.append(_r)
+                elif isinstance(_r, list):
+                    _res.extend(_r)
+                else:
+                    raise TypeError(str(_r))
+    else:
+        raise TypeError(str(ast))
+    return _res
+

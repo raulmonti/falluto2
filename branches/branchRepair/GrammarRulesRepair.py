@@ -438,17 +438,18 @@ if __name__ == "__main__":
 
     _ast = parse(TEST, _file, False, packrat = False)
 
-    print _ast#, "pyAST len = {0}, Set len {1}".format(len(_ast), len(_ast[1].what))
+#    print _ast
 
-    debugCURRENT(UtilsRepair.ss(_ast))
+    print UtilsRepair.getAst(_ast,[u'COMMENT'])
+
+    print UtilsRepair.ast2str(UtilsRepair.getAst(_ast,[u'COMMENT']))
+
+#    print UtilsRepair.cleanAst(_ast,[u'COMMENT'])
+#    print UtilsRepair.ast2str(UtilsRepair.cleanAst(_ast,[u'COMMENT']))
+#    print UtilsRepair.ast2str(_ast, True)
 #    print "Parsed:\n\n",_ast , "\n"
 
-#    debugGREEN(_ast)
 
-#    debugLBLUE(_str(_ast))
-
-#    if len(_ast) and _ast[0].__name__ == EXPRESION:
-#        debugRED(putBrackets(_ast[0]))
 
 """°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°"""
 # FIXME skipcomments from pyPEG has some problems with white spaces consuming,
