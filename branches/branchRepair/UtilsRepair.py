@@ -1,7 +1,13 @@
+# Module UtilsRepair.py
+# Author Raul
+# Fri 31 Jan 2014 07:20:17 PM ART 
+
+
 import pyPEG
 from pyPEG import Symbol
 import DebugRepair
 from DebugRepair import *
+
 
 ################################################################################
 
@@ -30,7 +36,7 @@ def _cl(ast = []):
 
 
 ################################################################################
-
+# TODO remove next if not used
 def ss(ast = [], sp = True):
     """
         Devuelve un string formado por los elementos de tipo unicode que estan 
@@ -86,8 +92,10 @@ def putBrackets(AST, space = True):
         raise TypeError(AST)
 
 ################################################################################
+
 def putBracketsAsList(AST):
     return putBrackets(AST).split()
+
 ################################################################################
 
 def putBracketsToFormula(AST, space=True):
@@ -113,6 +121,7 @@ def putBracketsToFormula(AST, space=True):
         raise TypeError(AST)
 
 ################################################################################
+
 def isBool(var):
     return var == "TRUE" or var == "FALSE"
 
@@ -127,14 +136,16 @@ def isInt(var):
         return False
 
 ################################################################################
-__bigLineNumber = "Can't find out line number. Check first and last line of your falluto system specification."
+
+__bigLineNumber = " Can't find out line number. Check first and last line of"\
+                + " your falluto system specification."
 
 def lineMin(line1, line2):
     """
         Return the minimum between two pyPEG line numbers (of the form
         'file:#'.
     """
-    if not ':' in line1: # or line1 = __bigLineNumber: (__bigLineNumber hasn't ':')
+    if not ':' in line1: #or line1 = __bigLineNumber: (__bigL... hasn't got ':')
         return line2
     if not ':' in line2: #or line2 = __bigLineNumber:
         return line1
@@ -145,7 +156,8 @@ def lineMin(line1, line2):
         return line1
     else:
         return line2
-    
+
+################################################################################    
     
 def getBestLineNumberForExpresion(expr):
     """
@@ -165,30 +177,32 @@ def getBestLineNumberForExpresion(expr):
             return line
     else:
         raise TypeError(expr)
-        
+
+
+# TODO remove next if not used.
 ################################################################################
 
-__expresion = "EXPRESION" # name of the Expresions Symbols in the actual grammar
+#__expresion = "EXPRESION" # name of the Expresions Symbols in the actual grammar
 
-def getExpresions(formula):
-    """
-        Get a list with the '__expresion' named pyPEG.Symbol objects found inside
-        'formula'.
-    """
-    result = []
-    if isinstance(formula, pyPEG.Symbol):
-        if formula.__name__ == __expresion:
-            result.append(formula)
-        else:
-            result += getExpresions(formula.what)
-    elif isinstance(formula, list):
-        for elem in formula:
-            result += getExpresions(elem)
-    elif isinstance(formula, unicode):
-        return []
-    else:
-        raise TypeError(formula)
-    return result
+#def getExpresions(formula):
+#    """ Get a list with the '__expresion' named pyPEG.Symbol objects found 
+#        inside 'formula'.
+#    """
+#    result = []
+#    if isinstance(formula, pyPEG.Symbol):
+#        if formula.__name__ == __expresion:
+#            result.append(formula)
+#        else:
+#            result += getExpresions(formula.what)
+#    elif isinstance(formula, list):
+#        for elem in formula:
+#            result += getExpresions(elem)
+#    elif isinstance(formula, unicode):
+#        return []
+#    else:
+#        raise TypeError(formula)
+#    return result
+
 ################################################################################
 
 class TabLevel():
@@ -232,8 +246,6 @@ class TabLevel():
 
 ################################################################################
 
-
-
 def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
                                  symb = '&'):
     parentopen = ""
@@ -262,6 +274,9 @@ def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
         
 ################################################################################
 def commaSeparatedString(array, symb = ','):
+    """ Get an array of elements, take them to string and return a string
+        with them separated by commas.
+    """
     result = ''
     for x in array[:-1]:
         result += str(x) + ', '

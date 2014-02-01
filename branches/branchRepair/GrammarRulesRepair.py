@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-#===============================================================================
-# Modulo GrammarRules.py
+# Modulo GrammarRulesRepair.py
 # 24 de Octubre del 2013
 # Autor: Raul Monti
 # F A L L U T O    2 . 0
@@ -40,13 +38,15 @@
 #
 #
 #===============================================================================
-#
+
+
 from pyPEG import *
 import pyPEG
 import re, fileinput
 from DebugRepair import *
 import UtilsRepair
-#
+
+
 #===============================================================================
 
 
@@ -56,6 +56,7 @@ import UtilsRepair
 
 # TODO Everything should be in english (or everyone will hate me). I'm proud
 # of my beautiful language though.
+
 
 # SOME DEFINITIONS #############################################################
 
@@ -439,15 +440,12 @@ if __name__ == "__main__":
     _ast = parse(TEST, _file, False, packrat = False)
 
 #    print _ast
+    for x in UtilsRepair.getAst(_ast,[u'DEFINE']):
+        debug("debugRED", x)
+        print ""
 
-    print UtilsRepair.getAst(_ast,[u'COMMENT'])
-
-    print UtilsRepair.ast2str(UtilsRepair.getAst(_ast,[u'COMMENT']))
-
-#    print UtilsRepair.cleanAst(_ast,[u'COMMENT'])
-#    print UtilsRepair.ast2str(UtilsRepair.cleanAst(_ast,[u'COMMENT']))
-#    print UtilsRepair.ast2str(_ast, True)
-#    print "Parsed:\n\n",_ast , "\n"
+    debug("debugGREEN",\
+         UtilsRepair.ast2str(UtilsRepair.getAst(_ast,[u'COMMENT'])))
 
 
 
@@ -456,3 +454,6 @@ if __name__ == "__main__":
 #       i.e. the grammar breaks down when using 'B' in it and parsing with
 #       skipcomments option.
 
+
+# FIXME comments and blanks can't be treated the same as they are being treated
+#       at 'B'

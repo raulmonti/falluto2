@@ -7,7 +7,8 @@
 #
 #
 #===============================================================================
-#
+
+
 import DebugRepair
 from DebugRepair import *
 from ConfigRepair import *
@@ -22,21 +23,23 @@ import shutil
 import os.path
 import sys
 import os
-#
+
+
 #===============================================================================
 
+
 ################################################################################
-################################################################################
+
 def parse(filePath = None):
-    """
-        Use PyPEG to parse de file into a PyPEG structure. Use this structure
+    """ Use PyPEG to parse de file into a PyPEG structure. Use this structure
         to fill up our specific structures which are easier to work with.
         Returns a 'Model' instance with the parsed model.
+        
+        @input filePath: the path of the file to be parsed
     """
-
     if filePath == None or not os.path.isfile(filePath):
-        raise Error( "Path <"+ str(filePath) +"> is not a valid file to " +\
-                     "parse :S.")
+        raise Error( "Path <"+ str(filePath) +"> is not a valid file to "\
+                   + "parse :S.")
     # get a copy of the original file and prepare it for pyPEG.
     _backup = TEMP_DIR__+'/'+(filePath.split('/')[-1]).split('.')[0]+".fllaux"
     debug('debugLBLUE', "backup file: "+ _backup)
@@ -78,9 +81,6 @@ def getTrueExpresion():
 
 #===============================================================================
 
-
-
-################################################################################
 ################################################################################
 
 class ParserBaseElem(object):
@@ -124,11 +124,9 @@ class ParserBaseElem(object):
         return unicode(str(self))
 
 ################################################################################
-################################################################################
 
 class Model(ParserBaseElem):
     """ The full model structure.
-
         This class represents the full parsed model from the .fll. Take a look
         at the 'parse' function in this module to be able to fill up this
         structure.
@@ -270,7 +268,6 @@ class Define(ParserBaseElem):
         _string += " @value: " + _str(self.dvalue)
         return _string
 
-        
 ################################################################################
 
 class Proctype(ParserBaseElem):
@@ -291,7 +288,7 @@ class Proctype(ParserBaseElem):
         AST = AST.what # [ name, context vars, synchro acts, body ]
         self.name = AST[0].what[0]
         self.line = AST[0].__name__.line
-        
+
         for cv in AST[1].what:
             self.contextvars.append(cv)
 
@@ -299,7 +296,7 @@ class Proctype(ParserBaseElem):
             self.synchroacts.append(sa)
 
         AST = AST[3].what # [ 0, VAR, 0, FAULT, 0, INIT, 0, TRANS ]
-        
+
         for elem in AST:
             if elem.__name__ == "VAR":
                 for x in elem.what:
