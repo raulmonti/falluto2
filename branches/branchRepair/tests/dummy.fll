@@ -17,14 +17,14 @@ PROCTYPE proceso1(context1, context2; sincro1, sincro2)
 
 	VAR
 		variable: 1..10;
-        boolvar: boolean;
-        algoquenodeberiacambiarse: boolean;
+        	boolvar: boolean;
+	        algoquenodeberiacambiarse: boolean;
 	FAULT
 		falla: is STOP(t1);
 	INIT
 		boolvar = algo;
 	TRANS
-		[t1]: 3>=variable+la_manzana_se_vuelve_pera & !True => variable'= 5+7%2;
+		[t1]: 3>=variable+la_manzana_se_vuelve_pera & algo|algo & !True => variable'= 5+7%2;
 
 ENDPROCTYPE
 

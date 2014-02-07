@@ -2,16 +2,23 @@
 # Author Raul
 # 31/01/2014 19:38:00
 
+import re
 import fileinput
-from pyPEG import parse
+import logging
+from pyPEG import parse, Symbol
 from GrammarRulesRepair import GRAMMAR
 from DebugRepair import debug
 from UtilsRepair import getAst, ast2str, commaSeparatedString
 from ExceptionsRepair import Error
 
+
+WARNING = logging.warning
+INFO = logging.info
+DEBUG = logging.debug
+
 # MODULE PLAIN API #############################################################
 
-def precompile(ast=[]):
+def precompile(ast=[], outputFile=""):
 
     """
         @input ast: parsed model in a pyAST
@@ -26,7 +33,7 @@ def precompile(ast=[]):
     """
     _p = preCompiler(ast)
 
-    _p.sintaxReplacement()
+    _p.sintaxReplacement(outputFile)
 
     return
 
@@ -50,7 +57,7 @@ class preCompiler():
             _xn = _x.what[2] # FIXME CACASO
             _xv = _x.what[4] # FIXME CACASO
             self.defs[ast2str(_xn)] = ast2str(_xv)
-        debug("debugGREEN", "Definitions dictionary " + str(self.defs))
+        DEBUG("Definitions dictionary " + str(self.defs))
 
     def checkCircularDependance(self):
         """ Check that there is no circular dependance beteween definitions.
@@ -65,7 +72,7 @@ class preCompiler():
             raise Error("Circular dependance in DEFINES: " \
                        + commaSeparatedString(cycl) + ".")
 
-    def sintaxReplacement(self):
+    def sintaxReplacement(self, outputFile=""):
         """ Make the sintax replacements due to DEFINES in the model.
 
             @return: a string with the model after the sintactic replacements
@@ -74,9 +81,7 @@ class preCompiler():
         # We need to make replacements in definitions first
         self.setDefs()
         
-        replace(self.ast, self.defs)
-
-
+        replace(self.ast, self.defs, outputFile)
 
     def setDefs(self):
         """ Make the replacements in self.defs due to defintions it self. """
@@ -115,6 +120,7 @@ def hasCycle(adj):
     # its acyclic:
     return []
 
+#..............................................................................
 
 def cycleDFS(r, adj, stack):
     for a in adj[r]:
@@ -125,15 +131,74 @@ def cycleDFS(r, adj, stack):
         stack = cycleDFS(a, adj, stack)
     return stack[:-1:]
 
+#..............................................................................
 
-def replace(ast=[],defs={}):
-    """ Replace defs in the model in ast. """
-    if:
-    elif:
-    else
+def replace(ast=[] , defs={}, path=""):
+    """ Write a file with a model from a pyAST structure but making sintax 
+        replacements from definitions.
+
+        @input ast: the model in a pyAST.
+        @input defs: a dictionary with the sintax replacements to be done.
+        @input path: the path to the file to be written.
+        @return : a string with the model if path is "". None otherwise.
+    """
+    result = ""
+    if isinstance(ast, Symbol):
+        if ast.__name__ == "DEFINE":
+            for x in ast.what:
+                if isinstance(x, Symbol) and x.__name__ != "EXPRESION":
+                    result += ast2str(x)
+                else:
+                    result += replace(x, defs, "")
+        elif ast.__name__ == "OPTIONS" or \
+             ast.__name__ == "ENDOPTIONS" or \
+             ast.__name__ == "CHECKDEADLOCK" or \
+             ast.__name__ == "FAULTFAIRDISABLE" or \
+             ast.__name__ == "MODULEWFAIRDISABLE" or \
+             ast.__name__ == "COMMENT"or \
+             ast.__name__ == "EXPLAIN" or \
+             ast.__name__ == "BL":
+            result += ast2str(ast)
+        else:
+            for x in ast.what:
+                result += replace(x, defs, "")
+    elif isinstance(ast, list):
+        for x in ast:
+            result += replace(x, defs, "")
+    elif isinstance(ast, unicode):
+        result += strrepl(ast, defs)
+    else:
         raise TypeError()
-    return
+    if path != "":
+        try:
+            f = open(path, 'w')
+            f.write(result)
+        except Exception as e:
+            raise Error( "Coudn't write the file with sintax replacement.\n" \
+                       + "Because: " + str(e))
+        finally:
+            f.close()
+            result = ""
+    return result
 
+#..............................................................................
+
+def strrepl( string="", defs={}):
+    """ Return a modified version of a string following sintax definitions.
+
+        @input string; the string we want to modify.
+        @input defs: the sintactic definitions for making the replacements
+        @return: a string which is equal from 'string' except for the 
+                 replacements that 'defs' sugests.
+    """
+    assert isinstance(string, str) | isinstance(string, unicode) \
+           , "The following is not a string: %r" %string
+    result = string
+    for d, v in defs.iteritems():
+#        debug("debugGREEN", "Replacing " + d + " by " + v + " in " + result)
+        result = re.sub( u'\\b' + d + u'\\b', v, result)
+#        debug("debugLBLUE", "Got " + result)
+    return result
 
 # MODULE MAIN ##################################################################
 
@@ -142,14 +207,23 @@ if __name__ == "__main__":
 
     _file = fileinput.input()
 
-    print "Parsing ...."
+#    logging.basicConfig(filename='logfile.log', level=logging.DEBUG)
+#    Logging levels:
+#    CRITICAL 50
+#    ERROR    40
+#    WARNING  30
+#    INFO     20
+#    DEBUG    10
+#    NOTSET   0    
+    logging.basicConfig( level=logging.INFO
+                       , format = '[    %(levelname)s    ] ' \
+                                + '[%(filename)s] %(message)s')
 
+    INFO("Parsing ...")
     _ast = parse(GRAMMAR, _file, False, packrat = False)
-
-    debug("debugGREEN", _ast)
-
-    print "Precompiling ...."
-
-    precompile(_ast)
-
-
+    INFO("Parsed <%s>."%_file.filename())
+    DEBUG(str(_ast))
+    
+    INFO("Precompiling <%s> ..."%_file.filename())
+    precompile(_ast, _file.filename()+".precompiled")
+    INFO("Precompiled into <%s>."%(_file.filename()+".precompiled"))
