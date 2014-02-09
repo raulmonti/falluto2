@@ -1,13 +1,6 @@
-# Module UtilsRepair.py
-# Author Raul
-# Fri 31 Jan 2014 07:20:17 PM ART 
-
-
 import pyPEG
 from pyPEG import Symbol
-import DebugRepair
-from DebugRepair import *
-
+import Debug
 
 ################################################################################
 
@@ -36,8 +29,8 @@ def _cl(ast = []):
 
 
 ################################################################################
-# TODO remove next if not used
-def ss(ast = [], sp = True):
+
+def _str(ast = [], sp = True):
     """
         Devuelve un string formado por los elementos de tipo unicode que estan 
         dentro del AST separados entre ellos por espacios (si 'sp'). 'ast' debe 
@@ -77,7 +70,7 @@ def putBrackets(AST, space = True):
                 return putBrackets(AST.what[1], space)
             else:
                 return obrace + putBrackets(AST.what[0],space) + " " \
-                     + ss(AST.what[1]) \
+                     + _str(AST.what[1]) \
                      + " " + putBrackets(AST.what[2],space) + cbrace
         elif len(AST.what) == 1:
             return putBrackets(AST.what[0],space)
@@ -85,17 +78,15 @@ def putBrackets(AST, space = True):
             return AST.what[0] + " " + putBrackets(AST.what[1],space)
         else:
             Debug.debugWARNING("Passing through: " + repr(AST) + "\n")
-            return ss(AST)
+            return _str(AST)
     elif isinstance(AST, unicode) or isinstance(AST, str):
         return AST
     else:
         raise TypeError(AST)
 
 ################################################################################
-
 def putBracketsAsList(AST):
     return putBrackets(AST).split()
-
 ################################################################################
 
 def putBracketsToFormula(AST, space=True):
@@ -121,7 +112,6 @@ def putBracketsToFormula(AST, space=True):
         raise TypeError(AST)
 
 ################################################################################
-
 def isBool(var):
     return var == "TRUE" or var == "FALSE"
 
@@ -136,16 +126,14 @@ def isInt(var):
         return False
 
 ################################################################################
-
-__bigLineNumber = " Can't find out line number. Check first and last line of"\
-                + " your falluto system specification."
+__bigLineNumber = "Can't find out line number. Check first and last line of your falluto system specification."
 
 def lineMin(line1, line2):
     """
         Return the minimum between two pyPEG line numbers (of the form
         'file:#'.
     """
-    if not ':' in line1: #or line1 = __bigLineNumber: (__bigL... hasn't got ':')
+    if not ':' in line1: # or line1 = __bigLineNumber: (__bigLineNumber hasn't ':')
         return line2
     if not ':' in line2: #or line2 = __bigLineNumber:
         return line1
@@ -156,8 +144,7 @@ def lineMin(line1, line2):
         return line1
     else:
         return line2
-
-################################################################################    
+    
     
 def getBestLineNumberForExpresion(expr):
     """
@@ -165,7 +152,7 @@ def getBestLineNumberForExpresion(expr):
         for the expresion's line.
     """
     line = __bigLineNumber
-    if isinstance(expr, unicode) or isinstance(expr, str):
+    if isinstance(expr, unicode):
         return __bigLineNumber
     elif isinstance(expr, pyPEG.Symbol):
         line = expr.__name__.line
@@ -177,32 +164,30 @@ def getBestLineNumberForExpresion(expr):
             return line
     else:
         raise TypeError(expr)
-
-
-# TODO remove next if not used.
+        
 ################################################################################
 
-#__expresion = "EXPRESION" # name of the Expresions Symbols in the actual grammar
+__expresion = "EXPRESION" # name of the Expresions Symbols in the actual grammar
 
-#def getExpresions(formula):
-#    """ Get a list with the '__expresion' named pyPEG.Symbol objects found 
-#        inside 'formula'.
-#    """
-#    result = []
-#    if isinstance(formula, pyPEG.Symbol):
-#        if formula.__name__ == __expresion:
-#            result.append(formula)
-#        else:
-#            result += getExpresions(formula.what)
-#    elif isinstance(formula, list):
-#        for elem in formula:
-#            result += getExpresions(elem)
-#    elif isinstance(formula, unicode):
-#        return []
-#    else:
-#        raise TypeError(formula)
-#    return result
-
+def getExpresions(formula):
+    """
+        Get a list with the '__expresion' named pyPEG.Symbol objects found inside
+        'formula'.
+    """
+    result = []
+    if isinstance(formula, pyPEG.Symbol):
+        if formula.__name__ == __expresion:
+            result.append(formula)
+        else:
+            result += getExpresions(formula.what)
+    elif isinstance(formula, list):
+        for elem in formula:
+            result += getExpresions(elem)
+    elif isinstance(formula, unicode):
+        return []
+    else:
+        raise TypeError(formula)
+    return result
 ################################################################################
 
 class TabLevel():
@@ -215,7 +200,7 @@ class TabLevel():
     def __init__(self):
         self.level = 0
 
-    def _ss__(self):
+    def __str__(self):
         string = ""
         for x in range(0,self.level):
             string += '\t'
@@ -246,6 +231,8 @@ class TabLevel():
 
 ################################################################################
 
+
+
 def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
                                  symb = '&'):
     parentopen = ""
@@ -273,103 +260,3 @@ def symbolSeparatedTupleString(array, parent = False, enter=False, tl="", \
         return string
         
 ################################################################################
-def commaSeparatedString(array, symb = ','):
-    """ Get an array of elements, take them to string and return a string
-        with them separated by commas.
-    """
-    result = ''
-    for x in array[:-1]:
-        result += str(x) + ', '
-    result += str(array[-1])
-    return result
-
-################################################################################
-
-def ast2str(ast=[], skipcomments=False, skipwhites=False):
-    """ Take a pyAST and return a string with the parsed text in it.
-
-        @input ast: the pyAST structure with the parsed text
-        @input skipcomments: if don't want to compose the 'COMMENTS' from 'ast'
-        @input skipwhites: if don't want to compose the 'BL' from 'ast'
-        @return: a unicode string with the text parsed inside 'ast'
-    """
-    res = ""
-    if isinstance( ast, unicode):
-        res = ast
-    elif isinstance(ast, pyPEG.Symbol):
-        if ast.__name__ == u"COMMENT" and skipcomments:
-            res = ""
-        elif ast.__name__ == "BL" and skipwhites:
-            res = ""
-        else:
-            res = ast2str(ast.what, skipcomments, skipwhites)
-    elif isinstance(ast , list):
-        for x in ast:
-            res += ast2str(x, skipcomments, skipwhites)
-    else:
-        raise TypeError(str(ast))
-    return unicode(res)
-
-################################################################################
-
-def cleanAst(ast=[], cleanList=[]):
-    """ Take a pyAST and return a new one which is equal except for certain 
-        pySymbol elements that will be removed.
-
-        @input ast: the pyAST structure with the parsed text.
-        @input cleanList: list of pySymbol names (unicode attr __name__) to 
-                          remove.
-        @return: a new ast without the pySymbols with names from 'cleanList'.
-    """
-    _res = []
-    if isinstance( ast, unicode):
-        _res = ast
-    elif isinstance(ast, pyPEG.Symbol):
-        if ast.__name__ in cleanList:
-            _res = []
-        else:
-            _res = ast
-            _res.what = cleanAst(_res.what, cleanList)
-    elif isinstance(ast , list):
-        for _x in ast:
-            _r = cleanAst(_x, cleanList)
-            if _r != []:
-                # TODO may need extend instead of append?
-                _res.append(_x)
-    else:
-        raise TypeError(str(ast))
-    return _res
-
-
-################################################################################
-
-def getAst(ast=[], getList=[]):
-    """ Something like the inverse of cleanAst, and puts everything into a list
-        
-        @input ast: the pyAST structure with the parsed text.
-        @input getList: list of pySymbol names (unicode attr __name__) that 
-                        you want to keep.
-        @return: a list without the pySymbols with names not in 'getList'.
-    """
-    _res = []
-    if isinstance( ast, unicode):
-        _res = []
-    elif isinstance(ast, pyPEG.Symbol):
-        if ast.__name__ in getList:
-            _res = ast
-        else:
-            _res = getAst(ast.what, getList)
-    elif isinstance(ast , list):
-        for _x in ast:
-            _r = getAst(_x, getList)
-            if _r != []:
-                if isinstance(_r, pyPEG.Symbol):
-                    _res.append(_r)
-                elif isinstance(_r, list):
-                    _res.extend(_r)
-                else:
-                    raise TypeError(str(_r))
-    else:
-        raise TypeError(str(ast))
-    return _res
-

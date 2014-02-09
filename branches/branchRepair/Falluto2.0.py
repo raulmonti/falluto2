@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
-
+#
 #===============================================================================
-# Modulo: Falluto2.0.py (modulo principal del proyecto)
+# Modulo: Falluto2.0.py (Proyect main module)
 # Autor: Raul Monti
 # Miercoles 23 de Octubre del 2012
 #===============================================================================
@@ -21,23 +20,22 @@ import TraceInterpreter
 import Mejoras
 from datetime import datetime
 import argparse
+import logging
 #
 #
 # ------------------------------------------------------------------------------
 #
-#
 # Default working file name, for data shearing with NuSMV.
 #
 WORKINGFILE = "temp/output.smv"
-#
+EMAIL = "mail@mail.com"
 #
 #===============================================================================
 
+#==============================================================================#
+# LOCAL FUNCTIONS =============================================================#
+#==============================================================================#
 
-
-
-
-################################################################################
 def parseInput():
     """
         Falluto command line input parsing using 
@@ -57,12 +55,9 @@ def parseInput():
     parser.add_argument('-co', help='Color output.', 
         action='store_true', dest='color')
     return parser.parse_args()
+
 #...............................................................................
 
-
-
-
-################################################################################  
 def run_subprocess(command, shell = False, universal_newlines = True):
     """
         Launch subprocess, open pipe and get output 
@@ -75,30 +70,43 @@ def run_subprocess(command, shell = False, universal_newlines = True):
     if retcode:
         raise subprocess.CalledProcessError(retcode, output[0])
     return output[0]
+
 #...............................................................................
+def printFallutoLog():
+    print   """
+ .----------------.  
+| .--------------. |
+| |  _________   | |
+| | |_   ___  |  | |
+| |   | |_  \_|  | |
+| |   |  _|      | |
+| |  _| |_       | |
+| | |_____|ALLUTO| |
+| |           2.0| |
+| '--------------' |
+ '----------------' 
+"""
 
+#==============================================================================#
+# MAIN ========================================================================#
+#==============================================================================#
 
-
-################################################################################
 if __name__ == '__main__':
     """
-        Falluto2.0 main process string.
+        Falluto2.0 main process.
     """
+    printFallutoLog()
     # Print Falluto2.0 header
-    print( "\033[1;94m[]\n[] FaLLuTO " \
-         + "2.0\n[] " + str(datetime.today()) + "\n[]\n\033[1;m")
+    print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
+          + " --\n -- " + EMAIL + "\n")
 
     # Parse input to this module
     args = parseInput()
 
     # Check for existence of input file
     if not os.path.exists(args.filename):
-        ErrorOutput("File <" + args.filename + "> doesn't exists.\n", True)
+        LERROR("File <" + args.filename + "> doesn't exists.\n")
         sys.exit(0)
-
-    # Open the file
-    modelFile = fileinput.input(args.filename)
-    assert modelFile
 
     # Run
     try:
@@ -106,20 +114,18 @@ if __name__ == '__main__':
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
 
-        # Parse de file.
-        msys = Parser.parse(modelFile)
+        # Parse the file.
+        _model = Parser.parse(args.filename)
 
         # Check for correctness in the user model of the system.
-        Checker.Check(msys)
+        Checker.Check(_model)
 
         # Compile to NuSMV.
-        c.compile(msys)
-
-
+        c.compile(_model)
 
         # Checking the smv system descripition: just run NuSMV over the 
         # system description without checking any property on it.
-        sysname = msys.name if msys.name != "" else "No Name System"
+        sysname = _model.name if _model.name != "" else "No Name System"
         colorPrint("debugYELLOW", "[CHECKING] Checking system: " + sysname)
 
         #get the smv system description
@@ -131,12 +137,9 @@ if __name__ == '__main__':
 
         colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
 
-
-
         # Save a copy of the compiled system if asked so.
         if args.save:
             c.writeSysToFile(args.save,None)
-
 
         # Check one by one each property over the system.
         for i in range(0, len(c.compiledproperties)):
@@ -154,15 +157,14 @@ if __name__ == '__main__':
             # TODO puedo usar args.color como booleano directamente?
             t.interpret(c,output, i, _color)
 
-
     except subprocess.CalledProcessError, e:
-        debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\
+        LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado y "\
             + "mandar mail a raul para que lo arregle\n")
-        debugERROR("NUSMV: el archivo es erroneo. La salida es la que "\
+        LCRITICAL("NUSMV: el archivo es erroneo. La salida es la que "\
             + "sige:\n\n" + str(e.cmd))
 
     except Exception, e:
-        colorPrint("debugRED", str(type(e)) + "\n" + str(e))
+        LEXCEPTION(  str(type(e)) + "\n" + str(e))
 
     sys.exit(0)
 

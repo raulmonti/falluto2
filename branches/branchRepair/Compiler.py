@@ -2,6 +2,7 @@
 # Module: Compiler.py
 # Author: Raul Monti
 # F A LL U T O 2.0
+# Mon 27 Jan 2014 05:55:42 PM ART
 #===============================================================================
 #
 from Parser import *
@@ -11,12 +12,12 @@ import Debug
 from Types import *
 import Types
 from Utils import *
-from Utils import _cl, _str
+from Utils import _cl, ast2str
 import Utils
 from Checker import *
 import Checker
-
 import Mejoras
+
 #
 #===============================================================================
 

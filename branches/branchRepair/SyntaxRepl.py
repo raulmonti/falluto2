@@ -5,16 +5,13 @@
 import re
 import fileinput
 import logging
+import sys
 from pyPEG import parse, Symbol
-from GrammarRulesRepair import GRAMMAR
-from DebugRepair import debug
-from UtilsRepair import getAst, ast2str, commaSeparatedString
-from ExceptionsRepair import Error
-
-
-WARNING = logging.warning
-INFO = logging.info
-DEBUG = logging.debug
+from GrammarRules import GRAMMAR
+from Debug import debug
+from Utils import getAst, ast2str, commaSeparatedString
+from Exceptions import Error, Critical
+from Config import LOG_FILE__
 
 # MODULE PLAIN API #############################################################
 
@@ -57,7 +54,7 @@ class preCompiler():
             _xn = _x.what[2] # FIXME CACASO
             _xv = _x.what[4] # FIXME CACASO
             self.defs[ast2str(_xn)] = ast2str(_xv)
-        DEBUG("Definitions dictionary " + str(self.defs))
+        LDEBUG("Definitions dictionary " + str(self.defs))
 
     def checkCircularDependance(self):
         """ Check that there is no circular dependance beteween definitions.
@@ -168,7 +165,7 @@ def replace(ast=[] , defs={}, path=""):
     elif isinstance(ast, unicode):
         result += strrepl(ast, defs)
     else:
-        raise TypeError()
+        raise Critical("Wrong input for this function:%s"%str(ast))
     if path != "":
         try:
             f = open(path, 'w')
@@ -177,6 +174,7 @@ def replace(ast=[] , defs={}, path=""):
             raise Error( "Coudn't write the file with sintax replacement.\n" \
                        + "Because: " + str(e))
         finally:
+            LDEBUG("The precompiled file looks like \n%s\n"%result)
             f.close()
             result = ""
     return result
@@ -215,15 +213,20 @@ if __name__ == "__main__":
 #    INFO     20
 #    DEBUG    10
 #    NOTSET   0    
-    logging.basicConfig( level=logging.INFO
+    logging.basicConfig( level=logging.DEBUG
                        , format = '[    %(levelname)s    ] ' \
                                 + '[%(filename)s] %(message)s')
 
-    INFO("Parsing ...")
+    LINFO("Parsing ...")
     _ast = parse(GRAMMAR, _file, False, packrat = False)
-    INFO("Parsed <%s>."%_file.filename())
-    DEBUG(str(_ast))
+    LINFO("Parsed <%s>."%_file.filename())
+    LDEBUG(str(_ast))
     
-    INFO("Precompiling <%s> ..."%_file.filename())
-    precompile(_ast, _file.filename()+".precompiled")
-    INFO("Precompiled into <%s>."%(_file.filename()+".precompiled"))
+    try:
+        LINFO("Precompiling <%s> ..."%_file.filename())
+        precompile(_ast, _file.filename()+".precompiled")
+        LINFO("Precompiled into <%s>."%(_file.filename()+".precompiled"))
+    except Critical:
+        LEXCEPTION(":S something very bad happened.")
+    except Error,e:
+        LERROR(str(e))

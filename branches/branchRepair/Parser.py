@@ -7,7 +7,9 @@
 #
 #
 #===============================================================================
-#
+
+
+import Debug
 from Debug import *
 from Config import *
 from Exceptions import *
@@ -15,145 +17,179 @@ from Types import Types
 import pyPEG
 from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
-from Utils import _cl, _str, getBestLineNumberForExpresion
+from Utils import cleanAst, ast2str, getBestLineNumberForExpresion, getAst
 import Utils
-#
+import shutil
+import os.path
+import sys
+import os
+
+
 #===============================================================================
 
-# Auxiliary functions
+
+################################################################################
+
+def parse(filePath = None):
+    """ Use PyPEG to parse de file into a PyPEG structure. Use this structure
+        to fill up our specific structures which are easier to work with.
+        Returns a 'Model' instance with the parsed model.
+        
+        @input filePath: the path of the file to be parsed
+    """
+    if filePath == None or not os.path.isfile(filePath):
+        raise Error( "Path <"+ str(filePath) +"> is not a valid file to "\
+                   + "parse :S.")
+    # get a copy of the original file and prepare it for pyPEG.
+    _backup = TEMP_DIR__+'/'+(filePath.split('/')[-1]).split('.')[0]+".fllaux"
+    LDEBUG("User original file backup at: "+ _backup)
+    shutil.copy2(filePath, _backup)
+    try:
+        # If something goes wrong we should be sure to remove the backup file
+        # and recover the original one.
+        _f = open(filePath, 'a')
+        _f.write("//Line to avoid problems with pyPEG line count.")
+        _f.close()
+        # packrat = True seems to be brocken :S TODO check if it is
+        LDEBUG("Parsing ...")
+        _ast = pyPEG.parse(GRAMMAR, 
+                           fileinput.input(filePath), 
+                           True, 
+                           COMMENT, 
+                           packrat = False)
+        # recover original file
+        shutil.copy2(_backup, filePath)
+        os.remove(_backup)        
+    except Exception, _e:
+        # recover original file
+        shutil.copy2(_backup, filePath)
+        os.remove(_backup)
+        raise Error(str(_e))
+    # get everything inside our Model structure:
+    _res = Model()
+    _res.parse(_ast[0])
+    return _res
+
+
+# Auxiliary functions #########################################################
 
 def getTrueExpresion():
-    string = "TRUE"
+    string = "True"
     ast = pyPEG.parseLine(string, EXPRESION,[],True,COMMENT)
     return ast[0][0]
 
 
 #===============================================================================
 
-
-
 ################################################################################
 
 class ParserBaseElem(object):
     """
         Class to be enheritate when representing a parsed element.
-        Los elementos interpretados por pyPEG llegan con la forma 
     """
-    #.......................................................................
+
     def __init__(self):
         self.name = ""   #
         self.type = None #
         self.line = ""   # string whith at least the line number of the element.
         self.params = []
-        self.rawinput = None
-    #.......................................................................
+        self.pypeg = None
+
     def parse(self, AST):
         print "@.@ There is no parser method implemented for", \
             str(self.__class__.__name__)
-    #.......................................................................
+
     def str(self):
         try:
-            strg =_str(self.rawinput)
+            strg = ast2str(self.pypeg)
             return strg
         except:
             return ""
-    #.......................................................................
+
     def cl(self):
         try:
             lst = _cl(self.rawinput)
             return lst
         except:
             return []
-    #.......................................................................
+
     def __str__(self):
         return "Parser.py " + str(self.__class__.__name__) \
              + " default __repr__(): " + str(self.name)
-    #.......................................................................
+
     def __repr__(self):
         return object.__repr__(self) + " <" + self.name + "> "
-    #.......................................................................
+
     def __unicode__(self):
         return unicode(str(self))
-    #.......................................................................
-
-
-################################################################################
-def parse( _file):
-
-    if _file == None:
-        raise Exception("No file to parse :S")
-
-    # packrat = True seems to be brocken :S
-    _ast = pyPEG.parse(GRAMMAR, _file, True, COMMENT, packrat = False)
-
-    _res = System()
-
-    _res.parse(_ast[0])
-
-    return _res
-
-    # TODO copiar el archivo a uno nuevo al cual le agregamos la linea  
-    # '//Line to avoid problems with pyPEG line count.' para que pyPEG cuente 
-    # bien la ultima linea del codigo original.
 
 ################################################################################
 
-class System(ParserBaseElem):
+class Model(ParserBaseElem):
+    """ The full model structure.
+        This class represents the full parsed model from the .fll. Take a look
+        at the 'parse' function in this module to be able to fill up this
+        structure.
     """
-        This class represents the full parsed system from the .fll file.
-    """
+
     def __init__(self):
         ParserBaseElem.__init__(self)
-        self.defines    = {}
+        self.defs       = {}
         self.proctypes  = {}
         self.instances  = {}
         self.properties = {}
         self.contraints = {}
         self.options    = {}
 
-
-    #.......................................................................
     def clear(self):
+        """ Completely clean this structure to it's original values. """
         self.__init__()
 
-    #.......................................................................
     def parse(self, ast):
+        """ Read the model from a pyPEG.Symbol instance containing the
+            pyPEG parsed model, and fill up this structure.
+
+            @input ast: the pyPEG.Symbol structure with the model information.
+
+            @contraint: 'ast' should have been parsed using the 'GRAMMAR' rule
+                        from GrammarRules.py.
+        """
         assert isinstance(ast, pyPEG.Symbol)
-        assert ast.__name__ == "SYSTEM"
+        assert ast.__name__ == "MODEL"
         self.clear()
-        self.rawinput = ast
+        self.pypeg = ast
         for elem in ast.what:
             if elem.__name__ == "OPTIONS":
-                for opt in elem.what:
-                    if opt.__name__ == "SYSNAME":
-                        self.name = _str(opt.what)
+                for opt in [x for x in elem.what if isinstance(x,pyPEG.Symbol)]:
+                    if opt.__name__ == "MODNAME":
+                        self.name = ast2str(opt.what)
                     else:
                         o = Option()
                         o.parse(opt)
                         if o.name in self.options:
                             WARNING( "Redeclared option \'" + o.name \
-                                    + "\', using only last declaration.\n")
+                                    + "\', using only the last declaration.\n")
                         self.options[o.name] = o
             elif elem.__name__ == "DEFINE":
                 d = Define()
                 d.parse(elem)
-                d.name = "define" + str(len(self.defines))
-                self.defines[d.name] = d
+                d.name = "define" + str(len(self.defs))
+                self.defs[d.name] = d
             elif elem.__name__ == "PROCTYPE":
                 p = Proctype()
                 p.parse(elem)
                 if p.name in self.proctypes:
-                    raise LethalE( "Redeclared proctype " + p.name \
-                                         + " at line " + p.line + ".\n" )
+                    raise Error( "Redeclared proctype " + p.name \
+                                 + " at line " + p.line + ".\n" )
                 self.proctypes[p.name] = p
             elif elem.__name__ == "INSTANCE":
                 i = Instance()
                 i.parse(elem)
                 if i.name in self.instances:
-                    raise LethalE( "Redeclared instance \'" + i.name \
-                                         + "\' at <" + i.line + ">.\n" )
+                    raise Error( "Redeclared instance \'" + i.name \
+                                 + "\' at <" + i.line + ">.\n" )
                 self.instances[i.name] = i
-            elif elem.__name__ == "SPECIFICATION":
+            elif elem.__name__ == "PROPERTY":
                 p = Propertie()
                 p.parse(elem)
                 p.name = "propertie" + str(len(self.properties))
@@ -168,25 +204,22 @@ class System(ParserBaseElem):
             else:
                 assert False
 
-
-    #.......................................................................
     def __str__(self):
-        string = "System " + self.name + " Parsed structure:\n\n"
+        string = "> Model <" + self.name + "> parsed structure:\n\n"
+        for i in self.defs.itervalues():
+            string += str(i) + "\n"
         for m in self.proctypes.itervalues():
             string += str(m) + "\n"
         for i in self.instances.itervalues():
-            string += str(i) + "\n"
+            string += str(i) + "\n\n"
         for p in self.properties.itervalues():
-            string += str(p) + "\n"
+            string += str(p) + "\n\n"
         for c in self.contraints.itervalues():
-            string += str(c) + "\n"
+            string += str(c) + "\n\n"
         for o in self.options.itervalues():
-            string += str(o) + "\n"
-        string += "\n" + self.name + "END ....................................."
+            string += str(o) + "\n\n"
+        string += "> End model <" + self.name + "> parsed structure."
         return string
-    #.......................................................................
-
-
 
 ################################################################################
 
@@ -194,7 +227,7 @@ class Option(ParserBaseElem):
 
     def __init__(self):
         ParserBaseElem.__init__(self)
-    #.......................................................................
+
     def parse(self, AST):
         self.rawinput = AST
         self.name = AST.what[0]
@@ -210,19 +243,18 @@ class Option(ParserBaseElem):
             self.type = Types.Sysname
         else:
             debugWARNING("Bad option " + str(AST.__name__))
-            
-     #.......................................................................
+
     def __str__(self):
-        string = "\n---> Option " + str(self.name)
+        string = ">> Option " + str(self.name)
         string += ", of type " + str(self.type)
         string += ", at line " + str(self.line)
         string += "; with parameters " + str(self.params)
         return string
-    #.......................................................................
-
 
 ################################################################################
+
 class Define(ParserBaseElem):
+
     def __init__(self):
         ParserBaseElem.__init__(self)
 
@@ -231,10 +263,15 @@ class Define(ParserBaseElem):
         self.dname = ast.what[0]
         self.dvalue = ast.what[1]
 
-        
+    def __str__(self):
+        _string = ">> Define <" + ast2str(self.dname) + ">"
+        _string += " @value: " + ast2str(self.dvalue)
+        return _string
+
 ################################################################################
 
 class Proctype(ParserBaseElem):
+    """ A proctype structure for parsing proctypes :P """
 
     def __init__(self):
         ParserBaseElem.__init__(self)
@@ -246,27 +283,27 @@ class Proctype(ParserBaseElem):
         self.transitions     = []
         self.transitioncount = 0
 
-    #.......................................................................
     def parse(self, AST):
         self.rawinput = AST
         AST = AST.what # [ name, context vars, synchro acts, body ]
-        self.name = AST[0].what[0]
-        self.line = AST[0].__name__.line
-        
-        for cv in AST[1].what:
-            self.contextvars.append(cv)
+        self.name = AST[1].what[0]
+        self.line = AST[1].__name__.line
 
-        for sa in AST[2].what:
-            self.synchroacts.append(sa)
+        for cv in getAst(getAst(AST,["CTXVARS"])[0],["NAME"]):
+            self.contextvars.append(ast2str(cv))
 
-        AST = AST[3].what # [ 0, VAR, 0, FAULT, 0, INIT, 0, TRANS ]
-        
-        for elem in AST:
+        for sa in getAst(getAst(AST,["SYNCACTS"])[0],["NAME"]):
+            self.synchroacts.append(ast2str(sa))
+        debugGREEN(str(self.synchroacts))
+
+        AST = getAst(AST,["PROCTYPEBODY"])[0]
+
+        for elem in AST.what:
             if elem.__name__ == "VAR":
                 for x in elem.what:
-                    lv = VarDeclaration()
-                    lv.parse(x)
-                    self.localvars.append(lv)
+                    _lv = VarDeclaration()
+                    _lv.parse(x)
+                    self.localvars.append(_lv)
             elif elem.__name__ == "FAULT":
                 for x in elem.what:
                     f = Fault()
@@ -289,18 +326,19 @@ class Proctype(ParserBaseElem):
                         self.transitioncount += 1
                     t.pc = len(self.transitions)
                     self.transitions.append(t)
+            elif elem.__name__ == "BL":
+                pass
             else:
                 assert False
 
-    #.......................................................................
     def __str__(self):
-        string = ""
+        string = ">> Proctype " + self.name + '\n'
         for f in self.faults:
-            string += str(f) + "\n"
+            string += str(f) + '\n'
         for v in self.localvars:
-            string += str(v) + "\n"
+            string += str(v) + '\n'
         return string
-    #.......................................................................
+
 
 ################################################################################
 
@@ -309,24 +347,22 @@ class Instance(ParserBaseElem):
     def __init__(self):
         ParserBaseElem.__init__(self)
         self.proctype = "" # string name of the proctype for this instance
-    #.......................................................................
+
     def parse(self, AST):
         AST = AST.what # [ name, proctype name, parameters list]
         self.name = AST[0].what[0]
         self.line = getBestLineNumberForExpresion(AST)
-        self.proctype = _str(AST[1])
+        self.proctype = ast2str(AST[1])
 
         for x in AST[2].what:
             self.params.append(x)
-    #.......................................................................
-    def __str__(self):
-        string = "\n---> Instances " + str(self.name) 
-        string += " of proctype " + str(self.proctype)
-        string += ", at line " + str(self.line)
-        string += "; with parameters " + str(self.params)
-        return string
-    #.......................................................................
 
+    def __str__(self):
+        string = ">> Instance: " + str(self.name)
+        string += " @proctype: " + str(self.proctype)
+        string += " @line: " + str(self.line)
+        string += " @parameters: " + str(self.params)
+        return string
 
 ################################################################################
 
@@ -335,7 +371,7 @@ class Propertie(ParserBaseElem):
     def __init__(self):
         ParserBaseElem.__init__(self)
         self.formula = "" # the formula goes here, everything else in 'params'
-    #.......................................................................
+
     def parse(self, AST):
         AST = AST.what[0]
         self.line = AST.__name__.line
@@ -345,15 +381,14 @@ class Propertie(ParserBaseElem):
         for f in AST.what[:-1:]:
             self.params.append(f)
  
-    #.......................................................................
     def __str__(self):
-        string = "\n---> Propertie " + str(self.name)
+        string = ">> Propertie " + str(self.name)
         string += ", of type " + str(self.type)
         string += ", at line " + str(self.line)
         string += "; with parameters " + str(self.params)
         string += "; and formula " + str(self.formula)
         return string
-    #.......................................................................
+
 
 ################################################################################
 
@@ -361,100 +396,101 @@ class Contraint(ParserBaseElem):
 
     def __init__(self):
         ParserBaseElem.__init__(self)
-    #.......................................................................
+
     def parse(self, AST):
         AST = AST.what[0]
         self.type = AST.__name__
         self.line = AST.what[0].__name__.line
         for x in AST.what:
             self.params.append(x)
-    #.......................................................................
+
     def __str__(self):
-        string = "\n---> Contraint: " + str(self.name)
+        string = ">> Contraint: " + str(self.name)
         string += ", of type " + str(self.type)
         string += ", at line " + str(self.line)
         string += "; with parameters: " + str(self.params)
         return string
-    #.......................................................................
+
 
 
 ################################################################################
 
 class VarDeclaration(ParserBaseElem):
-
+    """ Structure intended to represent a local variable declaration, whose
+        scope is the proctype which who it belongs to.
+    """
     def __init__(self):
         ParserBaseElem.__init__(self)
-        self.range = []
-        self.domain = []
-        self.isarray = False
-    #.......................................................................
+        self.domain = [] # values of the domain of the variable
+        self.range = []  # start and end of an integer domain
+        self.isarray = False # TODO revisar si es necesaria esta variable, de
+                             # no serlo borrarla de ParserBaseElem tambien.
+
     def parse(self, AST):
-        self.rawinput = AST
+        self.pypeg = AST
         AST = AST.what # [name, domain]
-        self.name = _str(AST[0])
+        self.name = ast2str(AST[0])
         self.line = AST[0].__name__.line
-        AST = AST[2]
-        if AST.__name__ == "BOOLEAN":
+        AST = AST[1]
+        if AST.__name__ == "BOOLEANT":
             self.type = Types.Bool
-        elif AST.__name__ == "ENUM":
+        elif AST.__name__ == "ENUMT":
             self.type = Types.Symbol
             for x in AST.what:
                 if not isinstance(x, unicode):
-                    self.domain.append(_str(x))
-        elif AST.__name__ == "RANGE":
+                    self.domain.append(ast2str(x))
+        elif AST.__name__ == "RANGET":
             self.type = Types.Int
             for x in AST.what:
                 if not isinstance(x, unicode):
-                    self.domain.append(_str(x))
-        elif AST.__name__ == "ARRAY":
+                    self.domain.append(ast2str(x))
+            assert(len(self.domain)==2)
+        elif AST.__name__ == "ARRAYT":
             self.isarray = True
-            self.range.append(_str(AST.what[1]))
-            self.range.append(_str(AST.what[3]))
-            domain = AST.what[5]
-            if domain.__name__ == "BOOLEAN":
-                self.type = Types.Bool
-            elif domain.__name__ == "ENUM":
-                self.type = Types.Symbol
+            self.range.append(ast2str(AST.what[1])) # start
+            self.range.append(ast2str(AST.what[3])) # end
+            _domain = AST.what[5]
+            if _domain.__name__ == "BOOLEANT":
+                self.type = Types.BoolArray
+            elif _domain.__name__ == "ENUMT":
+                self.type = Types.SymbolArray
+                for x in _domain.what:
+                    if not isinstance(x, unicode):
+                        self.domain.append(ast2str(x))
+            elif domain.__name__ == "RANGET":
+                self.type = Types.IntArray
                 for x in domain.what:
                     if not isinstance(x, unicode):
-                        self.domain.append(_str(x))
-            elif domain.__name__ == "RANGE":
-                self.type = Types.Int
-                for x in domain.what:
-                    if not isinstance(x, unicode):
-                        self.domain.append(_str(x))
+                        self.domain.append(ast2str(x))
             else:
                 raise TypeError(domain)
         else:
-            raise TypeError(domain)
+            raise TypeError(AST.__name__)
 
-
-    #.......................................................................
     def __str__(self):
-        string = "---> Variable " + str(self.name) + " declaration"
+        string = ">>> Variable " + str(self.name) + " declaration"
         string += ", of type " + Types.Types[self.type]
         string += ", and domain values: "
         for x in self.domain:
             string += "<" + str(x) + "> "
         return string
-    #.......................................................................
-
 
 ################################################################################
 
 class Fault(ParserBaseElem):
+
     def __init__(self):
         ParserBaseElem.__init__(self)
         self.pre     = None
         self.pos     = []
         self.affects = []
-    #.......................................................................
+
     def parse(self, AST):
         AST = AST.what # [name, pre, pos, type]
         self.line = AST[0].__name__.line
         for x in AST:
             if x.__name__ == "NAME":
-                self.name = _str(x)
+                self.name = ast2str(x)
             elif x.__name__ == "EXPRESION":
                 self.pre = x
             elif x.__name__ == "NEXTEXPR":
@@ -475,18 +511,16 @@ class Fault(ParserBaseElem):
                     self.affects.append(y)
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
-            self.pre.file = AST[0].__name__.file
-            self.pre.line = AST[0].__name__.line
-    #.......................................................................
-    def __str__(self):
-        string = "--> Fault \'" + str(self.name)
-        string += "\'\n @Type >> " + str(self.type)
-        string += "\n @Pre >> " + str(self.pre)
-        string += "\n @Pos >> " + str(self.pos)
-        string += "\n @Affects >>" + str(self.affects)
-        return string
-    #.......................................................................
+            self.pre.__name__.file = AST[0].__name__.file
+            self.pre.__name__.line = AST[0].__name__.line
 
+    def __str__(self):
+        string = ">>> Fault \'" + str(self.name) + "\'"
+        string += " @Type: " + str(self.type)
+        string += " @Pre: " + str(self.pre)
+        string += " @Pos: " + str(self.pos)
+        string += " @Affects: " + str(self.affects)
+        return string
 
 ################################################################################
 
@@ -497,18 +531,19 @@ class Transition(ParserBaseElem):
         self.pre = None
         self.pos = []
         self.pc = 0 # program counter number used for compilation
-    #.......................................................................
+
     def parse(self, AST):
+        assert(AST.__name__ == "TRANSITION")
         line = str(AST.__name__.line)
         mfile = str(AST.__name__.file)
         self.line = line
         AST = AST.what # [0, name, 0, pre, 0,pos]
         for elem in AST:
             if elem.__name__ == "NAME":
-                self.name = _str(elem)
+                self.name = ast2str(elem)
             elif elem.__name__ == "EXPRESION":
                 self.pre = elem
-            elif elem.__name__ == "NEXTEXPR":
+            elif elem.__name__ == "NEXTLIST":
                 for x in elem.what:
                     x = x.what
                     nextref = x[0]
@@ -516,30 +551,35 @@ class Transition(ParserBaseElem):
                     expr = x[2]
                     self.pos.append([nextref, symbol, expr])
             else:
-                assert False
+                raise TypeError(elem.__name__)
 
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
-            self.pre.file = mfile
-            self.pre.line = line
+            self.pre.__name__.file = mfile
+            self.pre.__name__.line = line
 
-    #.......................................................................
     def __str__(self):
         return ParserBaseElem.__str__(self)
-    #.......................................................................
-################################################################################
 
+###############################################################################
 
+# TESTS #######################################################################
 
-
-
-# TESTS ........................................................................
 if __name__ == "__main__":
 
-    _file = fileinput.input()
+    try:
+        print "__Arrancamos__"
+        _file = sys.argv[1]
+        _file = os.path.join(os.getcwd(), _file)
+        debug('debugLBLUE', "original file: " + _file)
+        _sys = parse(_file)
+        print str(_sys)
+    except Error, _e:
+        debug("debugRED", str(_e))
 
-    _sys = parse(_file)
+    print "__Terminamos__"
+#print "Going out at:", str(Debug.lineno())
+#exit(0)
 
-    print str(_sys)
-
-
+# TODO We may need to use shorter names for some methods that are used very
+# often, for to enhance readability of the code.

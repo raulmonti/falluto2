@@ -1,4 +1,4 @@
-# Module DefinesRepair.py
+# Module Defines.py
 # Author Raul
 # Tue 28 Jan 2014 03:14:06 PM ART 
 
@@ -7,11 +7,11 @@ from pyPEG import Symbol, skip, keyword
 import fileinput
 from fileinput import *
 import re
-import DebugRepair
-from DebugRepair import *
-from ExceptionsRepair import *
-from UtilsRepair import *
-import UtilsRepair
+import Debug
+from Debug import *
+from Exceptions import *
+from Utils import *
+import Utils
 
 def DEFINITION(): return keyword(r"DEFINE"), \
                          re.compile(r"[\w]+"), \
@@ -140,7 +140,7 @@ class Definer():
                 print x
                 x = x[0].what
                 assert y == ""
-                _s += "DEFINE " + UtilsRepair.ss(x[0]) + " " + self.defs[UtilsRepair.ss(x[0])]
+                _s += "DEFINE " + Utils.ss(x[0]) + " " + self.defs[Utils.ss(x[0])]
             if not (prog1.match(_l) or prog2.match(_l)):
                 for _d in self.defs.iteritems():
                     _l = re.subn( u'\\b'+unicode(_d[0])+u'\\b'

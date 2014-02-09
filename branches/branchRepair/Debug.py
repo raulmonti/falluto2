@@ -28,13 +28,18 @@ debugColorDict = {
 }
 
 
-debugStart = "\n===============================================================\n"
-debugEnd = "\n_______________________________________________________________\n\n"
+debugStart = \
+    "\n===============================================================\n"
+debugEnd = \
+    "\n_______________________________________________________________\n\n"
 
 
 def debug(color, string):
-    print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
-
+    if DEBUG__: 
+        print '\033[' + debugColorDict[color] + "DEBUG: [" + str(lineno())  +\
+              "]: " + str(string) + '\033[1;m'
+    else:
+        pass
 
     
 
@@ -42,38 +47,49 @@ def debug(color, string):
 
 def debugRED(string):
     if DEBUG__:
-        print '\033[' + debugColorDict["debugRED"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugRED"] + "DEBUG: [" +\
+              str(lineno())  + "]: " + debugStart + str(string) + debugEnd +\
+              '\033[1;m'
     else:
         pass
 
 def debugGREEN(string):
     if DEBUG__:
-        print '\033[' + debugColorDict["debugGREEN"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugGREEN"] + "DEBUG: [" +\
+              str(lineno())  + "]: " + debugStart + str(string) + debugEnd +\
+              '\033[1;m'
     else:
         pass
 
 def debugYELLOW(string):
     if DEBUG__:
-        print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugYELLOW"] + "DEBUG: [" +\
+              str(lineno())  + "]: " + debugStart + str(string) + debugEnd +\
+              '\033[1;m'
     else:
         pass
 
 
 def debugLBLUE(string):
     if DEBUG__:
-        print '\033[' + debugColorDict["debugLBLUE"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugLBLUE"] + "DEBUG: [" +\
+              str(lineno())  + "]: " + debugStart + str(string) + debugEnd +\
+              '\033[1;m'
     else:
         pass
 
 def debugMAGENTA(string):
     if DEBUG__:
-        print '\033[' + debugColorDict["debugMAGENTA"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugMAGENTA"] +\
+              "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) +\
+              debugEnd + '\033[1;m'
     else:
         pass
 
 def debugURGENT(string):
     if DEBUGURGENT__:
-        print '\033[' + debugColorDict['debugURGENT'] + "URGENT: [" + str(lineno()) + "]: " +  str(string) + '\033[1;m'
+        print '\033[' + debugColorDict['debugURGENT'] + "URGENT: [" +\
+              str(lineno()) + "]: " +  str(string) + '\033[1;m'
     else:
         pass
     
@@ -81,13 +97,18 @@ def debugURGENT(string):
 
 def debugCURRENT(string):
     if DEBUGCURRENT__:
-        print '\033[' + debugColorDict['debugLBLUE'] + "\n-----------------    CURRENT DEBUG: [" + str(lineno()) + "]: " + "\n\n" + str(string) + "\n\n-----------------    END CURRENT DEBUG\n" '\033[1;m'
+        print '\033[' + debugColorDict['debugLBLUE'] +\
+              "\n-----------------    CURRENT DEBUG: [" +\
+              str(lineno()) + "]: " + "\n\n" + str(string) +\
+              "\n\n-----------------    END CURRENT DEBUG\n" '\033[1;m'
     else:
         pass
 
 def debugSOLVED(string):
     if DEBUGSOLVED__:
-        print '\033[' + debugColorDict["debugMAGENTA"] + "DEBUG: [" + str(lineno())  + "]: " + debugStart + str(string) + debugEnd + '\033[1;m'
+        print '\033[' + debugColorDict["debugMAGENTA"] +\
+              "DEBUG: [" + str(lineno())  + "]: " +\
+              debugStart + str(string) + debugEnd + '\033[1;m'
     else:
         pass
 

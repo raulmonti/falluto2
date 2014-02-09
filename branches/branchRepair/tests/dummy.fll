@@ -9,7 +9,7 @@ ENDOPTIONS
 
 DEFINE algo 1+4 >    la_manzana_se_vuelve_pera
 
-DEFINE la_manzana_se_vuelve_pera 4
+DEFINE la_manzana_se_vuelve_pera algo
 
 // comment2
 

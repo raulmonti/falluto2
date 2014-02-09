@@ -2,6 +2,9 @@
 # 9 de Junio del 2012
 # Autor: Raul Monti
 
+import os
+import logging
+
 
 # MODULES GLOBAL VARS //////////////////////////////////////////////////////////
 
@@ -19,4 +22,36 @@ DEBUGSMV__ = False
 
 NICEOUTPUT__ = False
 
+TRACEBACKLIMIT__ = 10 # for critical errors traceback
+
 #///////////////////////////////////////////////////////////////////////////////
+
+# GLOBAL PATHS /////////////////////////////////////////////////////////////////
+
+TEMP_DIR__ = os.path.dirname(os.path.realpath(__file__)) + "/temp"
+
+LOG_FILE__ = os.path.dirname(os.path.realpath(__file__)) + "log.log"
+
+#==============================================================================#
+# LOGGING =====================================================================#
+#==============================================================================#
+#    logging.basicConfig(filename='logfile.log', level=logging.DEBUG)
+#    Logging levels:
+#    CRITICAL 50
+#    ERROR    40
+#    WARNING  30
+#    INFO     20
+#    DEBUG    10
+#    NOTSET   0
+
+logging.basicConfig( level=logging.DEBUG
+                   , format = '[    %(levelname)s    ] ' \
+                            + '[%(filename)s] %(message)s')
+
+LERROR = logging.error
+LWARNING = logging.warning
+LINFO = logging.info
+LDEBUG = logging.debug
+LEXCEPTION = logging.exception
+LCRITICAL = logging.critical
+

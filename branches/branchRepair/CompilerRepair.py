@@ -2,22 +2,21 @@
 # Module: Compiler.py
 # Author: Raul Monti
 # F A LL U T O 2.0
-# Mon 27 Jan 2014 05:55:42 PM ART
 #===============================================================================
 #
-from ParserRepair import *
-import ParserRepair
-from DebugRepair import *
-import DebugRepair
-from TypesRepair import *
-import TypesRepair
+from Parser import *
+import Parser
+from Debug import *
+import Debug
+from Types import *
+import Types
 from Utils import *
 from Utils import _cl, _str
 import Utils
-from CheckerRepair import *
-import CheckerRepair
-import Mejoras
+from Checker import *
+import Checker
 
+import Mejoras
 #
 #===============================================================================
 

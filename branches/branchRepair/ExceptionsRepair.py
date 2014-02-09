@@ -23,13 +23,6 @@ class LethalE(BaseException):
         #assert isinstance(error, unicode)
         self.error = str(error)
 
-################################################################################
-class Error(BaseException):
-    def __init__(self, error):
-        BaseException.__init__(self)
-        #assert isinstance(error, unicode)
-        self.error = str(error)
-
 
 ################################################################################
 class UndeclaredError(BaseException):

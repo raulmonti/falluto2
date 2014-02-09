@@ -6,9 +6,6 @@ class Types():
     Bool = 1
     Symbol = 2
     Array = 3
-    IntArray = 4
-    BoolArray = 5
-    SymbolArray = 6
     #Reference = 3
     
     # fault types
