@@ -233,7 +233,11 @@ def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 
 # DEFINES ---------------------------------------------------------------------
-def DEFINE():       return cp("DEFINE"), B, NAME, B, EXPRESION
+def LINE():         return cp(r"[^\r\n]*")
+# FIXME watch out!! LINE will get all the spaces at the end of the line as part
+# of the definition.
+
+def DEFINE():       return cp("DEFINE"), B, NAME, B, LINE
 
 # PROCTYPES ###################################################################
 
@@ -249,7 +253,7 @@ def SYNCACTS():     return 0, (cp(r"\;"), 0\
                            , ( B, NAME, -1, ( B, cp(r"\,"), B, NAME)))
 
 #..............................................................................
-#TODO quizas seria mejor no dar un orden para las secciones:
+#TODO It may be better not to give an order to the sections.
 def PROCTYPEBODY(): return 0, VAR, 0, (B, FAULT), 0, ( B, INIT), 0, ( B, TRANS)
 
 #..............................................................................

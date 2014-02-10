@@ -15,9 +15,11 @@ from Config import *
 from Exceptions import *
 from Types import Types
 import pyPEG
+from pyPEG import Symbol
 from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
 from Utils import cleanAst, ast2str, getBestLineNumberForExpresion, getAst
+from Utils import clearAst
 import Utils
 import shutil
 import os.path
@@ -185,7 +187,7 @@ class Model(ParserBaseElem):
             elif elem.__name__ == "INSTANCE":
                 i = Instance()
                 i.parse(elem)
-                if i.name in self.instances:
+                if i.name in self.instances: #TODO is this the place to check?
                     raise Error( "Redeclared instance \'" + i.name \
                                  + "\' at <" + i.line + ">.\n" )
                 self.instances[i.name] = i
@@ -260,8 +262,9 @@ class Define(ParserBaseElem):
 
     def parse(self,ast):
         self.line = Utils.getBestLineNumberForExpresion(ast)
-        self.dname = ast.what[0]
-        self.dvalue = ast.what[1]
+        ast = clearAst(ast.what)
+        self.dname = ast[0]
+        self.dvalue = ast[1]
 
     def __str__(self):
         _string = ">> Define <" + ast2str(self.dname) + ">"
@@ -294,18 +297,19 @@ class Proctype(ParserBaseElem):
 
         for sa in getAst(getAst(AST,["SYNCACTS"])[0],["NAME"]):
             self.synchroacts.append(ast2str(sa))
-        debugGREEN(str(self.synchroacts))
 
         AST = getAst(AST,["PROCTYPEBODY"])[0]
 
         for elem in AST.what:
             if elem.__name__ == "VAR":
-                for x in elem.what:
+                for x in [y for y in elem.what if isinstance(y,Symbol) \
+                          and y.__name__ == u'VARDECL']:
                     _lv = VarDeclaration()
                     _lv.parse(x)
                     self.localvars.append(_lv)
             elif elem.__name__ == "FAULT":
-                for x in elem.what:
+                for x in [y for y in elem.what if isinstance(y,Symbol) \
+                          and y.__name__ == u'FAULTDECL']:
                     f = Fault()
                     f.parse(x)
                     self.faults.append(f)
@@ -317,7 +321,8 @@ class Proctype(ParserBaseElem):
                     self.init.__name__.file = elem.__name__.file
                     self.init.__name__.line = elem.__name__.line
             elif elem.__name__ == "TRANS":
-                for x in elem.what:
+                for x in [y for y in elem.what if isinstance(y,Symbol) \
+                          and y.__name__ == u'TRANSITION']:
                     t = Transition()
                     t.parse(x)
                     if t.name == "":
@@ -349,12 +354,12 @@ class Instance(ParserBaseElem):
         self.proctype = "" # string name of the proctype for this instance
 
     def parse(self, AST):
-        AST = AST.what # [ name, proctype name, parameters list]
+        AST = clearAst(AST.what) # [ name, proctype name, parameters list]
         self.name = AST[0].what[0]
         self.line = getBestLineNumberForExpresion(AST)
         self.proctype = ast2str(AST[1])
 
-        for x in AST[2].what:
+        for x in clearAst(AST[2].what):
             self.params.append(x)
 
     def __str__(self):
@@ -431,7 +436,8 @@ class VarDeclaration(ParserBaseElem):
         AST = AST.what # [name, domain]
         self.name = ast2str(AST[0])
         self.line = AST[0].__name__.line
-        AST = AST[1]
+        # get the type and range of the variable
+        AST = cleanAst(AST[1::],[],1,True)[0] # clean unicodes of 1st level
         if AST.__name__ == "BOOLEANT":
             self.type = Types.Bool
         elif AST.__name__ == "ENUMT":
@@ -486,7 +492,7 @@ class Fault(ParserBaseElem):
         self.affects = []
 
     def parse(self, AST):
-        AST = AST.what # [name, pre, pos, type]
+        AST = clearAst(AST.what) # [name, pre, pos, type]
         self.line = AST[0].__name__.line
         for x in AST:
             if x.__name__ == "NAME":
@@ -507,7 +513,8 @@ class Fault(ParserBaseElem):
                     self.type = Types.Stop
                 else:
                     self.type = Types.Transient
-                for y in x.what:
+                # Clear unicodes and blanks from 1st level to get the effects
+                for y in clearAst(x.what):
                     self.affects.append(y)
         if self.pre == None or self.pre == "":
             self.pre = getTrueExpresion()
@@ -537,19 +544,19 @@ class Transition(ParserBaseElem):
         line = str(AST.__name__.line)
         mfile = str(AST.__name__.file)
         self.line = line
-        AST = AST.what # [0, name, 0, pre, 0,pos]
+        AST = clearAst(AST.what) # [0, name, 0, pre, 0,pos]
         for elem in AST:
             if elem.__name__ == "NAME":
                 self.name = ast2str(elem)
             elif elem.__name__ == "EXPRESION":
                 self.pre = elem
             elif elem.__name__ == "NEXTLIST":
-                for x in elem.what:
-                    x = x.what
-                    nextref = x[0]
-                    symbol = x[1]
-                    expr = x[2]
-                    self.pos.append([nextref, symbol, expr])
+                for x in clearAst(elem.what):
+                    x = clearAst(x.what)
+                    nextref = x[0] # a nextref
+                    expr = x[1] # an expresion in case of determ asignment, a
+                                # range or set in case of nondet asignment.
+                    self.pos.append([nextref, expr])
             else:
                 raise TypeError(elem.__name__)
 
@@ -559,14 +566,15 @@ class Transition(ParserBaseElem):
             self.pre.__name__.line = line
 
     def __str__(self):
-        return ParserBaseElem.__str__(self)
+        _res = str(self.name) + " -- " + ast2str(self.pre) + " -- "\
+             + ast2str(self.pos)
+        return _res
 
-###############################################################################
-
-# TESTS #######################################################################
+#==============================================================================#
+# TESTS =======================================================================#
+#==============================================================================#
 
 if __name__ == "__main__":
-
     try:
         print "__Arrancamos__"
         _file = sys.argv[1]

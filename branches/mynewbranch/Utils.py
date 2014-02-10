@@ -312,34 +312,78 @@ def ast2str(ast=[], skipcomments=False, skipwhites=False):
 
 ################################################################################
 
-def cleanAst(ast=[], cleanList=[]):
+#def cleanAstOld(ast=[], cleanList=[]):
+#    """ Take a pyAST and return a new one which is equal except for certain 
+#        pySymbol elements that will be removed.
+#
+#        @input ast: the pyAST structure with the parsed text.
+#        @input cleanList: list of pySymbol names (unicode attr __name__) to 
+#                          remove.
+#        @return: a new ast without the pySymbols with names from 'cleanList'.
+#    """
+#    _res = []
+#    if isinstance( ast, unicode):
+#        _res = ast
+#    elif isinstance(ast, pyPEG.Symbol):
+#        if ast.__name__ in cleanList:
+#            _res = []
+#        else:
+#            _res = ast
+#            _res.what = cleanAstOld(_res.what, cleanList)
+#    elif isinstance(ast , list):
+#        for _x in ast:
+#            _r = cleanAstOld(_x, cleanList)
+#            if _r != []:
+#                # TODO may need extend instead of append?
+#                _res.append(_x)
+#    else:
+#        raise TypeError(str(ast))
+#    return _res
+
+
+################################################################################
+
+def cleanAst(ast=[], cleanList=[], level=-1, remUni=False):
     """ Take a pyAST and return a new one which is equal except for certain 
         pySymbol elements that will be removed.
 
         @input ast: the pyAST structure with the parsed text.
         @input cleanList: list of pySymbol names (unicode attr __name__) to 
                           remove.
+        @input level: max level of recursion into PyPEG Symbol tree.
+        @input remUni: remove unicodes aswell.
         @return: a new ast without the pySymbols with names from 'cleanList'.
     """
     _res = []
-    if isinstance( ast, unicode):
+    if level == 0:
         _res = ast
-    elif isinstance(ast, pyPEG.Symbol):
-        if ast.__name__ in cleanList:
-            _res = []
-        else:
-            _res = ast
-            _res.what = cleanAst(_res.what, cleanList)
-    elif isinstance(ast , list):
-        for _x in ast:
-            _r = cleanAst(_x, cleanList)
-            if _r != []:
-                # TODO may need extend instead of append?
-                _res.append(_x)
     else:
-        raise TypeError(str(ast))
+        if isinstance( ast, unicode):
+            if remUni:
+                _res = []
+            else:
+                _res = ast
+        elif isinstance(ast, pyPEG.Symbol):
+            if ast.__name__ in cleanList:
+                _res = []
+            else:
+                _res = ast
+                _res.what = cleanAst(_res.what, cleanList, max(-1,level-1), remUni)
+        elif isinstance(ast , list):
+            for _x in ast:
+                _r = cleanAst(_x, cleanList, level, remUni)
+                if _r != []:
+                    _res.append(_x)
+        else:
+            raise TypeError(str(ast))
     return _res
 
+
+################################################################################
+
+def clearAst(ast):
+    """ Remove blanks and unicodes from first level of ast """
+    return cleanAst(ast, cleanList=['BL'], level=1, remUni=True)
 
 ################################################################################
 

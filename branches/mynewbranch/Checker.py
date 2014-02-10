@@ -260,6 +260,8 @@ class Checker(object):
             else:
                 defines.append(dname)
         # check for circular dependence in definitions
+        # TODO se hace tambien en tiempo de precompilacion, decidir donde esta
+        # sobrando.
         adj = {}
         ss = set([])
         for d in self.mdl.defs.itervalues():

@@ -6,12 +6,14 @@ import re
 import fileinput
 import logging
 import sys
+from Config import *
 from pyPEG import parse, Symbol
 from GrammarRules import GRAMMAR
 from Debug import debug
 from Utils import getAst, ast2str, commaSeparatedString
 from Exceptions import Error, Critical
 from Config import LOG_FILE__
+
 
 # MODULE PLAIN API #############################################################
 
@@ -63,11 +65,13 @@ class preCompiler():
         """
         self.adj = {}
         for d,v in self.defs.iteritems():
-            self.adj[d] = [x for x in v.split() if x in self.defs]
+            splits = ' |\,|\+|\-|\%|\/|\*|\<|\>|\=|\;' #TODO should . split too?
+            self.adj[d] = [x for x in re.split(splits,v) if x in self.defs]
         cycl = hasCycle(self.adj)
         if cycl != []:
             raise Error("Circular dependance in DEFINES: " \
                        + commaSeparatedString(cycl) + ".")
+        #FIXME won't print correctly in wt1.fll
 
     def sintaxReplacement(self, outputFile=""):
         """ Make the sintax replacements due to DEFINES in the model.

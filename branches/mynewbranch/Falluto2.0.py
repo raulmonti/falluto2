@@ -11,6 +11,7 @@ import subprocess
 import fileinput
 from Exceptions import *
 from Debug import *
+import pyPEG
 from pyPEG import parseLine
 import Config
 import Parser
@@ -21,6 +22,8 @@ import Mejoras
 from datetime import datetime
 import argparse
 import logging
+import SyntaxRepl
+import GrammarRules
 #
 #
 # ------------------------------------------------------------------------------
@@ -114,11 +117,26 @@ if __name__ == '__main__':
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
 
-        # Parse the file.
-        _model = Parser.parse(args.filename)
+        # Get the model parsed as a pyPEG.Symbol structure
+        _ppmodel = pyPEG.parse( GrammarRules.GRAMMAR
+                              , fileinput.input(args.filename)
+                              , False, packrat = False)
+
+        # Sintax replacement dough to definitions (also checks definitions).
+        LINFO("Precompiling <%s> ..."%args.filename)
+        SyntaxRepl.precompile(_ppmodel, args.filename+".precompiled")
+        LINFO("Precompiled into <%s>."%(args.filename+".precompiled"))
+
+        # Parse the sintax replaced file, and get the model in our own 
+        # structures.
+        LINFO("Parsing <%s> ..."%(args.filename+".precompiled"))
+        _model = Parser.parse(args.filename+".precompiled")
+        LINFO("<%s> successfuly parsed."%(args.filename+".precompiled"))
 
         # Check for correctness in the user model of the system.
         Checker.Check(_model)
+
+        exit(0)
 
         # Compile to NuSMV.
         c.compile(_model)
@@ -157,14 +175,20 @@ if __name__ == '__main__':
             # TODO puedo usar args.color como booleano directamente?
             t.interpret(c,output, i, _color)
 
-    except subprocess.CalledProcessError, e:
-        LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado y "\
-            + "mandar mail a raul para que lo arregle\n")
-        LCRITICAL("NUSMV: el archivo es erroneo. La salida es la que "\
-            + "sige:\n\n" + str(e.cmd))
-
     except Exception, e:
-        LEXCEPTION(  str(type(e)) + "\n" + str(e))
+        if DEBUG__:
+            LEXCEPTION(e)
+        elif type(e) == subprocess.CalledProcessError:
+            LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado y "\
+                + "mandar mail a raul para que lo arregle\n")
+            LCRITICAL("NUSMV: el archivo es erroneo. La salida es la que "\
+                + "sige:\n\n" + str(e.cmd))
+        elif type(e) == Error:
+            LERROR(e)
+        elif type(e) == Critical:
+            LCRITICAL(":S something very bad happened.")
+        else:
+            LEXCEPTION("Exception caught :S " + str(type(e)) + "\n" + str(e))
 
     sys.exit(0)
 
