@@ -1,0 +1,44 @@
+// comment0
+
+/* comment1 */ 
+
+OPTIONS
+CHECK_DEADLOCK
+MODELNAME dummy
+ENDOPTIONS
+
+DEFINE algo 1+4 >    la_manzana_se_vuelve_pera
+
+DEFINE la_manzana_se_vuelve_pera 5
+ 
+// comment2
+
+PROCTYPE proceso1(context1, context2; sincro1, sincro2)
+
+	VAR
+		variable: 1..10;
+        	boolvar: boolean;
+	        algoquenodeberiacambiarse: boolean;
+	FAULT
+		falla: is STOP(t1);
+	INIT
+		boolvar = algo;
+	TRANS
+		[t1]: 3>=variable+la_manzana_se_vuelve_pera & algo|algo & !True => variable'= 5+7%2, variable'=3;
+
+ENDPROCTYPE
+
+
+INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
+INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
+
+FINITELY_MANY_FAULTS -> EG True;
+
+FINITELY_MANY_FAULTS -> EG True "algo para que la gente lea";
+
+LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
+        " la_manzana_se_vuelve_pera";
+
+CTLSPEC AF True "Nothing useful";
+
+// comment3

@@ -1,15 +1,9 @@
-# Moduel Exceptions
-# Author Raul
-# 07/02/2014 14:18:14 
-
-import traceback
-from Config import TRACEBACKLIMIT__
 from Types import *
-from Utils import ast2str, putBrackets
+from Utils import _str, putBrackets
 
 
 ################################################################################
-class BaseException(Exception):
+class BaseException():
     def __init__(self):
         self.error = ""
         self.cause = ""
@@ -21,26 +15,13 @@ class BaseException(Exception):
     def __unicode__(self):
         return unicode(self.error)
 
+
 ################################################################################
 class LethalE(BaseException):
     def __init__(self, error):
         BaseException.__init__(self)
         #assert isinstance(error, unicode)
         self.error = str(error)
-
-################################################################################
-class Error(BaseException):
-    def __init__(self, error):
-        BaseException.__init__(self)
-        #assert isinstance(error, unicode)
-        self.error = str(error)
-
-################################################################################
-class Critical(BaseException):
-    def __init__(self, error):
-        BaseException.__init__(self)
-        self.error = str(error)
-
 
 
 ################################################################################

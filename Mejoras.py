@@ -10,7 +10,7 @@ debugTODO("Eliminar las restricciones sintacticas para nombres reservados de "\
          + "mas expresivo de lo que esta pasando")
         
 debugTODO( "En vez de usar el nombre del proceso en el valor proctype de las "\
-         + "instancias, usar directamente una referencia las mismas.")
+         + "instancias, usar directamente una referencia a las mismas.")
          
 debugTODO( "Levantar warning cuando dos asignaciones a una misma next ref en " \
          + "una postcondiciones hacen o pueden hacer imposible la transicion " \
@@ -52,3 +52,13 @@ debugTODO( "Opcion de guardar resultados en un archivo")
 debugTODO( "Representar internamente las fallas biz como transient para "\
          + "ahorrar una transicion si es posible (no creo que sea correcto)" )
 debugTODO( "Reemplazar en la compilacion tabs por espacios.")
+
+debugTODO( "Quizas permitir comentarios al costado de defines.")
+
+debugTODO( "Usar traceback para dar mas informacion en caso de error.")
+
+
+# NOT SUPPORTED YET ############################################################
+
+#TODO support expresions inside subscripts
+

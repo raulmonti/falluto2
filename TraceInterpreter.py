@@ -5,14 +5,12 @@
     archivo generado por Falluto.
     
 """
-
-
 import pyPEG
 from pyPEG import keyword, _and, _not, ignore, parseLine
 import re
 from Debug import *
 from Config import *
-from Utils import TabLevel, _str, _cl
+from Utils import TabLevel, ast2str, _cl
 from Compiler import Compiler
 from Types import Types
 import os
