@@ -101,10 +101,12 @@ if __name__ == '__main__':
     printFallutoLog()
     # Print Falluto2.0 header
     print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
-          + " --\n -- " + EMAIL + "\n")
+          + " --\n -- " + EMAIL)
 
     # Parse input to this module
     args = parseInput()
+
+    print " -- Input file %s"%args.filename+"\n"
 
     # Check for existence of input file
     if not os.path.exists(args.filename):
@@ -123,18 +125,20 @@ if __name__ == '__main__':
                               , False, packrat = False)
 
         # Sintax replacement dough to definitions (also checks definitions).
-        LINFO("Precompiling <%s> ..."%args.filename)
+        LINFO("Precompiling ...")
         SyntaxRepl.precompile(_ppmodel, args.filename+".precompiled")
-        LINFO("Precompiled into <%s>."%(args.filename+".precompiled"))
+        LINFO("Precompiled ;)")
 
         # Parse the sintax replaced file, and get the model in our own 
         # structures.
-        LINFO("Parsing <%s> ..."%(args.filename+".precompiled"))
+        LINFO("Parsing ...")
         _model = Parser.parse(args.filename+".precompiled")
-        LINFO("<%s> successfuly parsed."%(args.filename+".precompiled"))
+        LINFO("Successfuly parsed ;)")
 
         # Check for correctness in the user model of the system.
+        LINFO("Checking model ...")
         Checker.Check(_model)
+        LINFO("The model is valid ;)")
 
         exit(0)
 

@@ -315,7 +315,7 @@ class Proctype(ParserBaseElem):
                     self.faults.append(f)
             elif elem.__name__ == "INIT":
                 if elem.what != []:
-                    self.init = elem.what[0]
+                    self.init = clearAst(elem.what)[0]
                 else:
                     self.init = getTrueExpresion()
                     self.init.__name__.file = elem.__name__.file
@@ -369,7 +369,7 @@ class Instance(ParserBaseElem):
         string += " @parameters: " + str(self.params)
         return string
 
-################################################################################
+#==============================================================================#
 
 class Propertie(ParserBaseElem):
 
@@ -377,14 +377,22 @@ class Propertie(ParserBaseElem):
         ParserBaseElem.__init__(self)
         self.formula = "" # the formula goes here, everything else in 'params'
 
-    def parse(self, AST):
-        AST = AST.what[0]
-        self.line = AST.__name__.line
-        self.type = Types.propToType[AST.__name__]
-
-        self.formula = AST.what[-1]
-        for f in AST.what[:-1:]:
-            self.params.append(f)
+    def parse(self, ast):
+        self.line = ast.__name__.line
+        ast = clearAst(ast.what)
+        # after cleaning we should have the property and the explanation
+        for y in ast:            
+            if y.__name__ == "EXPLAIN":
+                self.name = ast2str(y)
+            else:
+                self.type = Types.propToType[y.__name__]
+                y = clearAst(y.what)
+                for x in y:
+                    if x.__name__ == "CTLEXP" or x.__name__ == "LTLEXP":
+                        self.formula = x
+                    else:
+                        # if it isn't the expresion then treat it as parameter
+                        self.params.append(x)
  
     def __str__(self):
         string = ">> Propertie " + str(self.name)
@@ -395,7 +403,7 @@ class Propertie(ParserBaseElem):
         return string
 
 
-################################################################################
+#==============================================================================#
 
 class Contraint(ParserBaseElem):
 

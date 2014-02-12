@@ -58,12 +58,12 @@ import Utils
 # of my beautiful language though.
 
 
-# SOME DEFINITIONS #############################################################
+# SOME DEFINITIONS ============================================================#
 
 cp = re.compile
 
 
-################################################################################
+#==============================================================================#
 
 def GRAMMAR():
     """ This is the grammar rule to parse for Falluto2.0. """
@@ -81,7 +81,7 @@ def BL():
 
 B  = -1, [BL, COMMENT] # Definition to ovoid obligation of blanks and COMMENTS
 
-# IDENTIFIERS #################################################################
+# IDENTIFIERS =================================================================#
 def RESERVED():
     """ Reserved names with specific uses, not to be used as user variable 
         names.
@@ -159,7 +159,7 @@ def RANGE(): return INT, re.compile(r"\.\."), INT
 def INCLUSION(): return [SUBSCRIPT,IDENT], B, re.compile(r"\bin\b"), B\
                         , [SET,RANGE]
 
-# EXPRESION ###################################################################
+# EXPRESION ===================================================================#
 
 def EXPRESION(): return [PROP]
 
@@ -210,14 +210,14 @@ def NEXTASSIGN():   return NEXTREF, B,\
                             ]
 
 
-# MODEL SINTAX ################################################################
+# MODEL SINTAX ================================================================#
 def MODEL(): return B, 0, OPTIONS , -1, ( B, [ DEFINE
                                              , PROCTYPE
                                              , INSTANCE
                                              , PROPERTY
                                              , CONSTRAINT ]) , B
 
-# OPTIONS ---------------------------------------------------------------------
+# OPTIONS =====================================================================#
 def OPTIONS(): return cp("OPTIONS"), -1, ( B, [ MODNAME
                                                    , CHECKDEADLOCK
                                                    , FAULTFAIRDISABLE
@@ -232,14 +232,17 @@ def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
 def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 
-# DEFINES ---------------------------------------------------------------------
+# DEFINES =====================================================================#
 def LINE():         return cp(r"[^\r\n]*")
 # FIXME watch out!! LINE will get all the spaces at the end of the line as part
 # of the definition.
 
-def DEFINE():       return cp("DEFINE"), B, NAME, B, LINE
+def DEFINE():       return cp("DEFINE"), B, NAME, B, [ EXPRESION
+                                                     , SET
+                                                     , RANGE
+                                                     ]
 
-# PROCTYPES ###################################################################
+# PROCTYPES ===================================================================#
 
 def PROCTYPE():     return cp("PROCTYPE"), B, NAME, B, cp(r"\("), B\
                            , CTXVARS, B, SYNCACTS, B, cp(r"\)"), B\
@@ -329,7 +332,7 @@ def INSTANCE():     return cp("INSTANCE"), B, NAME, B, cp(r"\="), B, NAME\
                            , B, cp(r"\("), B, PARAMLIST, B, cp(r"\)")
 def PARAMLIST():    return 0, ( EXPRESION, -1, ( B, cp(r"\,"), B, EXPRESION))
 
-# PROPERTIES DECLARATION ######################################################
+# PROPERTIES DECLARATION ======================================================#
 
 
 def EXPLAIN():
@@ -388,7 +391,7 @@ def LTLVAL():       return [ EXPRESION, (re.compile(r"\("), B
 
 
 
-# common properties ###########################################################
+# COMMON PROPERTIES ===========================================================#
 
 # TODO check for the correct time expresion in this cases, for example only 
 # LTLEXP can be used for FINMANYFAULTS.
