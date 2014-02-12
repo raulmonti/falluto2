@@ -46,7 +46,7 @@ LOG_FILE__ = os.path.dirname(os.path.realpath(__file__)) + "log.log"
 #    DEBUG    10
 #    NOTSET   0
 
-logging.basicConfig( level=logging.DEBUG
+logging.basicConfig( level=logging.INFO
                    , format = '[    %(levelname)s    ] ' \
                             + '[%(filename)s %(lineno)s] %(message)s')
 

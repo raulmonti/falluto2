@@ -16,11 +16,10 @@ from Utils import *
 import Utils
 import fileinput
 #
-#===============================================================================
-
-
-# Plain module API =============================================================
-
+#
+#==============================================================================#
+# PLAIN MODULE API ============================================================#
+#==============================================================================#
 
 def Check(model):
     """
@@ -30,15 +29,15 @@ def Check(model):
         @input model: a parsed Parser.Model instance with the model to check.
     """
     if not (isinstance(model, Parser.Model)):
-        raise Error("you are trying to check something that is not a model.")
+        raise Critical("you are trying to check something that is not a model.")
 
     _checker = Checker()
     _checker.check(model)
 
-#===============================================================================
 
-
-################################################################################
+#==============================================================================#
+# CHECKER CLASS ===============================================================#
+#==============================================================================#
 
 class Checker(object):
     """ A checker looks up for semantic correctness in a parsed model. To do
@@ -212,13 +211,19 @@ class Checker(object):
             pt = self.mdl.proctypes[inst.proctype]
             n = len(pt.contextvars)
             for i in range(0,n):
-                param = ss(inst.params[i])
-                cvname = ss(pt.contextvars[i])
+                param = ast2str(inst.params[i])
+                cvname = ast2str(pt.contextvars[i])
 
                 if isBool(param):
                     self.typetable[inst.name][cvname] = Types.Bool
+                    # and also for global reference at defines for example 
+                    # (FIXME) this may not be needed or even incorrect.
+                    self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
+                        = Types.Bool
                 elif isInt(param):
                     self.typetable[inst.name][cvname] = Types.Int
+                    self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
+                        = Types.Int
                 elif param in self.mdl.instances:
                     # The ith contextvar in inst is a reference to another 
                     # instance.
@@ -227,10 +232,15 @@ class Checker(object):
                     for v in ptt.localvars:
                         vname = cvname + "." + v.name
                         self.typetable[inst.name][vname] = v.type
+                        self.typetable[self.globalinst.name]\
+                            [inst.name+'.'+cvname] = v.type
                 elif '.' in param:
                     i, v = param.split('.',1)
                     assert v in self.typetable[i]
                     self.typetable[inst.name][cvname] = self.typetable[i][v]
+                    self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
+                        = self.typetable[i][v]
+                    #FIXME horrible duplicated code
                 else:
                     assert False
 
@@ -273,7 +283,7 @@ class Checker(object):
         if cy != []:
             raise Error( "Circular dependence in DEFINES declaration: " \
                        + commaSeparatedString(cy) + ".")
-        self.fillDefinesTypes(adj)
+        #self.fillDefinesTypes(adj)
 
     #....................................
     def hasCycleDfs(self, adj, leafs):
@@ -474,9 +484,9 @@ class Checker(object):
             self.allownextrefs = True
             for p in tr.pos:
                 nextref = p[0]
-                nrname = ss(nextref).split(" ")[0]
-                expr = p[2]
-                exprname = ss(expr)
+                nrname = ast2str(nextref)[:-1:]
+                expr = p[1]
+                exprname = ast2str(expr)
                 
                 # expr must be a local declared var
                 if not nrname in [x.name for x in pt.localvars]:
@@ -485,12 +495,11 @@ class Checker(object):
                         + " used in next expresions. \'" + nrname \
                         + "\' isn't a local declared variable in proctype \'" \
                         + pt.name + "\'.")
-                
-                
+
                 t1 = self.getTypeFromTable(inst, nrname)
-                if p[1] == "=":
+                if p[1].__name__ == "EXPRESION":
                     t2 = self.getExpresionType(inst, expr)
-                elif p[1] == "in":
+                elif p[1].__name__ == "SET" or p[1].__name__ == "RANGE":
                     t2 = self.getSetOrRangeType(inst, expr)
                 else:
                     assert False
@@ -567,12 +576,13 @@ class Checker(object):
                                        + "\' doesn't name an instance.") 
 
     #.......................................................................
-    def checkTimeLogicExp(self, expr):
-        assert isinstance(expr, pyPEG.Symbol)
-        assert expr.__name__ in ["CTLEXP", "LTLEXP"]
+    def checkTimeLogicExp(self, tlexpr):
+        """ Checks for type correctenes inside properties especifications. """
+        assert isinstance(tlexpr, pyPEG.Symbol)
+        assert tlexpr.__name__ in ["CTLEXP", "LTLEXP"]
         self.allowevents = True
         try:
-            for exp in getExpresions(expr):
+            for exp in getAst(tlexpr,["EXPRESION"]):
                 t = self.getExpresionType(self.globalinst, exp)
                 if t != Types.Bool:
                     exps = putBrackets(exp)
@@ -585,7 +595,7 @@ class Checker(object):
         except BaseException as e:
             self.allowevents = False
             raise e
-        
+
     #.......................................................................
     def checkContraints(self):
         self.allowevents = True

@@ -42,7 +42,8 @@ def debug(color, string):
         pass
 
     
-
+def DD(string):
+    debug("debugYELLOW", str(string))
 
 
 def debugRED(string):

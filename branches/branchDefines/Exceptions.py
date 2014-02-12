@@ -103,10 +103,10 @@ class WrongTFO(LethalE): #wrong types for operand
         except:
             pass
 
-        raise LethalE( "Wrong types <" + t1s + "> and <" + t2s \
-                     + "> for operand \'" + str(operand)
-                     + "\' in expresion \'" + exp + "\', at <" 
-                     + str(line) + ">.")
+        raise Error( "Wrong types <" + t1s + "> and <" + t2s \
+                   + "> for operand \'" + str(operand)
+                   + "\' in expresion \'" + exp + "\', at <" 
+                   + str(line) + ">.")
 ################################################################################
 class SysError():
     def __init__(self):
