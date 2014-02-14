@@ -24,6 +24,7 @@ import argparse
 import logging
 import SyntaxRepl
 import GrammarRules
+import shutil
 #
 #
 # ------------------------------------------------------------------------------
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
           + " --\n -- " + EMAIL)
 
-    # Parse input to this module
+    # Parse command line input
     args = parseInput()
 
     print " -- Input file %s"%args.filename+"\n"
@@ -111,44 +112,62 @@ if __name__ == '__main__':
     # Check for existence of input file
     if not os.path.exists(args.filename):
         LERROR("File <" + args.filename + "> doesn't exists.\n")
-        sys.exit(0)
+        raise Error("File <" + args.filename + "> doesn't exists.\n")
+        
+    elif not os.path.isfile(args.filename):
+        LERROR( "Path <"+ str(args.filename) +"> is not a valid file to "\
+              + "parse :S.")
+        raise Error( "Path <"+ str(args.filename) +"> is not a valid file to "\
+                   + "parse :S.")
 
     # Run
     try:
+
+        # get a copy of the original file to work on.
+        _fpath = TEMP_DIR__+'/'+args.filename.split('/')[-1]
+        LDEBUG("Wrking model file at: "+ _fpath)
+        shutil.copy2(args.filename, _fpath)
+
         # Get a compiler and a trace interpreter.
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
 
         # Get the model parsed as a pyPEG.Symbol structure
         _ppmodel = pyPEG.parse( GrammarRules.GRAMMAR
-                              , fileinput.input(args.filename)
+                              , fileinput.input(_fpath)
                               , False, packrat = False)
 
         # Sintax replacement dough to definitions (also checks definitions).
-        LINFO("Precompiling ...")
-        SyntaxRepl.precompile(_ppmodel, args.filename+".precompiled")
-        LINFO("Precompiled ;)")
+        LDEBUG("Precompiling ...")
+        SyntaxRepl.precompile(_ppmodel, _fpath+".precompiled")
+        LDEBUG("Precompiled ;)")
 
         # Parse the sintax replaced file, and get the model in our own 
         # structures.
-        LINFO("Parsing ...")
-        _model = Parser.parse(args.filename+".precompiled")
-        LINFO("Successfuly parsed ;)")
+        LDEBUG("Parsing ...")
+        _model = Parser.parse(_fpath+".precompiled")
+        LDEBUG("Successfuly parsed ;)")
 
         # Check for correctness in the user model of the system.
-        LINFO("Checking model ...")
+        LDEBUG("Checking model ...")
         Checker.Check(_model)
-        LINFO("The model is valid ;)")
-
-        exit(0)
+        LDEBUG("The model is valid ;)")
 
         # Compile to NuSMV.
+        LDEBUG("Compiling ...")
         c.compile(_model)
+        LDEBUG("Compiled ;)")
+
+        # Low level debug
+        LINSPECT('The compiled model:\n' + c.compiledstring + '\n')
+        LINSPECT('The compiled properties:\n')
+        for p in c.compiledproperties:
+            LINSPECT(p) 
 
         # Checking the smv system descripition: just run NuSMV over the 
         # system description without checking any property on it.
         sysname = _model.name if _model.name != "" else "No Name System"
-        colorPrint("debugYELLOW", "[CHECKING] Checking system: " + sysname)
+        LDEBUG("Checking Model on NuSMV: " + sysname)
 
         #get the smv system description
         c.writeSysToFile(WORKINGFILE,[])
@@ -158,6 +177,8 @@ if __name__ == '__main__':
         output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
 
         colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
+
+        exit(0)
 
         # Save a copy of the compiled system if asked so.
         if args.save:
@@ -193,6 +214,10 @@ if __name__ == '__main__':
             LCRITICAL(":S something very bad happened.")
         else:
             LEXCEPTION("Exception caught :S " + str(type(e)) + "\n" + str(e))
+    #finally:
+        # remove file working copy
+        #os.remove(_fpath)
+        #os.remove(_fpath+".precompiled")
 
     sys.exit(0)
 

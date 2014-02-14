@@ -43,7 +43,11 @@ def debug(color, string):
 
     
 def DD(string):
-    debug("debugYELLOW", str(string))
+    if DEBUG__: 
+        print '\033[' + debugColorDict["debugGREEN"] + "DEBUG: [" +\
+              str(lineno()) + "]: " + str(string) + '\033[1;m'
+    else:
+        pass
 
 
 def debugRED(string):

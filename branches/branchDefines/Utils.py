@@ -215,7 +215,7 @@ class TabLevel():
     def __init__(self):
         self.level = 0
 
-    def _ss__(self):
+    def __str__(self):
         string = ""
         for x in range(0,self.level):
             string += '\t'

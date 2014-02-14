@@ -280,7 +280,10 @@ def ENUMT():        return re.compile(r"\{"), 0, ( B, [NAME, INT]\
 #..............................................................................
 def ARRAYT():       return re.compile(r"array"), B, INT, re.compile(r"\.\.")\
                            , INT, B\
-                           , re.compile(r"of\b"), B, [RANGET, BOOLEANT, ENUMT]
+                           , re.compile(r"of\b"), B, [ ARRAYT
+                                                     , RANGET
+                                                     , BOOLEANT
+                                                     , ENUMT]
 #TODO RANGET es lo mismo que range, pero tiene otro sentido:
 
 #..............................................................................

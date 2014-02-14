@@ -56,7 +56,7 @@ class preCompiler():
             _xn = _x.what[2] # FIXME CACASO
             _xv = _x.what[4] # FIXME CACASO
             self.defs[ast2str(_xn)] = ast2str(_xv)
-        LDEBUG("Definitions dictionary " + str(self.defs))
+        LINSPECT("Definitions dictionary " + str(self.defs))
 
     def checkCircularDependance(self):
         """ Check that there is no circular dependance beteween definitions.
@@ -178,7 +178,7 @@ def replace(ast=[] , defs={}, path=""):
             raise Error( "Coudn't write the file with sintax replacement.\n" \
                        + "Because: " + str(e))
         finally:
-            LDEBUG("The precompiled file looks like \n%s\n"%result)
+            LINSPECT("The precompiled file looks like \n%s\n"%result)
             f.close()
             result = ""
     return result
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 #    WARNING  30
 #    INFO     20
 #    DEBUG    10
-#    NOTSET   0    
+#    NOTSET   0
     logging.basicConfig( level=logging.DEBUG
                        , format = '[    %(levelname)s    ] ' \
                                 + '[%(filename)s] %(message)s')
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     LINFO("Parsing ...")
     _ast = parse(GRAMMAR, _file, False, packrat = False)
     LINFO("Parsed <%s>."%_file.filename())
-    LDEBUG(str(_ast))
+    LINSPECT(str(_ast))
     
     try:
         LINFO("Precompiling <%s> ..."%_file.filename())

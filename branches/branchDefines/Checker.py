@@ -199,7 +199,7 @@ class Checker(object):
             self.typetable[inst.name] = {}
             pt = self.mdl.proctypes[inst.proctype]
             for var in pt.localvars:
-                self.typetable[inst.name][var.name] = var.type
+                self.typetable[inst.name][var.name] = var.type.type
                 # simbol values 
                 if var.type == Types.Symbol:
                     for value in var.domain:
@@ -231,9 +231,9 @@ class Checker(object):
                     ptt = self.mdl.proctypes[i.proctype]
                     for v in ptt.localvars:
                         vname = cvname + "." + v.name
-                        self.typetable[inst.name][vname] = v.type
+                        self.typetable[inst.name][vname] = v.type.type
                         self.typetable[self.globalinst.name]\
-                            [inst.name+'.'+cvname] = v.type
+                            [inst.name+'.'+cvname] = v.type.type
                 elif '.' in param:
                     i, v = param.split('.',1)
                     assert v in self.typetable[i]
@@ -484,7 +484,7 @@ class Checker(object):
             self.allownextrefs = True
             for p in tr.pos:
                 nextref = p[0]
-                nrname = ast2str(nextref)[:-1:]
+                nrname = ast2str(nextref)
                 expr = p[1]
                 exprname = ast2str(expr)
                 
@@ -965,7 +965,7 @@ class Checker(object):
     def tryToGetType(self, inst, elem, context):
         name = ss(elem).split(" ")[0] #split in case its a SUBSCRIPT
 #        debugGREEN(name)
-        ctxt = ss(context)
+        ctxt = ast2str(context)
         line = getBestLineNumberForExpresion(elem)
         try:
             t = self.getTypeFromTable(inst, unicode(name))
