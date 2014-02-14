@@ -46,7 +46,9 @@ LOG_FILE__ = os.path.dirname(os.path.realpath(__file__)) + "log.log"
 #    DEBUG    10
 #    NOTSET   0
 
-logging.basicConfig( level=logging.INFO
+logging.INSPECT = 5 
+logging.addLevelName(logging.INSPECT, "LOOK ")
+logging.basicConfig( level=logging.INSPECT
                    , format = '[    %(levelname)s    ] ' \
                             + '[%(filename)s %(lineno)s] %(message)s')
 
@@ -56,4 +58,5 @@ LINFO = logging.info
 LDEBUG = logging.debug
 LEXCEPTION = logging.exception
 LCRITICAL = logging.critical
-
+def LINSPECT(msg):
+    logging.log(logging.INSPECT, msg)

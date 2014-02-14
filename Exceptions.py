@@ -93,15 +93,9 @@ class NextRefNotAllowedE(BaseException):
 ################################################################################
 class WrongTFO(LethalE): #wrong types for operand
     def __init__(self, t1, t2, operand, where, line):
-        t1s = ""
-        t2s = ""
-        exp = ""
-        try:
-            t1s = Types.Types[t1]
-            t2s = Types.Types[t2]
-            exp = putBrackets(where)
-        except:
-            pass
+        t1s = Types.Types[t1]
+        t2s = Types.Types[t2]
+        exp = putBrackets(where)
 
         raise Error( "Wrong types <" + t1s + "> and <" + t2s \
                    + "> for operand \'" + str(operand)

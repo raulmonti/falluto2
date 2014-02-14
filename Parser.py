@@ -42,30 +42,18 @@ def parse(filePath = None):
     if filePath == None or not os.path.isfile(filePath):
         raise Error( "Path <"+ str(filePath) +"> is not a valid file to "\
                    + "parse :S.")
-    # get a copy of the original file and prepare it for pyPEG.
-    _backup = TEMP_DIR__+'/'+(filePath.split('/')[-1]).split('.')[0]+".fllaux"
-    LDEBUG("User original file backup at: "+ _backup)
-    shutil.copy2(filePath, _backup)
     try:
-        # If something goes wrong we should be sure to remove the backup file
-        # and recover the original one.
         _f = open(filePath, 'a')
         _f.write("//Line to avoid problems with pyPEG line count.")
         _f.close()
         # packrat = True seems to be brocken :S TODO check if it is
-        LDEBUG("Parsing ...")
+        LDEBUG("Parsing with pyPEG...")
         _ast = pyPEG.parse(GRAMMAR, 
                            fileinput.input(filePath), 
                            True, 
                            COMMENT, 
-                           packrat = False)
-        # recover original file
-        shutil.copy2(_backup, filePath)
-        os.remove(_backup)        
+                           packrat = False)   
     except Exception, _e:
-        # recover original file
-        shutil.copy2(_backup, filePath)
-        os.remove(_backup)
         raise Error(str(_e))
     # get everything inside our Model structure:
     _res = Model()
@@ -76,7 +64,7 @@ def parse(filePath = None):
 # Auxiliary functions #########################################################
 
 def getTrueExpresion():
-    string = "True"
+    string = 'True'
     ast = pyPEG.parseLine(string, EXPRESION,[],True,COMMENT)
     return ast[0][0]
 
@@ -86,9 +74,7 @@ def getTrueExpresion():
 ################################################################################
 
 class ParserBaseElem(object):
-    """
-        Class to be enheritate when representing a parsed element.
-    """
+    """ Class to be enheritate when representing a parsed element. """
 
     def __init__(self):
         self.name = ""   #
@@ -164,7 +150,7 @@ class Model(ParserBaseElem):
             if elem.__name__ == "OPTIONS":
                 for opt in [x for x in elem.what if isinstance(x,pyPEG.Symbol)]:
                     if opt.__name__ == "MODNAME":
-                        self.name = ast2str(opt.what)
+                        self.name = ast2str(opt.what[-1])
                     else:
                         o = Option()
                         o.parse(opt)
@@ -434,10 +420,34 @@ class VarDeclaration(ParserBaseElem):
     """
     def __init__(self):
         ParserBaseElem.__init__(self)
-        self.domain = [] # values of the domain of the variable
-        self.range = []  # start and end of an integer domain
-        self.isarray = False # TODO revisar si es necesaria esta variable, de
-                             # no serlo borrarla de ParserBaseElem tambien.
+        self.type = None
+
+    class VarType():
+        def __init__(self, t=None, s=None, e=None, d=None):
+            self.type = t    # From Type module.
+            self.start = s   # For array types.
+            self.end = e     # For array types.
+            self.domain = d  # The values of the domain in case of enum or 
+                             # range. Would be an other VarType instance in
+                             # case of arrays.
+        def __str__(self):
+            string = ""
+            if self.type == Types.Array:
+                string += 'array '
+                string += str(self.start) + '..' + str(self.end) + ' of '
+                string += str(self.domain)
+            elif self.type == Types.Int:
+                string += str(self.domain[0]) + '..' + str(self.domain[1])
+            elif self.type == Types.Bool:
+                string += 'Boolean'
+            elif self.type == Types.Symbol:
+                string += '{'
+                for x in self.domain[:-1:]:
+                    string += str(x) + ', '
+                string += str(self.domain[-1]) + '}'
+            else:
+                assert False
+            return string
 
     def parse(self, AST):
         self.pypeg = AST
@@ -446,47 +456,40 @@ class VarDeclaration(ParserBaseElem):
         self.line = AST[0].__name__.line
         # get the type and range of the variable
         AST = cleanAst(AST[1::],[],1,True)[0] # clean unicodes of 1st level
-        if AST.__name__ == "BOOLEANT":
-            self.type = Types.Bool
-        elif AST.__name__ == "ENUMT":
-            self.type = Types.Symbol
-            for x in AST.what:
-                if not isinstance(x, unicode):
-                    self.domain.append(ast2str(x))
-        elif AST.__name__ == "RANGET":
-            self.type = Types.Int
-            for x in AST.what:
-                if not isinstance(x, unicode):
-                    self.domain.append(ast2str(x))
-            assert(len(self.domain)==2)
-        elif AST.__name__ == "ARRAYT":
-            self.isarray = True
-            self.range.append(ast2str(AST.what[1])) # start
-            self.range.append(ast2str(AST.what[3])) # end
-            _domain = AST.what[5]
-            if _domain.__name__ == "BOOLEANT":
-                self.type = Types.BoolArray
-            elif _domain.__name__ == "ENUMT":
-                self.type = Types.SymbolArray
-                for x in _domain.what:
-                    if not isinstance(x, unicode):
-                        self.domain.append(ast2str(x))
-            elif domain.__name__ == "RANGET":
-                self.type = Types.IntArray
-                for x in domain.what:
-                    if not isinstance(x, unicode):
-                        self.domain.append(ast2str(x))
-            else:
-                raise TypeError(domain)
+        self.type = self.parseTypeRec(AST)
+        DD(self)
+
+    def parseTypeRec(self, ast):
+        assert isinstance(ast, Symbol)
+        _type = self.VarType()
+        _name = ast.__name__
+        ast = clearAst(ast.what)
+        if _name == "ARRAYT":
+            _type.type = Types.Array
+            _type.start = ast2str(ast[0])
+            _type.end = ast2str(ast[1])
+            _type.domain = self.parseTypeRec(ast[2])
+        elif _name == "BOOLEANT":
+            _type.type = Types.Bool
+        elif _name == "ENUMT":
+            _type.type = Types.Symbol
+            _type.domain = []
+            for x in ast:
+                _type.domain.append(ast2str(x))
+        elif _name == "RANGET":
+            _type.type = Types.Int
+            _type.domain = []
+            for x in ast:
+                _type.domain.append(ast2str(x))
+            assert(len(_type.domain)==2)
         else:
-            raise TypeError(AST.__name__)
+            assert False
+        return _type
 
     def __str__(self):
         string = ">>> Variable " + str(self.name) + " declaration"
-        string += ", of type " + Types.Types[self.type]
-        string += ", and domain values: "
-        for x in self.domain:
-            string += "<" + str(x) + "> "
+        string += ", of type: "
+        string += str(self.type)
         return string
 
 ################################################################################
@@ -561,7 +564,7 @@ class Transition(ParserBaseElem):
             elif elem.__name__ == "NEXTLIST":
                 for x in clearAst(elem.what):
                     x = clearAst(x.what)
-                    nextref = x[0] # a nextref
+                    nextref = x[0].what[0] # a nextref
                     expr = x[1] # an expresion in case of determ asignment, a
                                 # range or set in case of nondet asignment.
                     self.pos.append([nextref, expr])
