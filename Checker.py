@@ -21,12 +21,14 @@ import fileinput
 # PLAIN MODULE API ============================================================#
 #==============================================================================#
 
-def Check(model):
+def check(model):
     """
         Checks the model for semantic correctness and raises exceptions if it's
         incorrect. Also print's warnings about diferent issues.
 
         @input model: a parsed Parser.Model instance with the model to check.
+        @warning: make sure to make sintax replacements to your model before
+                  using this. Use SyntaxRepl module for that.
     """
     if not (isinstance(model, Parser.Model)):
         raise Critical("you are trying to check something that is not a model.")
@@ -57,9 +59,6 @@ class Checker(object):
         # outside proctypes declarations.
         self.globalinst      = Parser.Instance()
         self.globalinst.name = "Glob#inst"
-        # for dfs algorithms
-        self.visited = {}
-        self.stack = []
 
     #.......................................................................
     def clear(self):
@@ -76,7 +75,6 @@ class Checker(object):
         self.checkInstancedProctypes()
         self.checkProperties()
         self.checkContraints()
-        self.checkDefines()
 
     #.......................................................................
     def checkRedeclared(self):
@@ -201,8 +199,8 @@ class Checker(object):
             for var in pt.localvars:
                 self.typetable[inst.name][var.name] = var.type.type
                 # simbol values 
-                if var.type == Types.Symbol:
-                    for value in var.domain:
+                if var.type.type == Types.Symbol:
+                    for value in var.type.domain:
                         self.typetable[inst.name][value] = Types.Symbol
                         self.typetable[self.globalinst.name][value]=Types.Symbol
 
@@ -252,107 +250,10 @@ class Checker(object):
                 vname = inst.name + '.' + v.name
                 self.typetable[giname][vname]=self.typetable[inst.name][v.name]
 
-        # define variables, check them and add them to the type table
-        self.checkDefines()
-
-    #.......................................................................
-    def checkDefines(self):
-        """Look for redeclared define names. Also get the types for table."""
-        # TODO los nombres de defines pueden chocar con los de tipos enumerados
-        # solucionar para que eso no ocurra.
-        defines = []
-        for d in self.mdl.defs.itervalues():
-            dname = Utils.ss(d.dname)
-            if dname in defines:
-                line = d.line
-                raise Error( "Redeclared define name \'" + dname \
-                           + "\' at <" + line + ">.")
-            else:
-                defines.append(dname)
-        # check for circular dependence in definitions
-        # TODO se hace tambien en tiempo de precompilacion, decidir donde esta
-        # sobrando.
-        adj = {}
-        ss = set([])
-        for d in self.mdl.defs.itervalues():
-            dname = Utils.ss(d.dname)
-            adj[dname] = [x for x in _cl(d.dvalue) if x in defines]
-            ss = ss.union(set(adj[dname]))
-        ss = ss.intersection(set(defines))
-        cy = self.hasCycleDfs(adj, list(ss))
-        if cy != []:
-            raise Error( "Circular dependence in DEFINES declaration: " \
-                       + commaSeparatedString(cy) + ".")
-        #self.fillDefinesTypes(adj)
-
-    #....................................
-    def hasCycleDfs(self, adj, leafs):
-        self.stack = []
-        self.visited = {}
-        for d in adj:
-            self.visited[d] = False
-        """
-        for d in leafs:
-            if not self.visited[d]:
-                try:
-                    dfs(adj,d)
-                except Exception:
-                    return self.stack
-        """            
-        for e,v in self.visited.iteritems():
-            if not v:
-                try:
-                    self.cycleDfs(adj,e)
-                except Exception:
-                    return self.stack
-        # its acyclic:
-        return []
-
-    #....................................
-    def cycleDfs(self, adj, r):
-        for a in adj[r]:
-            if a in self.stack:
-                raise Exception(self.stack)
-            else:
-                self.stack.append(a)
-            self.cycleDfs(adj, a)
-        self.stack = self.stack[:-1:]
-
-
-    #.......................................................................
-    def fillDefinesTypes(self, adj):
-        self.visited = {}
-        for d in self.mdl.defs.itervalues():
-            _dname = Utils.ss(d.dname)
-            self.visited[_dname] = False
-        for d,v in self.visited.iteritems():
-            if not v:
-                self.fillTypesDfs(adj,d)
-
-
-    #....................................
-    def fillTypesDfs(self, adj, r):
-
-        for a in adj[r]:
-            if not self.visited[a]:
-                self.fillTypesDfs(adj,a)
-
-        for d in self.mdl.defs.itervalues():
-            dname = ss(d.dname)
-            if  dname == r:
-                # TODO darle tipo a los defines
-                t = self.getExpresionType(self.globalinst, d.dvalue)
-                # TODO dname puede estar pisando un nombre de tipo enumerado
-                self.typetable[self.globalinst.name][dname] = t
-
-                for inst in self.mdl.instances.itervalues():
-                    try:
-                        # local vars have precedence over defines
-                        tt = self.typetable[inst.name][dname]
-                    except:
-                        self.typetable[inst.name][dname] = t
-                self.visited[r] = True
-                break
+        # print the typetable
+        #for i,v in self.typetable.iteritems():
+        #    for x, y in v.iteritems():
+        #        print i,x,y
 
     #.......................................................................
     def checkInstancedProctypes(self):
@@ -541,7 +442,6 @@ class Checker(object):
                     ts.add(Types.Int)
                 else:
                     if ss(elem) not in ['{',',','}']:
-                        debugERROR(elem)
                         assert False
             return list(ts)
 
@@ -820,49 +720,56 @@ class Checker(object):
         assert isinstance(subs, pyPEG.Symbol)
         assert subs.__name__ == "SUBSCRIPT"
         line = getBestLineNumberForExpresion(subs)
-        #subs.what = IDENT, re.compile(r" "), [IDENT,INT], re.compile(r"]")
-        arr, dum1, idx, dum2 = ss(subs).split(" ")
+        #subs.what = IDENT, -1, (re.compile(r"["),[IDENT,INT],re.compile(r"]"))
+        _name = ast2str(subs.what[0])
+        _pt = self.mdl.proctypes[inst.proctype]
         try:
-            array = self.getVarDeclaration(inst, arr)
+            array = self.getVarDeclaration(inst, _name)
         except:
-            raise Error("Undeclared variable \'"+arr+"\' at <"+line+">.")
-        if not array.isarray:
-            raise Error( "Error at line <"+line+"> Can't subscribe to \'"\
-                         + ss(subs).split(" ")[0] \
-                         + "\' because it is not an array.")
-        ub = int(array.range[1])
-        lb = int(array.range[0])
-        l = 0
-        u = 0
-        if array == None:
-            raise Error("Undeclared variable \'"+arr+"\' at <"+line+">.")
-        try:
-            index = int(idx)
-            l = int(idx)
-            u = l
-        except:
-            try:
-                index = self.getVarDeclaration(inst, idx)
-                t = self.getTypeFromTable(inst, idx)
-                if t != Types.Int:
-                    raise Error("Invalid type \'"+Types.Types[t]\
-                                 +"\' for subscription index. At <"+line\
-                                 +">, inside \'"+ss(subs)+"\'.")
-                u = int(index.domain[1])
-                l = int(index.domain[0])
-            except:
-                raise Error("Undeclared variable \'"+idx+"\' at <"+line+">.")
+            raise Error("Undeclared variable \'"+_name+"\' at <"+line+">.")
+        _subs = clearAst(subs.what)
+        _idx = 1 # the next subscription
+        _type = array.type
+        for _idx in range(1,len(_subs)):
+            # check we are subscribing an array  
+            if _type.type != Types.Array:
+                raise Error( "Error at line <"+line+"> Can't subscribe to \'"\
+                           + _name \
+                           + "\' because it is not an array.")
+            #check index inside range
+            (_l,_u) = self.getIndexRange(inst
+                                        , ast2str(_subs[_idx])
+                                        , ast2str(subs))
 
-        if u > ub or l < lb:
-            raise Error("Subscription out of range at <"+line+">, inside \'"\
-                         +ss(subs)+"\'.")
-        
-        return self.tryToGetType(inst, subs, subs)
+            if int(_type.start) > _u or int(_type.end) < _l:
+                 raise Error( "Subscription out of range at <" + line + ">,"\
+                            + "inside \'" + ast2str(subs) + "\'.")
+            elif int(_type.start) > _l or int(_type.end) < _u:
+                LWARNING( "Subscription may go out of range at <" + line\
+                        + ">," + "inside \'" + ast2str(subs) + "\'.")
+            _type = _type.domain
+
+        return _type.type
 
     #.......................................................................
+    def getIndexRange(self, inst, idx, ctxt='Some where'):
+        assert isinstance(inst, Parser.Instance)
+        assert isinstance(idx, str) or isinstance(idx, unicode)
+        try:
+            # if it's an integer then we get it else raises an exception.
+            _i = int(idx)
+            return (_i,_i)
+        except:
+            t = self.tryToGetType(inst, idx, ctxt)
+            if t != Types.Int:
+                raise Error("Can't index an array with <" + idx + ">, as"\
+                           +" it's not of integer type. At " + ctxt)
+            else:
+                #FIXME Find out where it has been declared and which is its range
+                raise Error("FIXME")
+        
+    #.......................................................................
     def getVarDeclaration(self, inst, varname):
-        debugRED(inst)
-        debugGREEN(varname)
         if inst.name == "Glob#inst":
             if not '.' in varname:
                 raise UndeclaredError(varname)
@@ -964,7 +871,6 @@ class Checker(object):
     #.......................................................................
     def tryToGetType(self, inst, elem, context):
         name = ss(elem).split(" ")[0] #split in case its a SUBSCRIPT
-#        debugGREEN(name)
         ctxt = ast2str(context)
         line = getBestLineNumberForExpresion(elem)
         try:
@@ -1037,4 +943,10 @@ if __name__ == "__main__":
 
 # TODO eliminar codigo basura (el que esta comentado y no sirve)
 
-# TODO think that redeclared is not a word in any language. Change it if so
+# TODO I think that redeclared is not a word in any language. Change it if so
+
+# FIXME There is no need to check definitions of any kind, as they have been
+#       replaced at sintaxRepl module
+
+# FIXME Is better to fill up a table with the ralated localdeclaration of
+# variables instead of the variable type, we can get it from there anyway.

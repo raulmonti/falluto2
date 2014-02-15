@@ -58,5 +58,3 @@ LINFO = logging.info
 LDEBUG = logging.debug
 LEXCEPTION = logging.exception
 LCRITICAL = logging.critical
-def LINSPECT(msg):
-    logging.log(logging.INSPECT, msg)
