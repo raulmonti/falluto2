@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
         # Check for correctness in the user model of the system.
         LDEBUG("Checking model ...")
-        Checker.Check(_model)
+        Checker.check(_model)
         LDEBUG("The model is valid ;)")
 
         # Compile to NuSMV.

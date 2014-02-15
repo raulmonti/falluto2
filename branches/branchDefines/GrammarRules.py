@@ -139,7 +139,8 @@ def SUBSCRIPT():
         beteween the list name and the opening bracket.
     """
     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
-           IDENT, re.compile(r"\["), B, [IDENT, INT], B, re.compile(r"\]")
+           IDENT, -1, (re.compile(r"\["), B, [IDENT, INT], B, re.compile(r"\]"))
+
 
 #..............................................................................
 def NEXTREF():
