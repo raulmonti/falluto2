@@ -444,19 +444,25 @@ if __name__ == "__main__":
         """ Test comments """
         return [( B, COMMENT ,B,re.compile("ALGO"), B)]
 
+
+    def TEST6():
+        """ Test PROPERTY """
+        return [( B, PROPERTY, B)]
+
+
     _file = fileinput.input()
 
     print "Parsing ...."
 
-    _ast = parse(TEST, _file, False, packrat = False)
+    _ast = parse(TEST6, _file, False, packrat = False)
 
-#    print _ast
-    for x in Utils.getAst(_ast,[u'DEFINE']):
-        debug("debugRED", x)
-        print ""
+    print _ast
+#    for x in Utils.getAst(_ast,[u'DEFINE']):
+#        debug("debugRED", x)
+#        print ""
 
-    debug("debugGREEN",\
-         Utils.ast2str(Utils.getAst(_ast,[u'COMMENT'])))
+#    debug("debugGREEN",\
+#         Utils.ast2str(Utils.getAst(_ast,[u'COMMENT'])))
 
 
 

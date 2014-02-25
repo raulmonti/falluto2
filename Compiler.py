@@ -12,7 +12,7 @@ import Debug
 from Types import *
 import Types
 from Utils import *
-from Utils import _cl, ast2str
+from Utils import ast2lst, ast2str
 import Utils
 from Checker import *
 import Checker
@@ -100,7 +100,7 @@ class Compiler(object):
                 self.varset.add(self.compileFaultActive(inst.name, f.name))
             # common variables
             for var in pt.localvars:
-                if not var.isarray:
+                if not var.type.type == Types.Array:
                     self.varset.add(self.compileLocalVar(inst.name, var.name))
                 else:
                     for v in self.arrayToVars(var):
@@ -117,13 +117,17 @@ class Compiler(object):
             names representing each position of the array.
         """
         assert isinstance(array, Parser.VarDeclaration)
-        assert array.isarray
-        result = []
-        f = int(array.range[0])
-        t = int(array.range[1])
-        for i in range(f,t+1):
-            result.append(array.name + "[" + str(i) + "]")
-        return result
+        assert array.type.type == Types.Array
+        _result = [array.name]
+        _t = array.type
+        while _t.type == Types.Array:
+            _auxres = []
+            for l in range(0,len(_result)):
+                for _i in range(int(_t.start), int(_t.end)+1):
+                    _auxres.append(_result[l]+'['+str(_i)+']')
+            _result = _auxres
+            _t = _t.domain
+        return _result
 
     #.......................................................................
     def fillVarCompilationTable(self):
@@ -446,7 +450,7 @@ class Compiler(object):
             for var in pt.localvars:
                 vname = self.ctable[inst.name][var.name]
                 if var.type == Types.Bool:
-                    #TODO muy choto este parche, corregir cuando haya tiempo
+                    #FIXME muy choto este parche, corregir cuando haya tiempo
                     if var.isarray:
                         self.save( vname + " : array " + str(var.range[0]) \
                                  + ".." + str(var.range[1]) + " of boolean;")
@@ -454,7 +458,7 @@ class Compiler(object):
                         self.save(vname + ":boolean;")
                 else:
                     self.save(self.compileAST( inst.name, var.pypeg \
-                                             , True, pb = False) + ';')
+                                             , True, pb = False))
 
         # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -483,11 +487,11 @@ class Compiler(object):
             if p.type == Types.Ctlspec:
                 pRepr = "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append( (pRepr, pComp) )
+                self.compiledproperties.append( (pRepr + " <<" + p.name[1:-1] + '>> ', pComp) )
             elif p.type == Types.Ltlspec:
                 pRepr = "LTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append( (pRepr, pComp) )
+                self.compiledproperties.append( (pRepr + " <<" + p.name[1:-1] + '>> ', pComp) )
             elif p.type == Types.Nb:
                 self.compiledproperties.append(self.compileNbPropertie(p))
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
@@ -525,7 +529,8 @@ class Compiler(object):
                       + self.compileSet(faults) + " ) ) -> "
         formula = self.replaceEvents(p.formula)
         strprop += self.compileAST(Compiler.__glinst, formula)
-        return ("NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False), strprop)
+        return ( "NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False)
+                +" <<" + p.name[1:-1] + '>> ', strprop)
     #.......................................................................
     def compileFmfPropertie(self, p):
         """
@@ -555,13 +560,15 @@ class Compiler(object):
      
         if p.type == Types.Fmfs:
             return \
-            ("FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False), strprop)
+            ( "FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False)
+             +" <<" + p.name[1:-1] + '>> ', strprop)
         else:
             return \
             ("FINITELY_MANY_FAULT (" \
             + self.symbolSeparatedTupleString( \
             [ast2str(x) for x in p.params], False, False, ',') \
-            + ';' + putBracketsToFormula(p.formula,False) + ")", strprop)
+            + ';' + putBracketsToFormula(p.formula,False) + ")"
+            + " <<" + p.name[1:-1] + '>> ', strprop)
     #.......................................................................
     def buildContraints(self):
         self.save("\n\n")
@@ -1063,34 +1070,58 @@ class Compiler(object):
         assert False #never come out here
             
     #.......................................................................
+
     def compileAST(self, iname, ast, space = True, pb = True):
+        """ Get a pyPEG ast structure with some expresion and return a string
+            representing the information in that structure, but with 
+            symbols replaced to its compiled values as should apear in the
+            NuSMV model file.
+            @input iname: the instance name to which de expresion in ast 
+                          corresponds, (needed for compiling the symbols).
+            @input ast  : the ast structure to compile.
+            @input pb   : if we wan't to plave brackets to ensure formulas 
+                          operators presedence.
+        """
         if ast == None:
             return ""
         if pb:
-            ast = putBracketsAsList(ast)
+            # ast = putBracketsAsList(ast) FIXME we may need to do this
+            # if NuSMV desagrees with us :S.
+            pass
         sp = ""
         if space:
             sp = " "
         string = ""
-        for x in _cl(ast):
+        # we don't want spaces nor comments
+        for x in ast2lst(ast,['BL','COMMENT']):
             try:
                 string += self.ctable[iname][x] + sp
             except:
-                # TODO feo parche :s
+                # FIXME feo parche :s
                 if x == '%':
                     string += "mod"
+                elif x == 'True':
+                    string += 'TRUE'
+                elif x == 'False':
+                    string += 'FALSE'
                 else:
                     string += x
                 if x != '!' and x != '-':
                     string += sp
         return string
+
     #.......................................................................
+
     def compileFaultActive(self, iname, fname):
         return "factive#" + iname + '#' + fname
+
     #.......................................................................
+
     def compileNextRef(self, ref):
         return "next(" + ref + ")"
+
     #.......................................................................
+
     def compileBOOLorINT(self, value):
         return ast2str(value)
     #.......................................................................

@@ -8,7 +8,6 @@
 #
 #===============================================================================
 
-
 import Debug
 from Debug import *
 from Config import *
@@ -18,7 +17,7 @@ import pyPEG
 from pyPEG import Symbol
 from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
-from Utils import cleanAst, ast2str, getBestLineNumberForExpresion, getAst
+from Utils import cleanAst, ast2str, getBestLineNumberForExpresion, getAst, rmw
 from Utils import clearAst
 import Utils
 import shutil
@@ -26,11 +25,9 @@ import os.path
 import sys
 import os
 
-
-#===============================================================================
-
-
-################################################################################
+#==============================================================================#
+# MODULE PLAIN API ============================================================#
+#==============================================================================#
 
 def parse(filePath = None):
     """ Use PyPEG to parse de file into a PyPEG structure. Use this structure
@@ -50,9 +47,9 @@ def parse(filePath = None):
         LDEBUG("Parsing with pyPEG...")
         _ast = pyPEG.parse(GRAMMAR, 
                            fileinput.input(filePath), 
-                           True, 
+                           False, 
                            COMMENT, 
-                           packrat = False)   
+                           packrat = False)
     except Exception, _e:
         raise Error(str(_e))
     # get everything inside our Model structure:
@@ -61,17 +58,16 @@ def parse(filePath = None):
     return _res
 
 
-# Auxiliary functions #########################################################
+# Auxiliary functions =========================================================#
 
 def getTrueExpresion():
-    string = 'True'
+    string = u'True'
     ast = pyPEG.parseLine(string, EXPRESION,[],True,COMMENT)
     return ast[0][0]
 
 
-#===============================================================================
+#==============================================================================#
 
-################################################################################
 
 class ParserBaseElem(object):
     """ Class to be enheritate when representing a parsed element. """
@@ -111,7 +107,7 @@ class ParserBaseElem(object):
     def __unicode__(self):
         return unicode(str(self))
 
-################################################################################
+#==============================================================================#
 
 class Model(ParserBaseElem):
     """ The full model structure.
@@ -146,9 +142,11 @@ class Model(ParserBaseElem):
         assert ast.__name__ == "MODEL"
         self.clear()
         self.pypeg = ast
-        for elem in ast.what:
+        for elem in clearAst(ast.what):
             if elem.__name__ == "OPTIONS":
-                for opt in [x for x in elem.what if isinstance(x,pyPEG.Symbol)]:
+                # get each option
+                elem = clearAst(elem.what)
+                for opt in elem:
                     if opt.__name__ == "MODNAME":
                         self.name = ast2str(opt.what[-1])
                     else:
@@ -180,9 +178,9 @@ class Model(ParserBaseElem):
             elif elem.__name__ == "PROPERTY":
                 p = Propertie()
                 p.parse(elem)
-                p.name = "propertie" + str(len(self.properties))
+                pindex = "propertie" + str(len(self.properties))
                 assert not p.name in self.properties
-                self.properties[p.name] = p
+                self.properties[pindex] = p
             elif elem.__name__ == "CONTRAINT":
                 c = Contraint()
                 c.parse(elem)
@@ -209,7 +207,7 @@ class Model(ParserBaseElem):
         string += "> End model <" + self.name + "> parsed structure."
         return string
 
-################################################################################
+#==============================================================================#
 
 class Option(ParserBaseElem):
 
@@ -239,7 +237,7 @@ class Option(ParserBaseElem):
         string += "; with parameters " + str(self.params)
         return string
 
-################################################################################
+#==============================================================================#
 
 class Define(ParserBaseElem):
 
@@ -257,7 +255,7 @@ class Define(ParserBaseElem):
         _string += " @value: " + ast2str(self.dvalue)
         return _string
 
-################################################################################
+#==============================================================================#
 
 class Proctype(ParserBaseElem):
     """ A proctype structure for parsing proctypes :P """
@@ -273,20 +271,19 @@ class Proctype(ParserBaseElem):
         self.transitioncount = 0
 
     def parse(self, AST):
-        self.rawinput = AST
-        AST = AST.what # [ name, context vars, synchro acts, body ]
-        self.name = AST[1].what[0]
-        self.line = AST[1].__name__.line
-
+        self.pypeg = AST
+        AST = clearAst(AST.what) # [ name, context vars, synchro acts, body ]
+        self.name = ast2str(AST[0])
+        self.line = AST[0].__name__.line
+        # get the context variables indentifiers
         for cv in getAst(getAst(AST,["CTXVARS"])[0],["NAME"]):
             self.contextvars.append(ast2str(cv))
-
+        # get the synchronization identifiers
         for sa in getAst(getAst(AST,["SYNCACTS"])[0],["NAME"]):
             self.synchroacts.append(ast2str(sa))
-
+        # get the body of the prctype
         AST = getAst(AST,["PROCTYPEBODY"])[0]
-
-        for elem in AST.what:
+        for elem in clearAst(AST.what):
             if elem.__name__ == "VAR":
                 for x in [y for y in elem.what if isinstance(y,Symbol) \
                           and y.__name__ == u'VARDECL']:
@@ -301,7 +298,7 @@ class Proctype(ParserBaseElem):
                     self.faults.append(f)
             elif elem.__name__ == "INIT":
                 if elem.what != []:
-                    self.init = clearAst(elem.what)[0]
+                    self.init = rmw(getAst(elem,['EXPRESION'])[0])
                 else:
                     self.init = getTrueExpresion()
                     self.init.__name__.file = elem.__name__.file
@@ -331,7 +328,7 @@ class Proctype(ParserBaseElem):
         return string
 
 
-################################################################################
+#==============================================================================#
 
 class Instance(ParserBaseElem):
 
@@ -364,6 +361,7 @@ class Propertie(ParserBaseElem):
         self.formula = "" # the formula goes here, everything else in 'params'
 
     def parse(self, ast):
+        self.pypeg = ast
         self.line = ast.__name__.line
         ast = clearAst(ast.what)
         # after cleaning we should have the property and the explanation
@@ -371,6 +369,7 @@ class Propertie(ParserBaseElem):
             if y.__name__ == "EXPLAIN":
                 self.name = ast2str(y)
             else:
+                y = rmw(y)
                 self.type = Types.propToType[y.__name__]
                 y = clearAst(y.what)
                 for x in y:
@@ -379,6 +378,7 @@ class Propertie(ParserBaseElem):
                     else:
                         # if it isn't the expresion then treat it as parameter
                         self.params.append(x)
+
  
     def __str__(self):
         string = ">> Propertie " + str(self.name)
@@ -412,7 +412,7 @@ class Contraint(ParserBaseElem):
 
 
 
-################################################################################
+#==============================================================================#
 
 class VarDeclaration(ParserBaseElem):
     """ Structure intended to represent a local variable declaration, whose
@@ -428,7 +428,7 @@ class VarDeclaration(ParserBaseElem):
             self.start = s   # For array types.
             self.end = e     # For array types.
             self.domain = d  # The values of the domain in case of enum or 
-                             # range. Would be an other VarType instance in
+                             # range. Would be another VarType instance in
                              # case of arrays.
         def __str__(self):
             string = ""
@@ -437,29 +437,32 @@ class VarDeclaration(ParserBaseElem):
                 string += str(self.start) + '..' + str(self.end) + ' of '
                 string += str(self.domain)
             elif self.type == Types.Int:
-                string += str(self.domain[0]) + '..' + str(self.domain[1])
+                string += 'Range ' + str(self.domain[0])\
+                        + '..' + str(self.domain[1])
             elif self.type == Types.Bool:
                 string += 'Boolean'
             elif self.type == Types.Symbol:
-                string += '{'
-                for x in self.domain[:-1:]:
-                    string += str(x) + ', '
-                string += str(self.domain[-1]) + '}'
+                string += 'Symbol'
+                if self.domain != None:
+                    string += ' {'
+                    for x in self.domain[:-1:]:
+                        string += str(x) + ', '
+                    string += str(self.domain[-1]) + '}'
             else:
                 assert False
             return string
 
     def parse(self, AST):
         self.pypeg = AST
-        AST = AST.what # [name, domain]
+        AST = AST.what
         self.name = ast2str(AST[0])
         self.line = AST[0].__name__.line
         # get the type and range of the variable
-        AST = cleanAst(AST[1::],[],1,True)[0] # clean unicodes of 1st level
+        AST = clearAst(AST)[1] # [name, domain][1] = domain
         self.type = self.parseTypeRec(AST)
-        DD(self)
 
     def parseTypeRec(self, ast):
+        """ ast needs to be a Symbol defining the type of the variable """
         assert isinstance(ast, Symbol)
         _type = self.VarType()
         _name = ast.__name__
@@ -483,7 +486,7 @@ class VarDeclaration(ParserBaseElem):
                 _type.domain.append(ast2str(x))
             assert(len(_type.domain)==2)
         else:
-            assert False
+            raise TypeError(_name)
         return _type
 
     def __str__(self):
@@ -492,7 +495,7 @@ class VarDeclaration(ParserBaseElem):
         string += str(self.type)
         return string
 
-################################################################################
+#==============================================================================#
 
 class Fault(ParserBaseElem):
 
@@ -540,7 +543,7 @@ class Fault(ParserBaseElem):
         string += " @Affects: " + str(self.affects)
         return string
 
-################################################################################
+#==============================================================================#
 
 class Transition(ParserBaseElem):
 
@@ -551,7 +554,8 @@ class Transition(ParserBaseElem):
         self.pc = 0 # program counter number used for compilation
 
     def parse(self, AST):
-        assert(AST.__name__ == "TRANSITION")
+        assert(AST.__name__ == 'TRANSITION')
+        self.pypeg = AST
         line = str(AST.__name__.line)
         mfile = str(AST.__name__.file)
         self.line = line
@@ -560,13 +564,14 @@ class Transition(ParserBaseElem):
             if elem.__name__ == "NAME":
                 self.name = ast2str(elem)
             elif elem.__name__ == "EXPRESION":
-                self.pre = elem
+                self.pre = rmw(elem)
             elif elem.__name__ == "NEXTLIST":
                 for x in clearAst(elem.what):
                     x = clearAst(x.what)
                     nextref = x[0].what[0] # a nextref
-                    expr = x[1] # an expresion in case of determ asignment, a
-                                # range or set in case of nondet asignment.
+                    expr = rmw(x[1]) # an expresion in case of determ asignment,
+                                     # a range or set in case of nondet
+                                     # asignment.
                     self.pos.append([nextref, expr])
             else:
                 raise TypeError(elem.__name__)
