@@ -199,7 +199,7 @@ def strrepl( string="", defs={}):
     result = string
     for d, v in defs.iteritems():
 #        debug("debugGREEN", "Replacing " + d + " by " + v + " in " + result)
-        result = re.sub( u'\\b' + d + u'\\b', v, result)
+        result = re.sub( u'\\b' + d + u'\\b', '(' + v + ')', result)
 #        debug("debugLBLUE", "Got " + result)
     return result
 

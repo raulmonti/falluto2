@@ -10,16 +10,17 @@ from Utils import ast2str, putBrackets
 
 ################################################################################
 class BaseException(Exception):
-    def __init__(self):
-        self.error = ""
-        self.cause = ""
-        self.where = ""
+    def __init__(self,error="", cause="", where=""):
+        self.error = error
+        self.cause = cause
+        self.where = where
     def __str__(self):
-        return str(self.error)
+        return str(unicode(self))
     def __repr__(self):
-        return repr(self.error)
+        return repr(unicode(self))
     def __unicode__(self):
-        return unicode(self.error)
+        return unicode(self.error) + "\n   in: " + unicode(self.cause)\
+               + "\n   at: " + unicode(self.where)
 
 ################################################################################
 class LethalE(BaseException):
@@ -30,10 +31,8 @@ class LethalE(BaseException):
 
 ################################################################################
 class Error(BaseException):
-    def __init__(self, error):
-        BaseException.__init__(self)
-        #assert isinstance(error, unicode)
-        self.error = str(error)
+    def __init__(self, error, cause="", where=""):
+        BaseException.__init__(self,error,cause,where)
 
 ################################################################################
 class Critical(BaseException):

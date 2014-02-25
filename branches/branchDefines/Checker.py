@@ -11,10 +11,12 @@ import Debug
 from Exceptions import *
 import Exceptions
 from Types import *
-from Utils import _cl, ss
+from Utils import ast2lst, ast2str
 from Utils import *
 import Utils
 import fileinput
+from Parser import VarDeclaration
+VType = VarDeclaration.VarType
 #
 #
 #==============================================================================#
@@ -60,11 +62,11 @@ class Checker(object):
         self.globalinst      = Parser.Instance()
         self.globalinst.name = "Glob#inst"
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def clear(self):
         self.__init__()        
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def check(self, model):
         assert isinstance(model, Parser.Model)
         self.clear()
@@ -76,7 +78,7 @@ class Checker(object):
         self.checkProperties()
         self.checkContraints()
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkRedeclared(self):
         """ Check the system for re-declared names. Redeclared modules and
             instances are already checked during parsing.
@@ -86,7 +88,7 @@ class Checker(object):
             _vset = set([])
             # context vars
             for _cv in _pt.contextvars:
-                _scv = ss(_cv)
+                _scv = ast2str(_cv)
                 if _scv in _vset:
                     raise Error( "Redeclared variable \'" + _scv \
                                + "\' in proctype \'" + _pt.name \
@@ -125,10 +127,10 @@ class Checker(object):
                            + ">. Fault and transition with same name: <" \
                            + _l[0] + ">.")
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkInstancesParams(self):
         if self.mdl.instances == {}:
-            WARNING("No instances declared in input file.\n")
+            LWARNING("No instances declared in input file.")
         for inst in self.mdl.instances.itervalues():
             pt = self.mdl.proctypes[inst.proctype]
             n = len(pt.contextvars)
@@ -142,18 +144,20 @@ class Checker(object):
             # las variables Symbol del proctype como posible context variable?
             # Es mas, es correcto pasar valores y no solo variables aqui?
             for i in range(0,n):
-                param = ss(inst.params[i])
+                param = ast2str(inst.params[i])
                 success = False
                 if not '.' in param:
                     # is it a boolean, an integer, or an instance name?
                     if isBool(param) \
                     or isInt(param)  \
-                    or param in [x.name for x in self.mdl.instances.itervalues()]:
+                    or param in\
+                        [x.name for x in self.mdl.instances.itervalues()]:
                         success = True
                 else:
                     # is it an instance variable?
                     iname, vname = param.split('.', 1)
-                    if iname in [x.name for x in self.mdl.instances.itervalues()]:
+                    if iname in\
+                        [x.name for x in self.mdl.instances.itervalues()]:
                         i = self.mdl.instances[iname]
                         pt = self.mdl.proctypes[i.proctype]
                         if vname in [x.name for x in pt.localvars]:
@@ -168,41 +172,36 @@ class Checker(object):
             # TODO unificar estos 3 errores en uno solo que diga algo como:
             # 'Bad name 'param' for synchronous action'
             for i in range(n, len(inst.params)):
-                param = ss(inst.params[i])
-                if '.' in param:
-                    raise Error( "Error in instance \'" + inst.name \
-                                 + "\' declaration at <" + inst.line \
-                                 + ">. Can't use '.' in synchronous action " \
-                                 + "names.")
-                if isBool(param):
-                    raise Error( "Error in instance \'" + inst.name \
-                                 + "\' declaration at <" + inst.line \
-                                 + ">. Can't use a boolean value as a " \
-                                 + "synchronous action name.")
-                if isInt(param):
-                    raise Error( "Error in instance \'" + inst.name \
-                                 + "\' declaration at <" + inst.line \
-                                 + ">. Can't use an integer value as a " \
-                                 + "synchronous action name.")
+                param = ast2str(inst.params[i])
+                if '.' in param or isBool(param) or isInt(param):
+                    raise Error("Bad name <" + param + "> for synchronous"\
+                               +" action in instance <" + inst.name\
+                               +"> at line <" + inst.line + ">.")
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
+
     def buildTypeTable(self):
-        # Precondition: Instance parameters are well defined. 
-        #               (use checkInstanceParameters method before this one)
-
+        """ Build a dictionary whit entries [instance name][var name]
+            and the parsed type structure of the correponding local variable 
+            declarations as values.
+            
+            @Precondition: Instance parameters are well defined. 
+                           (use checkInstanceParameters method before this one)
+        """
         self.typetable[self.globalinst.name] = {}
-
         # Local declared variables
         for inst in self.mdl.instances.itervalues():
             self.typetable[inst.name] = {}
             pt = self.mdl.proctypes[inst.proctype]
             for var in pt.localvars:
-                self.typetable[inst.name][var.name] = var.type.type
-                # simbol values 
+                self.typetable[inst.name][var.name] = var.type
+                # simbol values get a Types.Symbol VarType even dough they are
+                # constants and not variables. FIXME?
                 if var.type.type == Types.Symbol:
                     for value in var.type.domain:
-                        self.typetable[inst.name][value] = Types.Symbol
-                        self.typetable[self.globalinst.name][value]=Types.Symbol
+                        self.typetable[inst.name][value] = VType(Types.Symbol)
+                        self.typetable[self.globalinst.name][value]\
+                            = VType(Types.Symbol)
 
         # context variables
         for inst in self.mdl.instances.itervalues():
@@ -211,17 +210,15 @@ class Checker(object):
             for i in range(0,n):
                 param = ast2str(inst.params[i])
                 cvname = ast2str(pt.contextvars[i])
-
                 if isBool(param):
-                    self.typetable[inst.name][cvname] = Types.Bool
-                    # and also for global reference at defines for example 
-                    # (FIXME) this may not be needed or even incorrect.
+                    self.typetable[inst.name][cvname] = VType(Types.Bool)
+                    # and also for global reference at properties for example.
                     self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
-                        = Types.Bool
+                        = VType(Types.Bool)
                 elif isInt(param):
-                    self.typetable[inst.name][cvname] = Types.Int
+                    self.typetable[inst.name][cvname] = VType(Types.Int)
                     self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
-                        = Types.Int
+                        = VType(Types.Int)
                 elif param in self.mdl.instances:
                     # The ith contextvar in inst is a reference to another 
                     # instance.
@@ -229,16 +226,16 @@ class Checker(object):
                     ptt = self.mdl.proctypes[i.proctype]
                     for v in ptt.localvars:
                         vname = cvname + "." + v.name
-                        self.typetable[inst.name][vname] = v.type.type
+                        self.typetable[inst.name][vname] = v.type
                         self.typetable[self.globalinst.name]\
-                            [inst.name+'.'+cvname] = v.type.type
+                            [inst.name+'.'+cvname] = v.type
                 elif '.' in param:
                     i, v = param.split('.',1)
                     assert v in self.typetable[i]
                     self.typetable[inst.name][cvname] = self.typetable[i][v]
                     self.typetable[self.globalinst.name][inst.name+'.'+cvname]\
                         = self.typetable[i][v]
-                    #FIXME horrible duplicated code
+                    #FIXME duplicated code :S
                 else:
                     assert False
 
@@ -253,9 +250,9 @@ class Checker(object):
         # print the typetable
         #for i,v in self.typetable.iteritems():
         #    for x, y in v.iteritems():
-        #        print i,x,y
+        #        print i, x, y
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkInstancedProctypes(self):
         """
             Check for consistency in proctypes, and its instanciations.
@@ -267,7 +264,7 @@ class Checker(object):
             self.checkTransSection(inst)
             
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkVarSection(self, inst):
         # Solo reviso rango vacio para enteros
         pt = self.mdl.proctypes[inst.proctype]
@@ -278,7 +275,7 @@ class Checker(object):
                                  + v.name + " at <" + v.line + ">.")
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkFaultSection(self, inst):
         pt = self.mdl.proctypes[inst.proctype]
         for f in pt.faults:
@@ -297,15 +294,15 @@ class Checker(object):
             self.allownextrefs = True
             for p in f.pos:
                 nextref = p[0]
-                nrname = ss(nextref).split(" ")[0]
+                nrname = ast2str(nextref).split(" ")[0]
                 expr = p[2]
-                exprname = ss(expr)
+                exprname = ast2str(expr)
                 
                 # expr must be a local declared var
                 if not nrname in [x.name for x in pt.localvars]:
                     raise Error("Error at <" + expr.__name__.line \
                         + ">. Only local declared variables are allowed to be" \
-                        + " used in next expresions. \'" + ss(nextref) \
+                        + " used in next expresions. \'" + ast2str(nextref) \
                         + "\' isn't a local declared variable in proctype \'" \
                         + pt.name + "\'.")
                 
@@ -328,7 +325,7 @@ class Checker(object):
             self.allownextrefs = False
             # type
             for a in f.affects:
-                sa = ss(a)
+                sa = ast2str(a)
                 line = a.__name__.line
                 if f.type == Types.Byzantine:
                     if not sa in [x.name for x in pt.localvars]:
@@ -345,15 +342,15 @@ class Checker(object):
                 else:
                     assert False
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     # TODO al dope esto, si es que no agrego mas utilidad
     def getName(self, ast):
         assert isinstance(ast, pyPEG.Symbol)
         if ast.__name__ == "NEXTREF":
-            return ss(ast).split(" ")[0]
+            return ast2str(ast).split(" ")[0]
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkInitSection(self, inst):
         pt = self.mdl.proctypes[inst.proctype]
         if pt.init != None:
@@ -364,7 +361,7 @@ class Checker(object):
                              + "> should be of Boolean type, but it's type " \
                              + Types.Types[t] +" instead.")
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkTransSection(self, inst):
         pt = self.mdl.proctypes[inst.proctype]
         # We have already checked that there is no repeated transition name.
@@ -417,7 +414,7 @@ class Checker(object):
             self.allownextrefs = False
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getSetOrRangeType(self, inst, expr):
         """
             Returns list of types for expr (sets can have diferent types 
@@ -426,8 +423,8 @@ class Checker(object):
         assert isinstance(expr, pyPEG.Symbol)
         assert expr.__name__ in ["RANGE", "SET"]
         if expr.__name__ == "RANGE":
-            if int(ss(expr.what[0])) > int(ss(expr.what[2])):
-                raise Error( "Empty range \'" + ss(expr) 
+            if int(ast2str(expr.what[0])) > int(ast2str(expr.what[2])):
+                raise Error( "Empty range \'" + ast2str(expr) 
                            + "\' at <" + str(line) + ">.")
             return [Types.Int]
         else:
@@ -436,19 +433,23 @@ class Checker(object):
             for elem in expr.what[1:-1]:
                 if isinstance(elem, pyPEG.Symbol) and elem.__name__ == "IDENT":
                     ts.add(self.tryToGetType(inst, elem, expr))
-                elif isBool(ss(elem)):
+                elif isBool(ast2str(elem)):
                     ts.add(Types.Bool)
-                elif isInt(ss(elem)):
+                elif isInt(ast2str(elem)):
                     ts.add(Types.Int)
                 else:
-                    if ss(elem) not in ['{',',','}']:
+                    if ast2str(elem) not in ['{',',','}']:
                         assert False
             return list(ts)
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkProperties(self):
         for p in self.mdl.properties.itervalues():
             t = p.type
+            if t == Types.Fmfs or t == Types.Fmf:
+                if p.formula.__name__ != 'LTLEXP':
+                    raise Error("Can only use LTL for finitely many fault/s "\
+                               +"meta-properties.", ast2str(p.formula), p.line)
             if t == Types.Ctlspec or t == Types.Ltlspec:
                 self.checkTimeLogicExp(p.formula)
             elif t in [Types.Nb, Types.Fmfs, Types.Fmf]:
@@ -456,12 +457,12 @@ class Checker(object):
                 for x in p.params:
                     # for Types.Fmf type properties
                     line = getBestLineNumberForExpresion(x)
-                    if '.' not in ss(x):
-                        raise Error("Bad fault name \'" + ss(x) \
+                    if '.' not in ast2str(x):
+                        raise Error("Bad fault name \'" + ast2str(x) \
                                    + "\' for Finitely many fault" \
                                    + " propertie at <" + line + ">.")
                     else:
-                        i, f = ss(x).split('.',1)
+                        i, f = ast2str(x).split('.',1)
                         try:
                             inst = self.mdl.instances[i]
                             pt = self.mdl.proctypes[inst.proctype]
@@ -475,7 +476,7 @@ class Checker(object):
                                        + i \
                                        + "\' doesn't name an instance.") 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkTimeLogicExp(self, tlexpr):
         """ Checks for type correctenes inside properties especifications. """
         assert isinstance(tlexpr, pyPEG.Symbol)
@@ -496,7 +497,7 @@ class Checker(object):
             self.allowevents = False
             raise e
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def checkContraints(self):
         self.allowevents = True
         try:
@@ -517,15 +518,15 @@ class Checker(object):
             raise e
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getTypeFromTable(self, inst, vname):
         try:
-            t = self.typetable[inst.name][vname]
+            t = self.typetable[inst.name][vname].type
             return t
         except KeyError:
             raise UndeclaredError(vname)
         
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getExpresionType(self, inst, expr):
         """
             Returns the type of expr (a pyPEG.Symbol object obtained using the
@@ -537,7 +538,7 @@ class Checker(object):
         assert expr.__name__ == "EXPRESION"
         return self.getPROPType(inst, expr.what[0])
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getPROPType(self, inst, ast):
 
         assert isinstance(inst, Parser.Instance)
@@ -559,7 +560,7 @@ class Checker(object):
             assert False
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getLOGICType(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
@@ -580,7 +581,7 @@ class Checker(object):
             assert False
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getCOMPType(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
@@ -607,7 +608,7 @@ class Checker(object):
             assert False
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getSUMType(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
@@ -628,7 +629,7 @@ class Checker(object):
             assert False
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getPRODType(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
@@ -649,7 +650,7 @@ class Checker(object):
             assert False
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getValueType(self, inst, ast):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
@@ -657,7 +658,7 @@ class Checker(object):
 
         l = len(ast.what)
         if l == 3:
-            return self.getLevel5Type(inst, ast.what[1])
+            return self.getPROPType(inst, ast.what[1])
         elif l == 2:
             op = ast.what[0]
             assert op in ['!', '-']
@@ -681,25 +682,25 @@ class Checker(object):
             elif value.__name__ == "NEXTREF":
                 if not self.allownextrefs:
                     #raise NextRefNotAllowedE(value)
-                    raise Error( "Error with <" + ss(value) + "'> at <" \
+                    raise Error( "Error with <" + ast2str(value) + "'> at <" \
                                  + value.__name__.line \
                                  + ">. Next references aren't allowed here.")
                 else:
                     # value must be a local declared var
-                    values = ss(value).split(" ")[0]
+                    values = ast2str(value).split(" ")[0]
                     pt = self.mdl.proctypes[inst.proctype]
                     if not values in [x.name for x in pt.localvars]:
                         raise Error("Error at <" + value.__name__.line \
-                            + ">. Only local declared variables are allowed to be" \
-                            + " used in next expresions. \'" + values \
-                            + "\' isn't a local declared variable in proctype \'" \
-                            + pt.name + "\'.")
-                    return self.getTypeFromTable(inst, ss(value))
+                            + ">. Only local declared variables are allowed "\
+                            + "to be used in next expresions. \'" + values\
+                            + "\' isn't a local declared variable in "\
+                            + "proctype \'" + pt.name + "\'.")
+                    return self.getTypeFromTable(inst, ast2str(value))
                 assert False
             elif value.__name__ == "EVENT":
                 if not self.allowevents:
                     #raise EventNotAllowedE(value)
-                    raise Error( "Error with <" + ss(value) \
+                    raise Error( "Error with <" + ast2str(value) \
                                  + "> at <" + value.__name__.line \
                                  + ">. Events aren't allowed here.")
                 else:
@@ -715,7 +716,7 @@ class Checker(object):
             assert False # never come out here
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getSubscriptType(self, inst, subs):
         assert isinstance(subs, pyPEG.Symbol)
         assert subs.__name__ == "SUBSCRIPT"
@@ -736,22 +737,25 @@ class Checker(object):
                 raise Error( "Error at line <"+line+"> Can't subscribe to \'"\
                            + _name \
                            + "\' because it is not an array.")
-            #check index inside range
+            #check index is inside range
             (_l,_u) = self.getIndexRange(inst
                                         , ast2str(_subs[_idx])
                                         , ast2str(subs))
-
+            #FIXME somehow I'm checking this twise :S
             if int(_type.start) > _u or int(_type.end) < _l:
                  raise Error( "Subscription out of range at <" + line + ">,"\
                             + "inside \'" + ast2str(subs) + "\'.")
             elif int(_type.start) > _l or int(_type.end) < _u:
-                LWARNING( "Subscription may go out of range at <" + line\
-                        + ">," + "inside \'" + ast2str(subs) + "\'.")
+                raise Error( "While checking instance <" + inst.name\
+                           + ">: subscription <" + ast2str(_subs[_idx])\
+                           + "> may go out of range at <" + line\
+                           + ">, " + "inside \'" + ast2str(subs) + "\'.")
+
             _type = _type.domain
 
         return _type.type
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getIndexRange(self, inst, idx, ctxt='Some where'):
         assert isinstance(inst, Parser.Instance)
         assert isinstance(idx, str) or isinstance(idx, unicode)
@@ -760,15 +764,18 @@ class Checker(object):
             _i = int(idx)
             return (_i,_i)
         except:
-            t = self.tryToGetType(inst, idx, ctxt)
-            if t != Types.Int:
+            _t = self.tryToGetType(inst, idx, ctxt)
+            if _t != Types.Int:
                 raise Error("Can't index an array with <" + idx + ">, as"\
                            +" it's not of integer type. At " + ctxt)
             else:
-                #FIXME Find out where it has been declared and which is its range
-                raise Error("FIXME")
+                # get and return declared range for the variable
+                _vt = self.typetable[inst.name][idx]
+                assert _vt.domain[0] != None and _vt.domain[1] != None
+                return (int(ast2str(_vt.domain[0])),\
+                        int(ast2str(_vt.domain[1])))
         
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getVarDeclaration(self, inst, varname):
         if inst.name == "Glob#inst":
             if not '.' in varname:
@@ -799,7 +806,7 @@ class Checker(object):
 
         i = 0
         for x in pt.contextvars:
-            if ss(x) == ctxname:
+            if ast2str(x) == ctxname:
                 break
             i += 1
         
@@ -807,7 +814,7 @@ class Checker(object):
         if i == len(pt.contextvars):
             raise UndeclaredError(varname)
 
-        instanced = ss(inst.params[i], False)
+        instanced = ast2str(inst.params[i], False)
         # instanced is an instance name
         if vname != "":
             newinst = self.mdl.instances[instanced]
@@ -820,23 +827,23 @@ class Checker(object):
         return self.getVarDeclaration(newinst, newvname)
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getSynchroNamesList(self):
         _set = set([])
         for inst in self.mdl.instances.itervalues():
             pt = self.mdl.proctypes[inst.proctype]
             n = len(pt.contextvars)
             for e in inst.params[n::]:
-                _set.add(ss(e))
+                _set.add(ast2str(e))
         return list(_set)
 
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getEventType(self,inst,ast):
         assert isinstance(ast, pyPEG.Symbol)
         assert ast.__name__ == "EVENT"
         ev = ast.what[1]
-        sv = ss(ev)
+        sv = ast2str(ev)
         if not '.' in sv:
 
             lst = self.getSynchroNamesList()
@@ -845,32 +852,32 @@ class Checker(object):
                
             line = getBestLineNumberForExpresion(ast)
             raise Error( "Error at <" + line + ">. There can't be no event" \
-                         + " called \'" + ss(ast) + "\'.")               
+                         + " called \'" + ast2str(ast) + "\'.")               
         else:
             ei,ev = sv.split('.', 1)
             try:
                 einst = self.mdl.instances[ei]
                 ept = self.mdl.proctypes[einst.proctype]
-                salst = [ss(x) for x in ept.synchroacts]
+                salst = [ast2str(x) for x in ept.synchroacts]
                 elist = [ x.name for x in ept.faults + ept.transitions \
                           if x.name not in salst]
                 if not ev in elist:
                     line = getBestLineNumberForExpresion(ast)
-                    raise Error("Error in event \'" + ss(ast) + "\', at <" \
+                    raise Error("Error in event \'" + ast2str(ast) + "\', at <"\
                                  + line + ">. No event named \'" \
                                  + ev + "\' in instance \'" + ei + "\'.")
             except KeyError as e:
                 line = getBestLineNumberForExpresion(ast)
-                raise Error( "Error in event \'" + ss(ast) + "\', at <" \
+                raise Error( "Error in event \'" + ast2str(ast) + "\', at <" \
                              + line + ">. \'" + ei \
                              + "\' doesn't name an instance.")
             return Types.Bool
             
         assert False # never come out here
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def tryToGetType(self, inst, elem, context):
-        name = ss(elem).split(" ")[0] #split in case its a SUBSCRIPT
+        name = ast2str(elem).split(" ")[0] #split in case its a SUBSCRIPT
         ctxt = ast2str(context)
         line = getBestLineNumberForExpresion(elem)
         try:
@@ -880,7 +887,7 @@ class Checker(object):
             raise Error( "Undeclared variable \'" + name + "\' at <" \
                        + line + ">, inside expresion \'" + ctxt + "\'.")
 
-    #.......................................................................
+    #-----------------------------------------------------------------------
     def getInclusionType(self,inst,ast):
         assert isinstance(ast, pyPEG.Symbol)
         assert ast.__name__ == "INCLUSION"
@@ -896,24 +903,23 @@ class Checker(object):
 
         elif _set.__name__ == "RANGE":
             line = _set.__name__.line
-            if int(ss(_set.what[0])) > int(ss(_set.what[2])):
-                raise Error( "Empty range \'" + ss(_set) 
+            if int(ast2str(_set.what[0])) > int(ast2str(_set.what[2])):
+                raise Error( "Empty range \'" + ast2str(_set) 
                              + "\' at <" + str(line) + ">.")
             if t != Types.Int:
                 ts = Types.Types[t]
                 raise Error( "Can't check inclusion of an element " \
                              + "of type <" + ts \
-                             + "> in a range, in \'" + ss(ast) \
+                             + "> in a range, in \'" + ast2str(ast) \
                              + "\' at <" + line + ">.")
         else:
             assert False # never come out here
         return Types.Bool
-    #.......................................................................
-
-################################################################################
 
 
-# TESTING ======================================================================
+#==============================================================================#
+# TESTING =====================================================================#
+#==============================================================================#
 
 
 if __name__ == "__main__":
@@ -945,8 +951,3 @@ if __name__ == "__main__":
 
 # TODO I think that redeclared is not a word in any language. Change it if so
 
-# FIXME There is no need to check definitions of any kind, as they have been
-#       replaced at sintaxRepl module
-
-# FIXME Is better to fill up a table with the ralated localdeclaration of
-# variables instead of the variable type, we can get it from there anyway.

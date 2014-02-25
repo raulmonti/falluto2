@@ -48,7 +48,7 @@ LOG_FILE__ = os.path.dirname(os.path.realpath(__file__)) + "log.log"
 
 logging.INSPECT = 5 
 logging.addLevelName(logging.INSPECT, "LOOK ")
-logging.basicConfig( level=logging.INSPECT
+logging.basicConfig( level=logging.INFO
                    , format = '[    %(levelname)s    ] ' \
                             + '[%(filename)s %(lineno)s] %(message)s')
 

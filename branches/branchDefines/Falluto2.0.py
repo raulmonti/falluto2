@@ -159,10 +159,11 @@ if __name__ == '__main__':
         LDEBUG("Compiled ;)")
 
         # Low level debug
-        LINSPECT('The compiled model:\n' + c.compiledstring + '\n')
-        LINSPECT('The compiled properties:\n')
+        logging.log(logging.INSPECT,\
+                    'The compiled model:\n' + c.compiledstring + '\n')
+        logging.log(logging.INSPECT,'The compiled properties:\n')
         for p in c.compiledproperties:
-            LINSPECT(p) 
+            logging.log(logging.INSPECT,p) 
 
         # Checking the smv system descripition: just run NuSMV over the 
         # system description without checking any property on it.
@@ -176,9 +177,10 @@ if __name__ == '__main__':
         # if NuSMV encounters that the descripton is incorrect).
         output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
 
-        colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
-
-        exit(0)
+        if args.color:
+            colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
+        else:
+            LINFO('[OK] ' + sysname + ' is OK!')
 
         # Save a copy of the compiled system if asked so.
         if args.save:
@@ -194,15 +196,13 @@ if __name__ == '__main__':
             output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
             
             # Interpret result and print user readible output.
-            _color = False
-            if args.color:
-                _color = True
-            # TODO puedo usar args.color como booleano directamente?
-            t.interpret(c,output, i, _color)
+            t.interpret(c,output, i, args.color)
+
+        exit(0) #--------------------------------------------------------------->>>>
 
     except Exception, e:
         if DEBUG__:
-            LEXCEPTION(e)
+            LEXCEPTION("")
         elif type(e) == subprocess.CalledProcessError:
             LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado y "\
                 + "mandar mail a raul para que lo arregle\n")
@@ -214,10 +214,13 @@ if __name__ == '__main__':
             LCRITICAL(":S something very bad happened.")
         else:
             LEXCEPTION("Exception caught :S " + str(type(e)) + "\n" + str(e))
-    #finally:
+    #finally: #FIXME
         # remove file working copy
         #os.remove(_fpath)
         #os.remove(_fpath+".precompiled")
 
     sys.exit(0)
 
+
+
+#FIXME may need to get reed of comments before parsing with Parser module.
