@@ -1,0 +1,17 @@
+PROCTYPE proc()
+	VAR
+		var1: bool
+		var2: 0..3
+	INIT
+		var2 = 0 & !var1
+	TRANS
+		[trans1]: => var2' = (var2+1) % 4
+		[trans2]: var2 = 2 => var1' = !var1
+
+ENDPROCTYPE
+
+INSTANCE inst = proc()
+
+LTLSPEC G !inst.var1
+
+CTLSPEC AG !inst.var1

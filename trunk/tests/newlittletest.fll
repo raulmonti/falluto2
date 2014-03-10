@@ -1,0 +1,26 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE module( other ; transfer)
+        VAR
+                file : 0..9
+        FAULT
+                clear: => file' in 0..9 is TRANSIENT
+        INIT
+                file = 0
+        TRANS
+                [transfer]: other.file = file => file' = (file + 1) % 10;
+                [restart]: other.file != file => file' = 0;
+ENDPROCTYPE
+
+INSTANCE mod1 = module(mod2,sync)
+INSTANCE mod2 = module(mod1,sync)
+
+LTLSPEC G F mod1.file = 9
+
+CTLSPEC AG mod1.file = mod2.file
+
+LTLSPEC G ! (mod1.file != mod2.file & just(sync))
+
+FINITELY_MANY_FAULTS -> G F mod1.file = 9

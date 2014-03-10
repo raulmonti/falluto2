@@ -1,0 +1,130 @@
+OPTIONS
+SYSNAME redsatelital
+INST_WEAK_FAIR_DISABLE
+FAULT_FAIR_DISABLE
+--CHECK_DEADLOCK
+ENDOPTIONS
+
+DEFINE MAXSEQ := 2
+DEFINE WINSIZE := 1
+
+PROCTYPE satSender(NR; send, read)
+
+    VAR
+        enviado         : bool -- Output buffer empty
+        buffempty       : bool -- Input buffer empty (from frame sublayer)
+        seq_frame_avail : bool -- New frame needs to be sent
+        dataTx          : 0..1 -- Data to send
+        VS              : 0..1 -- Next seq frame to send
+        VVS             : 0..1 -- Next seq frame to resend
+        
+        --NR              : 0..3 -- Current ack report
+        NNR             : 0..1 -- Previous valid ack report
+        RR              : bool -- Current ack ReTx flag
+        RRR             : bool -- Previous valid ack ReTx flag
+
+    INIT
+        enviado = TRUE & buffempty = TRUE & seq_frame_avail = FALSE & VS = 0 & VVS = 0 & NNR = 0 & RR = FALSE & RRR = FALSE
+        
+    TRANS
+
+        -- NEW FRAME TO SEND HAS ARRIVED FROM FRAME SUBLAYER
+        [newtrans]: buffempty => buffempty' = FALSE, seq_frame_avail' = TRUE
+
+        -- CONTINUE RETRANSMITION
+        []: enviado & VVS < VS => VVS' = (VVS+1)%MAXSEQ, dataTx' = (VVS+1)%MAXSEQ, enviado' = FALSE
+
+        -- SEND NEW SEQ FRAME
+        []: enviado & seq_frame_avail & VS-NNR < WINSIZE & !(VVS < VS) => VS' = (VS+1)%MAXSEQ, VVS' = (VVS+1)%MAXSEQ, dataTx' = VS, enviado' = FALSE, buffempty' = TRUE
+
+        -- INITIATE PROGRESSIVE RETRANSMISSION
+        []: enviado & NNR < VS & !(VVS < VS) & !(VS-NNR < WINSIZE) => dataTx' = VVS, VVS' = (VVS+1)%MAXSEQ
+        
+        -- SEND
+        [send]: !enviado => enviado' = TRUE
+        
+        -- READ ACK
+        [read]: NR > NNR & (RR | NR > VVS) => VVS' = NR, NNR' = NR, RRR' = RR
+        [read]: !(NR > NNR) & (RR | NR > VVS) => VVS' = NR, NNR' = NR, RRR' = RR
+        [read]: NR > NNR & !(RR | NR > VVS) => NNR' = NR, RRR' = RR
+        
+
+ENDPROCTYPE
+
+PROCTYPE satReceiver(NS; send, read) -- NS = Current frame number
+    VAR
+        VR      : 0..1 	-- received sequence frame + 1
+        RS      : bool  -- Need retransmition
+        NEEDACK : bool  -- 
+	data    : 0..1
+
+    INIT
+        VR = 0 & RS = FALSE & NEEDACK = FALSE & data = 0
+
+    TRANS
+        -- IN SEQUENCE FRAME
+        [read]: NS = VR => RS' = FALSE, VR' = (VR+1)%MAXSEQ, NEEDACK' = TRUE
+        -- GAP DETECTED
+        [read]: NS > VR => RS' = TRUE, NEEDACK' = TRUE, data' = NS
+        -- REPEATED FRAME
+        [read]: NS < VR -- discard frame
+        -- SEND ACK (VR)
+        [send]: NEEDACK
+
+ENDPROCTYPE
+
+DEFINE MAXREP := 1
+
+PROCTYPE buffer(dataTx; send, read)
+
+    VAR
+        enviado : bool -- dato entregado al lector?
+        data    : 0..1 -- dato que llega al lector
+        cero    : 0..1 -- cantidad de paquetes 0 viajando por el buffer
+        uno     : 0..1 -- idem pero con 1
+--        dos     : 0..1 -- idem pero con 2
+--        tres    : 0..1 -- idem pero con 3
+
+    INIT
+        cero = 0 & uno = 0 & enviado = TRUE
+--        cero = 0 & uno = 0 & dos = 0 & tres = 0 & enviado = TRUE
+
+    TRANS
+        [send]: dataTx = 0 & cero < MAXREP => cero' = cero + 1
+        [send]: dataTx = 1 & uno < MAXREP => uno' = uno + 1
+--        [send]: dataTx = 2 & dos < MAXREP => dos' = dos + 1
+--        [send]: dataTx = 3 & tres < MAXREP => tres' = tres + 1
+--        [send]: dataTx = 0 & cero = MAXREP
+--        [send]: dataTx = 1 & uno = MAXREP
+--        [send]: dataTx = 2 & dos = MAXREP
+--        [send]: dataTx = 3 & tres = MAXREP
+
+        []: enviado & cero > 0 => data' = 0, cero' = cero -1, enviado' = FALSE
+        []: enviado & uno > 0 => data' = 1, uno' = uno -1, enviado' = FALSE
+--        []: enviado & dos > 0 => data' = 2, dos' = dos -1, enviado' = FALSE
+--        []: enviado & tres > 0 => data' = 3, tres' = tres -1, enviado' = FALSE
+
+        [read]: !enviado => enviado' = TRUE
+
+ENDPROCTYPE
+
+
+
+INSTANCE sat1 = satSender(buff21.data, send1, read1)
+INSTANCE sat2 = satReceiver(buff12.data, send2, read2)
+
+INSTANCE buff12 = buffer(sat1.dataTx, send1, read2)
+INSTANCE buff21 = buffer(sat2.VR, send2, read1)
+
+
+--CTLSPEC AF buff12.data = 1
+CTLSPEC EG buff12.data != 1
+--CTLSPEC AF buff12.data = 1
+--CTLSPEC AG TRUE
+--LTLSPEC G F sat2.data = 1
+--LTLSPEC G TRUE
+--LTLSPEC G F X TRUE
+--LTLSPEC F sat2.VR > 0
+--LTLSPEC F sat2.VR = 3
+--CTLSPEC EF sat2.VR > 0
+--FAIRNESS just(read2)
