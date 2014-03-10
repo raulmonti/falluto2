@@ -10,7 +10,7 @@ debugTODO("Eliminar las restricciones sintacticas para nombres reservados de "\
          + "mas expresivo de lo que esta pasando")
         
 debugTODO( "En vez de usar el nombre del proceso en el valor proctype de las "\
-         + "instancias, usar directamente una referencia a las mismas.")
+         + "instancias, usar directamente una referencia las mismas.")
          
 debugTODO( "Levantar warning cuando dos asignaciones a una misma next ref en " \
          + "una postcondiciones hacen o pueden hacer imposible la transicion " \
@@ -19,7 +19,7 @@ debugTODO( "Levantar warning cuando dos asignaciones a una misma next ref en " \
 debugTODO( "Poner parentesis a las expresiones compiladas, por las dudas NuSMV"\
          + " asocie de otra manera los operadores.")
 
-   
+           
 debugTODO( """ Permitir renombrar transiciones, tener cuidado de no sincronizar 
 con estas transiciones, cambiar el nombre de las renombradas y hacer tabla de 
 renombrado por si hay un just(transicion renombrada) en algun lugar del sistema 
@@ -51,14 +51,6 @@ debugTODO( "Opcion de guardar resultados en un archivo")
 
 debugTODO( "Representar internamente las fallas biz como transient para "\
          + "ahorrar una transicion si es posible (no creo que sea correcto)" )
-
 debugTODO( "Reemplazar en la compilacion tabs por espacios.")
 
-
-
-
-# NOT SUPPORTED YET ############################################################
-
-#TODO support expresions inside subscripts
-
-#TODO support constant expresions inside ranges
+debugTODO( "Usar traceback para dar mas informacion en caso de error.")

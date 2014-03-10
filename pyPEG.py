@@ -1,8 +1,6 @@
-"""
-pyPEG - a PEG Parser-Interpreter in Python
-"""
+# YPL parser 1.5
 
-__version__ = "1.5"
+# written by VB.
 
 import re
 import sys, codecs

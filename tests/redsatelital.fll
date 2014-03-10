@@ -1,66 +1,66 @@
-/*------------------------------------------------------------------------
+--------------------------------------------------------------------------
 ---- MODELADO DEL PROTOCOLO DE VENTANA DESLIZANTE PARA UNA RED SATELITAL
 ---- Raul Monti
----- 16 de enero del anio 2013
----- Cordoba, Argentina
-------------------------------------------------------------------------*/
+---- 16 de enero del año 2013
+---- Córdoba, Argentina
+--------------------------------------------------------------------------
 
 OPTIONS
-MODELNAME redsatelital
+SYSNAME redsatelital
 INST_WEAK_FAIR_DISABLE
 FAULT_FAIR_DISABLE
-CHECK_DEADLOCK
+--CHECK_DEADLOCK
 ENDOPTIONS
 
 
 
-//----
-//---- MODELADO DE LOS TRANSMISORES SATELITALES
-//----
+----
+---- MODELADO DE LOS TRANSMISORES SATELITALES
+----
 
-DEFINE MAXSEQ  2   // Maximum sequence number + 1
-DEFINE WINSIZE  1  // Transmition window size
+DEFINE MAXSEQ := 2   -- Maximum sequence number + 1
+DEFINE WINSIZE := 1  -- Transmition window size
 
 PROCTYPE satSender( NR, RR; send, read)
 
     VAR
-        enviado         : boolean // Output buffer empty
-        seq_frame_avail : boolean // New frame needs to be sent
-        dataTx          : 0..1 // Data to send
-        VS              : 0..1 // Next seq frame to send
-        VVS             : 0..1 // Next seq frame to resend
+        enviado         : bool -- Output buffer empty
+        seq_frame_avail : bool -- New frame needs to be sent
+        dataTx          : 0..1 -- Data to send
+        VS              : 0..1 -- Next seq frame to send
+        VVS             : 0..1 -- Next seq frame to resend
         
-        NNR             : 0..1 // Previous valid ack report
-        RRR             : boolean // Previous valid ack ReTx flag
+        NNR             : 0..1 -- Previous valid ack report
+        RRR             : bool -- Previous valid ack ReTx flag
 
     INIT
-        enviado = True & seq_frame_avail = False & VS = 0 & VVS = 0 & NNR = 1 & RRR = False
+        enviado = TRUE & seq_frame_avail = FALSE & VS = 0 & VVS = 0 & NNR = 1 & RRR = FALSE
         
     TRANS
 
-	// A NEW SEQUENCE FRAME BECOMES AVAILABLE
-	[SFAvaiable]: !seq_frame_avail => seq_frame_avail' = True
+	-- A NEW SEQUENCE FRAME BECOMES AVAILABLE
+	[SFAvaiable]: !seq_frame_avail => seq_frame_avail' = TRUE;
 
-        // CONTINUE RETRANSMITION IF EVER STARTED ONE
+        -- CONTINUE RETRANSMITION IF EVER STARTED ONE
         []: enviado & VVS != VS 
             => 
-            VVS' = (VVS+1)%MAXSEQ, dataTx' = VVS, enviado' = False
+            VVS' = (VVS+1)%MAXSEQ, dataTx' = VVS, enviado' = FALSE;
 
-	// TODO : VS-NNR <= WINSIZE
-	// THERE IS A SEQ FRAME AVAILABLE AND I HAVE SPACE IN MY WINDOW SO I SEND THAT SEQ FRAME AND INCREASE COUNTER AND EVERYTHING
+	-- TODO : VS-NNR <= WINSIZE
+	-- THERE IS A SEQ FRAME AVAILABLE AND I HAVE SPACE IN MY WINDOW SO I SEND THAT SEQ FRAME AND INCREASE COUNTER AND EVERYTHING
         []: enviado & seq_frame_avail & VS-NNR < WINSIZE & !(VVS != VS)
             => 
-            VS' = (VS+1)%MAXSEQ, VVS' = (VVS+1)%MAXSEQ, dataTx' = VS, enviado' = False, seq_frame_avail' = False
+            VS' = (VS+1)%MAXSEQ, VVS' = (VVS+1)%MAXSEQ, dataTx' = VS, enviado' = FALSE, seq_frame_avail' = FALSE;
 
-        // INITIATE PROGRESSIVE RETRANSMISSION
-        []: enviado & NNR != VS & !(VVS != VS) & (!(VS-NNR < WINSIZE) | !seq_frame_avail) => dataTx' = VVS, VVS' = (VVS+1)%MAXSEQ, enviado' = False
+        -- INITIATE PROGRESSIVE RETRANSMISSION
+        []: enviado & NNR != VS & !(VVS != VS) & (!(VS-NNR < WINSIZE) | !seq_frame_avail) => dataTx' = VVS, VVS' = (VVS+1)%MAXSEQ, enviado' = FALSE;
         
-        // SEND
-        [send]: !enviado => enviado' = True
+        -- SEND
+        [send]: !enviado => enviado' = TRUE;
 
-	// READ ACK
-	[read]: RR | NR != VVS => VVS' = NR, NNR' = NR, RRR' = RR
-	[read]: ! (RR | NR != VVS) => NNR' = NR, RRR' = RR
+	-- READ ACK
+	[read]: RR | NR != VVS => VVS' = NR, NNR' = NR, RRR' = RR; 
+	[read]: ! (RR | NR != VVS) => NNR' = NR, RRR' = RR;
 
 ENDPROCTYPE
         
@@ -68,29 +68,29 @@ ENDPROCTYPE
 
 
 
-//----
-//---- MODELADO DE LOS RECEPTORES SATELITALES
-//----
-// NS IS THE CURRENT FRAME NUMBER (THE ONE BEING RECEIVED)
+----
+---- MODELADO DE LOS RECEPTORES SATELITALES
+----
+-- NS IS THE CURRENT FRAME NUMBER (THE ONE BEING RECEIVED)
 PROCTYPE satReceiver(NS; send, read)
     VAR
-        VR      : 0..1     // (received sequence frame + 1) % MAXSEQ
-        RS      : boolean  // Need retransmition
-        NEEDACK : boolean  // 
+        VR      : 0..1 	-- (received sequence frame + 1) % MAXSEQ
+        RS      : bool  -- Need retransmition
+        NEEDACK : bool  -- 
 
     INIT
-        VR = 0 & RS = False & NEEDACK = False
+        VR = 0 & RS = FALSE & NEEDACK = FALSE
 
     TRANS
-        // IN SEQUENCE FRAME
-        [read]: NS = VR => RS' = False, VR' = (VR+1)%MAXSEQ, NEEDACK' = True
-        //--- TODO lo de abajo esta mal porque la sequencia de paquetes es circular :S
-        // GAP DETECTED, ASK FOR RETRANSMITION
-        [read]: NS > VR => RS' = True, NEEDACK' = True
-        // DISCARD REPEATED FRAME 
-        [read]: NS < VR
-    	// SEND ACK (VR) ONLY IF NEEDACK IS True
-    	[send]: NEEDACK => NEEDACK' = False, RS' = False
+        -- IN SEQUENCE FRAME
+        [read]: NS = VR => RS' = FALSE, VR' = (VR+1)%MAXSEQ, NEEDACK' = TRUE;
+	---- TODO lo de abajo está mal porque la sequencia de paquetes es circular :S
+        -- GAP DETECTED, ASK FOR RETRANSMITION
+        [read]: NS > VR => RS' = TRUE, NEEDACK' = TRUE;
+        -- DISCARD REPEATED FRAME 
+        [read]: NS < VR;
+    	-- SEND ACK (VR) ONLY IF NEEDACK IS TRUE
+    	[send]: NEEDACK => NEEDACK' = FALSE, RS' = FALSE;
 
 ENDPROCTYPE
 
@@ -98,18 +98,18 @@ ENDPROCTYPE
 
 
 
-//--
-//-- MODELADO DE LOS BUFFERS DE TRANSIMISION ( EL ESPACIO EN EL CASO DE LOS SATELITES )
-//--
+----
+---- MODELADO DE LOS BUFFERS DE TRANSIMISION ( EL ESPACIO EN EL CASO DE LOS SATELITES )
+----
 
-// NUMERO MAXIMO DE VECES QUE SE PUEDE REPETIR EL MENSAJE EN EL BUFFER
-DEFINE MAXREP 1
+-- NUMERO MAXIMO DE VECES QUE SE PUEDE REPETIR EL MENSAJE EN EL BUFFER
+DEFINE MAXREP := 1
 
 PROCTYPE buffer(dataTx; send, read)
 
     VAR
-        enviado : boolean // dato entregado al lector?
-        data    : 0..1 // dato que llega al lector
+        enviado : bool -- dato entregado al lector?
+        data    : 0..1 -- dato que llega al lector
     	buff	: array 0..1 of 0..1
    
     FAULT
@@ -117,27 +117,27 @@ PROCTYPE buffer(dataTx; send, read)
 	loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
   
     INIT
-	buff[0] = 0 & buff[1] = 0 & enviado = True
+	buff[0] = 0 & buff[1] = 0 & enviado = TRUE
 
     TRANS
-	// THE SENDER PUTS A MESSAGE IN THE BUFFER
-        [send]: dataTx = 0 & buff[0] < MAXREP => buff[0]' = buff[0] + 1
-        [send]: dataTx = 1 & buff[1] < MAXREP => buff[1]' = buff[1] + 1
+	-- THE SENDER PUTS A MESSAGE IN THE BUFFER
+        [send]: dataTx = 0 & buff[0] < MAXREP => buff[0]' = buff[0] + 1;
+        [send]: dataTx = 1 & buff[1] < MAXREP => buff[1]' = buff[1] + 1;
 
-	// THE MESSAGE ARRIVES TO THE RECEIVER
-        []: enviado & buff[0] > 0 => data' = 0, buff[0]' = buff[0] -1, enviado' = False
-        []: enviado & buff[1] > 0 => data' = 1, buff[1]' = buff[1] -1, enviado' = False
+	-- THE MESSAGE ARRIVES TO THE RECEIVER
+        []: enviado & buff[0] > 0 => data' = 0, buff[0]' = buff[0] -1, enviado' = FALSE;
+        []: enviado & buff[1] > 0 => data' = 1, buff[1]' = buff[1] -1, enviado' = FALSE;
 
-	// THE RECEIVER TAKES OUT THE MESSAGE FROM THE BUFFER
-        [read]: !enviado => enviado' = True
+	-- THE RECEIVER TAKES OUT THE MESSAGE FROM THE BUFFER
+        [read]: !enviado => enviado' = TRUE;
 
 ENDPROCTYPE
 
 
 
-//----
-//---- MODELADO E INSTANCIACION DE LA RED
-//----
+----
+---- MODELADO E INSTANCIACIÓN DE LA RED
+----
 
 INSTANCE sat1 = satSender(buff21.data, sat2.RS, send1, read1)
 INSTANCE sat2 = satReceiver(buff12.data, send2, read2)
@@ -148,19 +148,19 @@ INSTANCE buff21 = buffer(sat2.VR, send2, read1)
 
 
 
-//----
-//---- ESPECIFICACION DE LAS PROPIEDADES A VERIFICAR
-//----
+----
+---- ESPECIFICACIÓN DE LAS PROPIEDADES A VERIFICAR
+----
 
-// EL PAQUETE CON NUMERO DE SECUENCIA MAS GRANDE LLEGA A MENUDO
-LTLSPEC G F (just(read2) & buff12.data = MAXSEQ-1) "El paquete con numero de secuencia mas grande llega a menudo"
+-- EL PAQUETE CON NUMERO DE SECUENCIA MAS GRANDE LLEGA A MENUDO
+LTLSPEC G F (just(read2) & buff12.data = MAXSEQ-1)
 
-// SI LAS FALLAS DEJAN DE OCURRIR ENTONCES EL PAQUETE CON NUMERO DE SECUENCIA MAS GRANDE LLEGA A MENUDO
-//FINITELY_MANY_FAULTS -> G F (just(read2) & buff12.data = MAXSEQ-1)
+-- SI LAS FALLAS DEJAN DE OCURRIR ENTONCES EL PAQUETE CON NUMERO DE SECUENCIA MAS GRANDE LLEGA A MENUDO
+--FINITELY_MANY_FAULTS -> G F (just(read2) & buff12.data = MAXSEQ-1)
 
-// LO MISMO CON EL PAQUETE 0
-//LTLSPEC G F (just(read2) & buff12.data = 0)
+-- LO MISMO CON EL PAQUETE 0
+--LTLSPEC G F (just(read2) & buff12.data = 0)
 
 
-// CTLSPEC ! (EF just(send1) & AX A[!just(send2) U just(send1)])
-// CTLSPEC just(send1) & AX A[!just(send2) U just(send1)]
+-- CTLSPEC ! (EF just(send1) & AX A[!just(send2) U just(send1)])
+-- CTLSPEC just(send1) & AX A[!just(send2) U just(send1)]
