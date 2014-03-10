@@ -204,8 +204,8 @@ if __name__ == '__main__':
         if DEBUG__:
             LEXCEPTION("")
         elif type(e) == subprocess.CalledProcessError:
-            LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado y "\
-                + "mandar mail a raul para que lo arregle\n")
+            LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado"\
+                + " y mandar mail a raul para que lo arregle\n")
             LCRITICAL("NUSMV: el archivo es erroneo. La salida es la que "\
                 + "sige:\n\n" + str(e.cmd))
         elif type(e) == Error:

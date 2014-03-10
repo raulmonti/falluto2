@@ -512,11 +512,11 @@ class Fault(ParserBaseElem):
             if x.__name__ == "NAME":
                 self.name = ast2str(x)
             elif x.__name__ == "EXPRESION":
-                self.pre = x
-            elif x.__name__ == "NEXTEXPR":
+                self.pre = rmw(x)
+            elif x.__name__ == "NEXTLIST":
                 for elem in x.what:
-                    elem = elem.what
-                    nextref = elem[0]
+                    elem = rmw(elem.what)
+                    nextref = clearAst(elem[0].what[0])
                     symbol = elem[1]
                     expr = elem[2]
                     self.pos.append([nextref, symbol, expr])

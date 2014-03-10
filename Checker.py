@@ -297,16 +297,21 @@ class Checker(object):
                 nrname = ast2str(nextref).split(" ")[0]
                 expr = p[2]
                 exprname = ast2str(expr)
-                
+                localname = nrname
+                if nextref.__name__ == 'SUBSCRIPT':
+                    t1 = self.getSubscriptType(inst,nextref)
+                    localname = nrname.split('[')[0]
+                else:
+                    t1 = self.getTypeFromTable(inst, nrname)
+
                 # expr must be a local declared var
-                if not nrname in [x.name for x in pt.localvars]:
+                if not localname in [x.name for x in pt.localvars]:
                     raise Error("Error at <" + expr.__name__.line \
                         + ">. Only local declared variables are allowed to be" \
                         + " used in next expresions. \'" + ast2str(nextref) \
                         + "\' isn't a local declared variable in proctype \'" \
                         + pt.name + "\'.")
-                
-                t1 = self.getTypeFromTable(inst, nrname)
+
                 if p[1] == '=':
                     t2 = self.getExpresionType(inst, expr)
                 elif p[1] == 'in':
@@ -382,19 +387,27 @@ class Checker(object):
             self.allownextrefs = True
             for p in tr.pos:
                 nextref = p[0]
+                t1 = -1
                 nrname = ast2str(nextref)
+                localname = nrname         
+                if nextref.__name__ == 'SUBSCRIPT':
+                    t1 = self.getSubscriptType(inst,nextref)
+                    localname = nrname.split('[')[0]
+                else:
+                    t1 = self.getTypeFromTable(inst, nrname)
+
                 expr = p[1]
                 exprname = ast2str(expr)
                 
                 # expr must be a local declared var
-                if not nrname in [x.name for x in pt.localvars]:
+                if not localname in [x.name for x in pt.localvars]:
                     raise Error("Error at <" + expr.__name__.line \
                         + ">. Only local declared variables are allowed to be" \
                         + " used in next expresions. \'" + nrname \
                         + "\' isn't a local declared variable in proctype \'" \
                         + pt.name + "\'.")
 
-                t1 = self.getTypeFromTable(inst, nrname)
+                
                 if p[1].__name__ == "EXPRESION":
                     t2 = self.getExpresionType(inst, expr)
                 elif p[1].__name__ == "SET" or p[1].__name__ == "RANGE":
@@ -535,7 +548,7 @@ class Checker(object):
             undeclared names in the expresion.
         """
         assert isinstance(expr, pyPEG.Symbol)
-        assert expr.__name__ == "EXPRESION"
+        assert expr.__name__ == 'EXPRESION'
         return self.getPROPType(inst, expr.what[0])
 
     #-----------------------------------------------------------------------
@@ -543,7 +556,7 @@ class Checker(object):
 
         assert isinstance(inst, Parser.Instance)
         assert isinstance(ast, pyPEG.Symbol)
-        assert ast.__name__ == "PROP"
+        assert ast.__name__ == 'PROP'
         
         l = len(ast.what)
         t1 = self.getLOGICType(inst, ast.what[0])
