@@ -1,0 +1,5 @@
+Diagnosticabilidad:
+
+
+Diag := \forall f \in |\sigma|>n: obs(\sigma) = obs(\alpha) => f \in \alpha
+¬Diag := \exists |\sigma| > n : f \in \sigma \and \exists \alpha : obs(\sigma) = obs(\sigma) \and ¬(f \in \alpha)
