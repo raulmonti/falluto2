@@ -1,0 +1,19 @@
+OPTIONS
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE proc()
+	VAR
+		var1:bool
+	FAULT
+		fault1: is STOP
+	INIT
+		var1 = TRUE
+	TRANS
+		[]: 3 < 5 => var1' = ! var1
+ENDPROCTYPE
+
+INSTANCE inst = proc()
+INSTANCE inst2 = proc()
+INSTANCE inst4 = proc()
+INSTANCE inst3 = proc()

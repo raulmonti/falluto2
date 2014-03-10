@@ -1,0 +1,33 @@
+OPTIONS
+CHECK_DEADLOCK
+--FAULT_FAIR_DISABLE
+--INST_WEAK_FAIR_DISABLE
+ENDOPTIONS
+
+PROCTYPE proc1(;sync1,sync3)
+	VAR
+		var1:bool
+	FAULT
+		fault1: is STOP(sync1)
+	INIT
+		var1 = TRUE
+	TRANS
+		[sync1]: 3 < 5 => var1' = ! var1
+		[sync3]:	
+ENDPROCTYPE
+
+PROCTYPE proc2(;sync2,sync4)
+        VAR
+                var1:bool
+        FAULT
+                fault1: is STOP(sync4)
+        INIT
+                var1 = TRUE
+        TRANS
+                [sync2]: 3 < 5 => var1' = ! var1
+                [sync4]:
+ENDPROCTYPE
+
+
+INSTANCE inst1 = proc1(s1,s2)
+INSTANCE inst2 = proc2(s1,s2)
