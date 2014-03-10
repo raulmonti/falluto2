@@ -140,7 +140,7 @@ def SUBSCRIPT():
     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
            IDENT, -1, (re.compile(r"\["), B, [IDENT, INT], B, re.compile(r"\]"))
 
-# TODO BE MORE SPECIFIC IN THE CONSTRUCTION OF EACH PART OF THE MODEL E.J:
+# TODO BE MORE SPECIFIC IN THE CONSTRUCTION OF EACH PART OF THE MODEL EG:
 #
 # def SUBSCRIPT():
 #     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
