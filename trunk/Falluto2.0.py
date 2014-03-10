@@ -18,15 +18,56 @@ import Parser
 import Checker
 import Compiler
 import TraceInterpreter
-import Mejoras #DEBUGTODO__=True en Config.py para ver los debugs de este modulo
+import Mejoras
 from datetime import datetime
 import argparse
+#
+#
+# ------------------------------------------------------------------------------
+#
+#
+# Default working file name, for data shearing with NuSMV.
+#
+WORKINGFILE = "temp/output.smv"
+#
 #
 #===============================================================================
 
 
+
+
+
+################################################################################
+def parseInput():
+    """
+        Falluto command line input parsing using 
+        argparse library.
+    """
+    parser = argparse.ArgumentParser(prog='Falluto2.0', 
+        description='Falluto 2.0 Model Checker Using NuSMV')
+    parser.add_argument('--version', 
+        action='version', 
+        version='%(prog)s version 0.0')
+    parser.add_argument('filename', 
+        help = 'Input file path, where the description of the system has been '\
+             + 'written.')
+    parser.add_argument('-s','--s', '-save', 
+        help = 'Path of the file to be written with the NuSMV compiled model '\
+             + 'of the system.', dest='save', metavar='path')
+    parser.add_argument('-co', help='Color output.', 
+        action='store_true', dest='color')
+    return parser.parse_args()
 #...............................................................................
-def check_output(command, shell = False, universal_newlines = True):
+
+
+
+
+################################################################################  
+def run_subprocess(command, shell = False, universal_newlines = True):
+    """
+        Launch subprocess, open pipe and get output 
+        value and message using subprocess library.
+    """
     process = subprocess.Popen(command, shell=shell, stdout=subprocess.PIPE, \
               stderr=subprocess.STDOUT, universal_newlines=universal_newlines)
     output = process.communicate()
@@ -37,76 +78,91 @@ def check_output(command, shell = False, universal_newlines = True):
 #...............................................................................
 
 
-#...............................................................................
-def parseInput():
-    parser = \
-    argparse.ArgumentParser(prog='Falluto2.0', description='Falluto 2.0 Model Checker Using NuSMV')
-    parser.add_argument('--version', action='version', version='%(prog)s version 0.0')
-    parser.add_argument('filename', help='Input file path, where the description of the system has been written.')
-    parser.add_argument('-s','--s', '-save', help='Path of the file to be written with the NuSMV compiled model of the system.', dest='save', metavar='path')
-    parser.add_argument('-co', help='Color output.', action='store_true', dest='color')
-    return parser.parse_args()
 
-#...............................................................................
-
-#===============================================================================
+################################################################################
 if __name__ == '__main__':
+    """
+        Falluto2.0 main process string.
+    """
+    # Print Falluto2.0 header
+    print( "\033[1;94m[]\n[] FaLLuTO " \
+         + "2.0\n[] " + str(datetime.today()) + "\n[]\n\033[1;m")
 
+    # Parse input to this module
     args = parseInput()
 
-    print( "\033[1;94m\n******************************************************"\
-         + "*************************\n** FaLLuTO " \
-         + "2.0\n** " + str(datetime.today()) + "\n\033[1;m")
+    # Check for existence of input file
+    if not os.path.exists(args.filename):
+        ErrorOutput("File <" + args.filename + "> doesn't exists.\n", True)
+        sys.exit(0)
 
-    
-    files = fileinput.input(args.filename)
+    # Open the file
+    modelFile = fileinput.input(args.filename)
+    assert modelFile
 
-    if not files:
-        debugERROR("No input file!!! :S")
-
-    outputname = "temp/output.smv"
+    # Run
     try:
+        # Get a compiler and a trace interpreter.
         c = Compiler.Compiler()
         t = TraceInterpreter.TraceInterpreter()
-        #debugYELLOW("Parsing input...")
-        msys = Parser.parse(files)
-        #debugYELLOW("Checking system...")
+
+        # Parse de file.
+        msys = Parser.parse(modelFile)
+
+        # Check for correctness in the user model of the system.
         Checker.Check(msys)
-        #debugYELLOW("Compiling the input system...")
+
+        # Compile to NuSMV.
         c.compile(msys)
 
-        sysname = msys.name if msys.name != "" else "No Name System"
 
-        #Checking the smv system descripition:
-        colorPrint("debugYELLOW", "** Checking system: " + sysname)
+
+        # Checking the smv system descripition: just run NuSMV over the 
+        # system description without checking any property on it.
+        sysname = msys.name if msys.name != "" else "No Name System"
+        colorPrint("debugYELLOW", "[CHECKING] Checking system: " + sysname)
+
         #get the smv system description
-        c.writeSysToFile(outputname,[])
-        #debugCURRENT(outputfile)
+        c.writeSysToFile(WORKINGFILE,[])
+
         # Check the smv system description (raises subprocess.CalledProcessError
         # if NuSMV encounters that the descripton is incorrect).
-        output = check_output(["NuSMV", os.path.abspath(outputname)])
-        #debugCURRENT(output)
-        colorPrint("debugGREEN", "** " + sysname + " is OK!\n\n")
+        output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
 
+        colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
+
+
+
+        # Save a copy of the compiled system if asked so.
         if args.save:
             c.writeSysToFile(args.save,None)
 
-        for i in range(0, len(c.compiledproperties)):
-            c.writeSysToFile(outputname,[i])
 
-            output = check_output(["NuSMV", os.path.abspath(outputname)])
-#            debugCURRENT(output)
+        # Check one by one each property over the system.
+        for i in range(0, len(c.compiledproperties)):
+            # Prepair a file with the system compiled model
+            # and the i-th property.
+            c.writeSysToFile(WORKINGFILE,[i])
+
+            # Run the model checker.
+            output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
+            
+            # Interpret result and print user readible output.
             _color = False
             if args.color:
                 _color = True
+            # TODO puedo usar args.color como booleano directamente?
             t.interpret(c,output, i, _color)
-  
+
+
     except subprocess.CalledProcessError, e:
         debugERROR("Algo anduvo bien mal aca, escribir error en alguna lado y "\
             + "mandar mail a raul para que lo arregle\n")
         debugERROR("NUSMV: el archivo es erroneo. La salida es la que "\
             + "sige:\n\n" + str(e.cmd))
-#    except LethalE as e:
-#        colorPrint("debugRED", "ERROR:\t" + e.error)
+
+    except Exception, e:
+        colorPrint("debugRED", str(type(e)) + "\n" + str(e))
 
     sys.exit(0)
+

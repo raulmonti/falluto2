@@ -22,6 +22,9 @@ import Mejoras
 
 # TODO problema con ! var in {,,,}
 
+
+
+
 # THE COMPILER =================================================================
 
 class Compiler(object):
@@ -582,17 +585,17 @@ class Compiler(object):
 # sincronizacion en el proctype mas alla de tenerla como parametro.
     #.......................................................................
     def buildWeakFairContraint(self):
-        # SYSTEM - MODULE FAIRNESS
-        # Weak fairness para modulos. Un modulo que esta infinitamente 
-        # habilitado para realizar alguna accion normal, debe ser atendido 
-        # infinitamente a menudo. Un modulo puede entrar en deadlock cuando 
-        # todas sus guardas son inhabilitadas, pero puede salir del mismo a
-        # partir de cambios en el resto del sistema.
-        # Pedimos fairness para las acciones del modulo o para el estado de
-        # deadlock del modulo, de esta manera si el modulo nunca cae en dedalock
-        # (siempre esta habilitado para realizar una accion normal) entonces en 
-        # algun momento va a ser atendido.
-
+        """ SYSTEM - MODULE FAIRNESS
+            Weak fairness para modulos. Un modulo que esta infinitamente 
+            habilitado para realizar alguna accion normal, debe ser atendido 
+            infinitamente a menudo. Un modulo puede entrar en deadlock cuando 
+            todas sus guardas son inhabilitadas, pero puede salir del mismo a
+            partir de cambios en el resto del sistema.
+            Pedimos fairness para las acciones del modulo o para el estado de
+            deadlock del modulo, de esta manera si el modulo nunca cae en
+            dedalock (siempre esta habilitado para realizar una accion normal)
+            entonces en algun momento va a ser atendido.
+        """
         for inst in self.sys.instances.itervalues():
             self.save("\n")
             self.save(self.comment("  @@ MODULE FAIRNESS FOR "+inst.name+"\n"))

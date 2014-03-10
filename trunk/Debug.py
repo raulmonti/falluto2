@@ -115,6 +115,8 @@ def debugWARNING(string):
         + str(lineno())  + "]:\n" + str(string) + '\033[1;m\n',
     else:
         pass
+
+
 #
 # COLOR PRINTING ...............................................................
 #
@@ -124,3 +126,18 @@ def colorPrint(color, string, enter=True):
         print '\033[' + debugColorDict[color] + str(string) + '\033[1;m'
     else:
         print '\033[' + debugColorDict[color] + str(string) + '\033[1;m',
+
+
+
+#
+# OUTPUT MESSAGES
+#
+
+def ErrorOutput(string = "",withcolor = False):
+    out = "[Falluto2.0 ERROR] " + string
+    if not withcolor:
+        print out
+    else:
+        print '\033[' + debugColorDict["debugRED"] + out + '\033[1;m'
+
+

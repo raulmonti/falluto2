@@ -1,5 +1,5 @@
 OPTIONS
-SYSNAME Eleccion_De_Lider
+SYSNAME Eleccion_De_Lider_OJO_lo_corri_5_min_y_no_termino_
 CHECK_DEADLOCK
 --FAULT_SYS_FAIR_DISABLE
 --MODULE_WEAK_FAIR_DISABLE

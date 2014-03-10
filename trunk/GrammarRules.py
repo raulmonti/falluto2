@@ -241,7 +241,7 @@ def COMPASSION():   return keyword("COMPASSION") \
 # TESTS ........................................................................
 if __name__ == "__main__":
 
-    def TEST(): return ARRAY
+    def TEST(): return SYSTEM
 
     _file = fileinput.input()
     _ast = parse(TEST, _file, True, COMMENT, packrat = False)
