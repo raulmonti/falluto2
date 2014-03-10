@@ -1,0 +1,51 @@
+// Art, Art & Art
+
+MODELNAME           pAiNtInG_8-)
+CHECKDEADLOCK
+FAIRNESSOPTIONS
+DEFINE              red             0
+DEFINE              blue            1
+DEFINE              yellow          2
+DEFINE              _palette_        {red,blue,yellow}
+
+PROCTYPE Picasso (color1, color2; paint)
+
+    VAR
+        brush: _palette_
+        colors: array 0..2 of 0..10
+
+    FAULT
+        brushbroke: true => is STOP(paint)
+
+    INIT
+        (brush = color1 | brush = color2) & colors[red] = 10 & colors[blue] = 10
+        & colors[yellow] = 10
+
+    TRANS
+        // paint if I possible
+        [paint]: brush = red & colors[red] > 0
+                 =>
+                 colors[red]' = colors[red]-1;
+        [paint]: brush = red & colors[blue] > 0
+                 =>
+                 colors[blue]' = colors[blue]-1;
+        [paint]: brush = red & colors[yellow] > 0
+                 =>
+                 colors[yellow]' = colors[yellow]-1;
+        // change color of the brush
+        [changeColor]: true => brush' = red;
+        [changeColor]: true => brush' = blue;
+        [changeColor]: true => brush' = yellow;
+ENDPROCTYPE
+
+INSTANCE artist1 = Picasso(blue, red, go)
+INSTANCE artist2 = VanGogh(yellow, yellow, go)
+
+LTLSPEC G F just(go)                             // should be False !!!
+CTLSPEC EG just(artist1.changeColor)             // should be True  !!!
+FINITELYMANYFAULTS => AG artist1.colors[red] = 0 // should be False !!!
+
+/*
+We should end with 2
+very nice paintings :D
+*/

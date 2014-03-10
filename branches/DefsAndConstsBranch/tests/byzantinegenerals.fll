@@ -1,0 +1,66 @@
+---- Modelado de algoritmo tolerante al problema de los generales bizantinos
+---- para a lo sumo m generales traidores de entre 3m+1 generales en total.
+---- Para Falluto2.0
+---- Raúl Monti
+---- 21 de enero del 2013
+---- Córdoba, Argentina
+
+
+---- ******************* TREMENDAMENTE IMPOSIBLE DE PROBAR POR EL TAMAÑO :P:P:P:P:P ******************************
+
+OPTIONS
+SYSNAME GeneralesBizantinos
+CHECK_DEADLOCK
+ENDOPTIONS
+
+
+
+PROCTYPE generalLeal(g0,g1,g2,g3)
+	VAR
+		v:bool
+		d:bool
+		dd:bool
+		rv: array 0..3 of bool
+		s:0..5
+	INIT
+		!dd & !rv[0] & !rv[1] & !rv[2] & !rv[3]
+	TRANS
+		[readvote]: !rv[0] & g0.v => s' = s+1, rv[0]' = TRUE;
+		[readvote]: !rv[1] & g1.v => s' = s+1, rv[1]' = TRUE;
+		[readvote]: !rv[2] & g2.v => s' = s+1, rv[2]' = TRUE;
+		[readvote]: !rv[3] & g3.v => s' = s+1, rv[3]' = TRUE;
+		[readvote]: !rv[0] & !g0.v => rv[0]' = TRUE;
+		[readvote]: !rv[1] & !g1.v => rv[1]' = TRUE;
+		[readvote]: !rv[2] & !g2.v => rv[2]' = TRUE;
+		[readvote]: !rv[3] & !g3.v => rv[3]' = TRUE;
+		[decide]: rv[0] & rv[1] & rv[2] & rv[3] & s > 1 => d' = TRUE, dd' = TRUE;
+		[decide]: rv[0] & rv[1] & rv[2] & rv[3] & s <= 1 => d' = FALSE, dd' = TRUE;
+		
+		
+ENDPROCTYPE
+
+PROCTYPE generalTraidor(g0,g1,g2,g3)
+        VAR
+                v:bool
+                d:bool
+                dd:bool
+	FAULT
+		Enganar: is BYZ(v)
+        INIT
+		!dd
+        TRANS
+		[decide]: => dd' = TRUE;
+
+
+ENDPROCTYPE
+
+
+
+
+INSTANCE GL0 = generalLeal(GL1,GL2,GL3,GT)
+INSTANCE GL1 = generalLeal(GL0,GL3,GL2,GT)
+INSTANCE GL2 = generalLeal(GT,GL3,GL1,GL0)
+INSTANCE GL3 = generalLeal(GL1,GT,GL2,GL0)
+INSTANCE GT = generalTraidor(GL2,GL3,GL1,GL0)
+
+LTLSPEC F GL0.d = GL1.d & GL1.d = GL2.d & GL2.d = GL3.d

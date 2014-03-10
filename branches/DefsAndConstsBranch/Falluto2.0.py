@@ -27,20 +27,17 @@ import GrammarRules
 import shutil
 #
 #
-# ------------------------------------------------------------------------------
-#
+#===============================================================================
 # Default working file name, for data shearing with NuSMV.
 #
 WORKINGFILE = "temp/output.smv"
 EMAIL = "mail@mail.com"
 #
-#===============================================================================
-
 #==============================================================================#
 # LOCAL FUNCTIONS =============================================================#
 #==============================================================================#
 
-def parseInput():
+def parse_input():
     """
         Falluto command line input parsing using 
         argparse library.
@@ -60,8 +57,7 @@ def parseInput():
         action='store_true', dest='color')
     return parser.parse_args()
 
-#...............................................................................
-
+#===============================================================================
 def run_subprocess(command, shell = False, universal_newlines = True):
     """
         Launch subprocess, open pipe and get output 
@@ -75,8 +71,8 @@ def run_subprocess(command, shell = False, universal_newlines = True):
         raise subprocess.CalledProcessError(retcode, output[0])
     return output[0]
 
-#...............................................................................
-def printFallutoLog():
+#===============================================================================
+def print_falluto_log():
     print   """
  .----------------.  
 | .--------------. |
@@ -96,36 +92,32 @@ def printFallutoLog():
 #==============================================================================#
 
 if __name__ == '__main__':
-    """
-        Falluto2.0 main process.
-    """
-    printFallutoLog()
+    """ Falluto2.0 main process. """
     # Print Falluto2.0 header
+    print_falluto_log()
     print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
-          + " --\n -- " + EMAIL)
+          + "\n -- " + EMAIL)
 
     # Parse command line input
-    args = parseInput()
+    args = parse_input()
 
     print " -- Input file %s"%args.filename+"\n"
 
     # Check for existence of input file
     if not os.path.exists(args.filename):
-        LERROR("File <" + args.filename + "> doesn't exists.\n")
-        raise Error("File <" + args.filename + "> doesn't exists.\n")
+        LERROR("File <" + args.filename + "> doesn't exists.")
+        raise Error("File <" + args.filename + "> doesn't exists.")
         
     elif not os.path.isfile(args.filename):
         LERROR( "Path <"+ str(args.filename) +"> is not a valid file to "\
               + "parse :S.")
         raise Error( "Path <"+ str(args.filename) +"> is not a valid file to "\
                    + "parse :S.")
-
     # Run
     try:
-
         # get a copy of the original file to work on.
         _fpath = TEMP_DIR__+'/'+args.filename.split('/')[-1]
-        LDEBUG("Wrking model file at: "+ _fpath)
+        LDEBUG("Working model file at: "+ _fpath)
         shutil.copy2(args.filename, _fpath)
 
         # Get a compiler and a trace interpreter.
@@ -140,6 +132,8 @@ if __name__ == '__main__':
         # Sintax replacement dough to definitions (also checks definitions).
         LDEBUG("Precompiling ...")
         SyntaxRepl.precompile(_ppmodel, _fpath+".precompiled")
+        if args.save:
+            shutil.copy2(_fpath+".precompiled", args.save+".precompiled")
         LDEBUG("Precompiled ;)")
 
         # Parse the sintax replaced file, and get the model in our own 
@@ -180,11 +174,11 @@ if __name__ == '__main__':
         if args.color:
             colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
         else:
-            LINFO('[OK] ' + sysname + ' is OK!')
+            LINFO('[OK] ' + sysname + ' is OK!\n')
 
         # Save a copy of the compiled system if asked so.
         if args.save:
-            c.writeSysToFile(args.save,None)
+            c.writeSysToFile(args.save+".smv",None)
 
         # Check one by one each property over the system.
         for i in range(0, len(c.compiledproperties)):
@@ -196,13 +190,11 @@ if __name__ == '__main__':
             output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
             
             # Interpret result and print user readible output.
-            t.interpret(c,output, i, args.color)
-
-        exit(0) #--------------------------------------------------------------->>>>
+            t.interpret(c,output,i,args.color)
 
     except Exception, e:
         if DEBUG__:
-            LEXCEPTION("")
+            LEXCEPT("")
         elif type(e) == subprocess.CalledProcessError:
             LCRITICAL("Algo anduvo bien mal aca, escribir error en alguna lado"\
                 + " y mandar mail a raul para que lo arregle\n")
@@ -213,14 +205,15 @@ if __name__ == '__main__':
         elif type(e) == Critical:
             LCRITICAL(":S something very bad happened.")
         else:
-            LEXCEPTION("Exception caught :S " + str(type(e)) + "\n" + str(e))
-    #finally: #FIXME
-        # remove file working copy
-        #os.remove(_fpath)
-        #os.remove(_fpath+".precompiled")
+            LEXCEPT("Exception caught :S " + str(type(e)) + "\n" + str(e))
+
+    finally:
+        # remove file working copies
+        if os.path.exists(_fpath):
+            os.remove(_fpath)
+        if os.path.exists(_fpath+".precompiled"):
+            os.remove(_fpath+".precompiled")
+        if os.path.exists(WORKINGFILE):
+            os.remove(WORKINGFILE)
 
     sys.exit(0)
-
-
-
-#FIXME may need to get reed of comments before parsing with Parser module.

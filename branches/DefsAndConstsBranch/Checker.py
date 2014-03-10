@@ -754,15 +754,15 @@ class Checker(object):
             (_l,_u) = self.getIndexRange(inst
                                         , ast2str(_subs[_idx])
                                         , ast2str(subs))
-            #FIXME somehow I'm checking this twise :S
             if int(_type.start) > _u or int(_type.end) < _l:
                  raise Error( "Subscription out of range at <" + line + ">,"\
                             + "inside \'" + ast2str(subs) + "\'.")
             elif int(_type.start) > _l or int(_type.end) < _u:
                 raise Error( "While checking instance <" + inst.name\
-                           + ">: subscription <" + ast2str(_subs[_idx])\
-                           + "> may go out of range at <" + line\
-                           + ">, " + "inside \'" + ast2str(subs) + "\'.")
+                             + ">: subscription <" + ast2str(_subs[_idx])\
+                             + "> may go out of range"
+                           , "\'"+ ast2str(subs) + "\'."
+                           , "line <" + line + "> of your model file.")
 
             _type = _type.domain
 
