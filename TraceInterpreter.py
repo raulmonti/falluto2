@@ -5,14 +5,12 @@
     archivo generado por Falluto.
     
 """
-
-
 import pyPEG
 from pyPEG import keyword, _and, _not, ignore, parseLine
 import re
 from Debug import *
 from Config import *
-from Utils import TabLevel, _str, _cl
+from Utils import TabLevel, ast2str, ast2lst
 from Compiler import Compiler
 from Types import Types
 import os
@@ -115,18 +113,20 @@ class TraceInterpreter():
                       + "interpretar lo que sigue:\n\n"  + rest)
             os._exit(1)
 
-        specrepr = cosys.compiledproperties[specindex][0]
+        specrepr = cosys.compiledproperties[specindex]['repr']
+        specname = cosys.compiledproperties[specindex]['name']
         for sp in ast:
             if sp.__name__ == "TRUESPEC":
-                print self.CG + "|+|\tSpecification " + self.CE + self.CY \
-                    + str(specrepr) + self.CE + self.CG  + " is true\n\n" \
-                    + self.CE
+                print self.CG + "|+| - Specification " + self.CE + self.CY \
+                    + str(specname) + "\n    - " + specrepr + self.CE + self.CG\
+                    + "\n    - is true\n\n" + self.CE
 
             elif sp.__name__ == "FALSESPEC":
-                print self.CR + "|-|\tSpecification " + self.CE + self.CY \
-                    + str(specrepr) \
-                    + self.CE + self.CR  + " is false\n\n" + self.CE \
-                    + "\tas demonstrated by the following execution sequence:\n"
+                print self.CR + "|-| - Specification " + self.CE + self.CY \
+                    + str(specname)  + "\n    - " + specrepr\
+                    + self.CE + self.CR  + "\n    - is false" + self.CE \
+                    + "\n    - as demonstrated by the following execution"\
+                    + " sequence:\n"
                 self.tab.i()
                 self.interpret_trace(sp.what[1])
                 self.tab.d()

@@ -1,5 +1,5 @@
 OPTIONS
---CHECK_DEADLOCK
+CHECK_DEADLOCK
 ENDOPTIONS
 
 PROCTYPE proc()
@@ -11,8 +11,10 @@ PROCTYPE proc()
 	INIT
 		var1 = TRUE
 	TRANS
-		[trans1]: 3 < 5 => var1' = ! var1
+		[trans1]: 3 < 5 => var1' = ! var1;
+
 ENDPROCTYPE
+
 
 INSTANCE inst = proc()
 

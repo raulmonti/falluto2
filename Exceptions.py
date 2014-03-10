@@ -1,20 +1,30 @@
+# Moduel Exceptions
+# Author Raul
+# 07/02/2014 14:18:14 
+
+import traceback
+from Config import TRACEBACKLIMIT__
 from Types import *
-from Utils import _str, putBrackets
+from Utils import ast2str, putBrackets
 
 
 ################################################################################
-class BaseException():
-    def __init__(self):
-        self.error = ""
-        self.cause = ""
-        self.where = ""
+class BaseException(Exception):
+    def __init__(self,error="", cause="", where=""):
+        self.error = error
+        self.cause = cause
+        self.where = where
     def __str__(self):
-        return str(self.error)
+        return str(unicode(self))
     def __repr__(self):
-        return repr(self.error)
+        return repr(unicode(self))
     def __unicode__(self):
-        return unicode(self.error)
-
+        result = unicode(self.error) + "\n"
+        if self.cause != "":
+            result += "   in: " + unicode(self.cause)
+        if self.where != "":
+            result += "\n   at: " + unicode(self.where)
+        return result
 
 ################################################################################
 class LethalE(BaseException):
@@ -22,6 +32,18 @@ class LethalE(BaseException):
         BaseException.__init__(self)
         #assert isinstance(error, unicode)
         self.error = str(error)
+
+################################################################################
+class Error(BaseException):
+    def __init__(self, error, cause="", where=""):
+        BaseException.__init__(self,error,cause,where)
+
+################################################################################
+class Critical(BaseException):
+    def __init__(self, error):
+        BaseException.__init__(self)
+        self.error = str(error)
+
 
 
 ################################################################################
@@ -74,20 +96,14 @@ class NextRefNotAllowedE(BaseException):
 ################################################################################
 class WrongTFO(LethalE): #wrong types for operand
     def __init__(self, t1, t2, operand, where, line):
-        t1s = ""
-        t2s = ""
-        exp = ""
-        try:
-            t1s = Types.Types[t1]
-            t2s = Types.Types[t2]
-            exp = putBrackets(where)
-        except:
-            pass
+        t1s = Types.Types[t1]
+        t2s = Types.Types[t2]
+        exp = putBrackets(where)
 
-        raise LethalE( "Wrong types <" + t1s + "> and <" + t2s \
-                     + "> for operand \'" + str(operand)
-                     + "\' in expresion \'" + exp + "\', at <" 
-                     + str(line) + ">.")
+        raise Error( "Wrong types <" + t1s + "> and <" + t2s \
+                   + "> for operand \'" + str(operand)
+                   + "\' in expresion \'" + exp + "\', at <" 
+                   + str(line) + ">.")
 ################################################################################
 class SysError():
     def __init__(self):

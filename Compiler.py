@@ -2,6 +2,7 @@
 # Module: Compiler.py
 # Author: Raul Monti
 # F A LL U T O 2.0
+# Mon 27 Jan 2014 05:55:42 PM ART
 #===============================================================================
 #
 from Parser import *
@@ -11,16 +12,17 @@ import Debug
 from Types import *
 import Types
 from Utils import *
-from Utils import _cl, _str
+from Utils import ast2lst, ast2str
 import Utils
 from Checker import *
 import Checker
-
 import Mejoras
+
 #
 #===============================================================================
 
-# TODO problema con ! var in {,,,}
+# FIXME problema con ! var in {,,,}
+
 
 # THE COMPILER =================================================================
 
@@ -33,12 +35,11 @@ class Compiler(object):
         The saveToFile method in this class allows you to save the compiled
         system into a file in order to check it with NuSMV.
     """
-
     #
     FILEHEADER = \
     """********** F A L L U T O 2.0 COMPILED SYSTEM FOR NuSMV **********\n\n"""
 
-    #
+    # Global instance name? Lets say the parallel composition system name?
     __glinst = "Glob#inst"
 
     # Some names for the compiled system
@@ -51,9 +52,9 @@ class Compiler(object):
 
     #.......................................................................
     def __init__(self):
-        self.compiledstring     = "" # String with the compiled system
-        self.compiledproperties = [] # Read buildProperties() method
-
+        self.compiledstring     = ""    # String with the compiled system
+        self.compiledproperties = []    # Read buildProperties() method
+    
         self.sys                = None
         self.tl                 = TabLevel()
 
@@ -67,7 +68,7 @@ class Compiler(object):
 
     #.......................................................................
     def compile(self, system):
-        assert isinstance(system, Parser.System)
+        assert isinstance(system, Parser.Model)
         self.sys = system
 
         # fill tables
@@ -80,9 +81,7 @@ class Compiler(object):
         # compile the system and save it in self.compiledstring
         self.compileSystem()
 
-
     #.......................................................................
-    # Llenar un 'set' con todas los nombres de variables del programa compilado
     def fillVarSet(self):
         """
             Fill in self.varset with every variable name to be in the
@@ -96,7 +95,7 @@ class Compiler(object):
                 self.varset.add(self.compileFaultActive(inst.name, f.name))
             # common variables
             for var in pt.localvars:
-                if not var.isarray:
+                if not var.type.type == Types.Array:
                     self.varset.add(self.compileLocalVar(inst.name, var.name))
                 else:
                     for v in self.arrayToVars(var):
@@ -113,13 +112,17 @@ class Compiler(object):
             names representing each position of the array.
         """
         assert isinstance(array, Parser.VarDeclaration)
-        assert array.isarray
-        result = []
-        f = int(array.range[0])
-        t = int(array.range[1])
-        for i in range(f,t+1):
-            result.append(array.name + "[" + str(i) + "]")
-        return result
+        assert array.type.type == Types.Array
+        _result = [array.name]
+        _t = array.type
+        while _t.type == Types.Array:
+            _auxres = []
+            for l in range(0,len(_result)):
+                for _i in range(int(_t.start), int(_t.end)+1):
+                    _auxres.append(_result[l]+'['+str(_i)+']')
+            _result = _auxres
+            _t = _t.domain
+        return _result
 
     #.......................................................................
     def fillVarCompilationTable(self):
@@ -152,8 +155,8 @@ class Compiler(object):
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for i in range(0,len(pt.contextvars)):
-                scv = _str(pt.contextvars[i])
-                siv = _str(inst.params[i])
+                scv = ast2str(pt.contextvars[i])
+                siv = ast2str(inst.params[i])
                 # if the parameter is an instance reference
                 if siv in self.sys.instances:
                     pinst = self.sys.instances[siv]
@@ -173,8 +176,8 @@ class Compiler(object):
                     self.ctable[inst.name][scv] = self.compileBOOLorINT(siv)
 
         # DEFINEs
-        for d in self.sys.defines.itervalues():
-            dname = _str(d.dname)
+        for d in self.sys.defs.itervalues():
+            dname = ast2str(d.dname)
             compd = self.compileDefine(dname)
             self.ctable[Compiler.__glinst][dname] = compd
 
@@ -200,14 +203,14 @@ class Compiler(object):
             n = len(pt.contextvars)
             i = 0
             # for each synchro action
-            for sname in [_str(x) for x in inst.params[n::]]:
+            for sname in [ast2str(x) for x in inst.params[n::]]:
                 try:
                     table = self.syncToTrans[sname]
                 except:
                     self.syncToTrans[sname] = {}
 
                 # get synchronized action name from the proctype
-                ptstname = _str(pt.synchroacts[i])
+                ptstname = ast2str(pt.synchroacts[i])
                 for t in pt.transitions:
                     if t.name == ptstname:
                         try:
@@ -317,7 +320,7 @@ class Compiler(object):
         # STOP faults that disable this transitions
         for f in [x for x in pt.faults if x.type == Types.Stop]:
             if f.affects == [] or \
-                trans.name in [_str(x) for x in f.affects]:
+                trans.name in [ast2str(x) for x in f.affects]:
                 elst.append(self.neg(
                     self.compileFaultActive(inst.name, f.name)))
         # Transition enable condition
@@ -333,11 +336,16 @@ class Compiler(object):
         changed = set([])
         # Transition postcondition
         for p in trans.pos:
-            cref = self.compileLocalVar(iname, _str(p[0],False))
+            cref = self.compileLocalVar(iname, ast2str(p[0],False))
             changed.add(cref)
+            _u = ''
+            if p[1].__name__ == "SET" or p[1].__name__ == "RANGE":
+                _u = 'in'
+            else:
+                _u = '='
             plst.append( self.compileNextRef(cref) \
-                         + ' ' + _str(p[1]) + ' ' \
-                         + self.compileAST(iname, p[2]))
+                         + ' ' + _u + ' ' \
+                         + self.compileAST(iname, p[1]))
         # program counter
         plst.append(self.compileNextRef(self.compileIPC(iname)) + ' = ' \
             + str(trans.pc))
@@ -366,7 +374,7 @@ class Compiler(object):
                     = self.compileFaultActionVar(inst.name, f.name)
             # Normal not synchronous transitions
             for t in pt.transitions:
-                if not t.name in [_str(x) for x in pt.synchroacts]:
+                if not t.name in [ast2str(x) for x in pt.synchroacts]:
                     self.gtctable[inst.name + '.' + t.name] \
                         = self.compileAction(inst.name, t.name)
 
@@ -395,8 +403,8 @@ class Compiler(object):
     #.......................................................................
     def buildDefines(self):
         self.save(self.comment( " @@@ DEFINITIONS." ))
-        for d in self.sys.defines.itervalues():
-            cdname = self.compileDefine(_str(d.dname))
+        for d in self.sys.defs.itervalues():
+            cdname = self.compileDefine(ast2str(d.dname))
             self.save( "DEFINE " + cdname + " := " \
                      + self.compileAST(Compiler.__glinst, d.dvalue) + ";")
 
@@ -416,11 +424,11 @@ class Compiler(object):
                 lst.add(self.compileFaultActionVar(inst.name, fault.name))
             # transitions
             for act in pt.transitions:
-                if not act.name in [_str(x) for x in pt.synchroacts]:
+                if not act.name in [ast2str(x) for x in pt.synchroacts]:
                     lst.add(self.compileAction(inst.name, act.name))
             n = len(pt.contextvars)
             # Synchro actions
-            for act in [_str(x) for x in inst.params[n::]]:
+            for act in [ast2str(x) for x in inst.params[n::]]:
                 lst.add(self.compileSynchroAct(act))
             # BYZ effects
             for f in pt.faults:
@@ -437,15 +445,15 @@ class Compiler(object):
             for var in pt.localvars:
                 vname = self.ctable[inst.name][var.name]
                 if var.type == Types.Bool:
-                    #TODO muy choto este parche, corregir cuando haya tiempo
+                    #FIXME muy choto este parche, corregir cuando haya tiempo
                     if var.isarray:
                         self.save( vname + " : array " + str(var.range[0]) \
                                  + ".." + str(var.range[1]) + " of boolean;")
                     else:
                         self.save(vname + ":boolean;")
                 else:
-                    self.save(self.compileAST( inst.name, var.rawinput \
-                                             , True, pb = False) + ';')
+                    self.save(self.compileAST( inst.name, var.pypeg \
+                                             , True, pb = False)+";")
 
         # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -474,11 +482,13 @@ class Compiler(object):
             if p.type == Types.Ctlspec:
                 pRepr = "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append( (pRepr, pComp) )
+                self.compiledproperties.append( 
+                    self.makeProp('"'+p.name[1:-1]+'"', pRepr, pComp))
             elif p.type == Types.Ltlspec:
                 pRepr = "LTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append( (pRepr, pComp) )
+                self.compiledproperties.append(
+                    self.makeProp('"'+p.name[1:-1]+'"', pRepr, pComp))
             elif p.type == Types.Nb:
                 self.compiledproperties.append(self.compileNbPropertie(p))
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
@@ -516,7 +526,9 @@ class Compiler(object):
                       + self.compileSet(faults) + " ) ) -> "
         formula = self.replaceEvents(p.formula)
         strprop += self.compileAST(Compiler.__glinst, formula)
-        return ("NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False), strprop)
+        return self.makeProp('"' + p.name[1:-1] + '"'
+            , "NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False)
+            , strprop)
     #.......................................................................
     def compileFmfPropertie(self, p):
         """
@@ -532,7 +544,7 @@ class Compiler(object):
                 for f in pt.faults:        
                     faults.append(self.compileFaultActionVar(i.name,f.name))
         elif p.type == Types.Fmf:
-            for f in [_str(x) for x in p.params]:
+            for f in [ast2str(x) for x in p.params]:
                 assert '.' in f
                 ii, ff = f.split('.',1)
                 faults.append(self.compileFaultActionVar(ii,ff))
@@ -545,14 +557,18 @@ class Compiler(object):
         strprop += self.compileAST(Compiler.__glinst,formula)
      
         if p.type == Types.Fmfs:
-            return \
-            ("FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False), strprop)
+            return self.makeProp(
+                '"' + p.name[1:-1] + '"',
+                "FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False),
+                strprop)
         else:
-            return \
-            ("FINITELY_MANY_FAULT (" \
-            + self.symbolSeparatedTupleString( \
-            [_str(x) for x in p.params], False, False, ',') \
-            + ';' + putBracketsToFormula(p.formula,False) + ")", strprop)
+            return self.makeProp(
+                '"' + p.name[1:-1] + '"',
+                "FINITELY_MANY_FAULT (" \
+                + self.symbolSeparatedTupleString( \
+                [ast2str(x) for x in p.params], False, False, ',') \
+                + ';' + putBracketsToFormula(p.formula,False) + ")"
+                , strprop)
     #.......................................................................
     def buildContraints(self):
         self.save("\n\n")
@@ -574,7 +590,9 @@ class Compiler(object):
         self.save("FAIRNESS TRUE") 
     #.......................................................................
     def buildDkCheckPropertie(self):
-        self.compiledproperties.append(("NEVER FALLS IN DEADLOCK", \
+        self.compiledproperties.append(self.makeProp(
+            "NEVER FALLS IN DEADLOCK",
+            "DEADLOCK CHECK",
             "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact))
 
 
@@ -582,17 +600,17 @@ class Compiler(object):
 # sincronizacion en el proctype mas alla de tenerla como parametro.
     #.......................................................................
     def buildWeakFairContraint(self):
-        # SYSTEM - MODULE FAIRNESS
-        # Weak fairness para modulos. Un modulo que esta infinitamente 
-        # habilitado para realizar alguna accion normal, debe ser atendido 
-        # infinitamente a menudo. Un modulo puede entrar en deadlock cuando 
-        # todas sus guardas son inhabilitadas, pero puede salir del mismo a
-        # partir de cambios en el resto del sistema.
-        # Pedimos fairness para las acciones del modulo o para el estado de
-        # deadlock del modulo, de esta manera si el modulo nunca cae en dedalock
-        # (siempre esta habilitado para realizar una accion normal) entonces en 
-        # algun momento va a ser atendido.
-
+        """ SYSTEM - MODULE FAIRNESS
+            Weak fairness para modulos. Un modulo que esta infinitamente 
+            habilitado para realizar alguna accion normal, debe ser atendido 
+            infinitamente a menudo. Un modulo puede entrar en deadlock cuando 
+            todas sus guardas son inhabilitadas, pero puede salir del mismo a
+            partir de cambios en el resto del sistema.
+            Pedimos fairness para las acciones del modulo o para el estado de
+            deadlock del modulo, de esta manera si el modulo nunca cae en
+            dedalock (siempre esta habilitado para realizar una accion normal)
+            entonces en algun momento va a ser atendido.
+        """
         for inst in self.sys.instances.itervalues():
             self.save("\n")
             self.save(self.comment("  @@ MODULE FAIRNESS FOR "+inst.name+"\n"))
@@ -601,7 +619,7 @@ class Compiler(object):
             pt = self.sys.proctypes[inst.proctype]
 
             # not synchro transition
-            slst = [_str(x) for x in pt.synchroacts]
+            slst = [ast2str(x) for x in pt.synchroacts]
             for t in pt.transitions:
                 if not t.name in slst:
                     # put names into the list
@@ -615,8 +633,8 @@ class Compiler(object):
             n = len(pt.contextvars)
             i = 0
             for stname in inst.params[n::]:
-                stname = _str(stname)
-                sa = _str(pt.synchroacts[i])                
+                stname = ast2str(stname)
+                sa = ast2str(pt.synchroacts[i])                
                 if sa in [t.name for t in pt.transitions]:
                     # put names into the list
                     actVec.append(self.compileSynchroAct(stname))
@@ -666,7 +684,7 @@ class Compiler(object):
         for i in self.sys.instances.itervalues():
             pt = self.sys.proctypes[i.proctype]
             for t in pt.transitions:
-                if t.name not in [_str(x) for x in pt.synchroacts]:
+                if t.name not in [ast2str(x) for x in pt.synchroacts]:
                     actionset.add(self.transdict[i.name][t.name][t.pc][0])
 
         for e in self.syncToTrans.iterkeys():
@@ -730,7 +748,7 @@ class Compiler(object):
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for trans in pt.transitions:
-                if not trans.name in [_str(x) for x in pt.synchroacts]:
+                if not trans.name in [ast2str(x) for x in pt.synchroacts]:
                     tlst.append(self.buildCommonTrans(inst,pt,trans))
         # synchro transitions
         for trans in self.syncToTrans.iterkeys():
@@ -814,9 +832,9 @@ class Compiler(object):
         # POSTCONDITIONS
         # Transition postcondition
         for p in f.pos:
-            cref = self.compileLocalVar(inst.name, _str(p[0],False))
+            cref = self.compileLocalVar(inst.name, ast2str(p[0],False))
             vset.add(cref)
-            ftlst.append( self.compileNextRef(cref) + ' ' + _str(p[1]) + ' ' \
+            ftlst.append( self.compileNextRef(cref) + ' ' + ast2str(p[1]) + ' ' \
                         + self.compileAST(inst.name, p[2]))
         # fault activation var
         if f.type != Types.Transient:
@@ -847,7 +865,7 @@ class Compiler(object):
             #con agregarlas a la lista de excepcion ya me aseguro de que no se
             #defina el proximo valor para la variable y por lo tanto NuSMV le
             #asigne un valor aleatorio dentro de su dominio. 8-)
-            exceptSet.add(self.compileLocalVar(inst.name,_str(e)))
+            exceptSet.add(self.compileLocalVar(inst.name,ast2str(e)))
         #everithing else:
         for v in self.varset - exceptSet:
             thistransvect.append("next(" + v + ") = " + v)
@@ -865,7 +883,7 @@ class Compiler(object):
             pt = self.sys.proctypes[inst.proctype]
             # negation of local transitions preconditions
             for trans in pt.transitions:
-                if trans.name not in [_str(x) for x in pt.synchroacts]:
+                if trans.name not in [ast2str(x) for x in pt.synchroacts]:
                     tvect = []
                     for p in self.transdict[inst.name][trans.name][trans.pc][1]:
                         tvect.append(self.neg(p))                    
@@ -905,7 +923,7 @@ class Compiler(object):
         for f in [x for x in pt.faults if x.type == Types.Stop]:
             # action != f.name so global stop faults dont stop them selves
             # don't know if it's right to do so.
-            if (act.name in [_str(x) for x in f.affects]) or (f.affects == []) \
+            if (act.name in [ast2str(x) for x in f.affects]) or (f.affects == []) \
                 and act.name != f.name:
                 faultlist.append(f)
         return faultlist
@@ -954,20 +972,21 @@ class Compiler(object):
         if props == None:
             for p in self.compiledproperties:
                 fileOutput.write(\
-                    "\n" + self.comment("  @@ PROPERTIE: " + p[0] + "\n"))
-                fileOutput.write(p[1] + "\n")
+                    "\n" + self.comment("  @@ PROPERTIE: " + p['name'] + "\n"))
+                fileOutput.write(p['prop'] + "\n")
         else:
             for i in props:
                 try:
                     p = self.compiledproperties[i]
-                    fileOutput.write(\
-                        "\n" + self.comment("  @@ PROPERTIE: "+ p[0] +"\n"))
-                    fileOutput.write(p[1] + "\n")
+                    fileOutput.write(
+                        "\n" + self.comment("  @@ PROPERTIE: "+p['name']+"\n"))
+                    fileOutput.write(p['prop'] + "\n")
                 except:
-                    debugWARNING( "Propertie index out of range. Not writing " \
+                    debugWARNING( "Propertie index out of range. Not writing "\
                                 + "propertie " + str(i) + " to file.\n")
+
     #.......................................................................
-    def symbolSeparatedTupleString(self, array, parent = False, enter=False, \
+    def symbolSeparatedTupleString(self, array, parent = False, enter=False,\
                                      amp = '&'):
         parentopen = ""
         parentclose = ""
@@ -1037,7 +1056,7 @@ class Compiler(object):
                 ps.what.append(unicode('('))
                 ps.what.append(unicode(Compiler.__actvar)) 
                 ps.what.append(unicode(" = "))
-                ps.what.append(unicode(self.gtctable[_str(ast.what[1])]))
+                ps.what.append(unicode(self.gtctable[ast2str(ast.what[1])]))
                 ps.what.append(unicode(')'))
                 return ps
             else:
@@ -1054,42 +1073,72 @@ class Compiler(object):
         assert False #never come out here
             
     #.......................................................................
+
     def compileAST(self, iname, ast, space = True, pb = True):
+        """ Get a pyPEG ast structure with some expresion and return a string
+            representing the information in that structure, but with 
+            symbols replaced to its compiled values as should apear in the
+            NuSMV model file.
+            @input iname: the instance name to which de expresion in ast 
+                          corresponds, (needed for compiling the symbols).
+            @input ast  : the ast structure to compile.
+            @input pb   : if we wan't to plave brackets to ensure formulas 
+                          operators presedence.
+        """
         if ast == None:
             return ""
         if pb:
-            ast = putBracketsAsList(ast)
+            # ast = putBracketsAsList(ast) FIXME we may need to do this
+            # if NuSMV desagrees with us :S.
+            pass
         sp = ""
         if space:
             sp = " "
         string = ""
-        for x in _cl(ast):
+        # we don't want spaces nor comments
+        for x in ast2lst(ast,['BL','COMMENT']):
             try:
                 string += self.ctable[iname][x] + sp
             except:
-                # TODO feo parche :s
+                # FIXME feo parche :s
                 if x == '%':
                     string += "mod"
+                elif x == 'True':
+                    string += 'TRUE'
+                elif x == 'False':
+                    string += 'FALSE'
                 else:
                     string += x
                 if x != '!' and x != '-':
                     string += sp
         return string
+
     #.......................................................................
     def compileFaultActive(self, iname, fname):
         return "factive#" + iname + '#' + fname
+
     #.......................................................................
     def compileNextRef(self, ref):
         return "next(" + ref + ")"
+
     #.......................................................................
     def compileBOOLorINT(self, value):
-        return _str(value)
+        return ast2str(value)
+
     #.......................................................................
     def compileDefine(self, name):
         return "def#" + str(name)
+
     #.......................................................................
     def compileIPC(self, iname):
         return "ipc#" + iname
+
+    #=======================================================================
+    def makeProp(self, name="", representation="", prop=""):
+        """ Compiled properties as dicts """
+        return {"name":name, "repr":representation, "prop":prop}
+    
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
