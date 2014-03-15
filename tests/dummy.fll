@@ -35,20 +35,20 @@ ENDPROCTYPE
 INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
 INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
 
-LTLSPEC G F True
+PROPERTY prop = LTLSPEC G F True
 
-FINITELY_MANY_FAULTS -> G F True
+PROPERTY = FINITELY_MANY_FAULTS -> G F True
 
-FINITELY_MANY_FAULTS -> F G True "algo para que la gente lea"
+PROPERTY = FINITELY_MANY_FAULTS -> F G True "algo para que la gente lea"
 
-LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
+PROPERTY = LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
         " la_manzana_se_vuelve_pera"
 
-FINITELY_MANY_FAULT(instance.falla) -> G F True & instance.boolvar -> instance2.boolvar 
+PROPERTY = FINITELY_MANY_FAULT(instance.falla) -> G F True & instance.boolvar -> instance2.boolvar 
         " la_manzana_se_vuelve_pera"
 
-CTLSPEC AF True "Nothing useful"
+PROPERTY NU = CTLSPEC AF True "Nothing useful"
 
-FINITELY_MANY_FAULT(instance.falla) -> True "Falla especifica"
+PROPERTY = FINITELY_MANY_FAULT(instance.falla) -> True "Falla especifica"
 
 // comment3

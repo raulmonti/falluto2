@@ -386,7 +386,7 @@ class Checker(object):
             # pos
             self.allownextrefs = True
             for p in tr.pos:
-                nextref = p[0]
+                nextref = p[0].what[0]
                 t1 = -1
                 nrname = ast2str(nextref)
                 localname = nrname         
@@ -959,8 +959,6 @@ if __name__ == "__main__":
 # TODO Aclarar que instancia se esta checkeando al levantar una excepcion de 
 # tipos. Quizas deberia distinguirse entre errores de tipado 'sintactico' y 
 # aquellos que surgen de un erroneo pasaje de variables de contexto.
-
-# TODO eliminar codigo basura (el que esta comentado y no sirve)
 
 # TODO I think that redeclared is not a word in any language. Change it if so
 

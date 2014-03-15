@@ -345,4 +345,10 @@ def getAst(ast=[], getList=[]):
     else:
         raise TypeError(str(ast))
     return _res
- #TODO clean module ( a lot of functions never used )
+
+#===============================================================================
+def getAst2(ast=[], getLst=[]):
+    _ret = getAst(ast,getLst)
+    if len(_ret) == 1:
+        _ret = _ret[0]
+    return _ret
