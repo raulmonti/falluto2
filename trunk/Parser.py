@@ -18,7 +18,7 @@ from pyPEG import Symbol
 from GrammarRules import GRAMMAR, COMMENT, EXPRESION
 import fileinput
 from Utils import cleanAst, ast2str, getBestLineNumberForExpresion, getAst, rmw
-from Utils import clearAst
+from Utils import clearAst, ast2lst, getAst2
 import Utils
 import shutil
 import os.path
@@ -34,7 +34,7 @@ def parse(filePath = None):
         to fill up our specific structures which are easier to work with.
         Returns a 'Model' instance with the parsed model.
         
-        @input filePath: the path of the file to be parsed
+        @input filePath: the path of the file to be parsed.
     """
     if filePath == None or not os.path.isfile(filePath):
         raise Error( "Path <"+ str(filePath) +"> is not a valid file to "\
@@ -92,7 +92,7 @@ class ParserBaseElem(object):
 
     def cl(self):
         try:
-            lst = _cl(self.rawinput)
+            lst = ast2lst(self.pypeg)
             return lst
         except:
             return []
@@ -124,6 +124,13 @@ class Model(ParserBaseElem):
         self.properties = {}
         self.contraints = {}
         self.options    = {}
+        self.nnnprops   = 0     #Number of no named properties
+
+    def getProperties(self):
+        """ get the parsed properties in a dictionary with property names
+            as keys and property objects as values.
+        """
+        return self.properties
 
     def clear(self):
         """ Completely clean this structure to it's original values. """
@@ -139,23 +146,24 @@ class Model(ParserBaseElem):
                         from GrammarRules.py.
         """
         assert isinstance(ast, pyPEG.Symbol)
-        assert ast.__name__ == "MODEL"
+        assert ast.__name__ == 'MODEL'
         self.clear()
         self.pypeg = ast
         for elem in clearAst(ast.what):
             if elem.__name__ == "OPTIONS":
                 # get each option
-                elem = clearAst(elem.what)
-                for opt in elem:
-                    if opt.__name__ == "MODNAME":
-                        self.name = ast2str(opt.what[-1])
-                    else:
-                        o = Option()
-                        o.parse(opt)
-                        if o.name in self.options:
-                            WARNING( "Redeclared option \'" + o.name \
-                                    + "\', using only the last declaration.\n")
-                        self.options[o.name] = o
+                _opts = getAst(elem,['OPT'])
+                for opt in _opts:
+                    opt = opt.what[0]
+                    o = Option()
+                    o.parse(opt)
+                    if o.type == Types.Modname:
+                        self.name = ast2str(getAst2(opt, ['MNAME']))
+                    if o.name in self.options:
+                        WARNING( "Redeclared option \'" + o.name \
+                               + "\', using only the last declaration.\n")
+                    LDEBUG("New Option: " + o.name)
+                    self.options[o.name] = o
             elif elem.__name__ == "DEFINE":
                 d = Define()
                 d.parse(elem)
@@ -178,9 +186,13 @@ class Model(ParserBaseElem):
             elif elem.__name__ == "PROPERTY":
                 p = Propertie()
                 p.parse(elem)
-                pindex = "propertie" + str(len(self.properties))
-                assert not p.name in self.properties
-                self.properties[pindex] = p
+                if p.name == "":
+                    p.name = "NN#property#" + str(self.nnnprops)
+                    self.nnnprops += 1
+                elif p.name in self.properties:
+                    raise Error("You have more than one propertie named '"
+                               + p.name + "'.")
+                self.properties[p.name] = p
             elif elem.__name__ == "CONTRAINT":
                 c = Contraint()
                 c.parse(elem)
@@ -214,21 +226,20 @@ class Option(ParserBaseElem):
     def __init__(self):
         ParserBaseElem.__init__(self)
 
-    def parse(self, AST):
-        self.rawinput = AST
-        self.name = AST.what[0]
-        self.params = AST.what[1::]
-        self.line = AST.__name__.line
-        if AST.__name__ == "MODULEWFAIRDISABLE":
+    def parse(self, ast):
+        self.pypeg = ast
+        self.name = ast.__name__
+        self.line = ast.__name__.line
+        if ast.__name__ == "MODULEWFAIRDISABLE":
             self.type = Types.WFDisable
-        elif AST.__name__ == "FAULTFAIRDISABLE":
+        elif ast.__name__ == "FAULTFAIRDISABLE":
             self.type = Types.FFDisable
-        elif AST.__name__ == "CHECKDEADLOCK":
+        elif ast.__name__ == "CHECKDEADLOCK":
             self.type = Types.Checkdk
-        elif AST.__name__ == "SYSNAME":
-            self.type = Types.Sysname
+        elif ast.__name__ == "MODNAME":
+            self.type = Types.Modname
         else:
-            debugWARNING("Bad option " + str(AST.__name__))
+            LWARNING("Bad option " + str(ast.__name__))
 
     def __str__(self):
         string = ">> Option " + str(self.name)
@@ -356,19 +367,23 @@ class Instance(ParserBaseElem):
 
 class Propertie(ParserBaseElem):
 
+    numNnPropertie = 0 # number of no named properties
+
     def __init__(self):
         ParserBaseElem.__init__(self)
-        self.formula = "" # the formula goes here, everything else in 'params'
+        self.formula = "" # the formula goes here
+        self.explain = "" # the explanation goes here
+                          # everything else except the name goes in params
 
     def parse(self, ast):
         self.pypeg = ast
         self.line = ast.__name__.line
+        self.name = ast2str(getAst2(ast,['PROPNAME']))
+        self.explain = ast2str(getAst2(ast,['EXPLAIN']))
         ast = clearAst(ast.what)
-        # after cleaning we should have the property and the explanation
+        #After cleaning we should get the name, the property and the explanation
         for y in ast:            
-            if y.__name__ == "EXPLAIN":
-                self.name = ast2str(y)
-            else:
+            if y.__name__ != "EXPLAIN" and y.__name__ != 'PROPNAME':
                 y = rmw(y)
                 self.type = Types.propToType[y.__name__]
                 y = clearAst(y.what)
@@ -465,6 +480,8 @@ class VarDeclaration(ParserBaseElem):
         """ ast needs to be a Symbol defining the type of the variable """
         assert isinstance(ast, Symbol)
         _type = self.VarType()
+        # get the type
+        ast = ast.what[0]
         _name = ast.__name__
         ast = clearAst(ast.what)
         if _name == "ARRAYT":
@@ -563,10 +580,10 @@ class Transition(ParserBaseElem):
         for elem in AST:
             if elem.__name__ == "NAME":
                 self.name = ast2str(elem)
-            elif elem.__name__ == "EXPRESION":
-                self.pre = rmw(elem)
-            elif elem.__name__ == "NEXTLIST":
-                for x in clearAst(elem.what):
+            elif elem.__name__ == "PRE":
+                self.pre = rmw(elem.what[0])
+            elif elem.__name__ == "POS":
+                for x in clearAst(elem.what[0].what):
                     x = clearAst(x.what)
                     nextref = x[0].what[0] # a nextref
                     expr = rmw(x[1]) # an expresion in case of determ asignment,

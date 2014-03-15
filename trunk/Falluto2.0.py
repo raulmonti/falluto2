@@ -38,10 +38,7 @@ EMAIL = "mail@mail.com"
 #==============================================================================#
 
 def parse_input():
-    """
-        Falluto command line input parsing using 
-        argparse library.
-    """
+    """ Falluto command line input parsing using argparse library. """
     parser = argparse.ArgumentParser(prog='Falluto2.0', 
         description='Falluto 2.0 Model Checker Using NuSMV')
     parser.add_argument('--version', 
@@ -59,8 +56,7 @@ def parse_input():
 
 #===============================================================================
 def run_subprocess(command, shell = False, universal_newlines = True):
-    """
-        Launch subprocess, open pipe and get output 
+    """ Launch subprocess, open pipe and get output 
         value and message using subprocess library.
     """
     process = subprocess.Popen(command, shell=shell, stdout=subprocess.PIPE, \
@@ -100,14 +96,12 @@ if __name__ == '__main__':
 
     # Parse command line input
     args = parse_input()
-
     print " -- Input file %s"%args.filename+"\n"
 
     # Check for existence of input file
     if not os.path.exists(args.filename):
         LERROR("File <" + args.filename + "> doesn't exists.")
         raise Error("File <" + args.filename + "> doesn't exists.")
-        
     elif not os.path.isfile(args.filename):
         LERROR( "Path <"+ str(args.filename) +"> is not a valid file to "\
               + "parse :S.")
@@ -154,43 +148,44 @@ if __name__ == '__main__':
 
         # Low level debug
         logging.log(logging.INSPECT,\
-                    'The compiled model:\n' + c.compiledstring + '\n')
+                    'The compiled model:\n' + c.compiled.string + '\n')
         logging.log(logging.INSPECT,'The compiled properties:\n')
-        for p in c.compiledproperties:
+        for p in c.compiled.props:
             logging.log(logging.INSPECT,p) 
 
+        # CHECK DESCRIPTION ON NuSMV
         # Checking the smv system descripition: just run NuSMV over the 
         # system description without checking any property on it.
         sysname = _model.name if _model.name != "" else "No Name System"
-        LDEBUG("Checking Model on NuSMV: " + sysname)
-
-        #get the smv system description
-        c.writeSysToFile(WORKINGFILE,[])
-
+        LDEBUG("Checking Model <" + sysname + "> on NuSMV.")
+        #get the smv model description
+        c.buildModel("",os.path.abspath(WORKINGFILE))
+        # save if asked for
+        if args.save:
+            shutil.copy2(os.path.abspath(WORKINGFILE), args.save)
         # Check the smv system description (raises subprocess.CalledProcessError
         # if NuSMV encounters that the descripton is incorrect).
         output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
-
+        LDEBUG(sysname + " model works great for NuSMV ;)")
         if args.color:
             colorPrint("debugGREEN", "[OK] " + sysname + " is OK!\n\n")
         else:
-            LINFO('[OK] ' + sysname + ' is OK!\n')
+            LINFO(sysname + ' is OK!\n')
 
-        # Save a copy of the compiled system if asked so.
-        if args.save:
-            c.writeSysToFile(args.save+".smv",None)
-
-        # Check one by one each property over the system.
-        for i in range(0, len(c.compiledproperties)):
-            # Prepair a file with the system compiled model
-            # and the i-th property.
-            c.writeSysToFile(WORKINGFILE,[i])
-
+        # MODEL CHECK FOR EACH PROPERTY
+        #for each property
+        for _pname, _p in _model.getProperties().iteritems():
+            LINFO("Checking propertie '"+ _pname + "' ...")
+            #construct model and place it in WORKINGFILE for NuSMV to read
+            c.buildModel(_p,os.path.abspath(WORKINGFILE))
+            #save if asked so
+            if args.save:
+                shutil.copy2(os.path.abspath(WORKINGFILE), args.save+"."+_pname)
             # Run the model checker.
             output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
-            
             # Interpret result and print user readible output.
-            t.interpret(c,output,i,args.color)
+            # FIXME 0 must be changed for something refering to _p
+            #t.interpret(c,output,0,args.color)            
 
     except Exception, e:
         if DEBUG__:

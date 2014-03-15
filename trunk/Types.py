@@ -27,7 +27,7 @@ class Types():
     WFDisable = 151
     FFDisable = 155
     Checkdk   = 165
-    Sysname   = 175
+    Modname   = 175
     
     
     Types = { 0:"Int"           # variables

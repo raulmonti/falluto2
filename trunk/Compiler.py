@@ -17,6 +17,8 @@ import Utils
 from Checker import *
 import Checker
 import Mejoras
+# TODO join both modules Compiler and Compiled
+from Compiled import Compiled
 
 #
 #===============================================================================
@@ -35,29 +37,19 @@ class Compiler(object):
         The saveToFile method in this class allows you to save the compiled
         system into a file in order to check it with NuSMV.
     """
-    #
-    FILEHEADER = \
-    """********** F A L L U T O 2.0 COMPILED SYSTEM FOR NuSMV **********\n\n"""
-
     # Global instance name? Lets say the parallel composition system name?
     __glinst = "Glob#inst"
-
     # Some names for the compiled system
     __actvar = "action#"   #action variable 
     __dkact  = "dk#action" #deadlock action name (part of the actionvar domain)
-
     # to export
     _actvar = __actvar
     _dkact  = __dkact
 
-    #.......................................................................
+    #===========================================================================
     def __init__(self):
-        self.compiledstring     = ""    # String with the compiled system
-        self.compiledproperties = []    # Read buildProperties() method
-    
+        self.compiled = Compiled()
         self.sys                = None
-        self.tl                 = TabLevel()
-
         self.ctable             = {}    # 3 levels map: inst->var->compiledVar
         self.varset             = set([])   # all program variables set.
         self.syncToTrans        = {}    # read method fillSyncTransDict()
@@ -66,7 +58,7 @@ class Compiler(object):
         self.synchroMap         = {}    # read method fillTransCompilingDict
         self.synchrodict        = {}    # read method fillTransCompilingDict
 
-    #.......................................................................
+    #===========================================================================
     def compile(self, system):
         assert isinstance(system, Parser.Model)
         self.sys = system
@@ -81,7 +73,7 @@ class Compiler(object):
         # compile the system and save it in self.compiledstring
         self.compileSystem()
 
-    #.......................................................................
+    #===========================================================================
     def fillVarSet(self):
         """
             Fill in self.varset with every variable name to be in the
@@ -105,7 +97,7 @@ class Compiler(object):
             self.varset.add(self.compileIPC(inst.name))
 
 
-    #.......................................................................
+    #===========================================================================
     def arrayToVars(self, array):
         """
             Get an array type VarDeclaration and return a list with variable
@@ -124,7 +116,7 @@ class Compiler(object):
             _t = _t.domain
         return _result
 
-    #.......................................................................
+    #===========================================================================
     def fillVarCompilationTable(self):
         """
             Fill in self.ctble
@@ -190,7 +182,7 @@ class Compiler(object):
 
 
 
-    #.......................................................................
+    #===========================================================================
     def fillSyncTransDict(self):
         """
             @ NOT COMPILED NAMES
@@ -223,7 +215,7 @@ class Compiler(object):
 
 # TODO termine de revisar hasta aca, y aparentemente esta todo en orden
 
-    #.......................................................................
+    #===========================================================================
     def fillTransCompilingDict(self):
         """
             Fill in self.transdict and self.synchrodict
@@ -259,7 +251,7 @@ class Compiler(object):
                         plst.append(self.compileNextRef(v) + ' = ' + v)
                     
                     #ADD TO DICT
-                    tcname = self.compileAction(iname, t.name)
+                    tcname = self.compileTransitionName(iname, t.name)
                     self.transdict[iname][t.name][t.pc] = (tcname, elst, plst)
 
         # Synchronised transitions
@@ -294,7 +286,7 @@ class Compiler(object):
 
 
 
-    #.......................................................................
+    #===========================================================================
     def synchroCartesianProduct(self, llst):
         """
             @ NOT COMPILED VALUES
@@ -311,7 +303,7 @@ class Compiler(object):
         return result
 
 
-    #.......................................................................
+    #===========================================================================
     def getPreList(self, iname, trans):
         inst = self.sys.instances[iname]
         pt = self.sys.proctypes[inst.proctype]
@@ -330,7 +322,7 @@ class Compiler(object):
         return elst
         
 
-    #.......................................................................
+    #===========================================================================
     def getPosList(self, iname, trans):
         plst = []
         changed = set([])
@@ -355,7 +347,7 @@ class Compiler(object):
         return plst, changed
     
         
-    #.......................................................................
+    #===========================================================================
     def fillGTCTable(self):
         """ 
             @  Fill the transitions global compilation table. This table is used
@@ -376,45 +368,41 @@ class Compiler(object):
             for t in pt.transitions:
                 if not t.name in [ast2str(x) for x in pt.synchroacts]:
                     self.gtctable[inst.name + '.' + t.name] \
-                        = self.compileAction(inst.name, t.name)
+                        = self.compileTransitionName(inst.name, t.name)
 
         # Normal synchronous transitions
         for stname in self.syncToTrans.iterkeys():
             self.gtctable[stname] = self.compileSynchroAct(stname)
 
-    #.......................................................................
+    #===========================================================================
     def compileSystem(self):
         """
             Compiles the whole system except for the properties.
         """
-        self.save(self.comment(Compiler.FILEHEADER), False, True)
-        self.save("MODULE main()\n")
-        self.tl.i()
         self.buildDefines()
         self.buildVarSection()
         self.buildInitSection()
         self.buildTransSection()
-        self.tl.d()
         self.buildContraints()
         # build properties and queue them into the propertie vector
         self.buildProperties()
 
 
-    #.......................................................................
+    #===========================================================================
     def buildDefines(self):
-        self.save(self.comment( " @@@ DEFINITIONS." ))
+        _idx = 0
         for d in self.sys.defs.itervalues():
             cdname = self.compileDefine(ast2str(d.dname))
-            self.save( "DEFINE " + cdname + " := " \
-                     + self.compileAST(Compiler.__glinst, d.dvalue) + ";")
+            self.compiled.adddef( "Defintion <"+str(_idx)+">"
+                                , ""
+                                , "DEFINE " + cdname + " := " \
+                                  + self.compileAST(Compiler.__glinst,d.dvalue)\
+                                  + ";"
+                                )
+            _idx += 1
 
-
-    #.......................................................................
+    #===========================================================================
     def buildVarSection(self):
-        self.save("\n\n")
-        self.save(self.comment( " @@@ VARIABLES DECLARATION SECTION." ))
-        self.save("VAR")
-        self.tl.i()
         # ACTION VARIABLE
         lst = set([]) 
         for inst in self.sys.instances.itervalues():
@@ -425,7 +413,7 @@ class Compiler(object):
             # transitions
             for act in pt.transitions:
                 if not act.name in [ast2str(x) for x in pt.synchroacts]:
-                    lst.add(self.compileAction(inst.name, act.name))
+                    lst.add(self.compileTransitionName(inst.name, act.name))
             n = len(pt.contextvars)
             # Synchro actions
             for act in [ast2str(x) for x in inst.params[n::]]:
@@ -437,7 +425,10 @@ class Compiler(object):
         # deadlock action
         lst.add(Compiler.__dkact)
         # save
-        self.save(Compiler.__actvar + ':' + self.compileSet(lst) + ';')
+        self.compiled.addvar( Compiler.__actvar
+                            , "The 'last action' variable"
+                            , Compiler.__actvar + ':' + self.compileSet(lst)+';'
+                            )
 
         # LOCAL VARIABLES
         for inst in self.sys.instances.itervalues():
@@ -447,33 +438,33 @@ class Compiler(object):
                 if var.type == Types.Bool:
                     #FIXME muy choto este parche, corregir cuando haya tiempo
                     if var.isarray:
-                        self.save( vname + " : array " + str(var.range[0]) \
-                                 + ".." + str(var.range[1]) + " of boolean;")
+                        self.compiled.addvar( vname, "", vname + " : array "\
+                            + str(var.range[0]) + ".." + str(var.range[1])\
+                            + " of boolean;")
                     else:
-                        self.save(vname + ":boolean;")
+                        self.compiled.addvar(vanme, "", vname + ":boolean;")
                 else:
-                    self.save(self.compileAST( inst.name, var.pypeg \
-                                             , True, pb = False)+";")
+                    self.compiled.addvar(vname, "",
+                        self.compileAST( inst.name, var.pypeg, True, pb=False)\
+                        + ";")
 
         # FAULT ACTIVITY VARIABLES
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for f in [x for x in pt.faults if x.type != Types.Transient]:
                 name = self.compileFaultActive(inst.name, f.name)
-                self.save( name + ":boolean;")
+                self.compiled.addvar( name, "", name + ":boolean;")
 
         # INSTANC PROGRAM COUNTERs
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
-            self.save(self.compileIPC(inst.name) \
+            vname = self.compileIPC(inst.name)
+            self.compiled.addvar(vname, "", vname \
                 + " : 0.." + str(max(len(pt.transitions)-1,0)) + ";")
 
-        self.tl.d()
-
-
-    #.......................................................................
+    #===========================================================================
     def buildProperties(self):
-    
+    # TODO this should be completely changed (NB and FMF)
         if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
             self.buildDkCheckPropertie()
     
@@ -482,97 +473,53 @@ class Compiler(object):
             if p.type == Types.Ctlspec:
                 pRepr = "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append( 
-                    self.makeProp('"'+p.name[1:-1]+'"', pRepr, pComp))
+                self.compiled.addprop(p.name, p.explain + ': ' + pRepr, pComp)
             elif p.type == Types.Ltlspec:
                 pRepr = "LTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiledproperties.append(
-                    self.makeProp('"'+p.name[1:-1]+'"', pRepr, pComp))
+                self.compiled.addprop(p.name, p.explain + ': ' + pRepr, pComp)
             elif p.type == Types.Nb:
-                self.compiledproperties.append(self.compileNbPropertie(p))
+                pRepr = p.explain + ': ' + "NORMAL_BEAHAIVIOUR "\
+                    +putBracketsToFormula(p.formula,False)
+                pComp = self.compileUnknownPropertie(p)
+                self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
-                self.compiledproperties.append(self.compileFmfPropertie(p))
+                self.compiled.addprop(p.name
+                    , "FINITELY_MANY_FAULT/S (" \
+                      + self.symbolSeparatedTupleString( \
+                      [ast2str(x) for x in p.params], False, False, ',') \
+                      + ';' + putBracketsToFormula(p.formula,False) + ")"
+                    , self.compileUnknownPropertie(p))
             else:
                 debugERROR("bad type for propertie: " + p.type)
 
-
-
-    #.......................................................................
-    def compileNbPropertie(self, p):
+    #===========================================================================
+    def compileUnknownPropertie(self, p):
         """
         Compile a normal behaiviour propertie: 
                 G V( !fault.active ) -> prop
         We want to know if 'prop' is guaranteed if we walk only over normal 
         traces where faults don't accur.
         """
+        _result = ""
         if p.formula.__name__ == "CTLEXP":
-            strprop = "CTLSPEC"
+            _result =  "CTLSPEC " + self.compileAST(Compiler.__glinst,p.formula)
         elif p.formula.__name__ == "LTLEXP":
-            strprop = "LTLSPEC "
+            _result = "LTLSPEC " + self.compileAST(Compiler.__glinst,p.formula)
         else:
             assert False
-        faults = []
-        for i in self.sys.instances.itervalues():
-            pt = self.sys.proctypes[i.proctype]
-            for f in pt.faults:
-                faults.append(self.compileFaultActionVar(i.name, f.name))
-        if faults != []:
-            if p.formula.__name__ == "CTLEXP":
-                strprop += "( AG ! (" + Compiler.__actvar + " in " \
-                      + self.compileSet(faults) + " ) ) -> "
-            else: # p.formula.__name__ = "LTLEXP"
-                strprop += "( G ! (" + Compiler.__actvar + " in " \
-                      + self.compileSet(faults) + " ) ) -> "
-        formula = self.replaceEvents(p.formula)
-        strprop += self.compileAST(Compiler.__glinst, formula)
-        return self.makeProp('"' + p.name[1:-1] + '"'
-            , "NORMAL_BEAHAIVIOUR "+putBracketsToFormula(p.formula,False)
-            , strprop)
-    #.......................................................................
-    def compileFmfPropertie(self, p):
-        """
-        Compile a finitely many fault propertie.
-        We wan't to know if a property holds in cases where finally some faults
-        don't occur ever again.
-        """
-        strprop = "LTLSPEC "
-        faults = []
-        if p.type == Types.Fmfs:
-            for i in self.sys.instances.itervalues():
-                pt = self.sys.proctypes[i.proctype]
-                for f in pt.faults:        
-                    faults.append(self.compileFaultActionVar(i.name,f.name))
-        elif p.type == Types.Fmf:
-            for f in [ast2str(x) for x in p.params]:
-                assert '.' in f
-                ii, ff = f.split('.',1)
-                faults.append(self.compileFaultActionVar(ii,ff))
-        else:
-            assert False
-        if faults != []:
-            strprop += "( F G ! (" + Compiler.__actvar + " in " \
-                + self.compileSet(faults) + ") ) -> "
-        formula = self.replaceEvents(p.formula)
-        strprop += self.compileAST(Compiler.__glinst,formula)
-     
-        if p.type == Types.Fmfs:
-            return self.makeProp(
-                '"' + p.name[1:-1] + '"',
-                "FINITELY_MANY_FAULTS " + putBracketsToFormula(p.formula,False),
-                strprop)
-        else:
-            return self.makeProp(
-                '"' + p.name[1:-1] + '"',
-                "FINITELY_MANY_FAULT (" \
-                + self.symbolSeparatedTupleString( \
-                [ast2str(x) for x in p.params], False, False, ',') \
-                + ';' + putBracketsToFormula(p.formula,False) + ")"
-                , strprop)
-    #.......................................................................
+        return _result
+
+    #===========================================================================
+    def buildDkCheckPropertie(self):
+        self.compiled.addprop(
+            "NEVER FALLS IN DEADLOCK",
+            "DEADLOCK CHECK",
+            "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact)
+
+    #===========================================================================
     def buildContraints(self):
-        self.save("\n\n")
-        self.save(self.comment(" @@@ SYSTEM CONTRAINTS"))
+
         if not Types.WFDisable in \
             [x.type for x in self.sys.options.itervalues()]:
             self.buildWeakFairContraint()
@@ -581,24 +528,10 @@ class Compiler(object):
             self.buildFaultFairContraint()
         for c in self.sys.contraints.itervalues():
             self.buildNormalContraint(c)
-        #self.buildCTLvsLTLCompatibilityContraint()
-    #.......................................................................
-    def buildCTLvsLTLCompatibilityContraint(self):
-        # @ deprecated ( we hace deadlock transition )
-        self.save("\n")
-        self.save(self.comment("  @@ CTL vs LTL COMPATIBILITY CONTRAINT"))
-        self.save("FAIRNESS TRUE") 
-    #.......................................................................
-    def buildDkCheckPropertie(self):
-        self.compiledproperties.append(self.makeProp(
-            "NEVER FALLS IN DEADLOCK",
-            "DEADLOCK CHECK",
-            "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact))
-
 
 # TODO revisar que pasa con la sincronizacion cuando no se usa la variable de 
 # sincronizacion en el proctype mas alla de tenerla como parametro.
-    #.......................................................................
+    #===========================================================================
     def buildWeakFairContraint(self):
         """ SYSTEM - MODULE FAIRNESS
             Weak fairness para modulos. Un modulo que esta infinitamente 
@@ -612,8 +545,6 @@ class Compiler(object):
             entonces en algun momento va a ser atendido.
         """
         for inst in self.sys.instances.itervalues():
-            self.save("\n")
-            self.save(self.comment("  @@ MODULE FAIRNESS FOR "+inst.name+"\n"))
             actVec = []
             dkVec = []
             pt = self.sys.proctypes[inst.proctype]
@@ -651,35 +582,30 @@ class Compiler(object):
             #if module hasn't got any actions:
             if actVec == []:
                 continue
-            
+
             dkString = self.symbolSeparatedTupleString( dkVec, False, False)
 
             actString = Compiler.__actvar + " in " + self.compileSet(actVec)
 
-            self.save("FAIRNESS " + (self.symbolSeparatedTupleString( \
-                [dkString, actString], False, False, '|')))
+            self.compiled.addconstr( "@WFC#"+inst.name
+                , "Falluto Weak Fairness constraint"
+                , "FAIRNESS " + (self.symbolSeparatedTupleString( \
+                  [dkString, actString], False, False, '|')))
 
-
-
-    #.......................................................................
+    #===========================================================================
     def getPreNegation(self, prelst):
         prevec = []
         for p in prelst:
             prevec.append(self.neg(p))
         return self.symbolSeparatedTupleString(prevec, False, False, amp = '|')
-    
 
-
-    #.......................................................................
+    #===========================================================================
     def buildFaultFairContraint(self):
         # FAULT - SYSTEM FAIRNESS
         # Para evitar que las fallas se apoderen del sistema, nos restringimos
         # a trazas en las que siempre eventualmente ocurra alguna transicion
         # normal (no de falta). Por defecto se usa esta configuracion.
-        
-        self.save("\n")
-        self.save(self.comment("  @@ FAULT SYSTEM FAIRNESS"))
-        
+      
         actionset = set([Compiler.__dkact])
         for i in self.sys.instances.itervalues():
             pt = self.sys.proctypes[i.proctype]
@@ -690,39 +616,35 @@ class Compiler(object):
         for e in self.syncToTrans.iterkeys():
             actionset.add(self.compileSynchroAct(e))
 
-        self.save( "FAIRNESS (" + Compiler.__actvar + " in " + \
-                  self.compileSet(list(actionset)) + ")")
+        self.compiled.addconstr("@FSFC"
+            , "Falluto Fault-System fairness constraint"
+            , "FAIRNESS (" + Compiler.__actvar + " in " + \
+              self.compileSet(list(actionset)) + ")")
 
 
 
-    #.......................................................................
+    #===========================================================================
     def buildNormalContraint(self, c):
-        self.save("\n")
         if c.type == "FAIRNESS":
-            self.save(self.comment( "  @@ CONTRAINT: FAIRNESS " \
-                                  + putBrackets(c.params[0])))
             param = self.replaceEvents(c.params[0])
-            self.save( "FAIRNESS " \
-                     + self.compileAST(Compiler.__glinst, param))
+            self.compiled.addconstr( ""
+                , "FAIRNESS CONSTRAINT"
+                , "FAIRNESS " + self.compileAST(Compiler.__glinst, param))
         elif c.type == "COMPASSION":
-            self.save( self.comment("  @@ CONTRAINT: COMPASSION( " \
-                     + putBrackets(c.params[0])\
-                     + ', ' + putBrackets(c.params[1])))
             param0 = self.replaceEvents(c.params[0])
             param1 = self.replaceEvents(c.params[1])
-            self.save( "COMPASSION (" \
-                     + self.compileAST(Compiler.__glinst, param0) + ',' \
-                     + self.compileAST(Compiler.__glinst, param1) + ")" )
+            self.compiled.addconstr(""
+                , "COMPASSION CONSTRAINT"
+                , "COMPASSION ("\
+                  + self.compileAST(Compiler.__glinst, param0) + ','\
+                  + self.compileAST(Compiler.__glinst, param1) + ")" )
         else:
-            debugWARNING("Bad type for contraint <" + c.type + ">.")
+            assert False
+            # TODO is it right to do this type of asserts? what would be the
+            # correct way to treat this programming errors?
 
-
-    #.......................................................................
+    #===========================================================================
     def buildInitSection(self):
-        self.save("\n\n")
-        self.save(self.comment( " @@@ INITIALIZATION SECTION." ))
-        self.save("INIT")
-        self.tl.i()
         lst = []
         flst = ["TRUE"] # 'TRUE' so INIT never gets empty and NuSMV accepts it
         for inst in self.sys.instances.itervalues():
@@ -734,46 +656,44 @@ class Compiler(object):
                 flst.append( self.compileFaultActive(inst.name,fault.name) \
                             + " = FALSE")
         lst.append(self.symbolSeparatedTupleString(flst, False, False))
-        self.save(self.symbolSeparatedTupleString(lst, False, True))
-        self.tl.d()
+        self.compiled.addinit(self.symbolSeparatedTupleString(lst, False, True))
 
-    #.......................................................................
+    #===========================================================================
     def buildTransSection(self):
-        self.save("\n\n")
-        self.save(self.comment( " @@@ TRANSITION SECTION." ))
-        self.save("TRANS")
-        self.tl.i()
         tlst = []
         # common transitions
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for trans in pt.transitions:
                 if not trans.name in [ast2str(x) for x in pt.synchroacts]:
-                    tlst.append(self.buildCommonTrans(inst,pt,trans))
+                    self.compiled.addtrans(inst.name+'#'+trans.name
+                        , ""
+                        , self.buildCommonTrans(inst,pt,trans))
         # synchro transitions
         for trans in self.syncToTrans.iterkeys():
-            tlst.append(self.buildSynchroTrans(trans))
+            self.compiled.addtrans('synchro#'+trans
+                , ""
+                , self.buildSynchroTrans(trans))
         # fault ocurrence transitions
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for f in pt.faults:
-                tlst.append(self.buildFaultTransition(inst,pt,f))
+                self.compiled.addtrans(inst.name+'#'+f.name
+                    , ""
+                    , self.buildFaultTransition(inst,pt,f))
         # byz effects transitions
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             for f in [x for x in pt.faults if x.type == Types.Byzantine]:
-                tlst.append(self.buildByzantineTrans(inst,pt,f))
-        # dead lock transitions
-        tlst.append( "\n" + str(self.tl) \
-                   + self.comment("  @@ DEADLOCK TRANSITION\n") \
-                   + str(self.tl) + self.buildDeadLockTrans())
+                self.compile.addtrans( inst.name+'#bizEfect#'+f.name
+                    , ""
+                    ,self.buildByzantineTrans(inst,pt,f))
+        # deadlock transitions
+        self.compiled.addtrans("deadlock#transition"
+            , "@ DEADLOCK TRANSITION"
+            , self.buildDeadLockTrans())
 
-        # Save transitions section
-        self.save(self.symbolSeparatedTupleString(tlst, False, True, '|'))
-        self.tl.d()
-
-
-    #.......................................................................
+    #===========================================================================
     def buildCommonTrans(self, inst, pt, t):
     
         tcname, pre, pos = self.transdict[inst.name][t.name][t.pc]
@@ -788,7 +708,7 @@ class Compiler(object):
         return self.symbolSeparatedTupleString(tlst, False, False)
 
 
-    #.......................................................................
+    #===========================================================================
     def buildSynchroTrans(self, strans):
     
         result = []
@@ -806,7 +726,7 @@ class Compiler(object):
         
 
 
-    #.......................................................................    
+    #===========================================================================    
     def buildFaultTransition(self, inst, pt, f):
         ftlst = []
         # ACTION
@@ -851,7 +771,7 @@ class Compiler(object):
 
 
 
-    #.......................................................................
+    #===========================================================================
     def buildByzantineTrans(self, inst, pt, f):
         thistransvect = []
         exceptSet = set([])
@@ -872,7 +792,7 @@ class Compiler(object):
         return self.symbolSeparatedTupleString(thistransvect,False,False)
 
 
-    #.......................................................................
+    #===========================================================================
     def buildDeadLockTrans(self):
         # TODO usar el mapa con precondiciones de las trans para esta transicion
         result = []
@@ -905,11 +825,9 @@ class Compiler(object):
 
         return self.symbolSeparatedTupleString(result, False, False)
     
-    #.......................................................................
-    """
-        **
-        ** Gets stop faults that affect action in instance
-        **
+    #===========================================================================
+    """ Get stop faults that affect action in instance.
+
         @instance:
             Instance class instance where to check
         @action:
@@ -927,65 +845,16 @@ class Compiler(object):
                 and act.name != f.name:
                 faultlist.append(f)
         return faultlist
-    #.......................................................................
-    def comment(self, string):
-        """
-            Returns a NuSMV comment string representing 'string'
-        """
-        return "--" + string
-    #.......................................................................
+
+    #===========================================================================
     def neg(self, string):
         if string == None or string == "":
             return ""
         else:
             return "!(" + string + ")"
-    #.......................................................................
-    def save(self, string, tablevel = True, enter = True):
-        """
-            Saves string into the compiled system string. Adds '\n' to the end
-            if enter is True. Adds self.tl to the start if tablevel is True.
-        """
-        if tablevel:
-            self.compiledstring += str(self.tl)
-            
-        self.compiledstring += string
-        
-        if enter:
-            self.compiledstring += "\n"
-    #.......................................................................
-    # writeSysToFile:
-    #   .. filename: Name of the file to create and write.
-    #   .. props: List of integers, representing the index of the compiled 
-    #             properties we wan't to right ass well to the file. Value 
-    #             'None' will write all the properties to the file.
-    def writeSysToFile(self, filename, props = []):
-        """
-            Write the compiled system (and optionally the compiled properties)
-            to '_file'
-        """
-        #open file and truncate at beginning
-        fileOutput = open(filename, 'w+')                       
-        fileOutput.write(self.compiledstring)
-        if props != []:
-            fileOutput.write("\n" + self.comment(" @@@ PROPERTIES \n"))
 
-        if props == None:
-            for p in self.compiledproperties:
-                fileOutput.write(\
-                    "\n" + self.comment("  @@ PROPERTIE: " + p['name'] + "\n"))
-                fileOutput.write(p['prop'] + "\n")
-        else:
-            for i in props:
-                try:
-                    p = self.compiledproperties[i]
-                    fileOutput.write(
-                        "\n" + self.comment("  @@ PROPERTIE: "+p['name']+"\n"))
-                    fileOutput.write(p['prop'] + "\n")
-                except:
-                    debugWARNING( "Propertie index out of range. Not writing "\
-                                + "propertie " + str(i) + " to file.\n")
 
-    #.......................................................................
+    #===========================================================================
     def symbolSeparatedTupleString(self, array, parent = False, enter=False,\
                                      amp = '&'):
         parentopen = ""
@@ -995,7 +864,7 @@ class Compiler(object):
             parentopen = "("
             parentclose = ")"
         if enter:
-            amperson = amperson + "\n" + str(self.tl)
+            amperson = amperson + "\n"
 
         marray = []
         for elem in array:
@@ -1012,34 +881,33 @@ class Compiler(object):
             string += parentclose
             return string
 
-    #.......................................................................
-
-    # COMPILATION METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    #.......................................................................
+    #===========================================================================
+    # COMPILATION METHODS ======================================================
+    #===========================================================================
     def compileLocalVar(self, iname, vname):
         return "lvar#" + iname + "#" + vname
-    #.......................................................................
+
+    #===========================================================================
     def compileSymbValue(self, x):
         return "sv#" + x
-    #.......................................................................
+
+    #===========================================================================
     def compileFaultActionVar(self, iname, fname):
         return "fault#" + iname + '#' + fname
-        
-    # TODO las dos de abajo hacen lo mismo :S
-    #.......................................................................
-    def compileAction(self, iname, actname):
-        return "trans#" + iname + "#" + actname
-    #.......................................................................
+
+    #===========================================================================
     def compileTransitionName(self, iname, tname):
         return "trans#" + iname + '#' + tname
-    #.......................................................................
+
+    #===========================================================================
     def compileSynchroAct(self, saname):
         return "synchro#" + saname
-    #.......................................................................
+
+    #===========================================================================
     def compileByzEffect(self, iname, fname):
         return "byzE#" + iname + '#' + fname
-    #.......................................................................
+
+    #===========================================================================
     def compileSet(self, _set):
         lst = list(_set)
         if lst == []:
@@ -1048,7 +916,8 @@ class Compiler(object):
         for x in lst[1::]:
             string += ', ' + str(x) 
         return string + '}'
-    #.......................................................................
+
+    #===========================================================================
     def replaceEvents(self, ast):
         if isinstance(ast, pyPEG.Symbol):
             ps = pyPEG.Symbol(ast.__name__,[])
@@ -1072,7 +941,7 @@ class Compiler(object):
             return ast
         assert False #never come out here
             
-    #.......................................................................
+    #===========================================================================
 
     def compileAST(self, iname, ast, space = True, pb = True):
         """ Get a pyPEG ast structure with some expresion and return a string
@@ -1113,33 +982,41 @@ class Compiler(object):
                     string += sp
         return string
 
-    #.......................................................................
+    #===========================================================================
     def compileFaultActive(self, iname, fname):
         return "factive#" + iname + '#' + fname
 
-    #.......................................................................
+    #===========================================================================
     def compileNextRef(self, ref):
         return "next(" + ref + ")"
 
-    #.......................................................................
+    #===========================================================================
     def compileBOOLorINT(self, value):
         return ast2str(value)
 
-    #.......................................................................
+    #===========================================================================
     def compileDefine(self, name):
         return "def#" + str(name)
 
-    #.......................................................................
+    #===========================================================================
     def compileIPC(self, iname):
         return "ipc#" + iname
 
-    #=======================================================================
-    def makeProp(self, name="", representation="", prop=""):
-        """ Compiled properties as dicts """
-        return {"name":name, "repr":representation, "prop":prop}
-    
 
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #===========================================================================
+    # BUILD THE MODEL AND WRITE IT TO A FILE ===================================
+    #===========================================================================
+
+    def buildModel(self, pname="", fpath=""):
+        """ Build the system to model check property with name pname in NuSMV
+            and write it to file.
+            @Warning: you need to compile the model first.
+        """
+        if pname == "":
+            self.compiled.buildModel()
+            self.compiled.writeSysToFile(fpath)
+        
+        
 
 
 # TESTING ======================================================================

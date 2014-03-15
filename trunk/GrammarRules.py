@@ -6,37 +6,7 @@
 # F A L L U T O    2 . 0
 #
 # En este modulo se determinan las reglas sintacticas del lenguaje de 
-# falluto2.0. Las reglas seran interpretadas por la libreria PyPEG.
-#
-# Ejemplo de código aceptado:
-#
-#
-#- OPTIONS
-#- 
-#- ENDOPTIONS
-#-
-#-
-#- PROCTYPE proc1(var1, act1):
-#-
-#-
-#-
-#- ENDPROCTYPE
-#- 
-#-
-#-
-#- INSTANCE inst1 = proc1( False, synchro)
-#-
-#-
-#-
-#-
-#-
-#-
-#-
-#-
-#-
-#-
-#
-#
+# falluto2.0, las cuales seran interpretadas por la libreria PyPEG.
 #===============================================================================
 
 
@@ -106,7 +76,7 @@ def RESERVED():
                         \bxor\b|\bxnor\b|\bFalse\b|\bTrue\b|
 
                         # Others
-                        \bin\b|\bjust\b|\bis\b|\barray\b|\bof\b
+                        \bin\b|\bjust\b|\bis\b|\barray\b|\bof\b|\bPROPERTIE\b
 
                         """, re.X)]
 
@@ -138,38 +108,48 @@ def SUBSCRIPT():
         beteween the list name and the opening bracket.
     """
     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
-           IDENT, -1, (re.compile(r"\["), B, [IDENT, INT], B, re.compile(r"\]"))
+           SUBSCRIPTED, -2,\
+           (re.compile(r"\["), B, SUBSCRIPTOR, B, re.compile(r"\]"))
 
-# TODO BE MORE SPECIFIC IN THE CONSTRUCTION OF EACH PART OF THE MODEL E.J:
-#
-# def SUBSCRIPT():
-#     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
-#            SUBSCRIPTED, -1, (re.compile(r"\["), B, SUBSCRIPTOR, B, re.compile(r"\]"))
-#
-# def SUBSCRIPTOR():
-#     return [IDENT, INT]
-#
-# def SUBSCRIPTED():
-#     return IDENT
-#
+def SUBSCRIPTED():
+    return IDENT
+
+def SUBSCRIPTOR():
+    return [IDENT, INT]
 
 #..............................................................................
 def NEXTREF():
-    """ A reference to the value of a variable in the next state.
+    """ A reference to the value of a
+        variable in the next state.
     """
-    return [([SUBSCRIPT,IDENT], cp(r"\'"))]
+    return [(REFERENCE, cp(r"\'"))]
+
+def REFERENCE():
+    return [SUBSCRIPT,IDENT]
 
 #..............................................................................
-def SET(): return re.compile(r"\{"), B, 0, ([SUBSCRIPT, IDENT, INT, BOOL]\
-               , -1, (B, re.compile(r"\,"), B\
-               , [SUBSCRIPT, IDENT, INT, BOOL])), B, re.compile(r"\}")
+def SET():
+    """ Sets of symbols, integers and booleans """
+    return re.compile(r"\{"), B, 0\
+           , ( SETMEMBER, -1, (B, re.compile(r"\,"), B, SETMEMBER))\
+           , B, re.compile(r"\}")
+
+def SETMEMBER():
+    return [SUBSCRIPT, IDENT, INT, BOOL]
 
 #..............................................................................
-def RANGE(): return INT, re.compile(r"\.\."), INT
+def RANGE(): return START, re.compile(r"\.\."), END
+
+def START(): return INT
+
+def END(): return INT
 
 #..............................................................................
-def INCLUSION(): return [SUBSCRIPT,IDENT], B, re.compile(r"\bin\b"), B\
-                        , [SET,RANGE]
+def INCLUSION(): return INCLUDED, B, re.compile(r"\bin\b"), B, INCLUDING
+
+def INCLUDED(): return [SUBSCRIPT,IDENT]
+
+def INCLUDING(): return [SET,RANGE]
 
 # EXPRESION ===================================================================#
 
@@ -230,26 +210,30 @@ def MODEL(): return B, 0, OPTIONS , -1, ( B, [ DEFINE
                                              , CONSTRAINT ]) , B
 
 # OPTIONS =====================================================================#
-def OPTIONS(): return cp("OPTIONS"), -1, ( B, [ MODNAME
-                                                   , CHECKDEADLOCK
-                                                   , FAULTFAIRDISABLE
-                                                   , MODULEWFAIRDISABLE 
-                                                   ]
-                                              ), B, cp("ENDOPTIONS")
-                      
-def MODNAME():              return [(cp(r"MODELNAME"), B
-                                    , re.compile(r"[\w\.\d\_]*"))]
-def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
-def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
-def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
+def OPTIONS():  return cp("OPTIONS"), -1, ( B, OPT
+                                         ), B, cp("ENDOPTIONS")
 
+def OPT():      return [ MODNAME
+                       , CHECKDEADLOCK
+                       , FAULTFAIRDISABLE
+                       , MODULEWFAIRDISABLE 
+                       ]
+
+def MODNAME():              return [(cp(r"MODELNAME"), B, MNAME)]
+
+def MNAME():                return re.compile(r"[\w\.\d\_]*")
+
+def CHECKDEADLOCK():        return [re.compile(r"CHECK_DEADLOCK")]
+
+def FAULTFAIRDISABLE():     return [re.compile(r"FAULT_FAIR_DISABLE")]
+
+def MODULEWFAIRDISABLE():   return [re.compile(r"INST_WEAK_FAIR_DISABLE")]
 
 # DEFINES =====================================================================#
 
-def DEFINE():       return cp("DEFINE"), B, NAME, B, [ EXPRESION
-                                                     , SET
-                                                     , RANGE
-                                                     ]
+def DEFINE():       return cp("DEFINE"), B, NAME, B, DEF
+
+def DEF():          return [ EXPRESION, SET, RANGE]
 
 # PROCTYPES ===================================================================#
 
@@ -273,7 +257,9 @@ def VAR():          return cp("VAR"), -1, ( B, VARDECL)
 
 #..............................................................................
 def VARDECL():      return NAME, B, cp(r"\:"),\
-                           B, [ BOOLEANT, ENUMT, RANGET, ARRAYT]
+                           B, VTYPE
+
+def VTYPE():        return [ BOOLEANT, ENUMT, RANGET, ARRAYT]
 
 #..............................................................................
 def BOOLEANT():     return [cp("boolean")]
@@ -284,24 +270,27 @@ def ENUMT():        return re.compile(r"\{"), 0, ( B, [NAME, INT]\
                            , B, [NAME, INT])), B, re.compile(r"\}")
 
 #..............................................................................
-def ARRAYT():       return re.compile(r"array"), B, INT, re.compile(r"\.\.")\
-                           , INT, B\
-                           , re.compile(r"of\b"), B, [ ARRAYT
-                                                     , RANGET
-                                                     , BOOLEANT
-                                                     , ENUMT]
+def ARRAYT():       return re.compile(r"array"), B, START, re.compile(r"\.\.")\
+                           , END, B\
+                           , re.compile(r"of\b"), B, VTYPE
 #TODO RANGET es lo mismo que range, pero tiene otro sentido:
 
 #..............................................................................
-def RANGET():        return INT, re.compile(r"\.\."), INT
+def RANGET():        return START, re.compile(r"\.\."), END
 
 #..............................................................................
 def FAULT():        return cp("FAULT"), -1, ( B, FAULTDECL)
 
 #..............................................................................
-def FAULTDECL():    return NAME, B, cp(r"\:"), 0, ( B, 0, EXPRESION, B\
-                           , cp(r"\=\>"), 0, ( B, NEXTLIST)), B\
-                           , cp("is"), B, [BYZ, STOP, TRANSIENT]
+def FAULTDECL():    return NAME, B, cp(r"\:"), 0, ( B, 0, PRE, B\
+                           , cp(r"\=\>"), 0, ( B, POS)), B\
+                           , cp("is"), B, FTYPE
+
+def PRE():          return EXPRESION
+
+def POS():          return NEXTLIST
+
+def FTYPE():        return [BYZ, STOP, TRANSIENT]
 
 #..............................................................................
 def BYZ():          return cp("BYZ"), B, cp(r"\("), B, NAME\
@@ -323,13 +312,16 @@ def TRANS():        return cp("TRANS"), -1, ( B, TRANSITION)
 
 #..............................................................................
 def TRANSITION():    return cp(r"\["), 0,( B, NAME), B, cp(r"\]"), B, cp(r"\:")\
-                            , ( B, 0, EXPRESION), 0, ( B, cp(r"\=\>"), B\
-                            , NEXTLIST)
+                            , ( B, 0, PRE), 0, ( B, cp(r"\=\>"), B\
+                            , POS)
 
 
 # INSTANCES -------------------------------------------------------------------
-def INSTANCE():     return cp("INSTANCE"), B, NAME, B, cp(r"\="), B, NAME\
+def INSTANCE():     return cp("INSTANCE"), B, NAME, B, cp(r"\="), B, PROCNAME\
                            , B, cp(r"\("), B, PARAMLIST, B, cp(r"\)")
+
+def PROCNAME():     return NAME
+
 def PARAMLIST():    return 0, ( EXPRESION, -1, ( B, cp(r"\,"), B, EXPRESION))
 
 # PROPERTIES DECLARATION ======================================================#
@@ -342,21 +334,20 @@ def EXPLAIN():
     return [(cp(r'\"'), re.compile(r"[\w\s]*"), cp(r'\"'))]
 
 
-def PROPERTY():       return [([ LTLSPEC
-                               , CTLSPEC
-                               , NORMALBEHAIVIOUR
-                               , FINMANYFAULTS
-                               , FINMANYFAULT]
-                              , 0, ( B, EXPLAIN))]
+def PROPERTY():     return [(cp("PROPERTY"), B, 0, PROPNAME, B, cp(r"="), B,
+                             [ LTLSPEC
+                             , CTLSPEC
+                             , NORMALBEHAIVIOUR
+                             , FINMANYFAULTS
+                             , FINMANYFAULT]
+                            , 0, ( B, EXPLAIN))]
+
+def PROPNAME():     return [NAME]
 
 # CTL
-CTLUNOP = r"""
-                \! | \bEG\b | \bEX\b | \bEF\b | \bAG\b | \bAX\b | \bAF\b
-           """
+CTLUNOP = r""" \! | \bEG\b | \bEX\b | \bEF\b | \bAG\b | \bAX\b | \bAF\b """
 
-CTLBINOP = r"""
-                \& | \| | \bxor\b | \bxnor\b | \-\> | \<\-\>
-           """
+CTLBINOP = r""" \& | \| | \bxor\b | \bxnor\b | \-\> | \<\-\> """
 
 def CTLSPEC():          return [(cp("CTLSPEC"), B, CTLEXP)]
 def CTLEXP():           return [ ( CTLVALUE, B, re.compile(CTLBINOP,re.X)
@@ -378,18 +369,21 @@ def CTLVALUE():         return [ (re.compile(CTLUNOP,re.X), B, CTLEXP)
 
 # LTL
 ltlbinops = re.compile(r"\bU\b|\bV\b|\bS\b|\bT\b|xor|\||\<\-\>|\-\>|xnor|\&")
+
 ltluops = re.compile(r"\!|\bG\b|\bX\b|\bF\b|\bH\b|\bO\b|\bZ\b|\bY\b")
 
 def LTLSPEC():      return [(cp("LTLSPEC"), B, LTLEXP)] 
+
 def LTLEXP():       return [LTLBOP, LTLUOP]
+
 def LTLBOP():       return LTLUOP , B, ltlbinops, B, LTLEXP
+
  # TODO may need to force space between unary operators in LTLUOP
 def LTLUOP():       return -1 ,(B, ltluops), B, LTLVAL
+
 def LTLVAL():       return [ EXPRESION, (re.compile(r"\("), B
                            , LTLEXP, B, re.compile(r"\)")) 
                            ]
-
-
 
 # COMMON PROPERTIES ===========================================================#
 
@@ -397,22 +391,44 @@ def LTLVAL():       return [ EXPRESION, (re.compile(r"\("), B
 # LTLEXP can be used for FINMANYFAULTS.
 def NORMALBEHAIVIOUR(): return cp("NORMAL_BEHAIVIOUR"), B, cp(r"\-\>")\
                                , B, [LTLEXP, CTLEXP]
+
 def FINMANYFAULTS():    return cp("FINITELY_MANY_FAULTS"), B, cp(r"\-\>")\
                                , B, [LTLEXP, CTLEXP]
+
 def FINMANYFAULT():     return cp("FINITELY_MANY_FAULT"), B \
-                               , cp(r"\("), B, IDENT, -1, ( B, cp(r"\,"), B\
-                               , IDENT), B, cp(r"\)"), B, cp(r"\-\>")\
+                               , cp(r"\("), B, FNAME, -1, ( B, cp(r"\,"), B\
+                               , FNAME), B, cp(r"\)"), B, cp(r"\-\>")\
                                , B, [LTLEXP, CTLEXP]
 
-# CONTRAINTS ##################################################################
-def CONSTRAINT():   return [FAIRNESS, COMPASSION]
-def FAIRNESS():     return [(cp("FAIRNESS"), B, EXPRESION)]
-def COMPASSION():   return cp("COMPASSION"), B, cp(r"\("), B, EXPRESION,\
-                           B, cp(r"\,"), B, EXPRESION, B, cp(r"\)")
+def FNAME():            return IDENT
 
-# -----------------------------------------------------------------------------
-# TESTS .......................................................................
-# -----------------------------------------------------------------------------
+# CONTRAINTS ==================================================================#
+def CONSTRAINT():   return [FAIRNESS, COMPASSION]
+
+def FAIRNESS():     return [(cp("FAIRNESS"), B, EXPRESION)]
+
+def COMPASSION():   return cp("COMPASSION"), B, cp(r"\("), B, IMPLYING,\
+                           B, cp(r"\,"), B, IMPLIED, B, cp(r"\)")
+
+def IMPLYING():     return EXPRESION
+
+def IMPLIED():      return EXPRESION
+
+
+# UTILS ========================================================================
+def compiles( string="", rule=None):
+    """ Returns True if string compiles under rule, False otherwise. """
+    _ast = None
+    try:
+        _ast = pyPEG.parseLine(string, rule, [], False, COMMENT, False)
+    except:
+        return False
+
+    return True
+
+#===============================================================================
+# TESTS ========================================================================
+#===============================================================================
 
 if __name__ == "__main__":
 
@@ -453,20 +469,12 @@ if __name__ == "__main__":
     _ast = parse(TEST6, _file, False, packrat = False)
 
     print _ast
-#    for x in Utils.getAst(_ast,[u'DEFINE']):
-#        debug("debugRED", x)
-#        print ""
-
-#    debug("debugGREEN",\
-#         Utils.ast2str(Utils.getAst(_ast,[u'COMMENT'])))
-
 
 
 """°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°"""
 # FIXME skipcomments from pyPEG has some problems with white spaces consuming,
 #       i.e. the grammar breaks down when using 'B' in it and parsing with
 #       skipcomments option.
-
 
 # FIXME comments and blanks can't be treated the same as they are being treated
 #       at 'B'
