@@ -1,7 +1,6 @@
 // comment0
 
 /* comment1 */ 
-
 OPTIONS
 CHECK_DEADLOCK
 MODELNAME dummy
@@ -35,7 +34,11 @@ ENDPROCTYPE
 INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
 INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
 
-PROPERTY prop = LTLSPEC G F True
+
+PROPERTY test_ensure = ENSURE (3, instance.t1) WITHOUT (instance2.falla) -> AG instance.variable = 1 "Just an ensure meta-propery example for testing"
+
+/*
+PROPERTY prop = LTLSPEC G F True "que lo que"
 
 PROPERTY = FINITELY_MANY_FAULTS -> G F True
 
@@ -51,4 +54,11 @@ PROPERTY NU = CTLSPEC AF True "Nothing useful"
 
 PROPERTY = FINITELY_MANY_FAULT(instance.falla) -> True "Falla especifica"
 
+PROPERTY TODO_OK = NORMAL_BEHAIVIOUR ->  G F 4 > 4  " Todo mal mas bien"
+
+*/
+
 // comment3
+
+
+PROPERTY test_atmost = ATMOST (4,instance2.falla) -> G F instance.boolvar "An atmost meta-property example for testing"

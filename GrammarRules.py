@@ -331,7 +331,7 @@ def EXPLAIN():
     """ Human readible name or description of the properties for better 
         understanding.
     """
-    return [(cp(r'\"'), re.compile(r"[\w\s]*"), cp(r'\"'))]
+    return [(cp(r'\"'), re.compile(r"[\w\s\-\_]*"), cp(r'\"'))]
 
 
 def PROPERTY():     return [(cp("PROPERTY"), B, 0, PROPNAME, B, cp(r"="), B,
@@ -339,7 +339,9 @@ def PROPERTY():     return [(cp("PROPERTY"), B, 0, PROPNAME, B, cp(r"="), B,
                              , CTLSPEC
                              , NORMALBEHAIVIOUR
                              , FINMANYFAULTS
-                             , FINMANYFAULT]
+                             , FINMANYFAULT
+                             , ENSURE
+                             , ATMOST ]
                             , 0, ( B, EXPLAIN))]
 
 def PROPNAME():     return [NAME]
@@ -385,7 +387,7 @@ def LTLVAL():       return [ EXPRESION, (re.compile(r"\("), B
                            , LTLEXP, B, re.compile(r"\)")) 
                            ]
 
-# COMMON PROPERTIES ===========================================================#
+# META PROPERTIES =============================================================#
 
 # TODO check for the correct time expresion in this cases, for example only 
 # LTLEXP can be used for FINMANYFAULTS.
@@ -401,6 +403,20 @@ def FINMANYFAULT():     return cp("FINITELY_MANY_FAULT"), B \
                                , B, [LTLEXP, CTLEXP]
 
 def FNAME():            return IDENT
+
+def ATMOST():           return cp(r'ATMOST'), B, cp(r'\('), B, LIMIT, B,\
+                               -1, (B, cp(r'\,'), B, FNAME), B,\
+                               cp(r'\)'), B, cp(r'\-\>'), B, [LTLEXP, CTLEXP]
+
+def ENSURE():           return cp(r'ENSURE'), B, cp(r'\('), B, LIMIT,\
+                               -1, (B, cp(r'\,'), B, ANAME), B,\
+                               cp(r'\)'), B, cp(r'WITHOUT'), B, cp(r'\('),\
+                               0, (B, FNAME, -1, (B, cp(r'\,'), B, FNAME)),\
+                               B, cp(r'\)'), B, cp(r'\-\>'), B, [LTLEXP, CTLEXP]
+
+def LIMIT():            return INT
+
+def ANAME():            return IDENT
 
 # CONTRAINTS ==================================================================#
 def CONSTRAINT():   return [FAIRNESS, COMPASSION]
@@ -460,7 +476,6 @@ if __name__ == "__main__":
     def TEST6():
         """ Test PROPERTY """
         return [( B, PROPERTY, B)]
-
 
     _file = fileinput.input()
 

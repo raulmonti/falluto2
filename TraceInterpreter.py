@@ -113,8 +113,8 @@ class TraceInterpreter():
                       + "interpretar lo que sigue:\n\n"  + rest)
             os._exit(1)
 
-        specrepr = cosys.compiledproperties[specindex]['comm']
-        specname = cosys.compiledproperties[specindex]['name']
+        specrepr = cosys.compiled.props[specindex]['comm']
+        specname = cosys.compiled.props[specindex]['name']
         for sp in ast:
             if sp.__name__ == "TRUESPEC":
                 print self.CG + "|+| - Specification " + self.CE + self.CY \
