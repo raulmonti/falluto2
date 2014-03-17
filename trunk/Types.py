@@ -18,10 +18,12 @@ class Types():
     
     # Propertie types
     Ctlspec = 100
-    Ltlspec = 105
-    Nb      = 110 #normal behaiviour
-    Fmf     = 115 #finitely many fault
-    Fmfs    = 120 #finitely many faults
+    Ltlspec = 101
+    Nb      = 102 #normal behaiviour
+    Fmf     = 103 #finitely many fault
+    Fmfs    = 104 #finitely many faults
+    Ensure  = 105
+    Atmost  = 106
     
     # Contraint types
     WFDisable = 151
@@ -44,6 +46,8 @@ class Types():
                  , "FINMANYFAULT":Fmf
                  , "CTLSPEC":Ctlspec
                  , "LTLSPEC":Ltlspec
+                 , "ENSURE":Ensure
+                 , "ATMOST":Atmost
                  }
 
 

@@ -458,36 +458,61 @@ class Checker(object):
     #-----------------------------------------------------------------------
     def checkProperties(self):
         for p in self.mdl.properties.itervalues():
+            self.checkTimeLogicExp(p.formula)
             t = p.type
-            if t == Types.Fmfs or t == Types.Fmf:
-                if p.formula.__name__ != 'LTLEXP':
-                    raise Error("Can only use LTL for finitely many fault/s "\
-                               +"meta-properties.", ast2str(p.formula), p.line)
-            if t == Types.Ctlspec or t == Types.Ltlspec:
-                self.checkTimeLogicExp(p.formula)
-            elif t in [Types.Nb, Types.Fmfs, Types.Fmf]:
-                self.checkTimeLogicExp(p.formula)
-                for x in p.params:
-                    # for Types.Fmf type properties
-                    line = getBestLineNumberForExpresion(x)
-                    if '.' not in ast2str(x):
-                        raise Error("Bad fault name \'" + ast2str(x) \
-                                   + "\' for Finitely many fault" \
-                                   + " propertie at <" + line + ">.")
-                    else:
-                        i, f = ast2str(x).split('.',1)
-                        try:
-                            inst = self.mdl.instances[i]
-                            pt = self.mdl.proctypes[inst.proctype]
-                            if not f in [x.name for x in pt.faults]:
-                                raise Error( "Error at <" + line \
-                                           + ">. No fault named \'" \
-                                           + f + "\' in instance \'" \
-                                           + i + "\'.")
-                        except KeyError as e:
-                            raise Error( " Error at <" + line + ">. \'" \
-                                       + i \
-                                       + "\' doesn't name an instance.") 
+            #FIXME p.params should be p.faults (change it starting at parser.py)
+            for x in p.params:
+                # check faults named in properties parameters
+                line = getBestLineNumberForExpresion(x)
+                if '.' not in ast2str(x):
+                    raise Error("Bad fault name \'" + ast2str(x) \
+                               + "\' for Finitely many fault" \
+                               + " propertie at <" + line + ">."
+                               , ast2str(p.pypeg)
+                               , "line " + str(line))
+                else:
+                    i, f = ast2str(x).split('.',1)
+                    try:
+                        inst = self.mdl.instances[i]
+                        pt = self.mdl.proctypes[inst.proctype]
+                        if not f in [x.name for x in pt.faults]:
+                            raise Error("No fault named \'" + f\
+                                       + "\' in instance \'" + i + "\'."
+                                       , ast2str(p.pypeg)
+                                       , "line " + str(line))
+                    except KeyError as e:
+                        raise Error( "'"+ i + "' doesn't name an instance."
+                                   , ast2str(p.pypeg)
+                                   , "line " + str(line) )
+            # check actions named in properties parameters
+            for a in p.actions:
+                line = getBestLineNumberForExpresion(a)
+                if '.' not in ast2str(a):
+                    raise Error("No action named '"+ast2str(a)+"'."
+                               , ast2str(p.pypeg)
+                               , "line " + str(line))
+                else:
+                    i, a = ast2str(a).split('.',1)
+                    try:
+                        inst = self.mdl.instances[i]
+                        pt = self.mdl.proctypes[inst.proctype]
+                        if not a in [x.name for x in pt.transitions]:
+                            #FIXME declare error texts somewhere else to be
+                            # cleaner, us % to handel variables in the text.
+                            raise Error( "No action named \'" + a +
+                                         "\' in instance \'" + i + "\'."
+                                       , ast2str(p.pypeg)
+                                       , "line "+ str(line))
+                    except KeyError as e:
+                        raise Error( "'"+ i + "' doesn't name an instance."
+                                   , ast2str(p.pypeg)
+                                   , "line " + str(line) )
+            # check limit for Atmost and Ensure properties
+            if p.type in [Types.Ensure, Types.Atmost] and\
+                int(ast2str(p.limit)) < 0:
+                raise Error("Property limit should be greater than 0, and it's"\
+                           +" <" + str(p.limit) +">.", ast2str(p.pypeg)
+                           , getBestLineNumberForExpresion(p.formula))
 
     #-----------------------------------------------------------------------
     def checkTimeLogicExp(self, tlexpr):

@@ -42,6 +42,12 @@ class Compiler(object):
     # Some names for the compiled system
     __actvar = "action#"   #action variable 
     __dkact  = "dk#action" #deadlock action name (part of the actionvar domain)
+    __stfv = "stop#Faults" #boolean variable for stoping fault ocurrence in
+                           #finitely many faults mechanism
+    __atmostCount = "atmost#count" #for atmost meta-properties
+    __ensureCount = "ensure#count" #for ensure meta-properties
+    __ensureBlock = "ensure#block" #for ensure meta-properties
+
     # to export
     _actvar = __actvar
     _dkact  = __dkact
@@ -464,42 +470,61 @@ class Compiler(object):
 
     #===========================================================================
     def buildProperties(self):
-    # TODO this should be completely changed (NB and FMF)
+    # TODO this should be completely changed (NB and FMF) ?????
         if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
             self.buildDkCheckPropertie()
     
         for p in self.sys.properties.itervalues():
             formula = self.replaceEvents(p.formula)
+            pRepr = ""
+            if p.explain:
+                pRepr = p.explain + ": "
+
             if p.type == Types.Ctlspec:
-                pRepr = "CTLSPEC "+putBracketsToFormula(p.formula,False) 
+                pRepr += "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiled.addprop(p.name, p.explain + ': ' + pRepr, pComp)
+                self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Ltlspec:
-                pRepr = "LTLSPEC "+putBracketsToFormula(p.formula,False) 
+                pRepr += "LTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
-                self.compiled.addprop(p.name, p.explain + ': ' + pRepr, pComp)
+                self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Nb:
                 pRepr = p.explain + ': ' + "NORMAL_BEAHAIVIOUR "\
                     +putBracketsToFormula(p.formula,False)
                 pComp = self.compileUnknownPropertie(p)
                 self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
+                # FIXME it would be cleaner to set the representation of the
+                # the property at parser level and not here.
                 self.compiled.addprop(p.name
-                    , "FINITELY_MANY_FAULT/S (" \
+                    , pRepr + "FINITELY_MANY_FAULT/S (" \
                       + self.symbolSeparatedTupleString( \
-                      [ast2str(x) for x in p.params], False, False, ',') \
-                      + ';' + putBracketsToFormula(p.formula,False) + ")"
+                      [ast2str(x) for x in p.params], False, False, ',') + ")"\
+                      + ' -> ' + putBracketsToFormula(p.formula,False)
+                    , self.compileUnknownPropertie(p))
+            elif p.type == Types.Atmost:
+                self.compiled.addprop(p.name
+                    , pRepr + "ATMOST (" + ast2str(p.limit) + ','\
+                    + self.symbolSeparatedTupleString( 
+                          [ast2str(x) for x in p.params], False, False, ',')\
+                    + ") -> " + ast2str(p.formula)
+                    , self.compileUnknownPropertie(p))
+            elif p.type == Types.Ensure:
+                self.compiled.addprop(p.name
+                    , pRepr + "ENSURE (" + ast2str(p.limit) + ','\
+                    + self.symbolSeparatedTupleString( 
+                          [ast2str(x) for x in p.actions], False, False, ',')\
+                    + ") WITHOUT ("\
+                    + self.symbolSeparatedTupleString( 
+                          [ast2str(x) for x in p.params], False, False, ',')
+                    + ") -> " + ast2str(p.formula)
                     , self.compileUnknownPropertie(p))
             else:
-                debugERROR("bad type for propertie: " + p.type)
+                raise Error("bad type for propertie: " + str(p.type))
 
     #===========================================================================
     def compileUnknownPropertie(self, p):
         """
-        Compile a normal behaiviour propertie: 
-                G V( !fault.active ) -> prop
-        We want to know if 'prop' is guaranteed if we walk only over normal 
-        traces where faults don't accur.
         """
         _result = ""
         if p.formula.__name__ == "CTLEXP":
@@ -1012,12 +1037,205 @@ class Compiler(object):
             and write it to file.
             @Warning: you need to compile the model first.
         """
-        if pname == "":
-            self.compiled.buildModel()
-            self.compiled.writeSysToFile(fpath)
         
-        
+        if pname:
+            _addvar = []
+            _addinit = ""
+            _addtrans = ""
+            _prop = self.sys.properties[pname]
+            assert _prop != None
+            # common properties:
+            if _prop.type == Types.Ctlspec or _prop.type == Types.Ltlspec:
+                self.compiled.buildModel(props=[pname])
+            # normal behaiviour meta-properties:
+            elif _prop.type == Types.Nb:
+                _addtrans = self.getNBtransition()
+            # finitely many faults meta-properties:
+            elif _prop.type == Types.Fmf or _prop.type == Types.Fmfs:
+                _addvar = [self.__stfv + ': boolean;']
+                _addinit = '& !' + self.__stfv
+                _addtrans = self.getFMFtransition(_prop)
+            # atmost meta-properties:
+            elif _prop.type == Types.Atmost:
+                _addvar =\
+                    [self.__atmostCount + ': 0..' + ast2str(_prop.limit) + ';']
+                _addinit = '& ' + self.__atmostCount + ' = 0'
+                _addtrans = self.getATTtransition(_prop) 
+            # ensure meta-properties:
+            elif _prop.type == Types.Ensure:
+                _addvar =\
+                    [ self.__ensureCount + ': 0..' +ast2str(_prop.limit) +';'
+                    , self.__ensureBlock + ': boolean;']
+                _addinit = '& (' + self.__ensureCount + ' = 0) & !'\
+                         + self.__ensureBlock
+                _addtrans = self.getEtransition(_prop)                
+            else:
+                assert TypeError(_prop.type)
 
+            self.compiled.buildModel( _addvar
+                                    , _addinit
+                                    , _addtrans
+                                    ,props=[pname])
+        else:
+            self.compiled.buildModel()
+        # put it in a file at fpath        
+        self.compiled.writeSysToFile(fpath)
+        
+    #===========================================================================
+    def getNBtransition(self):
+        """ Some kind of properties riquire us to add some extra transitions
+            to the compiled model. In this case we are building the extra
+            transitions for the case of the normal behaiviour properties.
+        """
+        _flist = []
+        for i in self.sys.instances.itervalues():
+            _pt = self.sys.proctypes[i.proctype]
+            for _f in _pt.faults:
+                _flist.append(self.compileFaultActionVar( i.name, _f.name))
+        _addtrans = ""                
+        if _flist:
+            _addtrans = '& !(' + self.compileNextRef(self.__actvar)\
+                      + ' in { ' + _flist[0]
+            for _f in _flist[1:]:
+                _addtrans += ', ' + _f
+            _addtrans += '} )'
+
+        return _addtrans
+
+    #===========================================================================
+    def getFMFtransition(self, prop=None):
+        """ Some kind of properties riquire us to add some extra transitions
+            to the compiled model. In this case we are building the extra
+            transitions for the case of the finetely many faults properties.
+        """
+        # FIXME use compileSet instead of doing it by hand :S
+        assert prop!=None
+        _addtrans = ""
+
+        _faults = [] # faults clamed by the property
+        for _f in prop.params:
+            _iname, _fname = ast2str(_f).split('.')
+            _faults.append(self.compileFaultActionVar(_iname, _fname))
+
+        if not _faults: # means every fault must finally be stoped
+            for i in self.sys.instances.itervalues():
+                _pt = self.sys.proctypes[i.proctype]
+                for _f in _pt.faults:
+                    _faults.append(self.compileFaultActionVar( i.name, _f.name))
+                    
+        if _faults:
+            # there are faults in the model (otherwise the fmf property
+            # is useless and we return "").
+
+           _addtrans = '& (!' + self.__stfv + ' | ( ' + self.__stfv + ' & '\
+                     + self.compileNextRef(self.__stfv)\
+                     + ' & !(' + self.compileNextRef(self.__actvar)\
+                     + ' in { ' + _faults[0]
+           for _f in _faults[1:]:
+               _addtrans += ', ' + _f
+           _addtrans += '}))'
+           _addtrans += ')'
+
+        return _addtrans
+
+    #===========================================================================
+    def getATTtransition(self, prop):
+        """ Some kind of properties riquire us to add some extra transitions
+            to the compiled model. In this case we are building the extra
+            transitions for the case of the atmost meta-properties.
+        """
+        # FIXME write pseudocode of the transition to explain it.
+        assert prop!=None
+        _addtrans = ""
+        #FIXME duplicated code from getFMFtransition and getNBtransition
+        _faults = [] # faults clamed by the property
+        for _f in prop.params:
+            _iname, _fname = ast2str(_f).split('.')
+            _faults.append(self.compileFaultActionVar(_iname, _fname))
+
+        if not _faults: # means every fault must finally be stoped
+            for i in self.sys.instances.itervalues():
+                _pt = self.sys.proctypes[i.proctype]
+                for _f in _pt.faults:
+                    _faults.append(self.compileFaultActionVar( i.name, _f.name))
+        
+        if _faults:
+            # there are faults in the model (otherwise the fmf property
+            # is useless and we return "").
+            _xactvar = self.compileNextRef(self.__actvar)
+            _xatcount = self.compileNextRef(self.__atmostCount)
+            _addtrans += '& ('\
+                      + '( ' + self.__atmostCount + " < " + ast2str(prop.limit)\
+                      + ' & (' + _xactvar + ' in '\
+                      + self.compileSet(_faults) + ') & '\
+                      + _xatcount + ' = ' + self.__atmostCount + '+ 1 )\n| '\
+                      + '( ' + self.__atmostCount + " < " + ast2str(prop.limit)\
+                      + ' & !(' + _xactvar + ' in '\
+                      + self.compileSet(_faults) + ') & '\
+                      + _xatcount + ' = ' + self.__atmostCount + ' )\n| '\
+                      + '( ' + self.__atmostCount + " = " + ast2str(prop.limit)\
+                      + ' & !(' + _xactvar + ' in '\
+                      + self.compileSet(_faults) + ') & '\
+                      + _xatcount + ' = ' + self.__atmostCount + ' ))'\
+
+        return _addtrans
+
+    #===========================================================================
+    def getEtransition(self, prop):
+        """ Some kind of properties riquire us to add some extra transitions
+            to the compiled model. In this case we are building the extra
+            transitions for the case of the 'ensure' meta-properties.
+        """
+        # FIXME write pseudocode of the transition to explain it.
+        assert prop!=None
+        _addtrans = ""
+        #FIXME duplicated code from getFMFtransition and getNBtransition
+        _faults = [] # faults clamed by the property
+        for _f in prop.params:
+            _iname, _fname = ast2str(_f).split('.')
+            _faults.append(self.compileFaultActionVar(_iname, _fname))
+
+        if not _faults: # means every fault must finally be stoped
+            for i in self.sys.instances.itervalues():
+                _pt = self.sys.proctypes[i.proctype]
+                for _f in _pt.faults:
+                    _faults.append(self.compileFaultActionVar( i.name, _f.name))
+        
+        _actions = [] # faults clamed by the property
+        for _a in prop.actions:
+            _iname, _aname = ast2str(_a).split('.')
+            _actions.append(self.compileTransitionName(_iname, _aname))
+
+        if not _actions: # means every fault must finally be stoped
+            for i in self.sys.instances.itervalues():
+                _pt = self.sys.proctypes[i.proctype]
+                for _a in _pt.transitions:
+                    _actions.append(self.compileTransitionName(i.name,_a.name))
+
+        if _faults:
+            # FIXME decide what to do if there are no faults declared
+            # there are faults in the model (otherwise the fmf property
+            # is useless and we return "").
+            _xactvar = self.compileNextRef(self.__actvar)
+            _xencount = self.compileNextRef(self.__ensureCount)
+            _addtrans += '& ('\
+                      + '( !' + self.__ensureBlock + ' & ' + _xencount\
+                      + ' = 0 )\n| '\
+                      + '( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
+                      + " < "+ast2str(prop.limit) + ' & (' + _xactvar + ' in '\
+                      + self.compileSet(_actions)+ ') & !(' + _xactvar+ ' in '\
+                      + self.compileSet(_faults) + ') & ' + _xencount + ' = '\
+                      + self.__ensureCount + ' + 1 )\n|'\
+                      + ' ( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
+                      + " < " + ast2str(prop.limit)+ ' & !('+ _xactvar+' in '\
+                      + self.compileSet(_actions+_faults) + ') & ' + _xencount\
+                      + ' = ' + self.__ensureCount + ')\n|'\
+                      + ' (' + self.__ensureBlock + ' & ' + self.__ensureCount\
+                      + ' = ' + ast2str(prop.limit) + ' & !('\
+                      + self.compileNextRef(self.__ensureBlock) + ') & '\
+                      + _xencount + ' = 0))'
+
+        return _addtrans
 
 # TESTING ======================================================================
 if __name__ == "__main__":

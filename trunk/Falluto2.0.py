@@ -177,15 +177,14 @@ if __name__ == '__main__':
         for _pname, _p in _model.getProperties().iteritems():
             LINFO("Checking propertie '"+ _pname + "' ...")
             #construct model and place it in WORKINGFILE for NuSMV to read
-            c.buildModel(_p,os.path.abspath(WORKINGFILE))
+            c.buildModel(_pname,os.path.abspath(WORKINGFILE))
             #save if asked so
             if args.save:
                 shutil.copy2(os.path.abspath(WORKINGFILE), args.save+"."+_pname)
             # Run the model checker.
             output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
             # Interpret result and print user readible output.
-            # FIXME 0 must be changed for something refering to _p
-            #t.interpret(c,output,0,args.color)            
+            t.interpret(c,output,_pname,args.color)            
 
     except Exception, e:
         if DEBUG__:
@@ -204,11 +203,11 @@ if __name__ == '__main__':
 
     finally:
         # remove file working copies
-        if os.path.exists(_fpath):
+        """if os.path.exists(_fpath):
             os.remove(_fpath)
         if os.path.exists(_fpath+".precompiled"):
             os.remove(_fpath+".precompiled")
         if os.path.exists(WORKINGFILE):
             os.remove(WORKINGFILE)
-
+           """
     sys.exit(0)

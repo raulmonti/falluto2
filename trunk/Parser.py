@@ -374,6 +374,8 @@ class Propertie(ParserBaseElem):
         self.formula = "" # the formula goes here
         self.explain = "" # the explanation goes here
                           # everything else except the name goes in params
+        self.actions = [] # for ENSURE and ATMOST meta-properties
+        self.limit = -1   # for ENSURE and ATMOST meta-properties
 
     def parse(self, ast):
         self.pypeg = ast
@@ -382,18 +384,22 @@ class Propertie(ParserBaseElem):
         self.explain = ast2str(getAst2(ast,['EXPLAIN']))
         ast = clearAst(ast.what)
         #After cleaning we should get the name, the property and the explanation
-        for y in ast:            
+        for y in ast:
             if y.__name__ != "EXPLAIN" and y.__name__ != 'PROPNAME':
                 y = rmw(y)
                 self.type = Types.propToType[y.__name__]
                 y = clearAst(y.what)
                 for x in y:
-                    if x.__name__ == "CTLEXP" or x.__name__ == "LTLEXP":
+                    if x.__name__ == 'CTLEXP' or x.__name__ == 'LTLEXP':
                         self.formula = x
-                    else:
-                        # if it isn't the expresion then treat it as parameter
+                    elif x.__name__ == 'ANAME':
+                        self.actions.append(x)
+                    elif x.__name__ == 'LIMIT':
+                        self.limit = x
+                    elif x.__name__ == 'FNAME':
                         self.params.append(x)
-
+                    else:
+                        assert False
  
     def __str__(self):
         string = ">> Propertie " + str(self.name)

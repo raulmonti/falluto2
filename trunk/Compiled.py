@@ -66,7 +66,7 @@ class Compiled():
         return {'name':n, 'comm':c, 'cpld':cd } #name, comment, compiled
 
     #===========================================================================
-    def buildModel(self, addinit="", addtrans=[], propname=""):
+    def buildModel(self, addvars=[], addinit="", addtrans=[], props=[]):
         """ Build the full model, store it in string and also return it.
             @param 'addinit': string formula to append to the init section. Be
                               sure to include the connective at the beggining.
@@ -74,16 +74,39 @@ class Compiled():
                                sure to include the connective at the beggining.
             @param 'props': properties to check in the model.
         """
-
+        # clear last model
+        self.string = ""
+        # build up new one
         self.writeHeader()
         self.writeModuleStart()
         self.it()
         self.writeDefinitions()
         self.writeVarSection()
+        if addvars:
+            self.it()
+            self.comment("@ Falluto extra Variables:\n")
+            for v in addvars:
+                self.writeln(v)
+            self.dt()
+            self.writest("\n")
         self.writeInitSection()
+        if addinit:
+            self.it()
+            self.comment("@ Falluto extra Initialization:\n")
+            self.writeln(addinit)
+            self.dt()
+            self.writest("\n")
         self.writeTransSection()
+        if addtrans:
+            self.it()
+            self.comment("@ Falluto extra Transitions:\n")
+            self.writeln(addtrans)
+            self.dt()
+            self.writest("\n")
         self.dt()
         self.writeConstraints()
+        self.writeProperties(props)
+
         return self.string
 
 
@@ -96,7 +119,7 @@ class Compiled():
     #===========================================================================
     def writeDefinitions(self):
         # DEFINITIONS
-        self.comment("@-@-@-@-@-@-@ DEFINITIONS\n")
+        self.comment("@@@ DEFINITIONS\n")
         for d,v in self.defines.iteritems():
             self.comment("@ DEFINITION " + str(d) + ":\n")
             self.writeln(v['cpld'])
@@ -146,10 +169,23 @@ class Compiled():
     #===========================================================================
     def writeConstraints(self):
         # CONSTRAINTS
-        self.comment("@-@-@-@-@-@-@ CONTRAINTS\n")
+        self.comment("@@@ CONTRAINTS\n")
         for c,v in self.constrs.iteritems():
             self.comment("@ CONSTRAINT " + c + ":\n")
             self.writeln(v['cpld'])
+        self.writest("\n")
+
+    #===========================================================================
+    def writeProperties(self, props=[]):
+        self.comment("@@@ PROPERTIES\n")
+        for p in props:
+            try:
+                _p = self.props[p]
+            except KeyError,e:
+                raise Error("There is no propertie named '" + p + "' compiled.")
+            self.comment("@ PROPERTIE " + _p['name'] + ": (" + _p['comm']\
+                 + ")\n")
+            self.writeln(_p['cpld'])
         self.writest("\n")
 
     #===========================================================================
@@ -171,7 +207,7 @@ class Compiled():
         """
             Returns a NuSMV comment string representing 'string'
         """
-        return "--" + string
+        self.string += self.tab + "--" + string
 
     def write(self, string=""):
         """  """
