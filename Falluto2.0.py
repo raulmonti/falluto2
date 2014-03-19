@@ -30,7 +30,7 @@ import shutil
 #===============================================================================
 # Default working file name, for data shearing with NuSMV.
 #
-WORKINGFILE = "temp/output.smv"
+WORKINGFILE = "temp/"
 EMAIL = "mail@mail.com"
 #
 #==============================================================================#
@@ -78,10 +78,17 @@ def print_falluto_log():
 | |   |  _|      | |
 | |  _| |_       | |
 | | |_____|ALLUTO| |
-| |           2.0| |
+| |           2.1| |
 | '--------------' |
  '----------------' 
 """
+
+
+#===============================================================================
+def fixme():
+    """ Important issues to solve in Falluto """
+#    LCRITICAL("Program counters are bigger than needed.")
+    LCRITICAL("Bounded traces, or minimal traces for counterexamples.")
 
 #==============================================================================#
 # MAIN ========================================================================#
@@ -89,6 +96,9 @@ def print_falluto_log():
 
 if __name__ == '__main__':
     """ Falluto2.0 main process. """
+    # Fixme issues before starting (only in debug level)
+    fixme()
+
     # Print Falluto2.0 header
     print_falluto_log()
     print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
@@ -113,6 +123,13 @@ if __name__ == '__main__':
         _fpath = TEMP_DIR__+'/'+args.filename.split('/')[-1]
         LDEBUG("Working model file at: "+ _fpath)
         shutil.copy2(args.filename, _fpath)
+
+        # set our working file
+        while(True): 
+            WORKINGFILE = 'temp/'+str(datetime.today().microsecond) + '.smv'
+            if not os.path.isfile(WORKINGFILE):
+                LDEBUG("Our working file is: "+WORKINGFILE)
+                break
 
         # Get a compiler and a trace interpreter.
         c = Compiler.Compiler()
@@ -203,11 +220,11 @@ if __name__ == '__main__':
 
     finally:
         # remove file working copies
-        """if os.path.exists(_fpath):
+        if os.path.exists(_fpath):
             os.remove(_fpath)
         if os.path.exists(_fpath+".precompiled"):
             os.remove(_fpath+".precompiled")
         if os.path.exists(WORKINGFILE):
             os.remove(WORKINGFILE)
-           """
+
     sys.exit(0)

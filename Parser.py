@@ -323,7 +323,7 @@ class Proctype(ParserBaseElem):
                         # Is a transition without name, we give it one.
                         t.name = "NN#" + str(self.transitioncount)
                         self.transitioncount += 1
-                    t.pc = len(self.transitions)
+                    t.pc = len(self.transitions) #FIXME Makes program counter to big!!!
                     self.transitions.append(t)
             elif elem.__name__ == "BL":
                 pass
@@ -543,13 +543,16 @@ class Fault(ParserBaseElem):
                     symbol = elem[1]
                     expr = elem[2]
                     self.pos.append([nextref, symbol, expr])
-            elif x.__name__ in ["BYZ", "STOP", "TRANSIENT"]:
+            elif x.__name__ == 'FTYPE':
+                x = x.what[0] #get the type
                 if x.__name__ == "BYZ":
                     self.type = Types.Byzantine
                 elif x.__name__ == "STOP":
                     self.type = Types.Stop
-                else:
+                elif x.__name__ == 'TRANSIENT': 
                     self.type = Types.Transient
+                else:
+                    TypeError(x)
                 # Clear unicodes and blanks from 1st level to get the effects
                 for y in clearAst(x.what):
                     self.affects.append(y)
