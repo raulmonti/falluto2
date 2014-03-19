@@ -1,5 +1,17 @@
-OPTIONS
+-- Modelado de algoritmo de commit atómico de 2 fases (ver commitAtomicoV2.fll
+-- para un modelado y verificación mas completos)
+-- Para Falluto 2.1
+-- Raul Monti
+-- 19/03/2014 12:50:59 
 
+
+-- Hace uso de las siguientes bondades de Falluto2.x:
+-- * Inyeccion declarativa de fallas tipo stop.
+-- * Sincronizacion entre procesos.
+
+
+OPTIONS
+MODELNAME CommitAtomico2fases
 ENDOPTIONS
 
 

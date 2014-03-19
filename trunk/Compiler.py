@@ -236,6 +236,8 @@ class Compiler(object):
             
             @ trans_postcondition doesn't include action next value.
         """
+        # correctly set program counters for transitions
+        self.setTransPc()
 
         # not synchronised transitions
         for inst in self.sys.instances.itervalues():
@@ -465,8 +467,9 @@ class Compiler(object):
         for inst in self.sys.instances.itervalues():
             pt = self.sys.proctypes[inst.proctype]
             vname = self.compileIPC(inst.name)
+            _mx = max([x.pc for x in pt.transitions])
             self.compiled.addvar(vname, "", vname \
-                + " : 0.." + str(max(len(pt.transitions)-1,0)) + ";")
+                + " : 0.." + str(_mx) + ";")
 
     #===========================================================================
     def buildProperties(self):
@@ -684,6 +687,14 @@ class Compiler(object):
         self.compiled.addinit(self.symbolSeparatedTupleString(lst, False, True))
 
     #===========================================================================
+    def setTransPc(self):
+        for pt in self.sys.proctypes.itervalues():
+            dd = {}
+            for t in pt.transitions:
+                t.pc = dd.setdefault(t.name,0)
+                dd[t.name] = t.pc + 1
+
+    #===========================================================================
     def buildTransSection(self):
         tlst = []
         # common transitions
@@ -691,7 +702,8 @@ class Compiler(object):
             pt = self.sys.proctypes[inst.proctype]
             for trans in pt.transitions:
                 if not trans.name in [ast2str(x) for x in pt.synchroacts]:
-                    self.compiled.addtrans(inst.name+'#'+trans.name
+                    self.compiled.addtrans(inst.name+'#'+trans.name+'#'+\
+                          str(trans.pc)
                         , ""
                         , self.buildCommonTrans(inst,pt,trans))
         # synchro transitions
@@ -1037,7 +1049,7 @@ class Compiler(object):
             and write it to file.
             @Warning: you need to compile the model first.
         """
-        
+        LDEBUG("Building model for property: "+pname+" at path: "+fpath)
         if pname:
             _addvar = []
             _addinit = ""
@@ -1080,6 +1092,7 @@ class Compiler(object):
             self.compiled.buildModel()
         # put it in a file at fpath        
         self.compiled.writeSysToFile(fpath)
+        LDEBUG("Done building model.")
         
     #===========================================================================
     def getNBtransition(self):

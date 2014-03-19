@@ -47,6 +47,7 @@ class MyFormatter(logging.Formatter):
     err_fmt  = "[    %(levelname)s    ] %(msg)s"
     dbg_fmt  = "[    %(levelname)s    ] %(module)s: %(lineno)d: %(msg)s"
     info_fmt = "[    %(levelname)s    ] %(msg)s"
+    cri_fmt = "[    FIXME!    ] %(msg)s"
 
     def __init__(self, fmt="%(levelno)s: %(msg)s"):
         logging.Formatter.__init__(self, fmt)
@@ -67,6 +68,9 @@ class MyFormatter(logging.Formatter):
         elif record.levelno == logging.ERROR:
             self._fmt = MyFormatter.err_fmt
 
+        elif record.levelno == logging.CRITICAL:
+            self._fmt = MyFormatter.cri_fmt
+
         # Call the original formatter class to do the grunt work
         result = logging.Formatter.format(self, record)
 
@@ -80,7 +84,7 @@ fmt = MyFormatter()
 hdlr = logging.StreamHandler(sys.stdout)
 hdlr.setFormatter(fmt)
 logging.root.addHandler(hdlr)
-logging.root.setLevel(logging.INFO)
+logging.root.setLevel(logging.DEBUG)
 
 # Definitions for logger
 LERROR = logging.error
