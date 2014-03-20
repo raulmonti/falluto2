@@ -84,7 +84,8 @@ PROCTYPE satReceiver(NS; send, read)
     TRANS
         // IN SEQUENCE FRAME
         [read]: NS = VR => RS' = False, VR' = (VR+1)%MAXSEQ, NEEDACK' = True
-        //--- TODO lo de abajo esta mal porque la sequencia de paquetes es circular :S
+        // TODO lo de abajo esta mal porque la sequencia de paquetes es 
+        // circular :S
         // GAP DETECTED, ASK FOR RETRANSMITION
         [read]: NS > VR => RS' = True, NEEDACK' = True
         // DISCARD REPEATED FRAME 
@@ -113,11 +114,11 @@ PROCTYPE buffer(dataTx; send, read)
     	buff	: array 0..1 of 0..1
    
     FAULT
-	loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
-	loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
+	    loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
+	    loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
   
     INIT
-	buff[0] = 0 & buff[1] = 0 & enviado = True
+	    buff[0] = 0 & buff[1] = 0 & enviado = True
 
     TRANS
 	// THE SENDER PUTS A MESSAGE IN THE BUFFER
@@ -125,8 +126,10 @@ PROCTYPE buffer(dataTx; send, read)
         [send]: dataTx = 1 & buff[1] < MAXREP => buff[1]' = buff[1] + 1
 
 	// THE MESSAGE ARRIVES TO THE RECEIVER
-        []: enviado & buff[0] > 0 => data' = 0, buff[0]' = buff[0] -1, enviado' = False
-        []: enviado & buff[1] > 0 => data' = 1, buff[1]' = buff[1] -1, enviado' = False
+        []: enviado & buff[0] > 0 =>
+            data' = 0, buff[0]' = buff[0] -1, enviado' = False
+        []: enviado & buff[1] > 0 =>
+            data' = 1, buff[1]' = buff[1] -1, enviado' = False
 
 	// THE RECEIVER TAKES OUT THE MESSAGE FROM THE BUFFER
         [read]: !enviado => enviado' = True

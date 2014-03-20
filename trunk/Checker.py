@@ -293,7 +293,7 @@ class Checker(object):
             # pos
             self.allownextrefs = True
             for p in f.pos:
-                nextref = p[0]
+                nextref = p[0].what[0]
                 nrname = ast2str(nextref).split(" ")[0]
                 expr = p[2]
                 exprname = ast2str(expr)
@@ -442,17 +442,20 @@ class Checker(object):
             return [Types.Int]
         else:
             # expr.__name__ == "SET"
+            members = getAst(expr,['SETMEMBER'])
             ts = set([])
-            for elem in expr.what[1:-1]:
-                if isinstance(elem, pyPEG.Symbol) and elem.__name__ == "IDENT":
+            for elem in [x.what[0] for x in members]:
+                assert isinstance(elem, pyPEG.Symbol)
+                if elem.__name__ == 'IDENT':
                     ts.add(self.tryToGetType(inst, elem, expr))
-                elif isBool(ast2str(elem)):
+                elif elem.__name__ == 'SUBSCRIPT':
+                    ts.add(getSubscriptType(inst,elem))
+                elif elem.__name__ == 'BOOL':
                     ts.add(Types.Bool)
-                elif isInt(ast2str(elem)):
+                elif elem.__name__ == 'INT':
                     ts.add(Types.Int)
                 else:
-                    if ast2str(elem) not in ['{',',','}']:
-                        assert False
+                    raise TypeError(elem)
             return list(ts)
 
     #-----------------------------------------------------------------------

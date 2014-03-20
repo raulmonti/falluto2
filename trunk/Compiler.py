@@ -774,10 +774,11 @@ class Compiler(object):
                     + self.compileFaultActionVar(inst.name, f.name))
 
         # PRECONDITIONS
-        # Not to be active if diferent from transient
+        # Not being active if diferent from transient
         if f.type != Types.Transient:
             ftlst.append(self.neg(self.compileFaultActive(inst.name,f.name)))
         # STOP faults that disable this transitions
+        # FIXME STOP faults affect faulty transitions?
         for fault in pt.faults:
             if fault.type == Types.Stop and  fault.affects == []:
                 ftlst.append( self.compileFaultActive(inst.name, fault.name) \
@@ -863,16 +864,16 @@ class Compiler(object):
         return self.symbolSeparatedTupleString(result, False, False)
     
     #===========================================================================
-    """ Get stop faults that affect action in instance.
-
-        @instance:
-            Instance class instance where to check
-        @action:
-            Transition name to check
-        @return:
-            list of stop faults that affect the transition
-    """
     def getStopFaultsForAction(self, inst, act):
+        """ Get stop faults that affect action in instance.
+
+            @instance:
+                Instance class instance where to check
+            @action:
+                Transition name to check
+            @return:
+                list of stop faults that affect the transition
+        """
         faultlist = []
         pt = self.sys.proctypes[inst.proctype]
         for f in [x for x in pt.faults if x.type == Types.Stop]:
