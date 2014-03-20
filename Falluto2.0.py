@@ -88,7 +88,10 @@ def print_falluto_log():
 def fixme():
     """ Important issues to solve in Falluto """
 #    LCRITICAL("Program counters are bigger than needed.")
+    LCRITICAL("\n\n\n             IMPORTANT FIXES FOR FALLUTO 2.1\n\n\n")
     LCRITICAL("Bounded traces, or minimal traces for counterexamples.")
+    LCRITICAL("Arreglar el parser, definir bien la entrada y salida de cada" +
+              "metodo en cada clase, si no se vuelve un asco.")
 
 #==============================================================================#
 # MAIN ========================================================================#
