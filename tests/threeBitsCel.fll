@@ -1,0 +1,88 @@
+// Modelado de memoria con 3 celdas para cada bit, usado como caso de estudio
+// para la meta-propiedad ATMOST de Falluto2.1
+// Raul Monti
+// 21/03/2014 11:55:06 
+
+
+// Hace uso de las siguientes bondades de Falluto2.1:
+// * Meta-propiedad ATMOST
+
+
+OPTIONS
+MODELNAME ThreeBitsMemoryCel
+ENDOPTIONS
+
+
+////////////////////////////////////////////////////////////////////////////////
+// 3 bits cel memories
+PROCTYPE Cel(input;write)
+    
+    VAR
+        bits: array 0..2 of 0..1 // 3 bits to save the value
+        output: 0..1             // output value when we read this memory
+
+    FAULT
+        change0: True => bits[0]' = 1-bits[0] is TRANSIENT //1st bit changed
+        change1: True => bits[1]' = 1-bits[1] is TRANSIENT //2nd bit changed
+        change2: True => bits[2]' = 1-bits[2] is TRANSIENT //3rd bit changed
+// only go from charged to uncharged:
+//        loose: bits[0] = 1 => bits[0]' = 0 is TRANSIENT //1st bit changed
+//        loose: bits[1] = 1 => bits[1]' = 0 is TRANSIENT //2nd bit changed
+//        loose: bits[2] = 1 => bits[2]' = 0 is TRANSIENT //3rd bit changed
+
+    INIT
+        bits[0] = 0 & bits[1] = 0 & bits[2] = 0 & output = 0
+
+    TRANS
+        [write]: True => bits[0]' = input, bits[1]' = input, bits[2]' = input
+        [read]: bits[0]+bits[1]+bits[2] >= 2 => output' = 1
+        [read]: bits[0]+bits[1]+bits[2] < 2 => output' = 0
+
+// with cel update:
+//        [read]: bits[0]+bits[1]+bits[2] >= 2 =>
+//                output' = 1, bits[0]' = 1 & bits[1]' = 1 & bits[2]' = 1
+//        [read]: bits[0]+bits[1]+bits[2] < 2 =>
+//                output' = 0, bits[0]' = 0 & bits[1]' = 0 & bits[2]' = 0
+
+ENDPROCTYPE
+
+
+////////////////////////////////////////////////////////////////////////////////
+// The host who uses the cel for saving values
+PROCTYPE Host(;write)
+
+    VAR
+        output: 0..1     // what we want to write in the cel
+        last: 0..1       // last value saved
+
+    INIT
+//        output = last
+
+    TRANS
+        [change]: True => output' = 1-output // Just change the value we will 
+                                             // write.
+        [write]:  True => last' = output     // To be synchronized with the cel
+
+ENDPROCTYPE
+
+
+////////////////////////////////////////////////////////////////////////////////
+INSTANCE myhost = Host(syncWrite)
+INSTANCE mycel = Cel(myhost.output,syncWrite)
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+PROPERTY Atmost = ATMOST(1,mycel.change0,mycel.change1,mycel.change2) -> 
+    X ( G (just(syncWrite) ->
+    X (G (just(mycel.read) -> (myhost.last = mycel.output)))))
+    "I allways read the last thing I wrote if no more than one bit has changed."
+    
+
+PROPERTY Allways = LTLSPEC X ( G (just(syncWrite) ->
+    X (G (just(mycel.read) -> (myhost.last = mycel.output)))))
+    "I allways read the last thing I wrote. (should be false)"
+
+
+
+

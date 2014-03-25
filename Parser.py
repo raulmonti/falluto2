@@ -157,6 +157,12 @@ class Model(ParserBaseElem):
                     opt = opt.what[0]
                     o = Option()
                     o.parse(opt)
+                    if o.type == Types.Checkdk:
+                        _p = Propertie()
+                        _p.type = Types.Checkdk
+                        _p.name = 'Falluto#DEADLOCK#check'
+                        _p.explain = 'Checking for deadlock in your model.'
+                        self.properties[_p.name] = _p
                     if o.type == Types.Modname:
                         self.name = ast2str(getAst2(opt, ['MNAME']))
                     if o.name in self.options:
@@ -308,9 +314,8 @@ class Proctype(ParserBaseElem):
                     f.parse(x)
                     self.faults.append(f)
             elif elem.__name__ == "INIT":
-                if elem.what != []:
-                    self.init = rmw(getAst(elem,['EXPRESION'])[0])
-                else:
+                self.init = rmw(getAst2(elem,['EXPRESION']))
+                if not self.init:
                     self.init = getTrueExpresion()
                     self.init.__name__.file = elem.__name__.file
                     self.init.__name__.line = elem.__name__.line
@@ -381,7 +386,8 @@ class Propertie(ParserBaseElem):
         self.pypeg = ast
         self.line = ast.__name__.line
         self.name = ast2str(getAst2(ast,['PROPNAME']))
-        self.explain = ast2str(getAst2(ast,['EXPLAIN']))
+        for x in getAst(ast,['EXPLAIN']):
+            self.explain += ast2str(x)[1:-1]
         ast = clearAst(ast.what)
         #After cleaning we should get the name, the property and the explanation
         for y in ast:
@@ -537,7 +543,7 @@ class Fault(ParserBaseElem):
             elif x.__name__ == "PRE":
                 self.pre = rmw(x.what[0])
             elif x.__name__ == "POS":
-                for elem in x.what[0].what:
+                for elem in clearAst(x.what[0].what):
                     elem = rmw(elem.what)
                     nextref = clearAst(elem[0].what[0])
                     symbol = elem[1]

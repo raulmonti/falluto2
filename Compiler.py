@@ -474,8 +474,8 @@ class Compiler(object):
     #===========================================================================
     def buildProperties(self):
     # TODO this should be completely changed (NB and FMF) ?????
-        if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
-            self.buildDkCheckPropertie()
+        #if Types.Checkdk in [x.type for x in self.sys.options.itervalues()]:
+        #    self.buildDkCheckPropertie()
     
         for p in self.sys.properties.itervalues():
             formula = self.replaceEvents(p.formula)
@@ -483,7 +483,9 @@ class Compiler(object):
             if p.explain:
                 pRepr = p.explain + ": "
 
-            if p.type == Types.Ctlspec:
+            if p.type == Types.Checkdk:
+                self.buildDkCheckPropertie(p)
+            elif p.type == Types.Ctlspec:
                 pRepr += "CTLSPEC "+putBracketsToFormula(p.formula,False) 
                 pComp = "CTLSPEC "+self.compileAST(Compiler.__glinst, formula)
                 self.compiled.addprop(p.name, pRepr, pComp)
@@ -530,19 +532,21 @@ class Compiler(object):
         """
         """
         _result = ""
+        formula = self.replaceEvents(p.formula)
         if p.formula.__name__ == "CTLEXP":
-            _result =  "CTLSPEC " + self.compileAST(Compiler.__glinst,p.formula)
+            _result =  "CTLSPEC " + self.compileAST(Compiler.__glinst,formula)
         elif p.formula.__name__ == "LTLEXP":
-            _result = "LTLSPEC " + self.compileAST(Compiler.__glinst,p.formula)
+            _result = "LTLSPEC " + self.compileAST(Compiler.__glinst,formula)
         else:
             assert False
         return _result
 
     #===========================================================================
-    def buildDkCheckPropertie(self):
+    def buildDkCheckPropertie(self, dlkprop=None):
+        assert dlkprop
         self.compiled.addprop(
-            "NEVER FALLS IN DEADLOCK",
-            "DEADLOCK CHECK",
+            dlkprop.name,
+            dlkprop.explain,
             "CTLSPEC AX AG " + Compiler.__actvar + " != " + Compiler.__dkact)
 
     #===========================================================================
@@ -957,6 +961,9 @@ class Compiler(object):
 
     #===========================================================================
     def replaceEvents(self, ast):
+        """ Replace events in ast for its corresponding compiled form
+            and return the new updated ast
+        """
         if isinstance(ast, pyPEG.Symbol):
             ps = pyPEG.Symbol(ast.__name__,[])
             if ast.__name__ == "EVENT":
@@ -1050,7 +1057,7 @@ class Compiler(object):
             and write it to file.
             @Warning: you need to compile the model first.
         """
-        LDEBUG("Building model for property: "+pname+" at path: "+fpath)
+        LDEBUG("Building model for property: '"+pname+"' at path: "+fpath)
         if pname:
             _addvar = []
             _addinit = ""
@@ -1215,35 +1222,38 @@ class Compiler(object):
                 for _f in _pt.faults:
                     _faults.append(self.compileFaultActionVar( i.name, _f.name))
         
-        _actions = [] # faults clamed by the property
+        _actions = set([]) # actions clamed by the property
         for _a in prop.actions:
             _iname, _aname = ast2str(_a).split('.')
-            _actions.append(self.compileTransitionName(_iname, _aname))
+            _actions.add(self.compileTransitionName(_iname, _aname))
 
-        if not _actions: # means every fault must finally be stoped
+        if not _actions: # means every action should be taken into acount
             for i in self.sys.instances.itervalues():
                 _pt = self.sys.proctypes[i.proctype]
                 for _a in _pt.transitions:
-                    _actions.append(self.compileTransitionName(i.name,_a.name))
+                    _actions.add(self.compileTransitionName(i.name,_a.name))
 
+        _actions = list(_actions)
         if _faults:
             # FIXME decide what to do if there are no faults declared
             # there are faults in the model (otherwise the fmf property
             # is useless and we return "").
             _xactvar = self.compileNextRef(self.__actvar)
             _xencount = self.compileNextRef(self.__ensureCount)
+            _xenblock = self.compileNextRef(self.__ensureBlock)
             _addtrans += '& ('\
                       + '( !' + self.__ensureBlock + ' & ' + _xencount\
-                      + ' = 0 )\n| '\
+                      + ' = 0 & '+ _xenblock +')\n| '\
                       + '( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
                       + " < "+ast2str(prop.limit) + ' & (' + _xactvar + ' in '\
-                      + self.compileSet(_actions)+ ') & !(' + _xactvar+ ' in '\
-                      + self.compileSet(_faults) + ') & ' + _xencount + ' = '\
-                      + self.__ensureCount + ' + 1 )\n|'\
+                      + self.compileSet(_actions)+ ') & ' + _xencount + ' = '\
+                      + self.__ensureCount + ' + 1 & '+_xenblock+'='\
+                      + self.__ensureBlock+' )\n|'\
                       + ' ( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
                       + " < " + ast2str(prop.limit)+ ' & !('+ _xactvar+' in '\
                       + self.compileSet(_actions+_faults) + ') & ' + _xencount\
-                      + ' = ' + self.__ensureCount + ')\n|'\
+                      + ' = ' + self.__ensureCount + ' & '+_xenblock+'='\
+                      + self.__ensureBlock+' )\n|'\
                       + ' (' + self.__ensureBlock + ' & ' + self.__ensureCount\
                       + ' = ' + ast2str(prop.limit) + ' & !('\
                       + self.compileNextRef(self.__ensureBlock) + ') & '\

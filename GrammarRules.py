@@ -331,7 +331,7 @@ def EXPLAIN():
     """ Human readible name or description of the properties for better 
         understanding.
     """
-    return [(cp(r'\"'), re.compile(r"[\w\s\-\_]*"), cp(r'\"'))]
+    return [(cp(r'\"'), re.compile(r"[\w \t\-\_\.\,\(\)]*"), cp(r'\"'))]
 
 
 def PROPERTY():     return [(cp("PROPERTY"), B, 0, PROPNAME, B, cp(r"="), B,
@@ -342,7 +342,7 @@ def PROPERTY():     return [(cp("PROPERTY"), B, 0, PROPNAME, B, cp(r"="), B,
                              , FINMANYFAULT
                              , ENSURE
                              , ATMOST ]
-                            , 0, ( B, EXPLAIN))]
+                            , -1, ( B, EXPLAIN))]
 
 def PROPNAME():     return [NAME]
 

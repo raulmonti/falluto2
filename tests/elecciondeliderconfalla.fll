@@ -1,41 +1,74 @@
+// Modelado de eleccion de lider con fallas bizantinas para Falluto2.1
+// Raul Monti
+// 21/03/2014 15:29:32
+//
+
+
+// hace uso de:
+// * meta-propiedad de ENSURE
+
+
 OPTIONS
-SYSNAME Eleccion_De_Lider_OJO_lo_corri_5_min_y_no_termino_
+MODELNAME LiderElection
 CHECK_DEADLOCK
---FAULT_SYS_FAIR_DISABLE
---MODULE_WEAK_FAIR_DISABLE
+//FAULT_SYS_FAIR_DISABLE
+//MODULE_WEAK_FAIR_DISABLE
 ENDOPTIONS
 
+DEFINE NUMPROC 4
+DEFINE MAXID NUMPROC-1
 
-PROCTYPE Process(myId, idMenos1, maxIMenos1, distIMenos1)
-	
-	VAR
-		maxid: 1..5
-		dist: 0..4
+PROCTYPE Process(myId, neighbour)
 
-	FAULT
-		-- Falla de efecto bizantino sobre las variables maxid y dist
-		falla: is BYZ(maxid,dist)
+    VAR
+        maxid:  0..3
+		dist:   0..3
+        id:     0..3
 
-	TRANS
-	
-		[mine0]: myId > maxid => maxid' = myId, dist' = 0;
-	    	[mine1]: dist = 0 & maxid != myId => maxid' = myId;
-		[mine2]: myId = maxid & dist != 0 => dist' = 0;
+    FAULT
+		// Falla de efecto bizantino sobre las variables maxid y dist
+		// falla: is BYZ(maxid,dist)
+        falla: => maxid' in 0..3, dist' in 0..3 is TRANSIENT
 
-		[neighbour]: distIMenos1+1 < 5 & myId < maxIMenos1 => maxid' = maxIMenos1, dist' = distIMenos1 + 1;
+    INIT
+        // me dan el id desde afuera al empezar
+        id = myId
 
-		[lider]: distIMenos1+1 >= 5 | (myId > idMenos1 & myId >= maxIMenos1) => maxid' = myId, dist' = 0;
-
+    TRANS
+        // El mayor id conocido hasta el momento es el mio
+        [mine]: id > maxid => maxid' = id, dist' = 0
+	    [mine]: dist = 0 & maxid != id => maxid' = id
+		[mine]: id = maxid & dist != 0 => dist' = 0
+        // Mi vecino conoce id mas grande
+		[neighbour]: neighbour.dist+1 < NUMPROC & id < neighbour.maxid 
+                     =>
+                     maxid' = neighbour.maxid, dist' = neighbour.dist + 1
+        // Me proclamo lider
+		[lider]: neighbour.dist+1 >= NUMPROC |(id > neighbour.id & id >= neighbour.maxid)
+                 =>
+                 maxid' = id, dist' = 0
 ENDPROCTYPE
 
 
-INSTANCE proc1 = Process(1,5,proc5.maxid,proc5.dist)
-INSTANCE proc2 = Process(2,1,proc1.maxid,proc1.dist)
-INSTANCE proc3 = Process(3,2,proc2.maxid,proc2.dist)
-INSTANCE proc4 = Process(4,3,proc3.maxid,proc3.dist)
-INSTANCE proc5 = Process(5,4,proc4.maxid,proc4.dist)
+INSTANCE proc0 = Process(0,proc1)
+INSTANCE proc1 = Process(1,proc2)
+INSTANCE proc2 = Process(2,proc3)
+INSTANCE proc3 = Process(3,proc0)
 
-
-LTLSPEC G F ((proc1.maxid = 5 & proc2.maxid = 5 & proc3.maxid = 5 & proc4.maxid = 5 & proc5.maxid = 5) 
+PROPERTY nb = NORMAL_BEHAIVIOUR -> G F ((proc0.maxid = MAXID & proc1.maxid = MAXID & proc2.maxid = MAXID & proc3.maxid = MAXID) 
 		& 
-	     (proc5.dist = 0 & proc1.dist = proc5.dist + 1 & proc2.dist = proc1.dist + 1 & proc3.dist = proc2.dist + 1 & proc4.dist = proc3.dist + 1 ))
+	     (proc3.dist = 0 & proc2.dist = proc3.dist + 1 & proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+        "Si no ocurren fallas en el sistema entonces todo anda joia."
+
+PROPERTY Acuerdo =  LTLSPEC G F ((proc0.maxid = MAXID & proc1.maxid = MAXID & proc2.maxid = MAXID & proc3.maxid = MAXID) 
+		& 
+	     (proc3.dist = 0 & proc2.dist = proc3.dist + 1 & proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+        "Eventualmente llegaran a un acuerdo sin importar las fallas. (deberia ser falso)"
+
+PROPERTY AcuerdoEnsure = ENSURE(10)
+                         WITHOUT () ->
+                         G F ((proc0.maxid = MAXID & proc1.maxid = MAXID & proc2.maxid = MAXID & proc3.maxid = MAXID) 
+		                 & 
+                	     (proc3.dist = 0 & proc2.dist = proc3.dist + 1 & proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+                         "Con 4 procesos basta con que no ocurran fallas durante 10 acciones para llegar a la desicion."
+

@@ -69,8 +69,8 @@ def run_subprocess(command, shell = False, universal_newlines = True):
 
 #===============================================================================
 def print_falluto_log():
-    print   """
- .----------------.  
+    colorPrint("debugMAGENTA",   """
+ .----------------. 
 | .--------------. |
 | |  _________   | |
 | | |_   ___  |  | |
@@ -81,7 +81,7 @@ def print_falluto_log():
 | |           2.1| |
 | '--------------' |
  '----------------' 
-"""
+""")
 
 
 #===============================================================================
@@ -92,6 +92,8 @@ def fixme():
     LCRITICAL("Bounded traces, or minimal traces for counterexamples.")
     LCRITICAL("Arreglar el parser, definir bien la entrada y salida de cada" +
               "metodo en cada clase, si no se vuelve un asco.")
+    LCRITICAL("Enable displaying all variables in traces.")
+    LCRITICAL("Debug option at command line")
 
 #==============================================================================#
 # MAIN ========================================================================#
@@ -193,8 +195,16 @@ if __name__ == '__main__':
             LINFO(sysname + ' is OK!\n')
 
         # MODEL CHECK FOR EACH PROPERTY
-        #for each property
-        for _pname, _p in _model.getProperties().iteritems():
+
+        # First check for deadlock if asked for:
+        _pnames = []
+        for _pname, _p in _model.properties.iteritems():
+            if _p.type == Types.Checkdk:
+                _pnames.insert(0,_pname)
+            else:
+                _pnames.append(_pname)
+        # and then for everything else:
+        for _pname in _pnames:
             LINFO("Checking propertie '"+ _pname + "' ...")
             #construct model and place it in WORKINGFILE for NuSMV to read
             c.buildModel(_pname,os.path.abspath(WORKINGFILE))
