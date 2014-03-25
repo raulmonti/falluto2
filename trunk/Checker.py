@@ -461,6 +461,9 @@ class Checker(object):
     #-----------------------------------------------------------------------
     def checkProperties(self):
         for p in self.mdl.properties.itervalues():
+            if p.type == Types.Checkdk:
+                # deadlock is not a user defined propertie
+                continue
             self.checkTimeLogicExp(p.formula)
             t = p.type
             #FIXME p.params should be p.faults (change it starting at parser.py)

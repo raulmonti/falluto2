@@ -159,9 +159,9 @@ class Compiled():
         self.writeln("TRANS")
         self.it()
         lst = list(self.trans.itervalues())
-        self.writeln("( " + lst[0]['cpld'])
+        self.writeln("( (" + lst[0]['cpld'] + ' )')
         for t in lst[1:]:
-            self.writeln("| " + t['cpld'])
+            self.writeln("| ( " + t['cpld'] + ' )')
         self.writeln(")")
         self.writest("\n")
         self.dt()
