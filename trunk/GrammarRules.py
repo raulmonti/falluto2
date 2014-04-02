@@ -104,8 +104,8 @@ def EVENT(): return [(re.compile(r"just\(") , IDENT, re.compile(r"\)"))]
 #..............................................................................
 def SUBSCRIPT():
     """ List subscripts, to access its elements. Subscripts opening bracket
-        should be just after the list name, no white spaces would be tolerated
-        beteween the list name and the opening bracket.
+        should be just after the array name, no white spaces would be tolerated
+        beteween the array name and the opening bracket.
     """
     return pyPEG._not(re.compile(r"[a-zA-Z_]+\w*(\.[a-zA-Z_]+\w*)?\s+")),\
            SUBSCRIPTED, -2,\
@@ -138,11 +138,7 @@ def SETMEMBER():
     return [SUBSCRIPT, IDENT, INT, BOOL]
 
 #..............................................................................
-def RANGE(): return START, re.compile(r"\.\."), END
-
-def START(): return INT
-
-def END(): return INT
+def RANGE(): return INT, re.compile(r"\.\."), INT
 
 #..............................................................................
 def INCLUSION(): return INCLUDED, B, re.compile(r"\bin\b"), B, INCLUDING
@@ -273,9 +269,12 @@ def ENUMT():        return re.compile(r"\{"), 0, ( B, [NAME, INT]\
 def ARRAYT():       return re.compile(r"array"), B, START, re.compile(r"\.\.")\
                            , END, B\
                            , re.compile(r"of\b"), B, VTYPE
-#TODO RANGET es lo mismo que range, pero tiene otro sentido:
 
 #..............................................................................
+def START(): return SUM
+
+def END(): return SUM
+
 def RANGET():        return START, re.compile(r"\.\."), END
 
 #..............................................................................

@@ -19,6 +19,7 @@ import Checker
 import Mejoras
 # TODO join both modules Compiler and Compiled
 from Compiled import Compiled
+from Solver import Solver
 
 #
 #===============================================================================
@@ -116,7 +117,9 @@ class Compiler(object):
         while _t.type == Types.Array:
             _auxres = []
             for l in range(0,len(_result)):
-                for _i in range(int(_t.start), int(_t.end)+1):
+                start = Solver.mainSolver.solveMath(str(ast2str(_t.start)))
+                end = Solver.mainSolver.solveMath(str(ast2str(_t.end)))
+                for _i in range(start, end+1):
                     _auxres.append(_result[l]+'['+str(_i)+']')
             _result = _auxres
             _t = _t.domain

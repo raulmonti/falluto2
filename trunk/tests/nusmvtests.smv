@@ -1,0 +1,13 @@
+-- NuSMV model for testing porpose over NuSMV capabilities
+
+
+
+MODULE main()
+
+    DEFINE D := 4;
+
+    VAR
+        a: 1..5+D;
+
+    INIT
+        a in -1..2

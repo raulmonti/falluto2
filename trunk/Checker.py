@@ -16,6 +16,8 @@ from Utils import *
 import Utils
 import fileinput
 from Parser import VarDeclaration
+import Solver
+
 VType = VarDeclaration.VarType
 #
 #
@@ -61,6 +63,8 @@ class Checker(object):
         # outside proctypes declarations.
         self.globalinst      = Parser.Instance()
         self.globalinst.name = "Glob#inst"
+        # Solver for static checking of math results
+        self.svr             = Solver.Solver()
 
     #-----------------------------------------------------------------------
     def clear(self):
@@ -71,12 +75,22 @@ class Checker(object):
         assert isinstance(model, Parser.Model)
         self.clear()
         self.mdl = model
+        self.populateSolver()
         self.checkRedeclared()
         self.checkInstancesParams()
         self.buildTypeTable()
         self.checkInstancedProctypes()
         self.checkProperties()
         self.checkContraints()
+
+    #---------------------------------------------------------------------------
+    def populateSolver(self):
+        """ Populate the solver table to be able to solve symbols into its
+            values.
+        """
+        lst = [(str(ast2str(pd.dname)),str(ast2str(pd.dvalue))) 
+               for pd in self.mdl.defs.itervalues()]
+        self.svr.populateDefsTable(lst)
 
     #-----------------------------------------------------------------------
     def checkRedeclared(self):
@@ -436,7 +450,8 @@ class Checker(object):
         assert isinstance(expr, pyPEG.Symbol)
         assert expr.__name__ in ["RANGE", "SET"]
         if expr.__name__ == "RANGE":
-            if int(ast2str(expr.what[0])) > int(ast2str(expr.what[2])):
+            if self.svr.solveMath(str(ast2str(expr.what[0]))) > \
+               self.svr.solveMath(str(ast2str(expr.what[2]))):
                 raise Error( "Empty range \'" + ast2str(expr) 
                            + "\' at <" + str(line) + ">.")
             return [Types.Int]
@@ -762,16 +777,18 @@ class Checker(object):
 
     #-----------------------------------------------------------------------
     def getSubscriptType(self, inst, subs):
+        """ Return the type of the subscripted element.
+        """
         assert isinstance(subs, pyPEG.Symbol)
         assert subs.__name__ == "SUBSCRIPT"
+
         line = getBestLineNumberForExpresion(subs)
-        #subs.what = IDENT, -1, (re.compile(r"["),[IDENT,INT],re.compile(r"]"))
-        _name = ast2str(subs.what[0])
+        _name = ast2str(getAst2(subs,['SUBSCRIPTED']))
         _pt = self.mdl.proctypes[inst.proctype]
         try:
             array = self.getVarDeclaration(inst, _name)
         except:
-            raise Error("Undeclared variable \'"+_name+"\' at <"+line+">.")
+            raise Error("Undeclared variable \'"+_name+"\'.", "", line)
         _subs = clearAst(subs.what)
         _idx = 1 # the next subscription
         _type = array.type
@@ -785,10 +802,12 @@ class Checker(object):
             (_l,_u) = self.getIndexRange(inst
                                         , ast2str(_subs[_idx])
                                         , ast2str(subs))
-            if int(_type.start) > _u or int(_type.end) < _l:
+            tstart = self.svr.solveMath(str(ast2str(_type.start)))
+            tend = self.svr.solveMath(str(ast2str(_type.end)))
+            if tstart > _u or tend < _l:
                  raise Error( "Subscription out of range at <" + line + ">,"\
                             + "inside \'" + ast2str(subs) + "\'.")
-            elif int(_type.start) > _l or int(_type.end) < _u:
+            elif tstart > _l or tend < _u:
                 raise Error( "While checking instance <" + inst.name\
                              + ">: subscription <" + ast2str(_subs[_idx])\
                              + "> may go out of range"
@@ -816,11 +835,14 @@ class Checker(object):
                 # get and return declared range for the variable
                 _vt = self.typetable[inst.name][idx]
                 assert _vt.domain[0] != None and _vt.domain[1] != None
-                return (int(ast2str(_vt.domain[0])),\
-                        int(ast2str(_vt.domain[1])))
+                return (self.svr.solveMath(str(ast2str(_vt.domain[0]))),\
+                        self.svr.solveMath(str(ast2str(_vt.domain[1]))))
         
     #-----------------------------------------------------------------------
     def getVarDeclaration(self, inst, varname):
+        """ Return the ast with the declaration of the variable
+            named at instance 'inst' with name 'varname'.
+        """
         if inst.name == "Glob#inst":
             if not '.' in varname:
                 raise UndeclaredError(varname)
@@ -831,8 +853,6 @@ class Checker(object):
                     return self.getVarDeclaration(inst,vname)
                 except:
                     raise UndeclaredError(varname)
-
-
         
         pt = self.mdl.proctypes[inst.proctype]
         
@@ -933,21 +953,29 @@ class Checker(object):
 
     #-----------------------------------------------------------------------
     def getInclusionType(self,inst,ast):
+        """ Inclusions type is allways boolean but this method checks
+            for correctness over the inclusion formulation in 'ast'.
+        """
         assert isinstance(ast, pyPEG.Symbol)
-        assert ast.__name__ == "INCLUSION"
-        elem = ast.what[0]
-        t = self.tryToGetType(inst, elem, ast)
+        assert ast.__name__ == 'INCLUSION'
 
-        _set = ast.what[2]
-        if _set.__name__ == "SET":
+        # get type of the included element: Included in including
+        included = getAst2(ast, ['INCLUDED'])
+        included = included.what[0]
+        t = self.tryToGetType(inst, included, ast)
+
+        ast = getAst2(ast, ['INCLUDING'])
+        _set = ast.what[0]
+        if _set.__name__ == 'SET':
             for x in _set.what:
                 if isinstance(x,pyPEG.Symbol):
-                    if x.__name__ == "IDENT":
+                    if x.__name__ == 'IDENT':
                         self.tryToGetType(inst, x, ast)
 
-        elif _set.__name__ == "RANGE":
+        elif _set.__name__ == 'RANGE':
             line = _set.__name__.line
-            if int(ast2str(_set.what[0])) > int(ast2str(_set.what[2])):
+            if self.svr.solveMath(str(ast2str(_set.what[0]))) > \
+               self.svr.solveMath(str(ast2str(_set.what[2]))):
                 raise Error( "Empty range \'" + ast2str(_set) 
                              + "\' at <" + str(line) + ">.")
             if t != Types.Int:
@@ -957,6 +985,7 @@ class Checker(object):
                              + "> in a range, in \'" + ast2str(ast) \
                              + "\' at <" + line + ">.")
         else:
+            print _set.__name__
             assert False # never come out here
         return Types.Bool
 

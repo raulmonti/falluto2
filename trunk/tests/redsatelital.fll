@@ -1,7 +1,8 @@
 /*------------------------------------------------------------------------
 ---- MODELADO DEL PROTOCOLO DE VENTANA DESLIZANTE PARA UNA RED SATELITAL
+--   para Falluto2.1
 ---- Raul Monti
----- 16 de enero del anio 2013
+--   27/03/2014 11:42:24 
 ---- Cordoba, Argentina
 ------------------------------------------------------------------------*/
 
@@ -15,7 +16,7 @@ ENDOPTIONS
 
 
 //----
-//---- MODELADO DE LOS TRANSMISORES SATELITALES
+//---- LOS TRANSMISORES SATELITALES
 //----
 
 DEFINE MAXSEQ  2   // Maximum sequence number + 1
@@ -38,16 +39,17 @@ PROCTYPE satSender( NR, RR; send, read)
         
     TRANS
 
-	// A NEW SEQUENCE FRAME BECOMES AVAILABLE
-	[SFAvaiable]: !seq_frame_avail => seq_frame_avail' = True
+	    // A NEW SEQUENCE FRAME BECOMES AVAILABLE
+	    [SFAvaiable]: !seq_frame_avail => seq_frame_avail' = True
 
         // CONTINUE RETRANSMITION IF EVER STARTED ONE
         []: enviado & VVS != VS 
             => 
             VVS' = (VVS+1)%MAXSEQ, dataTx' = VVS, enviado' = False
 
-	// TODO : VS-NNR <= WINSIZE
-	// THERE IS A SEQ FRAME AVAILABLE AND I HAVE SPACE IN MY WINDOW SO I SEND THAT SEQ FRAME AND INCREASE COUNTER AND EVERYTHING
+    	// FIXME? : VS-NNR <= WINSIZE
+	    // THERE IS A SEQ FRAME AVAILABLE AND I HAVE SPACE IN MY WINDOW SO I 
+        // SEND THAT SEQ FRAME AND INCREASE COUNTER AND EVERYTHING
         []: enviado & seq_frame_avail & VS-NNR < WINSIZE & !(VVS != VS)
             => 
             VS' = (VS+1)%MAXSEQ, VVS' = (VVS+1)%MAXSEQ, dataTx' = VS, enviado' = False, seq_frame_avail' = False
