@@ -504,12 +504,24 @@ class Compiler(object):
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
                 # FIXME it would be cleaner to set the representation of the
                 # the property at parser level and not here.
+                compiled = self.compileUnknownPropertie(p)
+                if 'CTLSPEC' in compiled:
+                    compiled = 'CTLSPEC AG (' + self.__stfv + ' -> ' +\
+                               compiled.split('CTLSPEC')[-1] + ')'
+                else:
+                    assert 'LTLSPEC' in compiled
+                    compiled = 'LTLSPEC G (' + self.__stfv + ' -> ' +\
+                               compiled.split('LTLSPEC')[-1] + ')'
                 self.compiled.addprop(p.name
                     , pRepr + "FINITELY_MANY_FAULT/S (" \
                       + self.symbolSeparatedTupleString( \
                       [ast2str(x) for x in p.params], False, False, ',') + ")"\
                       + ' -> ' + putBracketsToFormula(p.formula,False)
-                    , self.compileUnknownPropertie(p))
+                    , compiled)
+
+
+
+
             elif p.type == Types.Atmost:
                 self.compiled.addprop(p.name
                     , pRepr + "ATMOST (" + ast2str(p.limit) + ','\

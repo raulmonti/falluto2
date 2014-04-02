@@ -25,6 +25,7 @@ import logging
 import SyntaxRepl
 import GrammarRules
 import shutil
+from time import time
 #
 #
 #===============================================================================
@@ -39,8 +40,8 @@ EMAIL = "mail@mail.com"
 
 def parse_input():
     """ Falluto command line input parsing using argparse library. """
-    parser = argparse.ArgumentParser(prog='Falluto2.0', 
-        description='Falluto 2.0 Model Checker Using NuSMV')
+    parser = argparse.ArgumentParser(prog='Falluto2.1', 
+        description='Falluto2.1 Model Checker Using NuSMV')
     parser.add_argument('--version', 
         action='version', 
         version='%(prog)s version 0.0')
@@ -52,6 +53,16 @@ def parse_input():
              + 'of the system.', dest='save', metavar='path')
     parser.add_argument('-co', help='Color output.', 
         action='store_true', dest='color')
+    parser.add_argument('-build_only', 
+        help = "Build NuSMV models, but don't model check them. Use -save "\
+             + "option to save the built files.", 
+        action='store_true', dest='bonly')
+    parser.add_argument('-props', '--p',
+        help = "Only check the properties named here.",
+        nargs='+', dest='props')
+
+
+
     return parser.parse_args()
 
 #===============================================================================
@@ -116,7 +127,6 @@ if __name__ == '__main__':
     # Parse command line input
     args = parse_input()
     print " -- Input file %s"%args.filename+"\n"
-
     # Check for existence of input file
     if not os.path.exists(args.filename):
         LERROR("File <" + args.filename + "> doesn't exists.")
@@ -201,12 +211,22 @@ if __name__ == '__main__':
         # MODEL CHECK FOR EACH PROPERTY
 
         # First check for deadlock if asked for:
-        _pnames = []
+        _pset = set([])
+        _pdeadlock = None
+        # put properties in set to check and save deadlock prop name if exists
         for _pname, _p in _model.properties.iteritems():
             if _p.type == Types.Checkdk:
-                _pnames.insert(0,_pname)
+                _pdeadlock = _pname
             else:
-                _pnames.append(_pname)
+                _pset.add(_pname)
+        # only check selected properties if there where
+        _pnames = list(_pset)
+        #FIXME give warning if some command line defined propertie doesn't exist
+        if args.props:
+            _pnames = list(_pset.intersection(set(args.props)))
+        # add deadlock check as first to check
+        if _pdeadlock:
+            _pnames.insert(0,_pdeadlock)
         # and then for everything else:
         for _pname in _pnames:
             LINFO("Checking propertie '"+ _pname + "' ...")
@@ -215,11 +235,15 @@ if __name__ == '__main__':
             #save if asked so
             if args.save:
                 shutil.copy2(os.path.abspath(WORKINGFILE), args.save+"."+_pname)
-            # Run the model checker.
-            output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
-            # Interpret result and print user readible output.
-            t.interpret(c,output,_pname,args.color)            
 
+            tstart = tend = time()
+            if not args.bonly:
+                # Run the model checker.
+                output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
+                tend = time()
+                # Interpret result and print user readible output.
+                t.interpret(c,output,_pname,args.color)
+            LINFO("Checked in: " + str(tend-tstart) + " seconds\n")
     except Exception, e:
         if DEBUG__:
             LEXCEPT("")

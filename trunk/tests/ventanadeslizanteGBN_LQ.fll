@@ -1,0 +1,178 @@
+/* MODELADO DE PROTOCOLO DE VENTANA DESLIZANTE GO-BACK-N, PARA FALLUTO2.1
+ * Low state space version for fast checking
+ * Raul Monti
+ * 31/03/2014 18:55:19 
+ * Cordoba, Argentina
+ */
+
+
+OPTIONS
+
+MODELNAME Go_Back_N
+CHECK_DEADLOCK
+
+ENDOPTIONS
+
+// DEFINITIONS =================================================================
+DEFINE WZ 1          // Window size.
+DEFINE MSEQ 2        // Max sequence number.
+DEFINE MSP1 MSEQ + 1 // Max sequence number + 1.
+DEFINE MREP 1        // Number of times a same id can be repeatead in a channel.
+
+
+// SENDER ======================================================================
+PROCTYPE sender( ACK; send, read)
+
+VAR
+    DTX:  0..MSEQ // Data in output buffer
+    NS:   0..MSEQ // Next sequence number
+    LA:   0..MSEQ // Last Ack
+    RT:   0..MSEQ // Retransmission index
+    SENT: boolean // Output buffer empty?
+    SFA:  boolean // A sequence frame from upper layer became available
+
+INIT
+    NS = 0 & LA = 0 & DTX = 0 & SENT & RT =  0
+
+TRANS
+
+    /* A new sequence frame from upper layer becomes available
+     */
+    [sfa]: !SFA => SFA' = True
+
+    /* Put sequence frame into output (but don't send as we have to wait for,
+     * conection in case this is a satelite)
+     * Conditions: there is a sequence frame available, we have free space in
+     * our window, there is nothing already in the output.
+     * Results: the sequence frame is put in the output, there is no squence
+     * frame available, next sequence frame index and retransmission index are
+     * set to the next sequence number to be sent (retransmission is stoped if
+     * there was one).
+     */
+    [new]: SFA & ((NS >= LA & NS-LA<WZ) | (NS < LA & MSP1-LA+NS < WZ)) & 
+           SENT
+           => 
+           SENT' = False, SFA' = False, NS' = (NS+1)%MSP1, 
+           RT' = (NS+1)%MSP1, DTX' = NS
+
+    // Start retransmission if window is full
+    [startRetr]: SENT & RT = NS & 
+                 ((NS >= LA & NS-LA >= WZ) | (NS < LA & MSP1-LA+NS >= WZ)) 
+                 => 
+                 SENT' = False, DTX' = LA, RT' = LA
+
+    // TODO: contRetr no retransmite el NS que es el que me importa 
+    // retransmitir para conseguir el ACK
+    /* Continue retransmission if ever started one, and window is still full
+     */
+    [contRetr]: RT != NS & SENT &
+                ((NS >= LA & NS-LA >= WZ) | (NS < LA & MSP1-LA+NS >= WZ)) 
+                =>
+                DTX' = RT, RT' = (RT+1)%MSP1, SENT' = False
+
+    // READ INVALID ACK AND DISCARD
+    [read]: !(NS > LA & (ACK > LA | ACK <= NS)) & 
+            !(NS <= LA & ACK > LA & ACK <= NS)
+
+    // READ VALID ACK
+    [read]: (NS > LA & (ACK > LA | ACK <= NS)) |
+            (NS <= LA & ACK > LA & ACK <= NS) 
+            =>
+            LA' = ACK, RT' = NS
+
+    // SEND OUTPUT THROUGH BUFFER
+    [send]: !SENT => SENT' = True
+
+ENDPROCTYPE
+
+
+// RECEIVER ====================================================================
+
+PROCTYPE receiver( NF; send, read)
+VAR
+    NR:0..MSEQ // Next request number
+    NA:boolean // Need to send ack
+INIT
+    NR = 0 & NA = False
+TRANS
+    // INVALID FRAME -> DISCARD IT
+    [read]: NF != NR => NA' = True
+    // RECEIVED WHAT REQUESTED
+    [read]: NF = NR => NR' = (NR+1)%(MSP1), NA' = True
+    // SEND ACK IF NEEDED
+    [send]: NA => NA' = False
+
+ENDPROCTYPE
+
+
+
+// CHANNELS ====================================================================
+
+PROCTYPE buffer( IN; send, read)
+
+VAR
+    buff:  array 0..MSEQ of 0..MREP // How many messages with each id are there
+                                    // in the buffer.
+    data:  0..MSEQ                  // Data at the end of the buffer.
+    empty: boolean                  // Output buffer empty?
+
+FAULT
+    loose0: buff[0] > 0 => buff[0]' = buff[0]-1 is TRANSIENT
+    loose1: buff[1] > 0 => buff[1]' = buff[1]-1 is TRANSIENT
+    loose2: buff[2] > 0 => buff[2]' = buff[2]-1 is TRANSIENT
+    //loose3: buff[3] > 0 => buff[3]' = buff[3]-1 is TRANSIENT
+
+INIT
+    buff[0] = 0 & buff[1] = 0 & buff[2] = 0 /* & buff[3] = 0 */ & empty & data = 0
+
+TRANS
+    // READ A 0
+    [send]: IN = 0 & buff[0] < MREP => buff[0]' = buff[0]+1
+    // READ A 1
+    [send]: IN = 1 & buff[1] < MREP => buff[1]' = buff[1]+1
+    [send]: IN = 2 & buff[2] < MREP => buff[2]' = buff[2]+1
+    //[send]: IN = 3 & buff[3] < MREP => buff[3]' = buff[3]+1
+
+    [arrive]: empty & buff[0] > 0 => data' = 0, empty' = False, buff[0]' = buff[0]-1
+    [arrive]: empty & buff[1] > 0 => data' = 1, empty' = False, buff[1]' = buff[1]-1
+    [arrive]: empty & buff[2] > 0 => data' = 2, empty' = False, buff[2]' = buff[2]-1
+    //[arrive]: empty & buff[3] > 0 => data' = 3, empty' = False, buff[3]' = buff[3]-1
+
+    [read]: !empty => empty' = True
+
+ENDPROCTYPE
+
+
+// THE PROCESS =================================================================
+
+INSTANCE producer = sender(buffCP.data, send1, read1)
+INSTANCE consumer = receiver(buffPC.data, send2, read2)
+INSTANCE buffPC = buffer(producer.DTX, send1, read2)
+INSTANCE buffCP = buffer(consumer.NR, send2, read1)
+
+// PROPERTIES ==================================================================
+
+PROPERTY WeGetAllTheData = LTLSPEC G F (just(read2) & buffPC.data = MSEQ)
+"No extra requirements are needed to be able to transmit an receive "
+"all the data."
+
+PROPERTY FmF_LTL = FINITELY_MANY_FAULTS -> G F (just(read2) & buffPC.data = MSEQ)
+"If finally faults stop happening then we will get all the data transmited."
+
+PROPERTY FmF_CTL = FINITELY_MANY_FAULTS -> AG AF (just(read2) & buffPC.data = MSEQ)
+"If finally faults stop happening then we will get all the data transmited."
+
+
+
+//NORMAL_BEHAIVIOUR -> G F (just(read2) & buffPC.data = MSEQ)
+
+
+
+
+
+
+
+//==============================================================================
+/* A tener en cuenta:
+ - El envio de un mensaje nuevo se prioriza a la restransmision.
+*/
