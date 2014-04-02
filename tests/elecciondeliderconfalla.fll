@@ -65,7 +65,7 @@ PROPERTY Acuerdo =  LTLSPEC G F ((proc0.maxid = MAXID & proc1.maxid = MAXID & pr
 	     (proc3.dist = 0 & proc2.dist = proc3.dist + 1 & proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
         "Eventualmente llegaran a un acuerdo sin importar las fallas. (deberia ser falso)"
 
-PROPERTY AcuerdoEnsure = ENSURE(10)
+PROPERTY AcuerdoEnsure = ENSURE(13)
                          WITHOUT () ->
                          G F ((proc0.maxid = MAXID & proc1.maxid = MAXID & proc2.maxid = MAXID & proc3.maxid = MAXID) 
 		                 & 

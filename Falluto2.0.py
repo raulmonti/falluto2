@@ -94,6 +94,10 @@ def fixme():
               "metodo en cada clase, si no se vuelve un asco.")
     LCRITICAL("Enable displaying all variables in traces.")
     LCRITICAL("Debug option at command line")
+    LCRITICAL("Ast2str should return a str type result")
+    LCRITICAL( "We could allow constant value formulas in ranges at inclusions"\
+             + " solving them at precompilation time as NuSMV doesn't allow"\
+             + " them.")
 
 #==============================================================================#
 # MAIN ========================================================================#

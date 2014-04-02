@@ -320,7 +320,7 @@ class TraceInterpreter():
                     + f + self.CE + " / " + Types.Types[fault.type]
                 if fault.type == Types.Stop:
                     if fault.affects != []:
-                        res += " "+ str([_str(x) for x in fault.affects])
+                        res += " "+ str([ast2str(x) for x in fault.affects])
                 break
 
         return res

@@ -221,7 +221,7 @@ def ast2str(ast=[], skipcomments=False, skipwhites=False):
         @return: a unicode string with the text parsed inside 'ast'
     """
     res = ""
-    if isinstance( ast, unicode):
+    if isinstance( ast, unicode) or isinstance(ast, str):
         res = ast
     elif isinstance(ast, pyPEG.Symbol):
         if ast.__name__ == u"COMMENT" and skipcomments:

@@ -18,6 +18,8 @@ NICEOUTPUT__ = False
 
 TRACEBACKLIMIT__ = 10 # for critical errors traceback
 
+LOGLEVEL__ = logging.INFO
+
 #==============================================================================#
 # GLOBAL PATHS ================================================================#
 #==============================================================================#
@@ -84,7 +86,7 @@ fmt = MyFormatter()
 hdlr = logging.StreamHandler(sys.stdout)
 hdlr.setFormatter(fmt)
 logging.root.addHandler(hdlr)
-logging.root.setLevel(logging.DEBUG)
+logging.root.setLevel(LOGLEVEL__)
 
 # Definitions for logger
 LERROR = logging.error
