@@ -1,0 +1,224 @@
+% Falluto 2.1 a model checker for fault tolerant systems.
+% Raul Monti.
+% Monday 7, April 2014.
+%==============================================================================
+
+\documentclass[12pt]{article}
+\title{Falluto2.1, a model checker for fault tolerant systems.}
+\author{ Pedro R. D'Argenio\\ FaMAF - UNC - Argentina \and Ra\'ul E. Monti\\
+	 FaMAF - UNC - Argentina
+}
+\date{\today}
+
+
+\usepackage{amsmath} % for labelling arrows
+
+%==============================================================================
+
+\begin{document}
+
+\maketitle
+
+
+
+\begin{abstract}
+Fault tolerant systems are of major importance as part of highly dependable 
+systems. Model checking techniques improve our confidence over this kind of
+systems throughout exhaustive evaluation of its behaviour. This work presents
+a model checker utility named \mbox{\textit{Falluto2.1}} back-ended by 
+\mbox{\textit{NuSMV}} symbolic model checker. \mbox{\textit{Falluto2.1}} is
+tailored to ease the model checking of fault tolerant systems. In this sense
+is that it offers intuitive and simple mechanisms to work over the injection
+of faults, mechanisms to work over the occurrence of faults under different
+fairness arrangements, and mechanisms to guide the checking of properties over
+usual faults behaviour sceneries. \mbox{\textit{Falluto2.1's}} declarative
+language makes this model checker attractive to all kind of users, allowing
+them to focus on the real behaviour of the system, hiding the implicit 
+functional aspects.
+\end{abstract}
+
+
+
+
+\section{Introduction}
+Model checkers allow users to model real life systems, usually in an abstract level,
+with the aim of exhaustively verifying some property of interest over them. Thus model checking techniques are considered formal approaches to software and hardware verification. This approaches are of great utility in the area of highly dependable systems, as they offer a formal proof of correctness over the model, or a trace counter-example in case the model doesn't meet the required properties.\\
+A fault in a system can be seen as an unexpected behaviour of its parts, which can lead it to perform erroneously. Fault tolerant systems are those who implement mechanisms to overcome the occurrence of faults, avoiding situations that will take to this undesired behaviours. As you can imagine, when implementing highly dependable software or hardware, this kind of systems are preferred over those who don't implement any kind of fault tolerance.\\
+Due to their language generality, actual Model checkers lack of simplicity when modelling systems under
+faulty environments, thus making it difficult to test the designs of fault tolerant systems. Although some other
+works attempt to override this issue, they seem to lack of theoretical support
+over their mechanisms, and some others don't go very far into the possibilities
+of offering syntactic tools for defining a wide range of common scenarios to
+work on.\\
+This two important matters are issued in our work by means of a simple
+declarative language for fault injection, and syntax support for specifying
+on one hand the fairness conditions over process and faults in the model, and 
+on the other hand the fault behaviour model under which each specific property
+will be checked. Furthermore, every result and decision that matter to this
+features is supported on well known theoretical background.\\
+Finally all of our results have been implemented over a \mbox{\textit{NuSMV}}\cite{NuSMV} model checker front-end, to which we have called \mbox{\textit{Falluto2.1}}.
+Based on the formal context given by Kripke Structures and Label Transition 
+Systems, our model checker \mbox{\textit{Falluto2.1}} allows modelling finite state systems with
+non-deterministic choices. It is capable of managing properties in LTL and CTL
+logics, as well as it offers meta-properties intended to reduce the work of the
+user and avoid the introduction of errors in the modelling of the system.\\
+Its main features are its declarative syntax for fault injection and fault
+model specification, as well as for process and fault fairness management.\\
+Despite the large amount of manipulation that the user defined model receives
+in the effort to build the corresponding \mbox{\textit{NuSMV}} model,
+\mbox{\textit{Falluto2.1}} features a trace interpreter module, enabling it
+to present a user comprehensible counter-example trace when ever needed.
+
+\paragraph{Outline}
+The remainder of this article is organized as follows.
+Section~\ref{previous work} gives account of previous work.
+Our new and exciting results are described in Section~\ref{results}.
+Finally, Section~\ref{conclusions} gives the conclusions.
+
+
+\section{Basics}\label{basics}
+In this section we introduce some insights in basic concepts that make it
+easier to understand our work.
+
+\subsection{Kripke structures}\label{kripke}
+Kripke Structures are transitions graphs normally used to describe the behaviour of a system. They consist of a set of states, a set of transitions between states, and a function that labels each state with a set of properties that are \textit{true} in this state. \cite{clarke} formally defines a Kripke structure as fallows:\\
+
+Let $AP$ be a set of atomic propositions. A Kripke Structure $M$ over $AP$ is a four tuple $M=(S,S_0,R,L)$ where:
+\begin{enumerate}
+\item $S$ is a finite set of states
+\item $S_0 \subseteq S$ is the set of initial states.
+\item $R \subseteq S \times S$ is a transitions relation that must be total, that is, for every state $s \in S$ there is a state $s' \in S$ such that $R(s,s')$.
+\item $L : S \rightarrow 2^{AP}$ Is a function that labels each state with the set of atomic propositions \textit{true} in the state.
+\end{enumerate}
+
+
+\subsection{Labeled Transition Systems}\label{lts}
+Just as Kripke Structures, Labelled Transitions Systems are transition graphs used for representing computational behaviour. They are formally defined as a four tuple $M = (S,S_{0},L,R)$ where:
+\begin{itemize}
+\item $S$ is a set of states.
+\item $S_0 \subseteq S$ is a set of initial states.
+\item $L$ is a set of labels (transitions names).
+\item $R \subseteq S \times L \times S$ is a ternary relation (of labelled transitions).
+\end{itemize}
+In this way, having a three tuple $(s,l,s')$ belonging to $R$, will mean that there is a transition named $l$ coming out from states $s$ and ending in state $s'$.
+
+\subsection{LTS to Kripke}\label{lts2kripke}
+Notice that we can translate an LTS system representation to a Kripke equivalent representation in the following way:\\
+
+Let $M_1 = (S_1, S_{1_0} R_1, L_1)$ be the LTS described system, then we can build the Kripke Structure $M_2 = (S_2,S_{2_0},R_2,L_2)$ over the atomic propositions $AP$ in the following way:
+\begin{itemize}
+\item $ AP = \{action = e ~|~ e \in L_1 \cup \{null\}\} $
+\item $ S_2 = S_1 \times (L_1 \cup \{null\}) $
+\item $S_{2_0} = S_{1_0} \times \{null\}$
+\item $R_2 = \{(s,a) \rightarrow (s',b) ~|~ s\overset{b}{\rightarrow}s' \in R_1, a \in L \cup \{null\}\}$
+\item $L_2(s,a) = (action = a),$ for all $(s,a) \in S_2$
+\end{itemize}
+What we have just done is to build for each state $s_i$ and label $e$ in the LTS a state in the Kripke structure that represents the fact of arriving to the state $s_i$ using the label $e$. Given that at the begging of the executions we don't do any action to get to the initial state, is that we have also defined for each state $s \in S_{1_0}$ a state $(s,null)$ that represents it in $S_2$. It is pretty intuitive the way that we build the relation function. The labelling indicates which action was taken to get to each state. This last feature, in addition to the name of the state, uniquely identifies which transition is being taken in the original LTS description of the system.
+
+\subsection{Buchi automata}\label{buchi}
+\subsection{NuSMV symbolic model checker}\label{nusmv}
+
+\section{Fairness}\label{fairness}
+
+Usually when checking properties over a model we are interested in analysing 
+executions that don't differ with what would be a realistic behaviour of the
+system that it represents. That is the case for example of a reliable
+communication channel in the sense that we don't expect it to continuously
+loose a message, or when modellinAssuming the sufficient mechanisms \cite{falluto2.0}g a fair scheduler we don't expect it to
+infinitely ignore a process that is trying to be attended.\\
+Fairness constraints can be seen as conditions over the traces to be checked
+during the model checking of a system. This conditions ensure that the traces %TODO is it true???
+to be considered go pass states with a certain property infinitely often. In
+this sense we can look at the model as a generalized Buchi automaton where
+the fairness conditions define an acceptance set of the automaton.\\
+It is of our interest to distinguish between three kinds of fairness
+constraints, to be:
+\begin{itemize}
+
+\item \textbf{Unconditional fairness:} Given a property \texttt{p} over the
+set of states of our system, an unconditional fairness in relation to
+\texttt{p} will restrict our analysis to those executions where we often pass
+through any state in the set of states where \texttt{p} evaluates to
+\texttt{True}. If we look at our system as a generalized Buchi automaton
+$\beta=(Q,\Sigma,\delta,q_{0},F)$, then adding this constraint will correspond
+to a new automata $\beta'=(Q,\Sigma,\delta,q_{0},F\cup F')$ where $F'$ is the
+set of all states where \texttt{p} evaluates to \texttt{True}. 
+
+\item \textbf{Strong fairness:} Given properties \texttt{p} and \texttt{q}
+over the set of states of our system, a strong fairness constraint with
+condition \texttt{p} in relation to \texttt{q} will restrict our analysis
+to those executions where if eventually property \texttt{p} is continuously
+evaluated to \texttt{True} then property \texttt{q} should often evaluate
+to \texttt{True}. %TODO how can I look it as a Buchi automaton (if possible)
+
+\item \textbf{Weak fairness:} Given properties \texttt{p} and \texttt{q}
+over the set of states of our system, a weak fairness constraint with
+condition \texttt{p} in relation to \texttt{q} will restrict our analysis
+to those executions where if property \texttt{p} is often evaluated to 
+\texttt{True} then property \texttt{q} should also often evaluate to
+\texttt{True}. %TODO how can I look it as a Buchi automaton (if possible)
+
+\end{itemize}
+
+
+\subsection{Process fairness}\label{process fairness}
+As we have seen in section \ref{lts2kripke} we can talk about the
+transition just taken to get to a certain state as to be a property of that
+state. Notice that this enables us to talk about actions and though to define
+fairness conditions over the execution of the process that live inside our
+system.\\
+Under this concept, fairness conditions enable us to restrict our model
+checking analysis to those execution traces of interest, where each process
+can execute some action fairly often, avoiding situations where for example a
+selective group of process are the only cause of the system progress.\\        %TODO fixme->selective
+As we can see, fairness constraints are a kind of conditions to the execution
+paths we are going to check. In this sense they are conditioning the system
+scheduler that organizes the parallel composition of the process involved in
+the model.\\
+\mbox{\textit{Falluto2.1}} implements by defect the following weak fairness
+condition for each process \texttt{P} in the model. Making use of the
+underlying \mbox{\textit{NuSMV}} capabilities for specifying unconditional
+fairness constraints, we define for each process \texttt{P} in the system the
+weak fairness property:
+$$FAIRNESS \bigvee_{t \in T_{N_{P}}} ex_t \vee deadlock_P$$
+Here deadlock indicate that all the normal transitions of the process are
+not enabled. Notice that a process can go out from a deadlock state through the
+changes made by the rest of the system, or by faults actions. Thus this is 
+indeed a weak fairness constraint, as to be enabled often is not enough for a
+process to ensure it will be attended. On the other hand if the process never
+falls in deadlock, this constraint ensures that the process will eventually
+make a normal action.
+
+
+\subsection{Fault fairness}\label{fault fairness}
+In \mbox{\textit{Falluto2.1}} we go further on in this concept and also 
+stablish fairness conditions between faults and process. This is, in what
+concerns to fairness executions, we look at faults as individual process
+that also struggle to be attended by the scheduler.\\
+\mbox{\textit{Falluto2.1}} implements by defect an unconditional fairness
+constraint over the set of \textit{normal transitions} of the system. That
+is, again making use of the underlying \mbox{\textit{NuSMV}} capabilities for
+specifying unconditional fairness constraints, we define the following
+constraint to work with: $$FAIRNESS \bigvee_{t \in T_N} ex_t \vee deadlock$$
+Notice that this constraint implies that in the case that there is always some
+normal transition enabled to be taken then the system should often take one,
+thus avoiding the analysis of traces where the occurrence of faults take
+control over the progress of the system. 
+
+
+
+\section{Previous work}\label{previous work}
+A much longer \LaTeXe{} example was written by Gil~\cite{Gil:02}.
+
+\section{Results}\label{results}
+In this section we describe the results.
+
+\section{Conclusions}\label{conclusions}
+We worked hard, and achieved very little.
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
+
+%==============================================================================
