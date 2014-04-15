@@ -13,6 +13,10 @@
 
 \usepackage{amsmath} % for labelling arrows
 
+\newcommand{\nusmv}{\mbox{\textit{NuSMV}}}
+\newcommand{\falluto}{\mbox{\textit{Falluto2.1}}}
+
+
 %==============================================================================
 
 \begin{document}
@@ -27,13 +31,13 @@ systems. Model checking techniques improve our confidence over this kind of
 systems throughout exhaustive evaluation of its behaviour. This work presents
 a model checker utility named \mbox{\textit{Falluto2.1}} back-ended by 
 \mbox{\textit{NuSMV}} symbolic model checker. \mbox{\textit{Falluto2.1}} is
-tailored to ease the model checking of fault tolerant systems. In this sense
-is that it offers intuitive and simple mechanisms to work over the injection
-of faults, mechanisms to work over the occurrence of faults under different
-fairness arrangements, and mechanisms to guide the checking of properties over
-usual faults behaviour sceneries. \mbox{\textit{Falluto2.1's}} declarative
-language makes this model checker attractive to all kind of users, allowing
-them to focus on the real behaviour of the system, hiding the implicit 
+tailored to ease the model checking of fault tolerant systems. Striving for
+this is that it offers intuitive and simple mechanisms to work over the 
+injection of faults, mechanisms to work over the occurrence of faults under
+different fairness arrangements, and mechanisms to guide the checking of 
+properties over usual faults behaviour sceneries. \mbox{\textit{Falluto2.1's}}
+declarative language makes this model checker attractive to all kind of users,
+allowing them to focus on the real behaviour of the system, hiding the implicit
 functional aspects.
 \end{abstract}
 
@@ -41,13 +45,24 @@ functional aspects.
 
 
 \section{Introduction}
-Model checkers allow users to model real life systems, usually in an abstract level,
-with the aim of exhaustively verifying some property of interest over them. Thus model checking techniques are considered formal approaches to software and hardware verification. This approaches are of great utility in the area of highly dependable systems, as they offer a formal proof of correctness over the model, or a trace counter-example in case the model doesn't meet the required properties.\\
-A fault in a system can be seen as an unexpected behaviour of its parts, which can lead it to perform erroneously. Fault tolerant systems are those who implement mechanisms to overcome the occurrence of faults, avoiding situations that will take to this undesired behaviours. As you can imagine, when implementing highly dependable software or hardware, this kind of systems are preferred over those who don't implement any kind of fault tolerance.\\
-Due to their language generality, actual Model checkers lack of simplicity when modelling systems under
-faulty environments, thus making it difficult to test the designs of fault tolerant systems. Although some other
-works attempt to override this issue, they seem to lack of theoretical support
-over their mechanisms, and some others don't go very far into the possibilities
+Model checkers allow users to model computational systems, usually in an
+abstract level, with the aim of exhaustively verifying some property of
+interest over them. Thus model checking techniques are considered formal
+approaches to software and hardware verification. This approaches are of great
+utility in the area of highly dependable systems, as they offer a formal proof
+of correctness over the model, or a trace counter-example in case the model
+doesn't meet the required properties.\\
+A fault in a system can be seen as an unexpected behaviour of its parts, which
+can lead it to perform erroneously. Fault tolerant systems are those who
+implement mechanisms to overcome the occurrence of faults, avoiding situations
+that will take to this undesired performance. As you can imagine, when
+implementing highly dependable software or hardware, this kind of systems are
+preferred over those who don't implement any kind of fault tolerance.\\
+Due to their language generality, actual Model checkers lack of simplicity when
+modelling systems under faulty environments, thus making it difficult to test
+the designs of fault tolerant systems. Although some other works attempt to
+override this issue, they seem to lack of theoretical support over their
+mechanisms, and some others don't go very far into the possibilities
 of offering syntactic tools for defining a wide range of common scenarios to
 work on.\\
 This two important matters are issued in our work by means of a simple
@@ -56,10 +71,13 @@ on one hand the fairness conditions over process and faults in the model, and
 on the other hand the fault behaviour model under which each specific property
 will be checked. Furthermore, every result and decision that matter to this
 features is supported on well known theoretical background.\\
-Finally all of our results have been implemented over a \mbox{\textit{NuSMV}}\cite{NuSMV} model checker front-end, to which we have called \mbox{\textit{Falluto2.1}}.
+Finally all of our results have been implemented over a
+\mbox{\textit{NuSMV}}\cite{nusmv} model checker front-end, which we have called
+\mbox{\textit{Falluto2.1}}.\\
 Based on the formal context given by Kripke Structures and Label Transition 
-Systems, our model checker \mbox{\textit{Falluto2.1}} allows modelling finite state systems with
-non-deterministic choices. It is capable of managing properties in LTL and CTL
+Systems, our model checker \mbox{\textit{Falluto2.1}} allows modelling finite
+state systems with deterministic and non-deterministic choices. It is capable of managing
+properties in LTL and CTL
 logics, as well as it offers meta-properties intended to reduce the work of the
 user and avoid the introduction of errors in the modelling of the system.\\
 Its main features are its declarative syntax for fault injection and fault
@@ -78,7 +96,14 @@ Finally, Section~\ref{conclusions} gives the conclusions.
 
 \section{Basics}\label{basics}
 In this section we introduce some insights in basic concepts that make it
-easier to understand our work.
+easier to understand our work. We start explaining Kripke Structures and Labelled Transition Systems which will be the formal bases to our analysis of computational systems. We will also introduce \mbox{\textit{NuSMV}} which is our back-end model checker. We will take a look especially at the part of its modelling language which is of our interest. Finally we will introduce the basics of \falluto 's modelling language.\\
+But first, some simple conventions we will maintain during this writing:
+\begin{itemize}
+\item We will be mostly talking about modelling of \textit{finite state systems with deterministic and non-deterministic choices}, unless we explicitly state the opposite.
+\item We will call \textit{normal transitions} to those we expect to happen as part of the normative behaviour of the system, while we will call \textit{faulty transitions} to the ones resulting of a modification of the system state by the occurrence of a fault.
+\item Systems will be composed from one or more process concurrently running, which will be able to synchronize normal transitions.
+\item We consider that we can not predict the instant where faults will occur, and we wont be preventing them from happening, but we can define a fault behaviour model for each property we want to check.
+\end{itemize}
 
 \subsection{Kripke structures}\label{kripke}
 Kripke Structures are transitions graphs normally used to describe the behaviour of a system. They consist of a set of states, a set of transitions between states, and a function that labels each state with a set of properties that are \textit{true} in this state. \cite{clarke} formally defines a Kripke structure as fallows:\\
@@ -100,7 +125,7 @@ Just as Kripke Structures, Labelled Transitions Systems are transition graphs us
 \item $L$ is a set of labels (transitions names).
 \item $R \subseteq S \times L \times S$ is a ternary relation (of labelled transitions).
 \end{itemize}
-In this way, having a three tuple $(s,l,s')$ belonging to $R$, will mean that there is a transition named $l$ coming out from states $s$ and ending in state $s'$.
+In this way, having a three tuple $(s,l,s')$ belonging to $R$, will mean that there is a transition named $l$ coming out from state $s$ and ending in state $s'$.
 
 \subsection{LTS to Kripke}\label{lts2kripke}
 Notice that we can translate an LTS system representation to a Kripke equivalent representation in the following way:\\
@@ -113,23 +138,73 @@ Let $M_1 = (S_1, S_{1_0} R_1, L_1)$ be the LTS described system, then we can bui
 \item $R_2 = \{(s,a) \rightarrow (s',b) ~|~ s\overset{b}{\rightarrow}s' \in R_1, a \in L \cup \{null\}\}$
 \item $L_2(s,a) = (action = a),$ for all $(s,a) \in S_2$
 \end{itemize}
-What we have just done is to build for each state $s_i$ and label $e$ in the LTS a state in the Kripke structure that represents the fact of arriving to the state $s_i$ using the label $e$. Given that at the begging of the executions we don't do any action to get to the initial state, is that we have also defined for each state $s \in S_{1_0}$ a state $(s,null)$ that represents it in $S_2$. It is pretty intuitive the way that we build the relation function. The labelling indicates which action was taken to get to each state. This last feature, in addition to the name of the state, uniquely identifies which transition is being taken in the original LTS description of the system.
+What we have just done is to build for each state $s_i$ and label $e$ in the LTS a state in the Kripke structure that represents the fact of arriving to the state $s_i$ using the label $e$. Given that at the begging of the executions we don't do any action to get to the initial state, is that we have also defined for each state $s \in S_{1_0}$ a state $(s,null)$ that represents it in $S_2$. It is pretty intuitive the way that we build the relation function. The labelling indicates which action was taken to get to each state, and combined with the name of the state, uniquely identifies which transition is being taken in the original LTS description of the system.
+
+
+\subsection{NuSMV symbolic model checker}\label{nusmv}
+\nusmv is a symbolic model checker originated from the reengineering,
+reimplementation and extension of SMV, the original BDD-based model checker
+developed at CMU\cite{cimatti}. We will be using its second version which
+integrates model checking techniques based on propositional satisfiability
+(SAT) to the BDD-based symbolic model checking of its original version.\\
+\nusmv ~language allows us to describe process as to be modules \footnote{Note
+that we will only be describing those aspects of \nusmv ~language that are
+important to our work.}. Each module
+can be composed of three sections, one describing state variables, an other
+restricting the initial state, and a last one defining the relation or
+transition function from each state to the following. Modules can then be run
+concurrently from a main module who would be the head of execution of the whole
+described system.\\
+The initial states of a module are described by a boolean formula over the
+state variables of the module. In a similar manner, but considering not
+only the actual valuation of the variables but also the valuations in
+the next state, we can define the transition relation by a boolean formula.
+In this sense a the transition relation will define a correlation between
+valuations in the original states and the reaching states.\\
+We will pay attention to four types of variables in \nusmv, namely \emph{int,
+boolean, user enumerated, and arrays}, all of whose domains will be of course
+finite, because of the finite state restriction of our models.\\
+%TODO we could replace this for a bigger example and place it in the appendix. Or have both maybe.
+The following is an example of a \nusmv ~module representing a car:
+
+\begin{verbatim}
+MODULE car
+    VAR
+        state: {engineON, engineOF}
+        fuel: 0..3
+    INIT
+        state = engineOF & fuel = 3
+    TRANS
+        ( estate = engineON & fuel <= 0 ) 
+        -> 
+        ( next(estate) = engineOF )
+\end{verbatim}
+
+Note that any pair of states valuations, one taken for the actual state and the
+other for the next state, whom evaluate the transition formula to \emph{true},
+will be in the transition relation. That is for example
+$$(\{state=engineOF, fuel=3\},\{state=engineON,fuel=3\}) \in R$$ where $R$ is our
+transition relation of the car model.\\
+It is important to notice that the close relation between \nusmv module declarations and the corresponding formal description of a process in terms of a Kripke Structure. First we notice that the set of states in the Kripke Structure will be determined by the \texttt{VAR} section of the module, where each combination of states variables valuation will represent a different state. The initial set of states will be given by the \texttt{INIT} formula, who will restrict it to only those valuations that evaluate in \textit{true} this formula. Finally the transition relation will be given by the combination of \textit{actual} and \textit{next} states whose valuations satisfy the formula in the \texttt{TRANS} section.\\
+\nusmv language also supports unconditional and strong conditional fairness constraints over the paths to be checked. This are identified by the keywords \texttt{FAIRNESS} for unconditional fairness and \texttt{COMPASSION} for strong conditional fairness.\\
+Finally LTL and CTL properties can be introduced using keywords \texttt{LTLSPEC} and \texttt{CTLSPEC} followed by the corresponding formula to be checked over the model.
+
 
 \subsection{Buchi automata}\label{buchi}
-\subsection{NuSMV symbolic model checker}\label{nusmv}
+
 
 \section{Fairness}\label{fairness}
 
 Usually when checking properties over a model we are interested in analysing 
 executions that don't differ with what would be a realistic behaviour of the
-system that it represents. That is the case for example of a reliable
+real system that it represents. That is the case for example of a reliable
 communication channel in the sense that we don't expect it to continuously
-loose a message, or when modellinAssuming the sufficient mechanisms \cite{falluto2.0}g a fair scheduler we don't expect it to
+loose a message, or when modelling a fair scheduler we don't expect it to
 infinitely ignore a process that is trying to be attended.\\
 Fairness constraints can be seen as conditions over the traces to be checked
-during the model checking of a system. This conditions ensure that the traces %TODO is it true???
+during the model checking process. This conditions ensure that the traces %TODO is it true???
 to be considered go pass states with a certain property infinitely often. In
-this sense we can look at the model as a generalized Buchi automaton where
+this sense we can look at the model as a generalized Buchi automaton where %TODO is it important to look at it as a Buchi Automaton???
 the fairness conditions define an acceptance set of the automaton.\\
 It is of our interest to distinguish between three kinds of fairness
 constraints, to be:
@@ -139,55 +214,54 @@ constraints, to be:
 set of states of our system, an unconditional fairness in relation to
 \texttt{p} will restrict our analysis to those executions where we often pass
 through any state in the set of states where \texttt{p} evaluates to
-\texttt{True}. If we look at our system as a generalized Buchi automaton
+\textit{true}. If we look at our system as a generalized Buchi automaton
 $\beta=(Q,\Sigma,\delta,q_{0},F)$, then adding this constraint will correspond
 to a new automata $\beta'=(Q,\Sigma,\delta,q_{0},F\cup F')$ where $F'$ is the
-set of all states where \texttt{p} evaluates to \texttt{True}. 
+set of all states where \texttt{p} evaluates to \textit{true}. 
 
 \item \textbf{Strong fairness:} Given properties \texttt{p} and \texttt{q}
 over the set of states of our system, a strong fairness constraint with
 condition \texttt{p} in relation to \texttt{q} will restrict our analysis
 to those executions where if eventually property \texttt{p} is continuously
-evaluated to \texttt{True} then property \texttt{q} should often evaluate
-to \texttt{True}. %TODO how can I look it as a Buchi automaton (if possible)
+evaluated to \textit{true} then property \texttt{q} should often evaluate
+to \textit{true}. %TODO how can I look it as a Buchi automaton (if possible)
 
 \item \textbf{Weak fairness:} Given properties \texttt{p} and \texttt{q}
 over the set of states of our system, a weak fairness constraint with
 condition \texttt{p} in relation to \texttt{q} will restrict our analysis
 to those executions where if property \texttt{p} is often evaluated to 
-\texttt{True} then property \texttt{q} should also often evaluate to
-\texttt{True}. %TODO how can I look it as a Buchi automaton (if possible)
+\textit{true} then property \texttt{q} should also often evaluate to
+\textit{true}. %TODO how can I look it as a Buchi automaton (if possible)
 
 \end{itemize}
 
 
 \subsection{Process fairness}\label{process fairness}
-As we have seen in section \ref{lts2kripke} we can talk about the
-transition just taken to get to a certain state as to be a property of that
-state. Notice that this enables us to talk about actions and though to define
-fairness conditions over the execution of the process that live inside our
-system.\\
-Under this concept, fairness conditions enable us to restrict our model
+In \falluto we would want to be able to talk about the transitions we take. This will enable us to name them inside properties we want to model check or even use them to specify fairness between process.\\
+We have seen in section \ref{lts2kripke} how we can take the names of transitions in a LTS representation, and look at them as properties of the reached states in a Kripke structure equivalent representation of the system. Based on this fact, we have developed a simple mechanism to represent just taken transitions inside our \nusmv modules. This allows us to step over a state and talk about the transition just taken to get there.\\
+Being able to talk about actions will enable us to easily define fairness
+conditions over the execution of the process that live inside our system.\\
+Using this kind of fairness conditions we can restrict our model
 checking analysis to those execution traces of interest, where each process
 can execute some action fairly often, avoiding situations where for example a
 selective group of process are the only cause of the system progress.\\        %TODO fixme->selective
-As we can see, fairness constraints are a kind of conditions to the execution
-paths we are going to check. In this sense they are conditioning the system
-scheduler that organizes the parallel composition of the process involved in
-the model.\\
-\mbox{\textit{Falluto2.1}} implements by defect the following weak fairness
+%As we can see, fairness constraints are a kind of conditions to the execution
+%paths we are going to check. In this sense they are conditioning the system
+%scheduler that organizes the parallel composition of the process involved in
+%the model.\\
+\falluto implements by defect the following weak fairness
 condition for each process \texttt{P} in the model. Making use of the
-underlying \mbox{\textit{NuSMV}} capabilities for specifying unconditional
+underlying \nusmv capabilities for specifying unconditional
 fairness constraints, we define for each process \texttt{P} in the system the
 weak fairness property:
 $$FAIRNESS \bigvee_{t \in T_{N_{P}}} ex_t \vee deadlock_P$$
-Here deadlock indicate that all the normal transitions of the process are
-not enabled. Notice that a process can go out from a deadlock state through the
-changes made by the rest of the system, or by faults actions. Thus this is 
+Here deadlock indicates that no normal transition of the process is enabled. On the other hand, $ex_t$ will be a formula that evaluates to \textit{true} in states where we have just reached by normal transition $t$ of process $P$, understanding as normal transition those that are not the result of a faulty behaviour.\\
+Notice that a process can go out from a deadlock state through the
+changes made by the rest of the composed system. Thus this is
 indeed a weak fairness constraint, as to be enabled often is not enough for a
 process to ensure it will be attended. On the other hand if the process never
 falls in deadlock, this constraint ensures that the process will eventually
-make a normal action.
+make a normal transition.
 
 
 \subsection{Fault fairness}\label{fault fairness}
@@ -200,10 +274,39 @@ constraint over the set of \textit{normal transitions} of the system. That
 is, again making use of the underlying \mbox{\textit{NuSMV}} capabilities for
 specifying unconditional fairness constraints, we define the following
 constraint to work with: $$FAIRNESS \bigvee_{t \in T_N} ex_t \vee deadlock$$
-Notice that this constraint implies that in the case that there is always some
-normal transition enabled to be taken then the system should often take one,
-thus avoiding the analysis of traces where the occurrence of faults take
+Notice that this constraint implies that in the case where finally there is always some
+normal transition enabled to be taken, i.e. when finally the system stops falling in deadlock, then the system should often take one.
+Thus using this we are avoiding the analysis of traces where the occurrence of faults take
 control over the progress of the system. 
+
+
+\section{Falluto2.1's syntax}
+\begin{verbatim}
+PROCTYPE counter ( ; count )
+    VAR
+        clock:0..5
+
+    INIT
+        clock = 0
+
+    TRANS
+        [count]: => count' = (count+1)%6
+
+ENDPROCTYPE
+
+INSTANCE counter1 = counter(count1)
+INSTANCE counter2 = counter(count2)
+INSTANCE counter3 = counter(count2)
+INSTANCE counter4 = counter(count1)
+
+\end{verbatim}
+
+\subsection{System normative behaviour modelling}
+Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \falluto find a clear representation of the Kripke Structures that define the system.\\
+While depicting the normative behaviour, each process description is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}. This are enclosed by the keywords \texttt{PROCTYPE} and \texttt{ENDPROCTYPE}.\\
+While sections \textbf{\texttt{VAR} and \texttt{INIT}} mantain the same structure and meaning as in \nusmv syntax, it is in \texttt{TRANS} where we find a real change in what respects to syntax and semantics. As we can see in example \ref{example}, we won't be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of giving each one a name. In fact each transition will have the next structure: $$[name]: enabling\_condition => effects$$
+\subsection{Fault injection syntax}
+\subsection{Properties specification}
 
 
 
@@ -216,8 +319,23 @@ In this section we describe the results.
 \section{Conclusions}\label{conclusions}
 We worked hard, and achieved very little.
 
-\bibliographystyle{abbrv}
-\bibliography{main}
+%\bibliographystyle{abbrv}
+%\bibliography{main}
+\begin{thebibliography}{9}
+
+\bibitem{clarke}
+    Edmund M. Clarke, Jr., Orna Grumberg, and Doron A. Peled. 2000.
+    \emph{Model Checking}. MIT Press, Cambridge, MA, USA. 
+
+\bibitem{cimatti}   
+    Alessandro Cimatti, Edmund M. Clarke, Enrico Giunchiglia, Fausto
+    Giunchiglia, Marco Pistore, Marco Roveri, Roberto Sebastiani, and Armando
+    Tacchella. 2002. \emph{NuSMV 2: An OpenSource Tool for Symbolic Model
+    Checking.} In \emph{Proceedings of the 14th International Conference on
+    Computer Aided Verification} (CAV '02), Ed Brinksma and Kim Guldstrand
+    Larsen (Eds.). Springer-Verlag, London, UK, UK, 359-364. 
+
+\end{thebibliography}
 
 \end{document}
 
