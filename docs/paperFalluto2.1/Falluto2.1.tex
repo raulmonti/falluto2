@@ -12,6 +12,7 @@
 
 
 \usepackage{amsmath} % for labelling arrows
+\usepackage{verbatimbox} % to be able to center verbatim
 
 \newcommand{\nusmv}{\mbox{\textit{NuSMV}}}
 \newcommand{\falluto}{\mbox{\textit{Falluto2.1}}}
@@ -193,6 +194,72 @@ Finally LTL and CTL properties can be introduced using keywords \texttt{LTLSPEC}
 \subsection{Buchi automata}\label{buchi}
 
 
+\section{Falluto2.1's syntax}
+
+\begin{verbbox}
+PROCTYPE counter ( ; count )
+    VAR
+        clock:0..5
+
+    INIT
+        clock = 0
+
+    TRANS
+        [count]: => count' = (count+1)%6
+
+ENDPROCTYPE
+
+INSTANCE counter1 = counter(count1)
+INSTANCE counter2 = counter(count2)
+INSTANCE counter3 = counter(count2)
+INSTANCE counter4 = counter(count1)
+
+\end{verbbox}
+
+\begin{figure}[h]
+  \centering
+  \theverbbox
+  \caption{\falluto normative behaviour modelling example.}
+  \label{example}
+\end{figure}
+
+\subsection{System normative behaviour modelling}
+Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \falluto find a clear representation of the Kripke Structures that define the system.\\
+While depicting the normative behaviour, each process description is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}. This are enclosed by the keywords \texttt{PROCTYPE} and \texttt{ENDPROCTYPE}.\\
+While sections \texttt{VAR} and \texttt{INIT} mantain the same structure and meaning as in \nusmv syntax, it is in \texttt{TRANS} where we find a real change in the syntax. As we can see in Figure \ref{example}, we won't be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of giving each one a name. In fact each transition will have the structure
+\begin{center}
+\texttt{[name]: enabling\_condition => effects}
+\end{center}
+meaning that from each state where \texttt{enabling\_condition} evaluates to \textit{true} there exists a transition named \texttt{name} to a new state with equal valuation except for the changes made explicit in \texttt{effects}.\\
+Several \texttt{PROCTYPES} will describe the behaviour of the different components of our system. This \texttt{PROCTYPES} should be instantiated as many times as we like, resulting in the interliving components of our modelled system. We do this using \falluto's keyword \texttt{INSTANCE} as shown in Figure \ref{example}.\\
+Synchronization is worked out by shearing the same synchronization names while making the instantiation. In Figure \ref{example} we can see that \texttt{conter1} and \texttt{counter4} synchronize their transitions \texttt{count}, as they share the same synchronization name \texttt{count1}. So do \texttt{conter2} and \texttt{counter3} using \texttt{count2} name.\\
+Although we won't get to much into it, \falluto offers mechanisms for being able to read other processes state variables, as well as for making global definitions over state variables and constants.
+
+\subsection{Fault injection syntax}
+As one of the main advantages of \falluto, we find its declarative language for fault injection. It offers us the possibility of injecting in a simple line of code practically all the information that describes the behaviour of a fault over our processes. The three types of faults actually supported are \textit{stop} faults, \textit{transient} faults and \textit{bizantine} faults, each of which we will define next.
+\begin{itemize}
+
+\item \textbf{Stop faults:} are those which ones occurred permanently disable one or more transitions in a process. They usually correspond to the breakage of a component of the modelled process. We use the following one line syntax
+\begin{center}
+\texttt{name: enable\_cond => effects is STOP(act1,\ldots,actN)}
+\end{center}
+to indicate that a fault named \texttt{name} could occur if \texttt{enable\_cond} evaluates to \textit{true} in the actual state, producing over the next state the changes described at \texttt{effects}, and from now on permanently disabling in  this process transitions with names in \{\texttt{act1}, \ldots, \texttt{actN}\}.
+
+\item \textbf{Transient faults:} transient faults are those which occur infinitely often. They affect the system in the instant they occur, but their effects are not permanent. They usually correspond to transient faults produced by an unfortunate environment, as could be a bit flip in information passing through a large network. We use the following one line syntax
+\begin{center}
+\texttt{name: enable\_cond => effects is TRANSIENT}
+\end{center}
+to indicate that the transient fault named \texttt{name} could occur in this process each time \texttt{enable\_cond} evaluates to \textit{true}, having the effects described at \texttt{effects}.
+
+\item \textbf{Byzantine faults:} Byzantine faults are those that usually represent a malfunction over some system component. That could be a bad memory cell that looses its charge from time to time. They are then linked to specific state variables. We use the following one line syntax
+\begin{center}
+\texttt{name: enable\_cond => effects is BYZ(var1,\ldots,varN)}
+\end{center}
+to indicate that the fault named \texttt{name} could occur when ever \texttt{enable\_cond} evaluates to \textit{true}, producing the instant effects in \texttt{effects}, and permanently affecting the variables in (\texttt{var1},\ldots,\texttt{varN}). Thus from the occurrence of this fault and on, variables in (\texttt{var1},\ldots,\texttt{varN}) could at any time change their values to another value inside their range, as a permanent effect of this fault.
+\end{itemize}
+Faults are defined inside \falluto's proctypes, in a new section named \texttt{FAULT}. They can be referenced in the rest of the model just as we reference any normal transition by using the keyword \texttt{just()}. An example can be found at Figure \ref{fullexample}.
+\subsection{Properties specification}
+
 \section{Fairness}\label{fairness}
 
 Usually when checking properties over a model we are interested in analysing 
@@ -249,7 +316,7 @@ selective group of process are the only cause of the system progress.\\        %
 %paths we are going to check. In this sense they are conditioning the system
 %scheduler that organizes the parallel composition of the process involved in
 %the model.\\
-\falluto implements by defect the following weak fairness
+\falluto implements by defect, although it can be disabled, the following weak fairness
 condition for each process \texttt{P} in the model. Making use of the
 underlying \nusmv capabilities for specifying unconditional
 fairness constraints, we define for each process \texttt{P} in the system the
@@ -269,7 +336,7 @@ In \mbox{\textit{Falluto2.1}} we go further on in this concept and also
 stablish fairness conditions between faults and process. This is, in what
 concerns to fairness executions, we look at faults as individual process
 that also struggle to be attended by the scheduler.\\
-\mbox{\textit{Falluto2.1}} implements by defect an unconditional fairness
+\mbox{\textit{Falluto2.1}} implements by defect, although it can be disabled, an unconditional fairness
 constraint over the set of \textit{normal transitions} of the system. That
 is, again making use of the underlying \mbox{\textit{NuSMV}} capabilities for
 specifying unconditional fairness constraints, we define the following
@@ -278,36 +345,6 @@ Notice that this constraint implies that in the case where finally there is alwa
 normal transition enabled to be taken, i.e. when finally the system stops falling in deadlock, then the system should often take one.
 Thus using this we are avoiding the analysis of traces where the occurrence of faults take
 control over the progress of the system. 
-
-
-\section{Falluto2.1's syntax}
-\begin{verbatim}
-PROCTYPE counter ( ; count )
-    VAR
-        clock:0..5
-
-    INIT
-        clock = 0
-
-    TRANS
-        [count]: => count' = (count+1)%6
-
-ENDPROCTYPE
-
-INSTANCE counter1 = counter(count1)
-INSTANCE counter2 = counter(count2)
-INSTANCE counter3 = counter(count2)
-INSTANCE counter4 = counter(count1)
-
-\end{verbatim}
-
-\subsection{System normative behaviour modelling}
-Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \falluto find a clear representation of the Kripke Structures that define the system.\\
-While depicting the normative behaviour, each process description is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}. This are enclosed by the keywords \texttt{PROCTYPE} and \texttt{ENDPROCTYPE}.\\
-While sections \textbf{\texttt{VAR} and \texttt{INIT}} mantain the same structure and meaning as in \nusmv syntax, it is in \texttt{TRANS} where we find a real change in what respects to syntax and semantics. As we can see in example \ref{example}, we won't be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of giving each one a name. In fact each transition will have the next structure: $$[name]: enabling\_condition => effects$$
-\subsection{Fault injection syntax}
-\subsection{Properties specification}
-
 
 
 \section{Previous work}\label{previous work}
