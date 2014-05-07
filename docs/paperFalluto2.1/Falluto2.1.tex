@@ -3,11 +3,24 @@
 % Monday 7, April 2014.
 %==============================================================================
 
-\documentclass[12pt]{article}
-\title{Falluto2.1, a model checker for fault tolerant systems.}
-\author{ Pedro R. D'Argenio\\ FaMAF - UNC - Argentina \and Ra\'ul E. Monti\\
-	 FaMAF - UNC - Argentina
-}
+\documentclass[12pt]{llncs2e/llncs}
+
+
+% MACROS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\nusmv}{\mbox{\textit{NuSMV}}}
+\newcommand{\falluto}{\mbox{\textsc{Falluto}}}
+\newcommand{\fallutoSp}{\mbox{\textsc{Falluto~}}}
+\newcommand{\textusc}[1]{$_{\text{#1}}$} % text underscript
+
+\newcommand{\todo}[1]{{\color{red}TODO: #1}}
+%\newcommand{\todo}[1]{}
+%==============================================================================
+
+
+
+\title{\falluto, a model checker for fault tolerant systems.}
+\author{ Pedro R. D'Argenio \and Ra\'ul E. Monti}
+\institute{FaMAF, Universidad Nacional de C\'ordoba -- CONICET}
 \date{\today}
 
 
@@ -17,12 +30,10 @@
 \usepackage{xcolor} % for coloring text
 \usepackage{float} % for forsing figure placement ([H] option)
 
-\newcommand{\nusmv}{\mbox{\textit{NuSMV}}}
-\newcommand{\falluto}{\mbox{\textit{Falluto2.1}}}
-\newcommand{\textusc}[1]{$_{\text{#1}}$} % text underscript
 
-\newcommand{\todo}[1]{{\color{red}TODO: #1}}
-%\newcommand{\todo}[1]{}
+
+
+
 
 %==============================================================================
 
@@ -39,9 +50,9 @@ tailored to ease the model checking of fault tolerant systems. Striving for
 this is that it offers intuitive and simple mechanisms to work over the 
 injection of faults, mechanisms to work over the occurrence of faults under
 different fairness arrangements, and mechanisms to guide the checking of 
-properties over usual faults behaviour sceneries. By hiding the functional
-aspects, \mbox{\textit{Falluto2.1's}} declarative fault injection language
-makes this model checker attractive to all kind of users, allowing them to
+properties over usual faults behaviour sceneries. By hiding functional
+aspects, \fallutoSp declarative fault injection language
+allows users to
 focus on the real behaviour of the system and reducing errors introduction
 to the original model.
 \end{abstract}
@@ -81,9 +92,9 @@ will be checked. Furthermore, every result and decision that matter to this
 features is supported on well known theoretical background.\\
 Finally all of our results have been implemented over a
 \mbox{\textit{NuSMV}}\cite{cimatti} model checker front-end, which we have called
-\mbox{\textit{Falluto2.1}}.\\
+\falluto.\\
 Based on the formal context given by Kripke Structures and Label Transition 
-Systems, our model checker \mbox{\textit{Falluto2.1}} allows modelling finite
+Systems, our model checker \fallutoSp allows modelling finite
 state systems with deterministic and non-deterministic choices. It is capable of managing
 properties in LTL and CTL
 logics, as well as it offers meta-properties intended to reduce the work of the
@@ -92,7 +103,7 @@ Its main features are its declarative syntax for fault injection and fault
 model specification, as well as for process and fault fairness management.\\
 Despite the large amount of manipulation that the user defined model receives
 in the effort to build the corresponding \mbox{\textit{NuSMV}} model,
-\mbox{\textit{Falluto2.1}} features a trace interpreter module, enabling it
+\fallutoSp features a trace interpreter module, enabling it
 to present a user comprehensible counter-example trace when ever needed.
 
 \paragraph{Outline}
@@ -105,7 +116,7 @@ The remainder of this article is organized as follows. \todo
 
 \section{Basics}\label{basics}
 In this section we introduce some insights in basic concepts that make it
-easier to understand our work. We will start by taking a look at Kripke Structures and Labelled Transition Systems which will be the formal bases to our analysis of computational systems. Then we will talk about \mbox{\textit{NuSMV}} which is our back-end model checker. Finally, we will introduce the basics of \falluto 's modelling language.\\
+easier to understand our work. We will start by taking a look at Kripke Structures and Labelled Transition Systems which will be the formal bases to our analysis of computational systems. Then we will talk about \mbox{\textit{NuSMV}} which is our back-end model checker. Finally, we will introduce the basics of \falluto's modelling language.\\
 But first, some simple conventions we will maintain during this writing:
 \begin{itemize}
 \item We will be mostly talking about modelling of \textit{finite state systems with deterministic and non-deterministic choices}, unless we explicitly state the opposite.
@@ -208,7 +219,7 @@ Finally LTL and CTL properties can be introduced using keywords \texttt{LTLSPEC}
 
 \section{Falluto2.1's syntax}
 
-\colorlet{shadecolor}{blue!20}
+\colorlet{shadecolor}{black!20}
 \begin{figure}[H]
     \centering
 \begin{framed}
@@ -253,7 +264,7 @@ PROPERTY FINITELY_MANY_FAULTS -> F G !just(counter4.f)
 \end{shaded}
 \vspace{-0.5cm}
 \end{framed}
-    \caption{\falluto modelling syntax example. Shaded text corresponds to fault injection and checking, while the rest corresponds to the normative behaviour modelling.}
+    \caption{\fallutoSp modelling syntax example. Shaded text corresponds to fault injection and checking, while the rest corresponds to the normative behaviour modelling.}
 \label{example}
 
 \end{figure}
@@ -290,7 +301,7 @@ PROPERTY FINITELY_MANY_FAULTS -> F G !just(counter4.f)
 %\end{figure}
 
 \subsection{System normative behaviour modelling}
-Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \falluto find a clear representation of the Kripke Structures that define the system.\\
+Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \fallutoSp find a clear representation of the Kripke Structures that define the system.\\
 While depicting the normative behaviour, each process description is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}. This are enclosed by the keywords \texttt{PROCTYPE} and \texttt{ENDPROCTYPE}.\\
 While sections \texttt{VAR} and \texttt{INIT} mantain the same structure and meaning as in \nusmv syntax, it is in \texttt{TRANS} where we find a real change in the syntax. As we can see in Figure \ref{example}, we won't be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of giving each one a name. In fact each transition will have the structure
 \begin{center}
@@ -299,7 +310,7 @@ While sections \texttt{VAR} and \texttt{INIT} mantain the same structure and mea
 meaning that from each state where \texttt{enabling\_condition} evaluates to \textit{true} there exists a transition named \texttt{name} to a new state with equal valuation except for the changes made explicit in \texttt{effects}.\\
 Several \texttt{PROCTYPES} will describe the behaviour of the different components of our system. This \texttt{PROCTYPES} should be instantiated as many times as we like, resulting in the interliving components of our modelled system (\mbox{Figure \ref{example}}).
 Synchronization is worked out by shearing the same synchronization names while making the instantiation. In Figure \ref{example} we can see that \texttt{conter1} and \texttt{counter4} synchronize their transitions \texttt{count}, as they share the same synchronization name \texttt{count1}. So do \texttt{conter2} and \texttt{counter3} using \texttt{count2} name.\\
-Although we won't get to much into it, \falluto offers mechanisms for being able to read other processes state variables, as well as for making global definitions over state variables and constants.
+Although we won't get to much into it, \fallutoSp offers mechanisms for being able to read other processes state variables, as well as for making global definitions over state variables and constants.
 
 \subsection{Fault injection syntax}
 As one of the main advantages of \falluto, we find its declarative language for fault injection. It offers us the possibility of injecting in a simple line of code practically all the information that describes the behaviour of a fault over our processes. The three types of faults actually supported are:
@@ -326,12 +337,12 @@ to indicate that the fault named \texttt{name} could occur when ever \texttt{ena
 Faults are defined inside \falluto's proctypes, in a new section named \texttt{FAULT}. They can be referenced in the rest of the model just as we reference any normal transition by using the keyword \texttt{just()}. An example can be found at Figure \ref{example}.
 
 \subsection{Properties specification}
-Making use of \nusmv capabilities, in \falluto we can verify \textit{LTL} and \textit{CTL} logic formulas over our modelled systems. Notice that the atomic propositions to be checked when using this formulas are not only conformed by valuations of state variables, but we can also check for fault occurrence and taken transitions within them. This is, using the keyword \textit{just}, we can talk about an action as to be a property of any state, in the sense of having reached that state via this action. For example
+Making use of \nusmv capabilities, in \fallutoSp we can verify \textit{LTL} and \textit{CTL} logic formulas over our modelled systems. Notice that the atomic propositions to be checked when using this formulas are not only conformed by valuations of state variables, but we can also check for fault occurrence and taken transitions within them. This is, using the keyword \textit{just}, we can talk about an action as to be a property of any state, in the sense of having reached that state via this action. For example
 \begin{center}
 \texttt{LTLSPEC G F just(some\_action)}
 \end{center}
 would be an LTL property used to check that transition \texttt{some\_action} is often taken in our modelled system, given that \texttt{just(some\_action)} would evaluate to \textit{true} in each state that we reach by taking the transition named \texttt{some\_action}, and \textit{false} in every other state.\\
-A battery of meta-properties offered by \falluto allows the user to easily define some typical fault occurrence scenarios where to check its properties. This mechanisms are thought to avoid the introduction of large amount of modifications over the model to be able to make such checking. Thus, it avoids the introduction of errors, makes the modelling simpler, and specifies a fixed methodology for model checking fault tolerant systems.\\
+A battery of meta-properties offered by \fallutoSp allows the user to easily define some typical fault occurrence scenarios where to check its properties. This mechanisms are thought to avoid the introduction of large amount of modifications over the model to be able to make such checking. Thus, it avoids the introduction of errors, makes the modelling simpler, and specifies a fixed methodology for model checking fault tolerant systems.\\
 The present meta-property battery is compose by the following:
 \begin{itemize}
 \item \textbf{Normal behaviour meta-property:} We use this meta-property to check some LTL or CTL property over executions lacking of fault occurrences. Thus it would be like model checking an equivalent system where no faults have been defined.
@@ -397,7 +408,7 @@ to those executions where if property \texttt{p} is often evaluated to
 
 
 \subsection{Process fairness}\label{process fairness}
-In \falluto we can talk about the transitions we take. This will enable us to name them inside properties we want to model check or even use them to specify fairness between process.\\
+In \fallutoSp we can talk about the transitions we take. This will enable us to name them inside properties we want to model check or even use them to specify fairness between process.\\
 We have seen in section \ref{lts2kripke} how we can take the names of transitions in a LTS representation, and look at them as properties of the reached states in a Kripke structure equivalent representation of the system. Based on this fact, we have developed a simple mechanism to represent just taken transitions inside our \nusmv modules. This allows us to step over a state and talk about the transition just taken to get there.\\
 This enables us to easily define fairness
 conditions over the execution of the process that live inside our system.\\
@@ -409,7 +420,7 @@ selective group of process are the only cause of the system progress.\\        %
 %paths we are going to check. In this sense they are conditioning the system
 %scheduler that organizes the parallel composition of the process involved in
 %the model.\\
-\falluto implements by defect, although it can be disabled, the following weak fairness
+\fallutoSp implements by defect, although it can be disabled, the following weak fairness
 conditions over the modelled processes. Making use of \nusmv keyword \textit{FAIRNESS} for specifying unconditional
 fairness constraints, we define for each process \texttt{P} in the system the
 weak fairness property:
@@ -441,7 +452,7 @@ control over the progress of the system.
 
 \section{Semantics and compilation in \falluto}\label{compilation}
 
-In this section we will attempt to give an overview of the compilation from a \falluto syntax defined model into a \nusmv model, backing decisions and results on Kripke Structures theory.\\
+In this section we will attempt to give an overview of the compilation from a \fallutoSp syntax defined model into a \nusmv model, backing decisions and results on Kripke Structures theory.\\
 When compiling into the \nusmv language, we will only build one \textit{main} \nusmv module. Remember that this \textit{main} module is head of execution when model checking with \nusmv. The system state will be represented by the union of all state variables of each \textit{instanced proctype} defined in the original model. Though the \textit{VAR} section of our compiled module will be composed from this states variables, as well as from an extra variable which we will call the \textit{action\_variable}. This last variable will indicate for each state, the name of the transition taken to get there. Thus it is simply the result of the translation of the LTL description given by names in \falluto's transitions to the Kripke structure description forced by our selected \nusmv syntax.\footnote{ This translation is explained at Section \ref{lts2kripke} of this work.} This allows us to easily compile \falluto's \texttt{just()} actions to propositions over the value of \textit{action\_varible}. This is we compile \texttt{just(action)} to \texttt{action\_variable = action}.\\
 The \textit{initialization} section of the \textit{main} module will be built using the \textit{and} composition of the initialization of each of the \textit{instanced proctypes}. This will evidently accomplish the expected initial state of the composed system.\\
 Finally the \textit{transition} section will be built by the \textit{or} composition of each compiled normal and faulty transition, indicating that in a first approach the composed system can select any of them to make its transitions.\\
@@ -486,7 +497,7 @@ and \textit{N} transitions with the scheme
 \end{center}
 representing the permanent effects over the Byzantine broken variables. That is, if the Byzantine fault that produces faulty effects over variable \texttt{varX} for some \texttt{X} between 1 and \textit{N} is active, then, taking this transition, \texttt{varX} will change its value to some random value in its range.
 
-\subsubsection*{TRANSIENT faults}
+\subsubsection*{Transient faults}
 Transient faults are not permanent, thus they lack of activation variable. While compiling a transient fault of the form
 \begin{center}
 \texttt{name: enable => effects is TRANSIENT}
@@ -501,7 +512,7 @@ we will get an only transition
 We will focus on the compilation of each of our meta-properties, as common user defined properties don't imply a change on the rest of the compiled module, and thus can be compiled straight through.
 
 \subsubsection*{Normal Behaviour meta-property compilation}
-Compiling this kind of properties suggests modifying the behaviour of the model, avoiding faults from occurring. Thus given the \falluto original property
+Compiling this kind of properties suggests modifying the behaviour of the model, avoiding faults from occurring. Thus given the \fallutoSp original property
 \begin{center}
 \texttt{NORMAL\_BEHAVIOUR -> q}
 \end{center}
@@ -606,6 +617,7 @@ Let K be the maximum id of any process in the ring. The leader is successfully e
 \end{enumerate}
 We would like to model check if this last properties are met under the presence of Byzantine or transient faults, meaning that a leader can be actually selected.\\
 Lets start modelling our system normative behaviour in a ring with four processes.
+\begin{framed}
 \begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
@@ -639,7 +651,9 @@ INSTANCE proc1 = Process(1,proc2)
 INSTANCE proc2 = Process(2,proc3)
 INSTANCE proc3 = Process(3,proc0)
 \end{verbatim}
+\end{framed}
 Lets also define our property to check
+\begin{framed}
 \begin{verbatim}
 PROPERTY got_a_leader =
 LTLSPEC G F ( ( proc0.maxid = 3    \\ Everybody
@@ -652,7 +666,9 @@ LTLSPEC G F ( ( proc0.maxid = 3    \\ Everybody
               & proc0.dist = proc1.dist + 1))  \\ correct
 
 \end{verbatim}
-Under this conditions where no faults occur our property is met, and \falluto proves it to be correct. So our next step is to inject faults respect to the model and take a look into it's tolerance over those faults. We easily inject Byzantine faults over our \textit{maxid} and \textit{dist} variables by adding the \textit{fault} section to our proctype.
+\end{framed}
+Under this conditions where no faults occur our property is met, and \fallutoSp proves it to be correct. So our next step is to inject faults respect to the model and take a look into it's tolerance over those faults. We easily inject Byzantine faults over our \textit{maxid} and \textit{dist} variables by adding the \textit{fault} section to our proctype.
+\begin{framed}
 \begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
@@ -665,8 +681,10 @@ PROCTYPE Process(myId, neighbour)
         ...
 ENDPROCTYPE
 \end{verbatim}
-This time \falluto will return a counterexample trace, as a witness of the not satisfaction of the property over our model. It would be clear from the counterexample that faults can occur in such way that the constant changes in \textit{maxid} and \textit{dist} values, get in the way of selecting a leader.\\
+\end{framed}
+This time \fallutoSp will return a counterexample trace, as a witness of the not satisfaction of the property over our model. It would be clear from the counterexample that faults can occur in such way that the constant changes in \textit{maxid} and \textit{dist} values, get in the way of selecting a leader.\\
 Lets now change our Byzantine faults for Transient faults with mainly the same effects, but allowing us to use some of our meta-properties to verify that our system has in effect some limited fault tolerance properties. Our new processes will look like:
+\begin{framed}
  \begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
@@ -679,7 +697,9 @@ PROCTYPE Process(myId, neighbour)
         ...
 ENDPROCTYPE
 \end{verbatim}
+\end{framed}
 We will also change our property to check.
+\begin{framed}
 \begin{verbatim}
 PROPERTY got_a_leader =
 ENSURE(13)
@@ -687,11 +707,12 @@ WITHOUT() -> G F ( ( proc0.maxid = 3    \\ Everybody
                    & proc1.maxid = 3    \\ knows
                    & proc2.maxid = 3    \\ the
                    & proc3.maxid = 3)   \\ leader
-                 & ( proc3.dist = 0                 \\ The
-                   & proc2.dist = proc3.dist + 1    \\ distances
-                   & proc1.dist = proc2.dist + 1    \\ are
-                   & proc0.dist = proc1.dist + 1))  \\ correct
+                 & ( proc3.dist = 0               \\The
+                   & proc2.dist = proc3.dist + 1  \\distances
+                   & proc1.dist = proc2.dist + 1  \\are
+                   & proc0.dist = proc1.dist + 1))\\correct
 \end{verbatim}
+\end{framed}
 With this property we will be checking our model under the assumption that during the executions we will often have lapses of 13 consecutive normal transitions, i.e. without any fault occurring in the middle. This, as we can corroborate by the model checker result, would be enough to select a leader under the occurrence of faults. Moreover, reducing the consecutive normal transitions to 12 instead of 13, will result in a trace counter-example.
 
 
