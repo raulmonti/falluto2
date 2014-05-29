@@ -119,7 +119,7 @@ class TraceInterpreter():
             if sp.__name__ == "TRUESPEC":
                 print self.CG + "|+| - Specification " + self.CE + self.CY \
                     + str(specname) + "\n    - " + specrepr + self.CE + self.CG\
-                    + "\n    - is true\n\n" + self.CE
+                    + "\n    - is true" + self.CE
 
             elif sp.__name__ == "FALSESPEC":
                 print self.CR + "|-| - Specification " + self.CE + self.CY \
@@ -168,7 +168,6 @@ class TraceInterpreter():
                     self.interpret_state(st)
 
         self.tprint(self.CR + string_spec_end + self.CE)
-        print "\n\n"
 
 
     #.......................................................................

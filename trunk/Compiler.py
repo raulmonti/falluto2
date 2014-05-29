@@ -47,7 +47,6 @@ class Compiler(object):
                            #finitely many faults mechanism
     __atmostCount = "atmost#count" #for atmost meta-properties
     __ensureCount = "ensure#count" #for ensure meta-properties
-    __ensureBlock = "ensure#block" #for ensure meta-properties
 
     # to export
     _actvar = __actvar
@@ -519,9 +518,6 @@ class Compiler(object):
                       + ' -> ' + putBracketsToFormula(p.formula,False)
                     , compiled)
 
-
-
-
             elif p.type == Types.Atmost:
                 self.compiled.addprop(p.name
                     , pRepr + "ATMOST (" + ast2str(p.limit) + ','\
@@ -538,7 +534,7 @@ class Compiler(object):
                     + self.symbolSeparatedTupleString( 
                           [ast2str(x) for x in p.params], False, False, ',')
                     + ") -> " + ast2str(p.formula)
-                    , self.compileUnknownPropertie(p))
+                    , self.compileEnsureProperty(p))
             else:
                 raise Error("bad type for propertie: " + str(p.type))
 
@@ -555,6 +551,22 @@ class Compiler(object):
         else:
             assert False
         return _result
+
+    #===========================================================================
+    def compileEnsureProperty(self, p):
+        """
+        """
+        formula = self.replaceEvents(p.formula)
+        if p.formula.__name__ == "CTLEXP":
+            _result = "CTLSPEC ( AF " + self.__ensureCount + ' = 0 ) -> '\
+                    + self.compileAST(Compiler.__glinst, formula)
+	elif p.formula.__name__ == "LTLEXP":
+            _result = "LTLSPEC ( ( G (F " + self.__ensureCount + ' = 0) ) -> ('\
+                    + self.compileAST(Compiler.__glinst, formula) + ') )'
+        else:
+            assert False
+        return _result
+
 
     #===========================================================================
     def buildDkCheckPropertie(self, dlkprop=None):
@@ -1068,8 +1080,8 @@ class Compiler(object):
     #===========================================================================
 
     def buildModel(self, pname="", fpath=""):
-        """ Build the system to model check property with name pname in NuSMV
-            and write it to file.
+        """ Build the model along with the property with name pname in NuSMV
+            language and write it to file.
             @Warning: you need to compile the model first.
         """
         LDEBUG("Building model for property: '"+pname+"' at path: "+fpath)
@@ -1099,10 +1111,10 @@ class Compiler(object):
             # ensure meta-properties:
             elif _prop.type == Types.Ensure:
                 _addvar =\
-                    [ self.__ensureCount + ': 0..' +ast2str(_prop.limit) +';'
-                    , self.__ensureBlock + ': boolean;']
-                _addinit = '& (' + self.__ensureCount + ' = 0) & !'\
-                         + self.__ensureBlock
+                    [ self.__ensureCount + ': 0..' + ast2str(_prop.limit) + ';'
+                    ]
+                _addinit = '& (' + self.__ensureCount + ' = '\
+                         + ast2str(_prop.limit) + ')'
                 _addtrans = self.getEtransition(_prop)                
             else:
                 assert TypeError(_prop.type)
@@ -1110,7 +1122,7 @@ class Compiler(object):
             self.compiled.buildModel( _addvar
                                     , _addinit
                                     , _addtrans
-                                    ,props=[pname])
+                                    , props=[pname])
         else:
             self.compiled.buildModel()
         # put it in a file at fpath        
@@ -1255,24 +1267,18 @@ class Compiler(object):
             # is useless and we return "").
             _xactvar = self.compileNextRef(self.__actvar)
             _xencount = self.compileNextRef(self.__ensureCount)
-            _xenblock = self.compileNextRef(self.__ensureBlock)
+            _ec = self.__ensureCount
+            _N = ast2str(prop.limit)
             _addtrans += '& ('\
-                      + '( !' + self.__ensureBlock + ' & ' + _xencount\
-                      + ' = 0 & '+ _xenblock +')\n| '\
-                      + '( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
-                      + " < "+ast2str(prop.limit) + ' & (' + _xactvar + ' in '\
-                      + self.compileSet(_actions)+ ') & ' + _xencount + ' = '\
-                      + self.__ensureCount + ' + 1 & '+_xenblock+'='\
-                      + self.__ensureBlock+' )\n|'\
-                      + ' ( ' + self.__ensureBlock + ' & ' + self.__ensureCount\
-                      + " < " + ast2str(prop.limit)+ ' & !('+ _xactvar+' in '\
-                      + self.compileSet(_actions+_faults) + ') & ' + _xencount\
-                      + ' = ' + self.__ensureCount + ' & '+_xenblock+'='\
-                      + self.__ensureBlock+' )\n|'\
-                      + ' (' + self.__ensureBlock + ' & ' + self.__ensureCount\
-                      + ' = ' + ast2str(prop.limit) + ' & !('\
-                      + self.compileNextRef(self.__ensureBlock) + ') & '\
-                      + _xencount + ' = 0))'
+                +   '(' + _ec + ' = ' + _N + ' & ' + '(' + _xencount + ' = '\
+                     +  _N + ' | ' + _xencount + ' = 0 ) )'\
+                + ' | (' + _ec + ' < ' + _N + ' & ' + _xactvar + ' in '\
+                      +  self.compileSet(_actions) + ' & ' + _xencount + ' = '\
+                      + _ec + ' + 1 )'\
+                + ' | (' + _ec + ' < ' + _N + ' & !(' + _xactvar\
+                      + ' in ' + self.compileSet(_actions + _faults) + ') & '\
+                      + _xencount + ' = ' + _ec + ')'\
+                + ')'
 
         return _addtrans
 

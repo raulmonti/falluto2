@@ -162,12 +162,7 @@ PROPERTY FmF_LTL = FINITELY_MANY_FAULTS -> G F (just(read2) & buffPC.data = MSEQ
 PROPERTY FmF_CTL = FINITELY_MANY_FAULTS -> AG AF (just(read2) & buffPC.data = MSEQ)
 "If finally faults stop happening then we will get all the data transmited."
 
-
-
 //NORMAL_BEHAIVIOUR -> G F (just(read2) & buffPC.data = MSEQ)
-
-
-
 
 
 

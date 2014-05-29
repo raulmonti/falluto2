@@ -57,7 +57,7 @@ def parse_input():
         help = "Build NuSMV models, but don't model check them. Use -save "\
              + "option to save the built files.", 
         action='store_true', dest='bonly')
-    parser.add_argument('-props', '--p',
+    parser.add_argument( '-p', '--props', metavar='PROP',
         help = "Only check the properties named here.",
         nargs='+', dest='props')
 
@@ -99,34 +99,39 @@ def print_falluto_log():
 def fixme():
     """ Important issues to solve in Falluto """
 #    LCRITICAL("Program counters are bigger than needed.")
-    LCRITICAL("\n\n\n             IMPORTANT FIXES FOR FALLUTO 2.1\n\n\n")
-    LCRITICAL("Bounded traces, or minimal traces for counterexamples.")
-    LCRITICAL("Arreglar el parser, definir bien la entrada y salida de cada" +
+    LDEBUG("\n\n\n             IMPORTANT FIXES FOR FALLUTO 2.1\n\n\n")
+    LDEBUG( "Correct ENSURE property compilation, change it for the new one,"\
+          + " and check which is faster.")
+    LDEBUG("Bounded traces, or minimal traces for counterexamples.")
+    LDEBUG("Arreglar el parser, definir bien la entrada y salida de cada" +
               "metodo en cada clase, si no se vuelve un asco.")
-    LCRITICAL("Enable displaying all variables in traces.")
-    LCRITICAL("Debug option at command line")
-    LCRITICAL("Ast2str should return a str type result")
-    LCRITICAL( "We could allow constant value formulas in ranges at inclusions"\
+    LDEBUG("Enable displaying all variables in traces.")
+    LDEBUG("Debug option at command line")
+    LDEBUG("Ast2str should return a str type result")
+    LDEBUG( "We could allow constant value formulas in ranges at inclusions"\
              + " solving them at precompilation time as NuSMV doesn't allow"\
              + " them.")
+    LDEBUG("Option to individually disable process weak fairness.")
+    LDEBUG("Throw away this LDEBUG thing for TODOS XD.")
+    LDEBUG("Option to get the NuSMV clean output from model checking.")
 
 #==============================================================================#
 # MAIN ========================================================================#
 #==============================================================================#
 
 if __name__ == '__main__':
-    """ Falluto2.0 main process. """
+    """ Falluto2.1 main process. """
     # Fixme issues before starting (only in debug level)
     fixme()
 
     # Print Falluto2.0 header
     print_falluto_log()
-    print ( " -- Running FaLLuTO2.0 " + str(datetime.today())\
-          + "\n -- " + EMAIL)
+    colorPrint("debugMAGENTA"," -- Running FaLLuTO2.1 " + str(datetime.today())
+              + "\n -- " + EMAIL)
 
     # Parse command line input
     args = parse_input()
-    print " -- Input file %s"%args.filename+"\n"
+    colorPrint("debugMAGENTA", " -- Input file %s"%args.filename+"\n")
     # Check for existence of input file
     if not os.path.exists(args.filename):
         LERROR("File <" + args.filename + "> doesn't exists.")
@@ -209,25 +214,30 @@ if __name__ == '__main__':
             LINFO(sysname + ' is OK!\n')
 
         # MODEL CHECK FOR EACH PROPERTY
-
-        # First check for deadlock if asked for:
-        _pset = set([])
-        _pdeadlock = None
+        # Deadlock propertie is allways checked if present at model description
+        # For the rest of the properties, only does defined at command line are
+        # checked in case of using command option '-only_props'. If this option
+        # is not present then all of the properties defined at the model are
+        # checked.
+        _pnames = []     # list with propertis to be model checked
+        _allprops = _model.proplist  # all the properties declared at the model
         # put properties in set to check and save deadlock prop name if exists
         for _pname, _p in _model.properties.iteritems():
             if _p.type == Types.Checkdk:
-                _pdeadlock = _pname
-            else:
-                _pset.add(_pname)
+                _pnames.append(_pname) #deadlock is checked fist
+
         # only check selected properties if there where
-        _pnames = list(_pset)
-        #FIXME give warning if some command line defined propertie doesn't exist
         if args.props:
-            _pnames = list(_pset.intersection(set(args.props)))
-        # add deadlock check as first to check
-        if _pdeadlock:
-            _pnames.insert(0,_pdeadlock)
-        # and then for everything else:
+            for p in args.props:
+                if p in _allprops:
+                    _pnames.append(p)
+                else:
+                    LWARNING("Can't find definition of property '" + p +\
+                             "' in the model.")
+        else:
+            _pnames += _allprops
+
+        # model check each property
         for _pname in _pnames:
             LINFO("Checking propertie '"+ _pname + "' ...")
             #construct model and place it in WORKINGFILE for NuSMV to read
@@ -244,6 +254,8 @@ if __name__ == '__main__':
                 # Interpret result and print user readible output.
                 t.interpret(c,output,_pname,args.color)
             LINFO("Checked in: " + str(tend-tstart) + " seconds\n")
+
+    # Exceptions handling
     except Exception, e:
         if DEBUG__:
             LEXCEPT("")
