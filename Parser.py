@@ -116,6 +116,8 @@ class Model(ParserBaseElem):
         structure.
     """
 
+    dkpropname = 'Falluto#DEADLOCK#check'
+
     def __init__(self):
         ParserBaseElem.__init__(self)
         self.defs       = {}
@@ -124,7 +126,8 @@ class Model(ParserBaseElem):
         self.properties = {}
         self.contraints = {}
         self.options    = {}
-        self.nnnprops   = 0     #Number of no named properties
+        self.nnnprops   = 0  #Number of no named properties
+        self.proplist   = [] #List with props ordered as they apear in the model
 
     def getProperties(self):
         """ get the parsed properties in a dictionary with property names
@@ -160,7 +163,7 @@ class Model(ParserBaseElem):
                     if o.type == Types.Checkdk:
                         _p = Propertie()
                         _p.type = Types.Checkdk
-                        _p.name = 'Falluto#DEADLOCK#check'
+                        _p.name = Model.dkpropname
                         _p.explain = 'Checking for deadlock in your model.'
                         self.properties[_p.name] = _p
                     if o.type == Types.Modname:
@@ -196,9 +199,10 @@ class Model(ParserBaseElem):
                     p.name = "NN#property#" + str(self.nnnprops)
                     self.nnnprops += 1
                 elif p.name in self.properties:
-                    raise Error("You have more than one propertie named '"
+                    raise Error("You can't have more than one propertie named '"
                                + p.name + "'.")
                 self.properties[p.name] = p
+                self.proplist.append(p.name)
             elif elem.__name__ == "CONTRAINT":
                 c = Contraint()
                 c.parse(elem)

@@ -235,7 +235,7 @@ def ast2str(ast=[], skipcomments=False, skipwhites=False):
             res += ast2str(x, skipcomments, skipwhites)
     else:
         raise TypeError(str(ast))
-    return unicode(res)
+    return str(res)
 
 #==============================================================================#
 

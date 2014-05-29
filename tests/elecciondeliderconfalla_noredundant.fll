@@ -96,7 +96,7 @@ PROPERTY Acuerdo =
 
 
 PROPERTY AcuerdoEnsure = 
-        ENSURE(13, proc0.mine, proc0.neighbour, 
+        ENSURE(16, proc0.mine, proc0.neighbour, 
                    proc0.lider,proc1.mine, proc1.neighbour,
                    proc1.lider,proc2.mine, proc2.neighbour,
                    proc2.lider,proc3.mine, proc3.neighbour, 

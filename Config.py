@@ -50,6 +50,7 @@ class MyFormatter(logging.Formatter):
     dbg_fmt  = "[    %(levelname)s    ] %(module)s: %(lineno)d: %(msg)s"
     info_fmt = "[    %(levelname)s    ] %(msg)s"
     cri_fmt = "[    FIXME!    ] %(msg)s"
+    war_fmt = "[    %(levelname)s    ] %(msg)s"
 
     def __init__(self, fmt="%(levelno)s: %(msg)s"):
         logging.Formatter.__init__(self, fmt)
@@ -72,6 +73,9 @@ class MyFormatter(logging.Formatter):
 
         elif record.levelno == logging.CRITICAL:
             self._fmt = MyFormatter.cri_fmt
+
+        elif record.levelno == logging.WARNING:
+            self._fmt = MyFormatter.war_fmt
 
         # Call the original formatter class to do the grunt work
         result = logging.Formatter.format(self, record)
