@@ -50,7 +50,7 @@ def parse_input():
              + 'written.')
     parser.add_argument('-s','--s', '-save', 
         help = 'Path of the file to be written with the NuSMV compiled model '\
-             + 'of the system.', dest='save', metavar='path')
+             + 'of the system.', dest='save', metavar='PATH')
     parser.add_argument('-co', help='Color output.', 
         action='store_true', dest='color')
     parser.add_argument('-build_only', 
@@ -60,8 +60,15 @@ def parse_input():
     parser.add_argument( '-p', '--props', metavar='PROP',
         help = "Only check the properties named here.",
         nargs='+', dest='props')
-
-
+    parser.add_argument( '-smv', metavar='LOG_FILE',
+        help = "Save NuSMV output to a log file.",
+        dest='nusmv')
+    parser.add_argument( '-bmc', metavar='BOUND',
+        help = "Use bounded model checking (with SAT solver) instead of BDD.",
+        dest='bmc')
+#    parser.add_argument( '-bmcl', metavar='BOUND',
+#        help = "Set bounded model checking length (default is 10)",
+#        dest='bmcl')
 
     return parser.parse_args()
 
@@ -98,22 +105,28 @@ def print_falluto_log():
 #===============================================================================
 def fixme():
     """ Important issues to solve in Falluto """
-#    LCRITICAL("Program counters are bigger than needed.")
-    LDEBUG("\n\n\n             IMPORTANT FIXES FOR FALLUTO 2.1\n\n\n")
-    LDEBUG( "Correct ENSURE property compilation, change it for the new one,"\
-          + " and check which is faster.")
-    LDEBUG("Bounded traces, or minimal traces for counterexamples.")
-    LDEBUG("Arreglar el parser, definir bien la entrada y salida de cada" +
-              "metodo en cada clase, si no se vuelve un asco.")
-    LDEBUG("Enable displaying all variables in traces.")
-    LDEBUG("Debug option at command line")
-    LDEBUG("Ast2str should return a str type result")
+#    LCRITICAL("Program counters are bigger than needed.") SOLVED :D
+    LDEBUG( "\n\n\n             IMPORTANT FIXES FOR FALLUTO 2.1\n\n\n")
+#    LDEBUG( "Correct ENSURE property compilation, change it for the new one,"\
+#          + " and check which is faster.") SOLVED looks like it is faster:
+#          1m14.573s vs 0m45.480s ; 1m14.714s vs 0m45.370s for leader election 
+#          model.
+    LDEBUG( "In Compiler.py when compiling properties, solve the problems"\
+          + " with the property representation for later use output.")
+    LDEBUG( "Bounded traces, or minimal traces for counterexamples.")
+    LDEBUG( "Arreglar el parser, definir bien la entrada y salida de cada" +
+            "metodo en cada clase, si no se vuelve un asco.")
+    LDEBUG( "Enable displaying all variables in traces.")
+    LDEBUG( "Debug option at command line")
+    LDEBUG( "Ast2str should return a str type result")
     LDEBUG( "We could allow constant value formulas in ranges at inclusions"\
-             + " solving them at precompilation time as NuSMV doesn't allow"\
-             + " them.")
-    LDEBUG("Option to individually disable process weak fairness.")
-    LDEBUG("Throw away this LDEBUG thing for TODOS XD.")
-    LDEBUG("Option to get the NuSMV clean output from model checking.")
+          + " solving them at precompilation time as NuSMV doesn't allow"\
+          + " them.")
+    LDEBUG( "Option to individually disable process weak fairness.")
+    LDEBUG( "Throw away this LDEBUG thing for TODOS XD.")
+    LDEBUG( "Option to get the NuSMV clean output from model checking.")
+    LDEBUG( "Posibility of giving range instead of a fixed N for ENSURE "\
+          + "meta property.")
 
 #==============================================================================#
 # MAIN ========================================================================#
@@ -248,8 +261,15 @@ if __name__ == '__main__':
 
             tstart = tend = time()
             if not args.bonly:
+                output = ""
                 # Run the model checker.
-                output = run_subprocess(["NuSMV", os.path.abspath(WORKINGFILE)])
+                if args.bmc:
+                    output = run_subprocess([ "NuSMV", "-bmc", "-bmc_length"
+                                            , str(args.bmc)
+                                            , os.path.abspath(WORKINGFILE)])
+                else:
+                    output = run_subprocess([ "NuSMV"
+                                            , os.path.abspath(WORKINGFILE)])
                 tend = time()
                 # Interpret result and print user readible output.
                 t.interpret(c,output,_pname,args.color)

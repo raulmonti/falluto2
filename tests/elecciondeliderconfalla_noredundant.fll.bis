@@ -81,7 +81,6 @@ PROPERTY nb =
 		& 
 	    ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
           proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
-        "Si no ocurren fallas en el sistema entonces todo anda joia."
 
 
 PROPERTY Acuerdo =  
@@ -91,8 +90,6 @@ PROPERTY Acuerdo =
 		& 
 	    ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
           proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
-        "Eventualmente llegaran a un acuerdo sin importar las fallas."
-        " (deberia ser falso)"
 
 
 PROPERTY AcuerdoEnsure = 
@@ -107,8 +104,6 @@ PROPERTY AcuerdoEnsure =
 		     & 
 	         ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
              proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
-       "Con 4 procesos basta con que no ocurran fallas"
-       " durante 16 acciones para llegar a la desicion."
 
 PROPERTY AcuerdoEnsureFail =
         ENSURE(15, proc0.mine, proc0.neighbour,
@@ -122,8 +117,6 @@ PROPERTY AcuerdoEnsureFail =
                      &
                  ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
              proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
-       "Con 4 procesos NO basta con que no ocurran fallas"
-       " durante 15 acciones para llegar a la desicion."
 
 PROPERTY AcuerdoEnsureCheck =
         ENSURE(20, proc0.mine, proc0.neighbour,
@@ -137,5 +130,3 @@ PROPERTY AcuerdoEnsureCheck =
                      &
                  ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
              proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
-       "Con 4 procesos basta con que no ocurran fallas"
-       " durante 20 acciones para llegar a la desicion."
