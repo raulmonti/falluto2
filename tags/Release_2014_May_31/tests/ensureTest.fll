@@ -1,0 +1,25 @@
+PROCTYPE proc()
+
+    VAR
+        i: 0..3
+
+    FAULT
+        f: => i' = 0 is TRANSIENT
+
+    INIT
+        i = 1
+    
+    TRANS
+        [t1]: => i' = (i+1)%4
+
+ENDPROCTYPE
+
+INSTANCE inst = proc()
+
+PROPERTY prop = LTLSPEC  G inst.i = 2
+
+PROPERTY ensure0 = ENSURE(0) WITHOUT() -> G F inst.i = 3
+PROPERTY ensure1 = ENSURE(1) WITHOUT() -> G F inst.i = 3
+PROPERTY ensure2 = ENSURE(2) WITHOUT() -> G F inst.i = 3
+PROPERTY ensure3 = ENSURE(3) WITHOUT() -> G F inst.i = 3
+PROPERTY ensure4 = ENSURE(4) WITHOUT() -> G F inst.i = 3

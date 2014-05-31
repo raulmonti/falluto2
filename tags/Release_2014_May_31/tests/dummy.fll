@@ -1,0 +1,64 @@
+// comment0
+
+/* comment1 */ 
+OPTIONS
+CHECK_DEADLOCK
+MODELNAME dummy
+ENDOPTIONS
+
+DEFINE algo 1+4 >    la_manzana_se_vuelve_pera
+
+DEFINE la_manzana_se_vuelve_pera 5
+DEFINE A 1
+DEFINE D A+1
+ 
+// comment2
+
+PROCTYPE proceso1(context1, context2; sincro1, sincro2)
+
+    VAR
+        variable: 1..D*1+2-1
+        boolvar: boolean
+        algoquenodeberiacambiarse: array 1..3 of array 0..5 of boolean
+        myvaluesvar: {1,aa,p2}
+    FAULT
+        falla: is STOP(t1)
+    INIT
+        boolvar = algo & algoquenodeberiacambiarse[1][variable]
+    TRANS
+        [t1]: variable in 1..1 & 3>=variable+la_manzana_se_vuelve_pera & algo|algo & !True => variable'= 5+7%2, variable'=3
+
+ENDPROCTYPE
+
+
+INSTANCE instance = proceso1(instance.variable, instance.variable, s1, s2)
+INSTANCE instance2 = proceso1(instance.variable, instance.variable, s1, s2)
+
+
+PROPERTY test_ensure = ENSURE (3, instance.t1) WITHOUT (instance2.falla) -> AG instance.variable = 1 "Just an ensure meta-propery example for testing"
+
+/*
+PROPERTY prop = LTLSPEC G F True "que lo que"
+
+PROPERTY = FINITELY_MANY_FAULTS -> G F True
+
+PROPERTY = FINITELY_MANY_FAULTS -> F G True "algo para que la gente lea"
+
+PROPERTY = LTLSPEC F G True & instance.boolvar -> instance2.boolvar 
+        " la_manzana_se_vuelve_pera"
+
+PROPERTY = FINITELY_MANY_FAULT(instance.falla) -> G F True & instance.boolvar -> instance2.boolvar 
+        " la_manzana_se_vuelve_pera"
+
+PROPERTY NU = CTLSPEC AF True "Nothing useful"
+
+PROPERTY = FINITELY_MANY_FAULT(instance.falla) -> True "Falla especifica"
+
+PROPERTY TODO_OK = NORMAL_BEHAIVIOUR ->  G F 4 > 4  " Todo mal mas bien"
+
+*/
+
+// comment3
+
+
+PROPERTY test_atmost = ATMOST (4,instance2.falla) -> G F instance.boolvar "An atmost meta-property example for testing"

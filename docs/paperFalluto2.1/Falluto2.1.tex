@@ -2,20 +2,27 @@
 % Raul Monti.
 % Monday 7, April 2014.
 %==============================================================================
-
-\documentclass[12pt]{llncs2e/llncs}
-
+\documentclass{llncs2e/llncs}
 
 % MACROS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\nusmv}{\mbox{\textit{NuSMV}}}
-\newcommand{\falluto}{\mbox{\textsc{Falluto}}}
-\newcommand{\fallutoSp}{\mbox{\textsc{Falluto~}}}
-\newcommand{\textusc}[1]{$_{\text{#1}}$} % text underscript
-
-\newcommand{\todo}[1]{{\color{red}TODO: #1}}
-%\newcommand{\todo}[1]{}
+\newcommand{\nusmv}{\mbox{\textsc{NuSMV}}}
+\newcommand{\nusmvSp}{\mbox{\textsc{NuSMV~}}}
+\newcommand{\falluto}{\nohyphens{\textsc{Falluto}}}
+\newcommand{\fallutoSp}{\nohyphens{\textsc{Falluto~}}}  % falluto followed by space
+\newcommand{\und}[1]{$_{\text{#1}}$}                    % text underscript
+\newcommand{\undtt}[1]{$_{\texttt{#1}}$}                % text underscript in tt mode
+\newcommand{\undfll}[1]{\undtt{#1}}                     % text underscript in falluto mode
+\newcommand{\subtt}[1]{\noindent{\textbf{#1\\\\}}}      % subtitles
+\newcommand{\ssubt}[1]{{\noindent\textbf{#1}}\enter}        % sub subtitles
+\newcommand{\textfll}[1]{\texttt{#1}}                   % falluto font
+\newcommand{\textps}[1]{\textit{#1}}                    % pseudocode font
+\newcommand{\todo}[1]{{\color{red}TODO: #1}}            % print TODOs in red 
+%\newcommand{\todo}[1]{}                                % don't print TODOs
+% My own kind of centering with little space added before and after
+\newcommand{\centerthis}[1]{\vspace{0.2cm}\\\centerline{#1}\vspace{0.2cm}\\}
+% My own new paragraph
+\newcommand{\enter}{\\[0.2cm]}
 %==============================================================================
-
 
 
 \title{\falluto, a model checker for fault tolerant systems.}
@@ -23,17 +30,13 @@
 \institute{FaMAF, Universidad Nacional de C\'ordoba -- CONICET}
 \date{\today}
 
-
-\usepackage{amsmath} % for labelling arrows
-\usepackage{verbatimbox} % to be able to center verbatim
-\usepackage{framed} % for frames arround text
-\usepackage{xcolor} % for coloring text
-\usepackage{float} % for forsing figure placement ([H] option)
-
-
-
-
-
+\usepackage[shortlabels]{enumitem} % to reduce space before and after enumerations
+\usepackage{amsmath}               % for labelling arrows
+\usepackage{verbatimbox}           % to be able to center verbatim
+\usepackage{framed}                % for frames arround text
+\usepackage{xcolor}                % for coloring text
+\usepackage{float}                 % for forsing figure placement ([H] option)
+\usepackage{hyphenat}              % to avoid hyphen inside especila words
 
 %==============================================================================
 
@@ -44,8 +47,8 @@
 Fault tolerant systems are of major importance as part of highly dependable 
 systems. Model checking techniques improve our confidence over this kind of
 systems throughout exhaustive evaluation of its behaviour. This work presents
-a model checker utility named \mbox{\textit{Falluto2.1}} back-ended by 
-\mbox{\textit{NuSMV}} symbolic model checker. \mbox{\textit{Falluto2.1}} is
+a model checker utility named \fallutoSp back-ended by 
+\nusmvSp symbolic model checker. \fallutoSp is
 tailored to ease the model checking of fault tolerant systems. Striving for
 this is that it offers intuitive and simple mechanisms to work over the 
 injection of faults, mechanisms to work over the occurrence of faults under
@@ -63,46 +66,37 @@ to the original model.
 
 \section{Introduction}
 Model checkers allow users to model computational systems, usually in an
-abstract level, with the aim of exhaustively verifying some property of
+abstract level, and to exhaustively verify some property of
 interest over them. Thus model checking techniques are considered formal
 approaches to software and hardware verification. This approaches are of great
 utility in the area of highly dependable systems, as they offer a formal proof
 of correctness over the model, or a trace counter-example in case the model
-doesn't meet the required properties.\\
-A fault in a system can be seen as an unexpected behaviour of its parts, which
-can lead it to perform erroneously. Fault tolerant systems are those who
-implement mechanisms to overcome the occurrence of faults, avoiding situations
+does not meet the required properties.\\
+A fault in a system can be defined as an unexpected behaviour of its parts, which
+can eventually lead it to perform erroneously \cite{jeffrey,felix}. Fault tolerant systems are those which implement mechanisms to overcome the occurrence of faults, avoiding situations
 that will take to this undesired performance. As you can imagine, when
 implementing highly dependable software or hardware, this kind of systems are
-preferred over those who don't implement any kind of fault tolerance.\\
+preferred over those which do not implement any kind of fault tolerance.\\
 Due to their language generality, actual Model checkers lack of simplicity when
 modelling systems under faulty environments, thus making it difficult to test
-the designs of fault tolerant systems. Although some other works attempt to
-override this issue, they seem to lack of theoretical support over their
-mechanisms, and some others don't go very far into the possibilities
-of offering syntactic tools for defining a wide range of common scenarios to
-work on. \todo{Should I do some citations here as examples of other works?
-or would it sound like to hard? Maybe I should change the tone of the sentence
-and then do the citations?}\\ 
-This two important matters are issued in our work by means of a simple
+the designs of fault tolerant systems. Although this issue has been treated in a wide range of works \cite{tomoyuki,gnesi,bruns,schneider,annu,jonathan}, we will attempt to go further into the possibilities of offering syntactic tools for defining a wide range of common scenarios to work on fault tolerance verification. This is issued in our work by means of a simple
 declarative language for fault injection, and syntax support for specifying
 on one hand the fairness conditions over process and faults in the model, and 
 on the other hand the fault behaviour model under which each specific property
-will be checked. Furthermore, every result and decision that matter to this
+will be checked. Furthermore, every result and decision that matters to this
 features is supported on well known theoretical background.\\
 Finally all of our results have been implemented over a
-\mbox{\textit{NuSMV}}\cite{cimatti} model checker front-end, which we have called
-\falluto.\\
+\nusmv\cite{cimatti} model checker front-end, which we have called \falluto.\\
 Based on the formal context given by Kripke Structures and Label Transition 
 Systems, our model checker \fallutoSp allows modelling finite
-state systems with deterministic and non-deterministic choices. It is capable of managing
-properties in LTL and CTL
+state systems with deterministic and non-deterministic choices. It is capable
+of managing properties in LTL and CTL
 logics, as well as it offers meta-properties intended to reduce the work of the
 user and avoid the introduction of errors in the modelling of the system.\\
 Its main features are its declarative syntax for fault injection and fault
 model specification, as well as for process and fault fairness management.\\
 Despite the large amount of manipulation that the user defined model receives
-in the effort to build the corresponding \mbox{\textit{NuSMV}} model,
+in the effort to build the corresponding \nusmvSp model,
 \fallutoSp features a trace interpreter module, enabling it
 to present a user comprehensible counter-example trace when ever needed.
 
@@ -115,41 +109,28 @@ The remainder of this article is organized as follows. \todo
 
 
 \section{Basics}\label{basics}
-In this section we introduce some insights in basic concepts that make it
-easier to understand our work. We will start by taking a look at Kripke Structures and Labelled Transition Systems which will be the formal bases to our analysis of computational systems. Then we will talk about \mbox{\textit{NuSMV}} which is our back-end model checker. Finally, we will introduce the basics of \falluto's modelling language.\\
-But first, some simple conventions we will maintain during this writing:
-\begin{itemize}
-\item We will be mostly talking about modelling of \textit{finite state systems with deterministic and non-deterministic choices}, unless we explicitly state the opposite.
-\item We will call \textit{normal transitions} to those we expect to happen as part of the normative behaviour of the system, while we will call \textit{faulty transitions} to the ones resulting of a modification of the system state by the occurrence of a fault.
-\item Systems will be composed from one or more process concurrently running, which will be able to synchronize normal transitions.
-\item We consider that we can not predict the instant where faults will occur, and we wont be preventing them from happening, but we can define a fault behaviour model for each property we want to check.
-\end{itemize}
-
-\subsection{Kripke structures}\label{kripke} \todo{note that kripke structure modelling is very close to the finall steps of model checking and though we have high control over complexity of the problem.}\\
-Kripke Structures are transitions graphs normally used to describe the behaviour of a system. They consist of a set of states, a set of transitions between states, and a function that labels each state with a set of properties that are \textit{true} in this state. \cite{clarke} formally defines a Kripke structure as fallows:\\
-
+During this work we will be mostly talking about modelling of \textit{finite state systems with deterministic and non-deterministic choices}. We will call \textit{normal transitions} to those we expect to happen as part of the normative behaviour of the system, while we will call \textit{faulty transitions} to the ones resulting of a modification of the system state by the occurrence of a fault.
+Systems will be composed from one or more process concurrently running, capable of synchronizing normal transitions. We consider that we can not predict the instant where faults will occur, and we will not be preventing them from happening, but we can define a fault behaviour model for each property we want to check. Kripke Structures and Labelled Transition Systems will be the formal bases to our analysis of computational systems.\enter
+\ssubt{Kripke structures}\label{kripke}
+Kripke Structures are transitions graphs normally used to describe the behaviour of a system. 
+\cite{clarke} formally defines a Kripke structure as fallows.
 Let $AP$ be a set of atomic propositions. A Kripke Structure $M$ over $AP$ is a four tuple $M=(S,S_0,R,L)$ where:
-\begin{enumerate}
+\begin{enumerate}%[topsep=0pt]
 \item $S$ is a finite set of states
 \item $S_0 \subseteq S$ is the set of initial states.
 \item $R \subseteq S \times S$ is a transitions relation that must be total, that is, for every state $s \in S$ there is a state $s' \in S$ such that $R(s,s')$.
 \item $L : S \rightarrow 2^{AP}$ Is a function that labels each state with the set of atomic propositions \textit{true} in the state.
 \end{enumerate}
-
-
-\subsection{Labeled Transition Systems}\label{lts}
+\ssubt{Labeled Transition Systems}\label{lts}
 Just as Kripke Structures, Labelled Transitions Systems are transition graphs used for representing computational behaviour. They are formally defined as a four tuple $M = (S,S_{0},L,R)$ where:
-\begin{itemize}
+\begin{enumerate}%[topsep=0pt]
 \item $S$ is a set of states.
 \item $S_0 \subseteq S$ is a set of initial states.
 \item $L$ is a set of labels (transitions names).
 \item $R \subseteq S \times L \times S$ is a ternary relation (of labelled transitions).
-\end{itemize}
-In this way, having a three tuple $(s,l,s')$ belonging to $R$, will mean that there is a transition named $l$ coming out from state $s$ and ending in state $s'$.
-
-\subsection{LTS to Kripke}\label{lts2kripke}
-Notice that we can translate an LTS system representation to a Kripke equivalent representation in the following way:\\
-
+\end{enumerate}
+\ssubt{LTS to Kripke}\label{lts2kripke}
+Notice that we can translate an LTS system representation to a Kripke equivalent representation in the following way.\\
 Let $M_1 = (S_1, S_{1_0} R_1, L_1)$ be the LTS described system, then we can build the Kripke Structure $M_2 = (S_2,S_{2_0},R_2,L_2)$ over the atomic propositions $AP$ in the following way:
 \begin{itemize}
 \item $ AP = \{action = e ~|~ e \in L_1 \cup \{null\}\} $
@@ -158,33 +139,27 @@ Let $M_1 = (S_1, S_{1_0} R_1, L_1)$ be the LTS described system, then we can bui
 \item $R_2 = \{(s,a) \rightarrow (s',b) ~|~ s\overset{b}{\rightarrow}s' \in R_1, a \in L \cup \{null\}\}$
 \item $L_2(s,a) = (action = a),$ for all $(s,a) \in S_2$
 \end{itemize}
-What we have just done is to build for each state $s_i$ and label $e$ in the LTS a state in the Kripke structure that represents the fact of arriving to the state $s_i$ using the label $e$. Given that at the begging of the executions we don't do any action to get to the initial state, is that we have also defined for each state $s \in S_{1_0}$ a state $(s,null)$ that represents it in $S_2$. It is pretty intuitive the way that we build the relation function. The labelling indicates which action was taken to get to each state, and combined with the name of the state, uniquely identifies which transition is being taken in the original LTS description of the system.
-
-
-\subsection{NuSMV symbolic model checker}\label{nusmv}
-\nusmv is a symbolic model checker originated from the reengineering,
+What we have just done is to build for each state $s_i$ and label $e$ in the LTS a state in the Kripke structure that represents the fact of arriving to the state $s_i$ using the label $e$. Given that at the begging of the executions we do not do any action to get to the initial state, is that we have also defined for each state $s \in S_{1_0}$ a state $(s,null)$ that represents it in $S_2$. It is pretty intuitive the way that we build the relation function. The labelling indicates which action was taken to get to each state, and combined with the name of the state, uniquely identifies which transition is being taken in the original LTS description of the system.\enter
+\ssubt{NuSMV symbolic model checker}\label{nusmv}
+\nusmv~is a symbolic model checker originated from the re-engineering,
 reimplementation and extension of SMV, the original BDD-based model checker
 developed at CMU~\cite{cimatti}. We will be using its second version which
 integrates model checking techniques based on propositional satisfiability
 (SAT) to the BDD-based symbolic model checking of its original version.\\
-\nusmv ~language allows us to describe process as to be modules.\footnote{Note
-that we will only be describing those aspects of \nusmv ~language that are
-important to our work.} Each module
-can be composed of three sections, one describing state variables, an other
-restricting the initial states set, and a last one defining the relation or
-transition function over states. Modules can then be run
-concurrently from a main module which would be the head of execution of the whole
-described system.\\
+\nusmvSp language allows us to describe process as to be modules.\footnote{Note
+that we will only be describing those aspects of \nusmvSp language that are
+important to our work.} Modules can be run concurrently from a main module
+which would be the head of execution of the whole described system.\\
 The initial states of a module are described by a boolean formula over the
 state variables of the module. In a similar manner, but considering not
 only the actual valuation of the variables but also the valuations in
 the next state, we can define the transition relation by a boolean formula.
 In this sense the transition relation will define a correlation between
 valuations in the origin states and the reaching states.\\
-We will pay attention to four types of variables in \nusmv, namely \textit{int}, \textit{boolean}, \textit{user enumerated}, and \textit{arrays}, all of whose domains will be
-finite, because of the finite state restriction of our models.\\
-The following is an example of a \nusmv ~module representing a car:
-\begin{verbbox}
+The following is an example of a \nusmvSp module representing a car:
+\begin{figure}[H]
+\begin{framed}
+\begin{verbatim}
 MODULE car
     VAR
         state: {engineON, engineOF}
@@ -192,34 +167,25 @@ MODULE car
     INIT
         state = engineOF & fuel = 3
     TRANS
-        ( estate = engineON & fuel <= 0 ) 
-        -> 
-        ( next(estate) = engineOF )
-\end{verbbox}
-\begin{figure}[h]
-\begin{framed}
-    \centering
-    \theverbbox
+        ( state = engineON & fuel <= 0 ) // All our transition
+        ->                               // relation in a
+        ( next(state) = engineOF )       // single formula.
+\end{verbatim}
 \end{framed}
     \caption{A simple example of NuSMV modelling language}
     \label{nusmvexample}
 \end{figure}
-Note that any pair of states valuations, one taken for the actual state and the
-other for the next state, which evaluate the transition formula to \textit{true},
-will be in the transition relation. That is for example
-$$(\{state=engineOF, fuel=3\},\{state=engineON,fuel=3\}) \in R$$ where $R$ is our
-transition relation of the car model.\\
-It is important to notice the close relation between \nusmv module declarations and the corresponding formal description of a process in terms of a Kripke Structure. First we notice that the set of states in the Kripke Structure will be determined by the \texttt{VAR} section of the module, where each combination of states variables valuation will represent a different state. The initial set of states will be given by the \texttt{INIT} formula, which will restrict it to only those valuations that satisfy this formula. Finally the transition relation will be given by the combination of \textit{present} and \textit{next} states whose valuations satisfy the formula in the \texttt{TRANS} section.\\
-It's also worth to mention that this low level language gives us a high control over the complexity of the system being modelled. This aspect is specially useful to look over the model checking state explosion problem.\\
-\nusmv language also supports unconditional and strong conditional fairness constraints over the paths to be checked.\\
-Finally LTL and CTL properties can be introduced using keywords \texttt{LTLSPEC} and \texttt{CTLSPEC} followed by the corresponding formula to be checked.
+\noindent Note that any pair of states valuation, one taken for the actual state and the other for the next state, which evaluate the transition formula to \textit{true}, will result in a modelled transition.\\It is worth to mention that this low level language gives us a high control over the complexity of the system being modelled. This aspect is specially useful to look over the model checking state explosion problem.\\
+\nusmvSp language supports unconditional and strong conditional fairness constraints over the paths to be checked. LTL and CTL properties can be introduced and checked using keywords \texttt{LTLSPEC} and \texttt{CTLSPEC} followed by the corresponding formula to be verified.
+\newpage
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Falluto2.1's syntax}
+\section{\fallutoSp syntax}
 
 \colorlet{shadecolor}{black!20}
+\vspace{-0.5cm}
 \begin{figure}[H]
     \centering
 \begin{framed}
@@ -266,104 +232,72 @@ PROPERTY FINITELY_MANY_FAULTS -> F G !just(counter4.f)
 \end{framed}
     \caption{\fallutoSp modelling syntax example. Shaded text corresponds to fault injection and checking, while the rest corresponds to the normative behaviour modelling.}
 \label{example}
-
 \end{figure}
 
-
-%
-%\begin{verbbox}
-%PROCTYPE counter ( ; count )
-%    VAR
-%        clock:0..5
-%
-%    INIT
-%        clock = 0
-%
-%    TRANS
-%        [count]: => count' = (count+1)%6
-%
-%ENDPROCTYPE
-%
-%INSTANCE counter1 = counter(count1)
-%INSTANCE counter2 = counter(count2)
-%INSTANCE counter3 = counter(count2)
-%INSTANCE counter4 = counter(count1)
-%
-%\end{verbbox}
-%
-%\begin{figure}[h]
-%\begin{framed}
-%    \centering
-%    \theverbbox
-%    \caption{\falluto normative behaviour modelling example.}
-%    \label{example}
-%\end{framed}
-%\end{figure}
-
 \subsection{System normative behaviour modelling}
-Fallowing the same direction showed for \nusmv \texttt{MODULES} syntax, our process descriptions in \fallutoSp find a clear representation of the Kripke Structures that define the system.\\
-While depicting the normative behaviour, each process description is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}. This are enclosed by the keywords \texttt{PROCTYPE} and \texttt{ENDPROCTYPE}.\\
-While sections \texttt{VAR} and \texttt{INIT} mantain the same structure and meaning as in \nusmv syntax, it is in \texttt{TRANS} where we find a real change in the syntax. As we can see in Figure \ref{example}, we won't be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of giving each one a name. In fact each transition will have the structure
+Fallowing the same direction showed for \nusmv~\texttt{MODULES} syntax, our process descriptions in \fallutoSp find a clear representation of the Kripke Structures that define the system.\\
+While depicting the normative behaviour, each process description, here called \textit{proctypes}, is again divided in three sections: \texttt{VAR}, \texttt{INIT} and \texttt{TRANS}.\\
+While sections \texttt{VAR} and \texttt{INIT} mantain the same structure and meaning as in \nusmv~ syntax, it is in \texttt{TRANS} where we find a real change in the syntax. As we can see in Figure \ref{example}, we will not be describing the transitions relation as a boolean formula, but we will describe each transitions separately, with the possibility of naming them. In fact each transition will have the structure
 \begin{center}
-\texttt{[name]: enabling\_condition => effects}
+\textfll{[name]: enabling\_condition => effects}
 \end{center}
 meaning that from each state where \texttt{enabling\_condition} evaluates to \textit{true} there exists a transition named \texttt{name} to a new state with equal valuation except for the changes made explicit in \texttt{effects}.\\
 Several \texttt{PROCTYPES} will describe the behaviour of the different components of our system. This \texttt{PROCTYPES} should be instantiated as many times as we like, resulting in the interliving components of our modelled system (\mbox{Figure \ref{example}}).
 Synchronization is worked out by shearing the same synchronization names while making the instantiation. In Figure \ref{example} we can see that \texttt{conter1} and \texttt{counter4} synchronize their transitions \texttt{count}, as they share the same synchronization name \texttt{count1}. So do \texttt{conter2} and \texttt{counter3} using \texttt{count2} name.\\
-Although we won't get to much into it, \fallutoSp offers mechanisms for being able to read other processes state variables, as well as for making global definitions over state variables and constants.
+Although we will not get to much into it, \fallutoSp offers mechanisms for being able to read other processes state variables, as well as for making global definitions over state variables and constants.
 
 \subsection{Fault injection syntax}
 As one of the main advantages of \falluto, we find its declarative language for fault injection. It offers us the possibility of injecting in a simple line of code practically all the information that describes the behaviour of a fault over our processes. The three types of faults actually supported are:
 \begin{itemize}
 
-\item \textbf{Stop faults:} are those which ones occurred permanently disable one or more transitions in a process. They usually correspond to the breakage of a component of the process being modelled. We use the following one line syntax
+\item \textbf{Stop faults:} are those which, ones occurred, permanently disable one or more transitions in a process. They usually correspond to the breakage of a component of the process being modelled. We use the following one line syntax
 \begin{center}
-\textit{name: enable\_cond $\Rightarrow$ effects is STOP(act1,\ldots,actN)}
+\textfll{name: enable\_cond => effects is STOP(act\undfll{1},\ldots,act\undfll{N})}
 \end{center}
-to indicate that a fault named \textit{name} could occur if \textit{enable\_cond} is satisfied in the actual state, producing over the next state the changes described at \textit{effects}, and from now on permanently disabling transitions with names in \{\textit{act1}, \ldots, \textit{actN}\} from this process.
+to indicate that a fault named \textfll{name} could occur if \textfll{enable\_cond} is satisfied in the actual state, producing over the next state the changes described at \textfll{effects}, and from now on permanently disabling transitions with names in \{\textfll{act\undfll{1}}, \ldots, \textfll{act\undfll{N}}\} from this process.
 
 \item \textbf{Transient faults:} transient faults are those which occur infinitely often. They affect the system in the instant they occur, but their effects are not permanent. They usually correspond to instant faults produced by an unfortunate environment, as could be for example a bit flip in information passing through a large network. With
 \begin{center}
-\texttt{name: enable\_cond => effects is TRANSIENT}
+\textfll{name: enable\_cond => effects is TRANSIENT}
 \end{center}
-we will inject a transient fault named \texttt{name} that can occur in this process each time \texttt{enable\_cond} evaluates to \textit{true}, having the effects described at \texttt{effects}.
+we will inject a transient fault named \textfll{name} that can occur in this process each time \textfll{enable\_cond} evaluates to \textit{true}, having the effects described at \textfll{effects}.
 
 \item \textbf{Byzantine faults:} Byzantine faults usually represent a malfunction over some system component. It could be for example the case of a broken memory cell that looses its charge from time to time. Thus they are linked to specific state variables. We use the following one line syntax
 \begin{center}
-\texttt{name: enable\_cond => effects is BYZ(var1,\ldots,varN)}
+\textfll{name: enable\_cond => effects is BYZ(var\undfll{1},\ldots,var\undfll{N})}
 \end{center}
-to indicate that the fault named \texttt{name} could occur when ever \texttt{enable\_cond} evaluates to \textit{true}, producing the instant effects in \texttt{effects}, and permanently affecting the variables in (\texttt{var1},\ldots,\texttt{varN}). Thus from the occurrence of this fault and on, variables in (\texttt{var1},\ldots,\texttt{varN}) could at any time change their values to another value inside their range, as a permanent effect of this fault.
+to indicate that the fault named \textfll{name} could occur when ever \textfll{enable\_cond} evaluates to \textit{true}, producing the instant effects in \textfll{effects}, and permanently affecting the variables in \{\textfll{var\undfll{1}}, \ldots, \textfll{var\undfll{N}}\}. Thus from the occurrence of this fault and on, variables in \{\textfll{var\undfll{1}}, \ldots, \textfll{var\undfll{N}}\} could at any time change their values to another value inside their range, as a permanent effect of this fault.
 \end{itemize}
-Faults are defined inside \falluto's proctypes, in a new section named \texttt{FAULT}. They can be referenced in the rest of the model just as we reference any normal transition by using the keyword \texttt{just()}. An example can be found at Figure \ref{example}.
+Faults are defined inside \fallutoSp proctypes, in a new section named \textfll{FAULT}. They can be referenced in the rest of the model just as we reference any normal transition by using the keyword \textfll{just()}. An example can be found at Figure \ref{example}.
 
 \subsection{Properties specification}
-Making use of \nusmv capabilities, in \fallutoSp we can verify \textit{LTL} and \textit{CTL} logic formulas over our modelled systems. Notice that the atomic propositions to be checked when using this formulas are not only conformed by valuations of state variables, but we can also check for fault occurrence and taken transitions within them. This is, using the keyword \textit{just}, we can talk about an action as to be a property of any state, in the sense of having reached that state via this action. For example
+Making use of \nusmvSp capabilities, in \fallutoSp we can verify \textit{LTL} and \textit{CTL} logic formulas over our modelled systems. Notice that the atomic propositions to be checked when using this formulas are not only conformed by valuations of state variables, but we can also check for fault occurrence and taken transitions within them. This is, using the keyword \textfll{just}, we can talk about an action as to be a property of any state, in the sense of having reached that state via this action. For example
 \begin{center}
-\texttt{LTLSPEC G F just(some\_action)}
+\textfll{LTLSPEC G F just(some\_action)}
 \end{center}
-would be an LTL property used to check that transition \texttt{some\_action} is often taken in our modelled system, given that \texttt{just(some\_action)} would evaluate to \textit{true} in each state that we reach by taking the transition named \texttt{some\_action}, and \textit{false} in every other state.\\
+would be an LTL property used to check that transition \textfll{some\_action} is often taken in our modelled system, given that \textfll{just(some\_action)} would evaluate to \textit{true} in each state that we reach by taking the transition named \textfll{some\_action}, and \textit{false} in every other state.\\
 A battery of meta-properties offered by \fallutoSp allows the user to easily define some typical fault occurrence scenarios where to check its properties. This mechanisms are thought to avoid the introduction of large amount of modifications over the model to be able to make such checking. Thus, it avoids the introduction of errors, makes the modelling simpler, and specifies a fixed methodology for model checking fault tolerant systems.\\
 The present meta-property battery is compose by the following:
 \begin{itemize}
 \item \textbf{Normal behaviour meta-property:} We use this meta-property to check some LTL or CTL property over executions lacking of fault occurrences. Thus it would be like model checking an equivalent system where no faults have been defined.
 \begin{itemize}
-\item \textit{syntax: } \texttt{NORMAL\_BEHAVIOUR -> q}
-\item \textit{semantic: } if no faults occur then property \texttt{q} is \textit{true}.
+\item \textit{syntax: } \textfll{NORMAL\_BEHAVIOUR -> q}
+\item \textit{semantic: } if no faults occur then property \textfll{q} is \textit{true}.
 \end{itemize}
 \item \textbf{Finitely many faults meta-property:} We use this meta-property to check some LTL or CTL property over executions where faults finally stop occurring.
 \begin{itemize}
-\item \textit{syntax: } \texttt{FIN\_MANY\_FAULTS(f1,...,fm) -> q}
-\item \textit{semantic: } if faults in \texttt{\{f1,...,fm\}} finally stop happening, then property \texttt{q} is \textit{true}.
+\item \textit{syntax: } \textfll{FIN\_MANY\_FAULTS(f\undfll{1},...,f\undfll{m}) -> q}
+\item \textit{semantic: } if faults in \textfll{\{f\undfll{1},...,f\und{m}\}} finally stop happening, then property \textfll{q} is \textit{true}.
 \end{itemize}
 \item \textbf{Ensure meta-property:} we use this meta-property to check some LTL or CTL property over executions where we ensure lapses of stability in the system.
 \begin{itemize}
-\item \textit{syntax: } \texttt{ENSURE (N,a1,a2,\ldots,am) WITHOUT (f1,f2,\ldots,fk) -> q}
-\item \textit{semantic: } if often actions in \texttt{\{a1,a2,\ldots,am\}} are ensure to happen for a lapse of \texttt{N} transitions without faults from \texttt{\{f1,f2,\ldots,fk\}} happening in between, then property \texttt{q} is \textit{true}.
+\item \textit{syntax: } \textfll{ENSURE (N,a\undfll{1},a\undfll{2},\ldots,a\undfll{m}) WITHOUT (f\undfll{1},f\undfll{2},\ldots,f\undfll{k}) -> q}
+\item \textit{semantic: } if often actions in \textfll{\{a\undfll{1},a\undfll{2},\ldots,a\undfll{m}\}} are ensure to happen for a lapse of \textfll{N} transitions without faults from \textfll{\{f\undfll{1},f\undfll{2},\ldots,f\undfll{k}\}} happening in between, then property \textfll{q} is \textit{true}.
 \end{itemize}
 \item \textbf{Atmost meta-property:} Thought to be used to check some limited tolerance to fault occurrence.
 \begin{itemize}
-\item \textit{syntax: } \texttt{ATMOST (N,f1,f2,\ldots,fm) -> q}
-\item \textit{semantic: } if faults in \texttt{\{f1,f2,\ldots,fm\}} occur at most \texttt{N} times, then property \texttt{q} is \textit{true}.
+\item \textit{syntax: } \textfll{ATMOST (N,f\undfll{1},f\undfll{2},\ldots,f\undfll{m}) -> q}
+\item \textit{semantic: } if faults in \textfll{\{f\undfll{1},f\undfll{2},\ldots,f\undfll{m}\}} occur at most \textfll{N} times, then property \textfll{q} is \textit{true}.
 \end{itemize}
 \end{itemize}
 
@@ -373,232 +307,174 @@ The present meta-property battery is compose by the following:
 \section{Fairness}\label{fairness}
 
 Usually when checking properties over a model we are interested in analysing 
-executions that don't differ with what would be a realistic behaviour of the
-real system that it represents. That is the case for example of a reliable
-communication channel in the sense that we don't expect it to continuously
-loose a message, or when modelling a fair scheduler we don't expect it to
-infinitely ignore a process that is trying to be attended.\\
-Fairness constraints can be seen as conditions over the executions to be checked
-during the model checking process. This conditions ensure that the traces
-to be considered go pass states with a certain property infinitely often.
-It is of our interest to distinguish between three kinds of fairness
-constraints, to be:
+realistic executions of the system that it represents. That is, for example, we do not expect a model of a reliable communication channel to be continuously loosing a message, or when modelling a fair scheduler we do not expect it to infinitely ignore a process that is trying to be attended.\\
+Fairness constraints can be seen as conditions over the executions to be checked. This conditions ensure that the traces to be considered go pass certain states infinitely often. It is of our interest to distinguish between three kinds of fairness constraints, to be:
 \begin{itemize}
-\item \textbf{Unconditional fairness:} Given a property \texttt{p} over the
+\item \textbf{Unconditional fairness:} Given a property \textps{p} over the
 set of states of our system, an unconditional fairness in relation to
-\texttt{p} will restrict our analysis to those executions where we often pass
-through any state in the set of states where \texttt{p} evaluates to
-\textit{true}.
+\textps{p} will restrict our analysis to those executions where we often pass
+through any state in the set of states where \textps{p} evaluates to
+\textps{true}.
 
-\item \textbf{Weak fairness:} Given properties \texttt{p} and \texttt{q}
+\item \textbf{Weak fairness:} Given properties \textps{p} and \textps{q}
 over the set of states of our system, a weak fairness constraint with
-condition \texttt{p} in relation to \texttt{q} will restrict our analysis
-to those executions where if eventually property \texttt{p} is continuously
-evaluated to \textit{true} then property \texttt{q} should often evaluate
-to \textit{true}.
+condition \textps{p} in relation to \textps{q} will restrict our analysis
+to those executions where if eventually property \textps{p} is continuously
+evaluated to \textps{true}, then property \textps{q} should often evaluate
+to \textps{true}.
 
-\item \textbf{Strong fairness:} Given properties \texttt{p} and \texttt{q}
+\item \textbf{Strong fairness:} Given properties \textps{p} and \textps{q}
 over the set of states of our system, a strong fairness constraint with
-condition \texttt{p} in relation to \texttt{q} will restrict our analysis
-to those executions where if property \texttt{p} is often evaluated to 
-\textit{true} then property \texttt{q} should also often evaluate to
-\textit{true}.
+condition \textps{p} in relation to \textps{q} will restrict our analysis
+to those executions where if property \textps{p} is often evaluated to 
+\textps{true}, then property \textps{q} should also often evaluate to
+\textps{true}.
 
 \end{itemize}
 
 
 \subsection{Process fairness}\label{process fairness}
-In \fallutoSp we can talk about the transitions we take. This will enable us to name them inside properties we want to model check or even use them to specify fairness between process.\\
-We have seen in section \ref{lts2kripke} how we can take the names of transitions in a LTS representation, and look at them as properties of the reached states in a Kripke structure equivalent representation of the system. Based on this fact, we have developed a simple mechanism to represent just taken transitions inside our \nusmv modules. This allows us to step over a state and talk about the transition just taken to get there.\\
-This enables us to easily define fairness
-conditions over the execution of the process that live inside our system.\\
-Using this kind of fairness conditions we can restrict our model
-checking analysis to those execution traces of interest, where each process
+In \fallutoSp we can talk about the transitions we take. This enables us to name them inside properties we want to model-check, or even use them to specify fairness between processes.\\
+We have seen in section \ref{lts2kripke} how we can take the names of transitions in a LTS representation, and look at them as properties of the reached states in a Kripke structure equivalent representation of the system. Based on this fact, we have developed a simple mechanism to name \textit{just taken} transitions in our \nusmvSp model. This allows us to step over a state and talk about the transition just taken to get there.\\
+Being able to talk about transitions enables us to easily define fairness
+conditions over the execution of the process that live inside our system, and therefore we can restrict our model checking analysis to those execution traces of interest, where each process
 can execute some action fairly often, avoiding situations where for example a
-selective group of process are the only cause of the system progress.\\        %TODO fixme->selective
-%As we can see, fairness constraints are a kind of conditions to the execution
-%paths we are going to check. In this sense they are conditioning the system
-%scheduler that organizes the parallel composition of the process involved in
-%the model.\\
+selective group of process are the only cause of the system progress.\\
 \fallutoSp implements by defect, although it can be disabled, the following weak fairness
-conditions over the modelled processes. Making use of \nusmv keyword \textit{FAIRNESS} for specifying unconditional
-fairness constraints, we define for each process \texttt{P} in the system the
-weak fairness property:
-$$FAIRNESS \bigvee_{t \in T_{N_{P}}} ex_t \vee deadlock_P$$
-Here deadlock indicates that no normal transition of the process is enabled. On the other hand, $ex_t$ will be a formula that evaluates to \textit{true} in states where we have just reached by normal transition $t$ of process $P$.\\
-Notice that a process can go out from a deadlock state through the
-changes made by the rest of the composed system. Thus this is
-indeed a weak fairness constraint, as to be enabled often is not enough for a
-process to ensure it will be attended. On the other hand if the process never
-falls in deadlock, this constraint ensures that the process will eventually
-make a normal transition.
+conditions over the modelled processes. Making use of \nusmvSp keyword \textfll{FAIRNESS} for specifying unconditional fairness constraints, we define for each process \texttt{P} in the model the weak fairness property: \centerthis{$\text{FAIRNESS} \bigvee_{t \in T_{N_{P}}} \text{ex}_t \vee \text{deadlock}_P$}
+Here deadlock indicates that no normal transition of the process is enabled. On the other hand, $\text{ex}_t$ will be a formula that evaluates to \textps{true} in states where we have just reached by normal transition $t$ of process $P$.\\
+Notice that a process can go out from a deadlock state through the changes made by the rest of the composed system. Thus this is indeed a weak fairness constraint, as to be enabled often is not enough for a process to ensure it will be attended. On the other hand if the process never falls in deadlock, this constraint ensures that the process will eventually make a normal transition.
 
 
 \subsection{Fault fairness}\label{fault fairness}
-In \mbox{\textit{Falluto2.1}} we go further on in this concept and also 
-stablish fairness conditions between faults and process. This is, in what
-concerns to fairness executions, we look at faults as individual process
-that also struggle to be attended by the scheduler.\\
-\mbox{\textit{Falluto2.1}} implements by defect, although it can be disabled, an unconditional fairness
-constraint over the set of \textit{normal transitions} of the system. That
-is, again making use of the underlying \mbox{\textit{NuSMV}} capabilities for
-specifying unconditional fairness constraints, we define the following
-constraint to work with: $$FAIRNESS \bigvee_{t \in T_N} ex_t \vee deadlock$$
-Notice that this constraint implies that in the case where finally there is always some
-normal transition enabled to be taken, i.e. when finally the system stops falling in deadlock, then the system should often take one.
-Thus using this we are avoiding the analysis of traces where the occurrence of faults take
-control over the progress of the system. 
-
+In \fallutoSp we also stablish fairness conditions between faults and process. This is, in what
+concerns to fair executions, we look at faults as individual process that also struggle to be attended by the scheduler.\\
+\fallutoSp implements by defect, although it can be disabled, an unconditional fairness constraint over the set of \textit{normal transitions} of the system. That is, again making use of the underlying \nusmv~ capabilities for specifying unconditional fairness constraints, we define the following constraint to work with:
+\centerthis{$\text{FAIRNESS} \bigvee_{t \in T_N} \text{ex}_t \vee \text{deadlock}$}
+Notice that this constraint implies that in the case where finally there is always some normal transition enabled to be taken, i.e. when finally the system stops falling in deadlock, then the system should often take one. Thus, using this constraint, we are avoiding the analysis of traces where faults are the only cause of progress in the execution.
 
 \section{Semantics and compilation in \falluto}\label{compilation}
 
-In this section we will attempt to give an overview of the compilation from a \fallutoSp syntax defined model into a \nusmv model, backing decisions and results on Kripke Structures theory.\\
-When compiling into the \nusmv language, we will only build one \textit{main} \nusmv module. Remember that this \textit{main} module is head of execution when model checking with \nusmv. The system state will be represented by the union of all state variables of each \textit{instanced proctype} defined in the original model. Though the \textit{VAR} section of our compiled module will be composed from this states variables, as well as from an extra variable which we will call the \textit{action\_variable}. This last variable will indicate for each state, the name of the transition taken to get there. Thus it is simply the result of the translation of the LTL description given by names in \falluto's transitions to the Kripke structure description forced by our selected \nusmv syntax.\footnote{ This translation is explained at Section \ref{lts2kripke} of this work.} This allows us to easily compile \falluto's \texttt{just()} actions to propositions over the value of \textit{action\_varible}. This is we compile \texttt{just(action)} to \texttt{action\_variable = action}.\\
-The \textit{initialization} section of the \textit{main} module will be built using the \textit{and} composition of the initialization of each of the \textit{instanced proctypes}. This will evidently accomplish the expected initial state of the composed system.\\
-Finally the \textit{transition} section will be built by the \textit{or} composition of each compiled normal and faulty transition, indicating that in a first approach the composed system can select any of them to make its transitions.\\
-In what rests of this section we will explain first the compilation of normal transitions, next that from the different kind of faults, and finally we will show how we compile our meta-properties and how they modify the behaviour of the compiled model.\\
-Given the way we will compile our transitions, it will result that the value of the \textit{action\_variable} and the values of the program counters will make them exclusively satisfiable. This is we'll not be able to combine two of them and still get a satisfiable formula. Thus when we consider that the transition formula will be an \textit{or} composition of each of them, it becomes clear that only one member of the composition will become \textit{true} in each transition and thus only the modifications stated at the original transition definition will be made to the next state.
+In this section we will attempt to give an overview of the compilation from a \fallutoSp syntax defined model into a \nusmvSp model, backing decisions and results on Kripke Structures theory.\\
+When compiling into the \nusmv~language, we will only build one \textit{main} \nusmv~module. The system state will be represented by the union of all state variables of each \textit{instanced proctype} defined in the original model. An extra variable which we will call the \textit{action\_variable} will indicate for each state, the name of the transition taken to get there. Thus it is simply the result of the translation from the LTL description given by names in \fallutoSp transitions to the Kripke structure description forced by our selected \nusmv~syntax.\footnote{ This translation is explained at Section \ref{lts2kripke} of this work.} This allows us to easily compile \fallutoSp \textfll{just()} actions to propositions over the value of \textit{action\_varible}. This is, we compile \textfll{just(action)} to \textfll{action\_variable = action}.\\
+The \textit{initialization section} of the \textit{main} module will be built using the \textit{and} composition of the initialization of each \textit{instanced proctype}. This will evidently accomplish the expected initial state of the composed system.\\
+Finally the \textit{transitions section} will be built by the \textit{or} composition of each compiled normal and faulty transition, indicating that in a first approach the composed system can select any of them to make its transitions. Given the way we will compile our transitions, it will result that the value of the \textit{action\_variable} and the values of the program counters will make them exclusively satisfiable. Thus when we consider that the transition formula will be an \textit{or} composition of each of them, it becomes clear that only one member of the composition will become \textps{true} in each transition and thus only the modifications stated at the original transition definition will be made to the next state.
 
 \subsection{Normal transitions compilation}
 A normal transition
 \begin{center}
-\texttt{[name]: enable => effects}
+\textfll{[name]: enable => effects}
 \end{center}
 will have the following compilation scheme:
 \begin{center}
-\texttt{!stop\_faults \& next(action\_variable) = name \& enable\textusc{compiled} \& effects\textusc{compiled} \& pc = i \& dont\_change}
+\textfll{!stop\_faults \& next(action\_variable) = name \& enable\undfll{compiled} \& effects\undfll{compiled} \& pc = i \& dont\_change}
 \end{center}
-meaning that all \textit{stop faults} which disable this transition should not be active, the last action in the next state should correspond to the name of this transition, the enabling conditions of the transitions should be met, and so the resulting effects over the arriving state. \texttt{pc=i} ,where \texttt{pc} is a system variable for the specific instance that is making the transition, allows us to distinguish between different transitions with same name inside the same instance. Thus \texttt{i} is ,inside this instance, simply an unique id associated to this transition. Note that this program counter variables (\texttt{pc}) will be part of the variables section of the \nusmv \textit{main} module. Finally \texttt{dont\_change} ensures that every variable except from \texttt{action\_variable} and those modified at \texttt{effects\textusc{compiled}}, should remain with its present value. 
+meaning that all \textit{stop faults} which disable this transition should not be active, the just taken action in the next state should correspond to the name of this transition, the enabling conditions of the transition should be met, and so the resulting effects over the arriving state. \textfll{pc=i} ,where \textfll{pc} is a state variable from the specific instance that is making the transition, allows us to distinguish between different transitions with same name inside the same instance. Thus \textfll{i} is ,inside this instance, simply an id associated to this transition. Note that this program counter variables will be part of the variables section of the \nusmvSp \textit{main} module. Finally \textfll{dont\_change} ensures that every variable except from \textfll{action\_variable} and those modified at \textfll{effects\undfll{compiled}}, will not change their value as cause of this transition.
+
 \subsection{Faults compilation}
-Faults are also compiled as possible transitions to make.
-\subsubsection*{Stop faults}
+Faults are also compiled as possible transitions to make.\enter
+\ssubt{Stop faults}
 \textit{Stop} faults like
 \begin{center}
-\texttt{name: enable => effects is STOP(a1,...,aN)}
+\textfll{name: enable => effects is STOP(a\undfll{1},...,a\undfll{N})}
 \end{center}
-will be compiled with the following scheme:
+will be compiled with the following scheme.
 \begin{center}
-\texttt{!this\_fault\_active \& next(this\_fault\_active) \& next(action\_variable) = name \& enable\textusc{compiled} \& effects\textusc{compiled} \& dont\_change }
+\texttt{!this\_fault\_active \& next(this\_fault\_active) \& next(action\_variable) = name \& enable\undfll{compiled} \& effects\undfll{compiled} \& dont\_change }
 \end{center}
-meaning that, as this faults are permanent, they should not already be active and they should be active from next state and on, the action in next state should be set to this faulty transition, and both \texttt{enable} conditions and \texttt{effects} changes should be met. Note that \texttt{this\_fault\_active} is a boolean variable that indicates if the fault is active, and will be also present in the variables section of the main module and set to \textit{false} at the initialization section formula.
-
-\subsubsection*{Byzantine faults}
-A Byzantine fault of the form
+meaning that, as this faults are permanent, they should not already be active and they should be active from next state and on, the action in next state should be set to this faulty transition, and both \textfll{enable} conditions and \textfll{effects} changes should be met. Note that \textfll{this\_fault\_active} is a boolean variable that indicates if the fault is active, and will be also present in the variables section of the main module and set to \textit{false} at initialization.\enter
+\ssubt{Byzantine faults}
+A \textit{Byzantine} fault of the form
 \begin{center}
-\texttt{name: enable => effects is BYZANTINE(var1,...,varN)}
+\textfll{name: enable => effects is BYZANTINE(var\undfll{1},...,var\undfll{N})}
 \end{center}
-Will be compiled in one transition with the scheme
+Will be compiled in one transition with the scheme.
 \begin{center}
-\texttt{!this\_fault\_active \& next(this\_fault\_active) \& next(action\_variable) = name \& enable\textusc{compiled} \& effects\textusc{compiled} \& dont\_change}
+\textfll{!this\_fault\_active \& next(this\_fault\_active) \& next(action\_variable) = name \& enable\undfll{compiled} \& effects\undfll{compiled} \& dont\_change}
 \end{center}
 and \textit{N} transitions with the scheme
 \begin{center}
-\texttt{this\_fault\_active \& next(action\_variable) = biz\_effect \& next(varX) in range \& dont\_change}
+\textfll{this\_fault\_active \& next(action\_variable) = biz\_effect \& next(var\undfll{x}) in range \& dont\_change}
 \end{center}
-representing the permanent effects over the Byzantine broken variables. That is, if the Byzantine fault that produces faulty effects over variable \texttt{varX} for some \texttt{X} between 1 and \textit{N} is active, then, taking this transition, \texttt{varX} will change its value to some random value in its range.
-
-\subsubsection*{Transient faults}
-Transient faults are not permanent, thus they lack of activation variable. While compiling a transient fault of the form
+representing the permanent effects over the Byzantine broken variables. That is, if the Byzantine fault that produces faulty effects over variable \textfll{var\undfll{x}} for some \textfll{x} between $1$ and $N$ is active, then, taking this last transition, \textfll{var\undfll{x}} will change its value to some random value in its range.\enter
+\ssubt{Transient faults}
+\textit{Transient} faults are not permanent, thus they lack of activation variable. While compiling a transient fault of the form
 \begin{center}
-\texttt{name: enable => effects is TRANSIENT}
+\textfll{name: enable => effects is TRANSIENT}
 \end{center}
-we will get an only transition
+we will get one only transition
 \begin{center}
-\texttt{next(action\_variable) = name \& enable\textusc{compiled} \& effects\textusc{compiled} \& dont\_change}
+\textfll{next(action\_variable) = name \& enable\undfll{compiled} \& effects\undfll{compiled} \& dont\_change}
 \end{center}
-
 
 \subsection{Properties compilation}
-We will focus on the compilation of each of our meta-properties, as common user defined properties don't imply a change on the rest of the compiled module, and thus can be compiled straight through.
-
-\subsubsection*{Normal Behaviour meta-property compilation}
+We will focus only on the compilation of each of our meta-properties, as common user defined properties do not imply a change on the rest of the compiled module, and thus can be compiled straight through.\enter
+\ssubt{Normal Behaviour meta-property compilation}
 Compiling this kind of properties suggests modifying the behaviour of the model, avoiding faults from occurring. Thus given the \fallutoSp original property
 \begin{center}
-\texttt{NORMAL\_BEHAVIOUR -> q}
+\textfll{NORMAL\_BEHAVIOUR -> q}
 \end{center}
-We modify our transition formula \textit{T} to get a new formula 
+We modify our transition formula \textfll{T} to get a new formula 
 \begin{center}
-\textit{T' = T \& !(next(action\_variable) in \{f\textusc{1},f\textusc{2},...,f\textusc{N}\})}
+\textfll{T' = T \& !(next(action\_variable) in \{f\undtt{1},f\undtt{2},...,f\undtt{N}\})}
 \end{center}
-where \textit{f\textusc{1}} to \textit{f\textusc{N}} name all the faults defined in our model, thus avoiding ever stepping over a faulty transition. Note that we reducing the reachable states and cutting of faulty executions, making the problem smaller.
-Finally we just compile \texttt{q} as a common LTL or CTL property to check over this modified model.
-
-\subsubsection*{Finitely many faults meta-property compilation}
-In this case we are looking to stop the occurrence of faults from some future state and on. Looking for this, we define a new boolean variable called \textit{stop\_faults} at our state variables section, initializing it to \textit{false} at the initialization section, and we proceed like fallows. Given the finitely many fault formula
+where \textfll{f\undtt{1}} to \textfll{f\undtt{N}} name all the faults defined in our model, thus avoiding ever stepping over a faulty transition. Note that we reducing the reachable states and cutting of faulty executions, making the problem smaller.
+Finally we just compile \textfll{q} as a common LTL or CTL property to check over this modified model.\enter
+\ssubt{Finitely many faults meta-property compilation}
+In this case we are looking to stop the occurrence of faults from some future state and on. Looking for this, we define a new boolean variable called \textfll{stop\_faults} at our state variables section, initializing it to \textit{false} at the initialization section, and we proceed like fallows. Given the finitely many fault formula
 \begin{center}
-\texttt{FINITELY\_MANY\_FAULTS(f\textusc{1},\ldots,f\textusc{N}) -> q}
+\textfll{FINITELY\_MANY\_FAULTS(f\undtt{1},\ldots,f\undtt{N}) -> q}
 \end{center}
-we replace our transition formula $T$ for a new one $T' = T ~\&~ Q$ where
-\begin{verbatim}
-Q = (!stop_faults) | ( stop_faults
-                     & next(stop_faults)
-                     & !(next(action_variable) in {f1,...,fN})
-                     )
-\end{verbatim}
-%Lets make the following definitions\\
-%\begin{itemize}
-%\item $T = T_1|T_2$
-%\item $T_1 = t_1 | ... | t_k$ with the $t_i$ all representing normal transition, i.e. they are of the form $(next(action\_var) = nt_i~\&~t'_i)$ with $nt_i$ the name of a normal transition 
-%\item $T_2 = t_{k+1} | ... | n_n$ with the $t_i$ all representing faulty transitions, i.e. they are of the form $(next(action\_var) = f_i~\&~t'_i)$ with $f_i$ the name of a fault
-%\item $Q = Q_1 | Q_2$
-%\item $Q_1 = !stop\_faults$
-%\item $Q_2$ = the right side of $Q$ formula.
-%\item And then we get\\
-%$T' = T~\&~Q = (T_1|T_2)~\&~(Q_1|Q_2) = (Q_1~\&~(T_1|T_2)) ~|~ ((Q_2~\&~T_1) | (Q_2~\&~T_2))$
-%\item and with\\
-%$T'_1 = (Q_1~\&~(T_1|T_2))$\\
-%$T'_2 = ((Q_2~\&~T_1) | (Q_2~\&~T_2))$\\
-%we get $T' = T'_1 | T'_2$
-%\end{itemize}
-Notice that $stop\_faults$ value is only being modified at $Q$, and that as we already said it is initialized to \textit{false}. Now lets look at our original transition formula as 
-$T = T_1 | T_2$ with $T_1 = t_1 | ... | t_k$ all representing normal transitions of our system, i.e. $t_i$ with $i=1..k$ are of the form $(next(action\_var) = nt_i~\&~t'_i)$ with $nt_i$ the name of a normal transition, and $T_2 = t_{k+1} | ... | t_N$ all representing faulty transitions, i.e. $t_i$ with $i=k+1..N$ are of the form $(next(action\_var) = f_i~\&~t'_i)$ with $f_i$ the name of a fault. Lets name $Q_1 =~!stop\_faults$ and lets name $Q_2$ the other side of $Q$ formula, so that $Q = Q_1 | Q_2$.
-Then we get that $T' = T ~\&~ Q = (T_1|T_2) \& (Q_1|Q_2) = (Q_1~\&~(T_1|T_2)) ~|~ ((Q_2~\&~T_1) | (Q_2~\&~T_2))$. Lets define $T'_1 = (Q_1~\&~(T_1|T_2))$ and $T'_2 = ((Q_2~\&~T_1) | (Q_2~\&~T_2))$ so that $T' = T'_1 | T'_2$. Now lets take a look at our new transition formula. When we start our executions, \textit{stop\_faults} is set to \textit{false} thus clearly $T' = T'_1$ defines our transitions. As there is no rule in $T'_1$ over the next value of \textit{stop\_faults}, its next value will be non-deterministically assigned. Also note that $Q_1$ = \textit{true} at this point and thus $T' = T'_1 = T_1 | T_2 = T$ and the model behaves just as the original one, with the exception that now it has the new variable $stop\_faults$ which value is modified arbitrarily at each transition made.\\
-If $stop\_faults$ suddenly gets the value \textit{true} then $T' = T'_2$ and given that $Q_2$ specifies that $next(action\_variable)$ shouldn't take a fault name as value, we get that the formula $(Q_2~\&~ T_2)$ becomes not satisfiable and thus $T'_2 = (Q_2 ~\&~ T_1)$, and from now on the system will make only normal transitions, as $Q_2$ restricts the next value of $stop\_faults$ to be \textit{true}.\\
-As we want to test $q$ over execution where $stop\_faults$ finally occurs, we for last compile a \nusmv property with the formula
+we replace our transition formula $T$ for a new one $T' = T ~\&~ Q$ where $Q$ is the formula
 \begin{center}
-\texttt{LTLSPEC~ (F ~stop\_faults) -> q}\\
-or\\
-\texttt{CTLSPEC ~(AF~ stop\_faults) -> q}
-\end{center} 
-accordingly to which formal logic $q$ has been specified.
-
-\subsubsection*{Ensure meta-property compilation}
-Given the ensure property $$ENSURE(N,a_1,...,a_n)~WITHOUT(f_1,...,f_m)~\rightarrow~q$$
-we introduce the integer variable $count\#$ into our model, which will allow to count the length of the ``safe'' lapses. This variable is initialized to $N$, which is the lapses lengths we want to ensure.\\
+\textfll{
+\begin{tabular}{lll}
+\big(!stop\_faults\big) & \big| & \big( stop\_faults \\
+& & \& next(stop\_faults)\\
+& & \& !(next(action\_variable) in \{f\undtt{1},...,f\undtt{N}\})\\
+& & \big)
+\end{tabular}
+}
+\end{center}
+Notice that when \textfll{stop\_faults} is \textit{false}, no extra conditions are set to the original transition formula $T$, not even a condition over which value this particular variable will take at the next state, resulting in a non-deterministic assignment of it. On the other hand, whenever \textfll{stop\_faults} is set to \textit{true}, we find that every taken transitions will be subject to two new conditions, meaning that no more faults will occur from now on, given that \textfll{stop\_faults} will not change its value again, and \textfll{action\_variable} will not ever get a faulty value again.\enter
+\ssubt{Ensure meta-property compilation}
+Given the ensure property
+\centerthis{\textfll{ENSURE(N,a\undtt{1},...,a\undtt{n}) WITHOUT(f\undtt{1},...,f\undtt{m}) $\rightarrow$ q}}
+we introduce the integer variable \textfll{count\#} into our model, which will allow to count the length of the ``safe'' lapses. This variable is initialized to $N$, which is the lapses length we want to ensure.\\
 Given our original transition formula $T$ we build a new one $T' = T \& Q$, where $Q$ is as fallows:\\\\
-$ (~(count\# = N~\&~(next(count\#)=N~|~next(count\#)=0))$\\
-$ |~(count\# < N~\&~next(action\_variable)~in~\{a_1,...,a_n\}~\&$\\
-$~~~~next(count\#)=count\#+1)$\\
-$ |~(count\# < N~\&~!(next(action\_variable)~in~\{a_1,...,a_n,f_1,...,f_m\}~\&$\\
-$~~~~next(count\#)=count\#)$\\
-$ )$\\
-Suppose that $count\#$'s value is $N$, just as when the execution starts. Then the model execution has to take the first option at $Q$, and this can either execute as usually kipping the value of $count\#$ as $N$, or change it to $0$. Once it changes it to $0$ it enters the ``safe'' zone, and can only take second and third options in $Q$, meaning that it will be unable to make a faulty action in $\{f_1,...,f_m\}$ until $count\#$ becomes $N$ again, which will happen after taking $N$ times the second option in $Q$.\\
-As we want to check $q$ property under the assumption that we often ensure a ``safe'' lapse, we need to condition our check property to often entering the ``safe'' zone, i.e. when $count\#$ becomes $0$.\\
-Thus our property to check over this modified model will be
-\begin{center}
-\texttt{LTLSPEC (G~F~count\#=0) -> q}\\
-or\\
-\texttt{CTLSPEC (AF~count\#=0) -> q}
-\end{center}
-depending on the formal logic of $q$
+\textfll{
+\begin{tabular}{ll}
+\big( & (count\# = N \& (next(count\#)=N|next(count\#)=0))\\
+\big| & (count\# < N \& next(count\#) = count\#+1\\
+  & \& next(action\_variable) in \{a\undfll{1},...,a\undfll{n}\})\\
+\big| & (count\# < N \& next(count\#) = count\#\\
+  & \& !(next(action\_variable) in \{a\undfll{1},...,a\undfll{n},f\undfll{1},...,f\undfll{m}\})\big)
+\end{tabular}
+}\\\\
+Suppose that \textfll{count\#} value is \textfll{N}, just as when the execution starts. Then the model execution has to take the first option at $Q$, and this can either execute as usually kipping the value of \textfll{count\#} as \textfll{N}, or change it to $0$. This election is non-deterministically made. Once it changes it to $0$ it enters the ``safe'' zone, and can only take second and third options in $Q$, meaning that it will be unable to make a faulty action in \textfll{\{f\undfll{1},...,f\undfll{m}\}} until \textfll{count\#} becomes \textfll{N} again, which will happen after taking \textfll{N} times the second option in $Q$.\\
+As we want to check \textfll{q} property under the assumption that we often ensure a ``safe'' lapse, we need to condition our check property to often entering the ``safe'' zone, i.e. when \textfll{count\#} becomes $0$.\\
+Thus our property to check over this modified model will be \textfll{LTLSPEC (G~F~count\#=0) -> q} or \textfll{CTLSPEC (AF~count\#=0) -> q} depending on the formal logic of \textfll{q}.\enter
+\ssubt{Atmost meta-property compilation}
+Given the \textit{Atmost} meta-property\\
+\centerline{\textfll{ATMOST(N,f\undfll{1},...,f\undfll{m}) $\rightarrow$ q}}\\
+we introduce a new integer variable \textfll{count\#} ranging between $0$ and \textfll{N}, which will serve as a counter for the occurrence of faults in \textfll{\{f\undtt{1},...,f\undtt{m}\}}. We initialize \textfll{count\#} in $0$ and change our original transition formula $T$ for a new formula $T' = T~\&~Q$ where $Q$ is as fallows:\\\\
+\textfll{
+\begin{tabular}{ll}
+\big( & (count\# < N \& next(count\#) = count\#+1\\
+  & \& next(action\_variable) in \{f\undfll{1},...,f\undfll{m}\})\\
+\big| & (count\# < N \& next(count\#) = count\#\\
+  & \& !(next(action\_variable) in \{f\undfll{1},...,f\undfll{m}\}))\\
+\big| & (count\# = N \& next(count\#) = count\#\\
+  & \& !(next(action\_variable) in \{f\undfll{1},...,f\undfll{m}\}))\big)
+\end{tabular}
+}\\\\
+Notice that once we have made \textfll{N} faulty transitions from the set \textfll{\{f\undfll{1},...,f\undfll{m}\}}, \textfll{count\#} value is \textfll{N} and we are forced to take third option in $Q$, which ensures that we will not take any of those faulty transitions again.\\
+Then it only rests to check property \textfll{q} over this modified model.
 
-\subsubsection*{Atmost meta-property compilation}
-Given the \textit{Atmost} meta-property $$ATMOST(N,f_1,...,f_m) \rightarrow q$$ we introduce a new integer variable $count\#$ ranging between $0$ and $N$, which will serve as a counter for the occurrence of faults in $\{f_1,...,f_m\}$. We initialize $count\#$ in $0$ and change our original transition formula $T$ for a new formula $T' = T~\&~Q$ with\\
-$Q = $\\ 
-$~~~~~~(~(~count\# < N~\&~next(action\_variable)~in~\{f_1,...,f_m\}$\\
-$~~~~~~~~~\&~next(count\#)=count\#+1)$\\
-$~~~~~~|~(~count\# < N~\&~!(next(action\_variable)~in~\{f_1,...,f_m\})$\\
-$~~~~~~~~~\&~next(count\#)=count\#)$\\
-$~~~~~~|~(~count\# = N~\&~!(next(action\_variable)~in~\{f_1,...,f_m\})$\\
-$~~~~~~~~~\&~next(count\#)=count\#)$\\
-$~~~~~~)$\\\\
-Notice that once we have made $N$ faulty transitions from the set $\{f_1,...,f_m\}$, $count\#$'s value is $N$ and we are forced to take third option in $Q$, which ensures that we won't take any of those faulty transitions again.\\
-Then it only rests to check property $q$ over this modified model.
-
-\section{Study case: a leader election protocol}
-
-As a study case for \falluto, we have selected \textit{X.Lin} and \textit{S.Ghosh} self stabilizing protocol for leader election on rings \cite{linghosh, ghoshgupta, yokogawa, hammes}. The leader election problem is that of selecting a leader process over a ring with no initially distinguished process.\\
-We will consider a ring of \textit{N} process $p_1,p_2,...,p_N,p_1$, connected in this order, where $p_{i-1}$ will be said to be the predecessor of $p_i$ in this network. Each process has a unique id, in a total order set, which we will denote $id_i$. Each $p_i$ will also have two more variables, $max_i$ which will represent the maximum process id known by this process, and $dist_i$ which will represent the distance to the maximum id known process. We will consider the case of selecting the maximum id value process as the leader of the ring.\\
+\section{Case study: a leader election protocol}
+\colorlet{shadecolor}{black!10}
+As a case study for \falluto, we have selected \textit{X.Lin} and \textit{S.Ghosh} self stabilizing protocol for leader election on rings \cite{linghosh,ghoshgupta,yokogawa,hammes}. The leader election problem is that of selecting a leader process over a ring with no initially distinguished process.\\
+We will consider a ring of \textit{N} process $p_1,p_2,...,p_N,p_1$, connected in this order, where $p_{i-1}$ will be said to be the predecessor of $p_i$ in this network. Each process has a unique id, in a total order set, which we will denote $id_i$. Each $p_i$ will also have two more variables, $max_i$ which will represent the maximum process id known by this process, and $dist_i$ which will represent the distance to this maximum id known process. We will consider the case of selecting the maximum id value process as the leader of the ring.\\
 Each process can do one of the next three actions
 \begin{enumerate}
 \item If $id_i$ is larger than $max_i$ , $max_i$ is set to $id_i$ and $dist_i$ is set to $0$. While if $dist_i$ is $0$ and $max_i$ is not equal to $id_i$ , $max_i$ is set to $id_i$ . And if $max_i$ is equal to $id_i$ and $dist_i \neq 0$, $dist_i$ is set to $0$.
@@ -607,7 +483,7 @@ Each process can do one of the next three actions
 
 \item If $dist_{i-1} + 1 \geq N$ , or if $id_i$ is larger than the $id_{i-1}$ and $id_i$ is equal to or larger than $max_{i-1}$ , $max_i$ is set to $id_i$ and $dist_i$ is set to $0$.
 \end{enumerate}
-This three actions can be described as fallows. Action one will be setting the \textit{maxid} value to mine as it's the higher I know, action 2 will be updating my maximum id to that of my predecessor as it's higher, and finally action 3 will be to declare myself the leader.\\
+This three actions can be described as fallows. Action one will be setting the \textit{maxid} value to mine as it is the higher I know, action 2 will be updating my maximum id to that of my predecessor as it is higher, and finally action 3 will be to declare myself the leader.\\
 Let K be the maximum id of any process in the ring. The leader is successfully elected if the system reaches the state that satisfies the following conditions.
 \begin{enumerate}
 \item For all processes $i$, $max_i = K$.
@@ -616,8 +492,10 @@ Let K be the maximum id of any process in the ring. The leader is successfully e
 1 + dist_{(i-1) mod N}$.
 \end{enumerate}
 We would like to model check if this last properties are met under the presence of Byzantine or transient faults, meaning that a leader can be actually selected.\\
-Lets start modelling our system normative behaviour in a ring with four processes.
-\begin{framed}
+Let us start modelling our system normative behaviour in a ring with four processes.
+\vspace{-0.3cm}
+\begin{shaded}
+\vspace{-0.5cm}
 \begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
@@ -641,7 +519,8 @@ PROCTYPE Process(myId, neighbour)
 
         // I'm the leader!
         [lider]: neighbour.dist+1 >= 4 | 
-                 (id > neighbour.id & id >= neighbour.maxid)
+                 (id > neighbour.id & id 
+                  >= neighbour.maxid)
                  =>
                  maxid' = id, dist' = 0
 ENDPROCTYPE
@@ -651,24 +530,31 @@ INSTANCE proc1 = Process(1,proc2)
 INSTANCE proc2 = Process(2,proc3)
 INSTANCE proc3 = Process(3,proc0)
 \end{verbatim}
-\end{framed}
-Lets also define our property to check
-\begin{framed}
+\vspace{-0.5cm}
+\end{shaded}
+\vspace{-0.2cm}
+\noindent Let us also define our property to check
+\vspace{-0.2cm}
+\begin{shaded}
+\vspace{-0.5cm}
 \begin{verbatim}
 PROPERTY got_a_leader =
 LTLSPEC G F ( ( proc0.maxid = 3    \\ Everybody
               & proc1.maxid = 3    \\ knows
               & proc2.maxid = 3    \\ the
               & proc3.maxid = 3)   \\ leader
-            & ( proc3.dist = 0                 \\ The
-              & proc2.dist = proc3.dist + 1    \\ distances
-              & proc1.dist = proc2.dist + 1    \\ are
-              & proc0.dist = proc1.dist + 1))  \\ correct
-
+            & ( proc3.dist = 0                \\ All
+              & proc2.dist = proc3.dist + 1   \\ distances
+              & proc1.dist = proc2.dist + 1   \\ are
+              & proc0.dist = proc1.dist + 1)) \\ OK
 \end{verbatim}
-\end{framed}
-Under this conditions where no faults occur our property is met, and \fallutoSp proves it to be correct. So our next step is to inject faults respect to the model and take a look into it's tolerance over those faults. We easily inject Byzantine faults over our \textit{maxid} and \textit{dist} variables by adding the \textit{fault} section to our proctype.
-\begin{framed}
+\vspace{-0.5cm}
+\end{shaded}
+\vspace{-0.2cm}
+\noindent Under this conditions, where no faults occur, our property is satisfied, and \fallutoSp proves it to be correct. So our next step is to inject faults into our model and take a look at its tolerance. We easily inject Byzantine faults over our \textit{maxid} and \textit{dist} variables by adding the \textit{fault} section to our proctype.
+\vspace{-0.2cm}
+\begin{shaded}
+\vspace{-0.5cm}
 \begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
@@ -681,44 +567,56 @@ PROCTYPE Process(myId, neighbour)
         ...
 ENDPROCTYPE
 \end{verbatim}
-\end{framed}
-This time \fallutoSp will return a counterexample trace, as a witness of the not satisfaction of the property over our model. It would be clear from the counterexample that faults can occur in such way that the constant changes in \textit{maxid} and \textit{dist} values, get in the way of selecting a leader.\\
-Lets now change our Byzantine faults for Transient faults with mainly the same effects, but allowing us to use some of our meta-properties to verify that our system has in effect some limited fault tolerance properties. Our new processes will look like:
-\begin{framed}
- \begin{verbatim}
+\vspace{-0.5cm}
+\end{shaded}
+\vspace{-0.3cm}
+\noindent This time \fallutoSp will return a counterexample trace, as a witness of the not satisfaction of the property over our model. It would be clear from the counterexample that faults can occur in such way that the constant changes in \textit{maxid} and \textit{dist} values, get in the way of selecting a leader.\\
+Let us now change our Byzantine faults for Transient faults with mainly the same effects, but allowing us to use some of our meta-properties to verify that our system has in effect some limited fault tolerance properties. Our new processes will look like:
+\vspace{-0.3cm}
+\begin{shaded}
+\vspace{-0.5cm}
+\begin{verbatim}
 PROCTYPE Process(myId, neighbour)
     VAR
         ...
     INIT
         ...
     FAULT
-        f: True => maxid' in 0..3, dist' in 0..3 is TRANSIENT
+        f: True => 
+           maxid' in 0..3, dist' in 0..3 is TRANSIENT
     TRANS
         ...
 ENDPROCTYPE
 \end{verbatim}
-\end{framed}
-We will also change our property to check.
-\begin{framed}
+\vspace{-0.5cm}
+\end{shaded}
+\vspace{-0.3cm}
+\noindent We will also change our property to check.
+\vspace{-0.3cm}
+\begin{shaded}
+\vspace{-0.5cm}
 \begin{verbatim}
 PROPERTY got_a_leader =
 ENSURE(13)
-WITHOUT() -> G F ( ( proc0.maxid = 3    \\ Everybody
-                   & proc1.maxid = 3    \\ knows
-                   & proc2.maxid = 3    \\ the
-                   & proc3.maxid = 3)   \\ leader
-                 & ( proc3.dist = 0               \\The
-                   & proc2.dist = proc3.dist + 1  \\distances
-                   & proc1.dist = proc2.dist + 1  \\are
-                   & proc0.dist = proc1.dist + 1))\\correct
+WITHOUT()
+-> G F ( ( proc0.maxid = 3    \\ Everybody
+         & proc1.maxid = 3    \\ knows
+         & proc2.maxid = 3    \\ the
+         & proc3.maxid = 3)   \\ leader
+       & ( proc3.dist = 0                 \\The
+         & proc2.dist = proc3.dist + 1    \\distances
+         & proc1.dist = proc2.dist + 1    \\are
+         & proc0.dist = proc1.dist + 1))  \\correct
 \end{verbatim}
-\end{framed}
-With this property we will be checking our model under the assumption that during the executions we will often have lapses of 13 consecutive normal transitions, i.e. without any fault occurring in the middle. This, as we can corroborate by the model checker result, would be enough to select a leader under the occurrence of faults. Moreover, reducing the consecutive normal transitions to 12 instead of 13, will result in a trace counter-example.
+\vspace{-0.5cm}
+\end{shaded}
+\vspace{-0.3cm}
+\noindent With this property we will be checking our model under the assumption that during the executions we will often have lapses of 13 consecutive normal transitions, i.e. without any fault occurring in the middle. This, as we can corroborate by the model checker result, would be enough to select a leader under the occurrence of faults. Moreover, reducing the consecutive normal transitions to 12 instead of 13, will result in a trace counter-example.
 
 
 \section{Final discussion}
-As we can see from the case study, we have come up with very simple mechanisms for fault injection and fault tolerance analysis. The code needed to inject faults and analyse different fault occurrence scenarios is clear and minimal, thus it avoids the introduction of errors into the modelling.\\
-From section \ref{compilation} we can evidence that there is not much complexity added to the model at compilation time. Kipping only a minimal number of new variables to be added to the model helps avoiding the exponential state explosion. This is the result of defining a methodological process for fault injection and analysis, avoiding unnecessary introduction of new and unnecessary variables and transitions during the modelling phase.\\
+As we can see from the case study, we have come up with very simple mechanisms for fault injection and fault tolerance analysis. The code needed to inject faults and analyse different fault occurrence scenarios is clear and minimal, helping to avoid introduction of errors while modelling.\\
+From section \ref{compilation} we can evidence that there is not much complexity added to the model at compilation time. Kipping only a small number of new variables to be added to the model helps avoiding the exponential state explosion. This is the result of defining a methodological process for fault injection and analysis, preventing from the introduction of new and unnecessary variables and transitions during the modelling of faults.\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -756,8 +654,24 @@ From section \ref{compilation} we can evidence that there is not much complexity
 \bibitem{hammes}
     Edgardo E. Hames. \emph{Falluto: Un model checker para la verificaci\'on de sistemas tolerantes a fallas}; Facultad de Matem\'atica, Astronom\'ia y F\'isica, Universidad Nacional de C\'ordoba; C\'ordoba, 14 de diciembre de 2009.
 
-\end{thebibliography}
+\bibitem{tomoyuki} Tomoyuki Yokogawa, Tatsuhiro Tsuchiya, and Tsuchiya Kikuno. 2001. \emph{Automatic Verification of Fault Tolerance Using Model Checking}.  In \emph{Proceedings of the 2001 Pacific Rim International Symposium on Dependable Computing} (PRDC '01). IEEE Computer Society, Washington, DC, USA,  95-.
 
+\bibitem{gnesi} S. Gnesi, G. Lenzini, F. Martinelli, \emph{Logical Specification and Analysis of Fault Tolerant Systems Through Partial Model Checking}. In \emph{Electronic Notes in Theoretical Computer Science}, Volume 118, 1 February 2005, Pages 57-70, ISSN 1571-0661.
+
+\bibitem{bruns} Glenn Bruns and Ian Sutherland. 1997. \emph{Model Checking and Fault Tolerance}. In \emph{Proceedings of the 6th International Conference on Algebraic Methodology and Software Technology} (AMAST '97), Michael Johnson (Ed.). Springer-Verlag, London, UK, UK, 45-59. 
+
+\bibitem{schneider} Francis Schneider, Steve Easterbrook, John R. Callahan, and Gerard J. Holzmann. 1998. \emph{Validating Requirements for Fault Tolerant Systems using Model Checking}. In \emph{Proceedings of the 3rd International Conference on Requirements Engineering: Putting Requirements Engineering to Practice} (ICRE '98). IEEE Computer Society, Washington, DC, USA, 4-13. 
+
+\bibitem{annu} Annu John, Igor Konnov, Ulrich Schmid, Helmut Veith, Josef Widder. 2013. \emph{Towards Modeling and Model Checking Fault-Tolerant Distributed Algorithms}. In \emph{Lecture Notes in Computer Science: Model Checking Software} SPIN 2013: 209-226
+
+\bibitem{jeffrey} Jeffrey A. Clarke, Dhiraj K. Pradhan. \emph{Fault Injection. A Method For
+Validating Fomputer-System Dependability}. Texas A\&M University. June 1995
+
+\bibitem{felix} Felix C. G\"{a}rtner. \emph{Fundamentals of Fault-Tolerant Distributed Computing in Asynchronous Environments}. Darmstadt University of Technology. ACM Computing Surveys, Vol. 31, No. 1, March 1999
+
+\bibitem{jonathan} Jonathan Ezekiel and Alessio Lomuscio. 2009. \emph{Combining fault injection and model checking to verify fault tolerance in multi-agent systems}. In \emph{Proceedings of The 8th International Conference on Autonomous Agents and Multiagent Systems} - Volume 1 (AAMAS '09), Vol. 1. International Foundation for Autonomous Agents and Multiagent Systems, Richland, SC, 113-120. 
+
+\end{thebibliography}
 \end{document}
 
 %==============================================================================

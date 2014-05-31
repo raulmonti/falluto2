@@ -1,0 +1,39 @@
+// Fairness test for falluto2.1 Model checker
+// Raul Monti
+// 19/03/2014 17:12:45 
+
+
+// Makes use of:
+// * Fairness restrictions between Process
+// * Fairness restrictions between Faults and Process
+
+
+OPTIONS
+MODELNAME fairnessCheck
+//FAULT_FAIR_DISABLE        // to disable fairness on regard to faults
+//INST_WEAK_FAIR_DISABLE    // to disable process fairness
+CHECK_DEADLOCK
+ENDOPTIONS
+
+PROCTYPE proc()
+	VAR
+		var1:boolean
+	FAULT
+		fault1: is TRANSIENT
+	INIT
+		var1
+	TRANS
+		[t1]:
+ENDPROCTYPE
+
+INSTANCE inst1 = proc()
+INSTANCE inst2 = proc()
+
+PROPERTY justInstance1 = LTLSPEC G F just(inst1.t1) 
+"Check weather inst1 is usually doing something"
+
+PROPERTY both = LTLSPEC G F just(inst1.t1) & G F just(inst2.t1)
+"Check weather both instances are usually doing something"
+
+PROPERTY oneOrTheOther = LTLSPEC G F just(inst1.t1) | G F just(inst2.t1)
+"Check weather one or the other instance are usually doing something"

@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "Solver.py", line 128, in <module>
+    print svr.solveMath('A+B*C')
+  File "Solver.py", line 43, in solveMath
+    _result = self.solveSum(p[0])
+  File "Solver.py", line 55, in solveSum
+    _vss = [self.solveProd(v) for v in _vs]
+  File "Solver.py", line 76, in solveProd
+    _vss = [self.solveVal(v) for v in _vs]
+  File "Solver.py", line 112, in solveVal
+    _result = self.solveMath(str(ast2str(_def)))
+  File "Solver.py", line 43, in solveMath
+    _result = self.solveSum(p[0])
+  File "Solver.py", line 55, in solveSum
+    _vss = [self.solveProd(v) for v in _vs]
+  File "Solver.py", line 76, in solveProd
+    _vss = [self.solveVal(v) for v in _vs]
+  File "Solver.py", line 114, in solveVal
+    assert False
+AssertionError

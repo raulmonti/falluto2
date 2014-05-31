@@ -1,0 +1,132 @@
+// Modelado de eleccion de lider con fallas bizantinas para Falluto2.1
+// Raul Monti
+// 21/03/2014 15:29:32
+//
+
+
+// hace uso de:
+// * meta-propiedad de ENSURE
+// * meta-propiedad de NORMAL_BEHAIVIOUR
+
+
+OPTIONS
+MODELNAME LiderElection
+CHECK_DEADLOCK
+//FAULT_SYS_FAIR_DISABLE
+//MODULE_WEAK_FAIR_DISABLE
+ENDOPTIONS
+
+DEFINE NUMPROC 4
+DEFINE MAXID NUMPROC-1
+
+PROCTYPE Process(myId, neighbour)
+
+    VAR
+        maxid:  0..3
+		dist:   0..3
+        id:     0..3
+
+    FAULT
+		// Falla de efecto bizantino sobre las variables maxid y dist
+		// falla: is BYZ(maxid,dist)
+        falla: => maxid' in 0..3, dist' in 0..3 is TRANSIENT
+
+    INIT
+        // me dan el id desde afuera al empezar
+        id = myId
+
+    TRANS
+        // El mayor id conocido hasta el momento es el mio
+        [mine]: id > maxid => maxid' = id, dist' = 0
+	    [mine]: dist = 0 & maxid != id => maxid' = id
+		[mine]: id = maxid & dist != 0 => dist' = 0
+        // Mi vecino conoce id mas grande
+		[neighbour]: (maxid!= neighbour.maxid | dist != neighbour.dist + 1) &
+                     (neighbour.dist+1 < NUMPROC & id < neighbour.maxid )
+                     =>
+                     maxid' = neighbour.maxid, dist' = neighbour.dist + 1
+        // Me proclamo lider
+		[lider]: ( maxid!= id | dist != 0) & 
+                 (neighbour.dist+1 >= NUMPROC |
+                 (id > neighbour.id & id >= neighbour.maxid))
+                 =>
+                 maxid' = id, dist' = 0
+        // Si no puedo cambiar mi estado hago 'nada' para no caer en deadlock
+        [nothing]:  !(( maxid!= id | dist != 0) & 
+                       (neighbour.dist+1 >= NUMPROC | 
+                       (id > neighbour.id & id >= neighbour.maxid)))
+               & !((maxid!= neighbour.maxid | dist != neighbour.dist + 1) &
+                   (neighbour.dist+1 < NUMPROC & id < neighbour.maxid ))
+               & !((id > maxid)|
+                   (dist = 0 & maxid != id)|
+                   (id = maxid & dist != 0))
+ENDPROCTYPE
+
+
+// PROCESOS:
+
+INSTANCE proc0 = Process(0,proc1)
+INSTANCE proc1 = Process(1,proc2)
+INSTANCE proc2 = Process(2,proc3)
+INSTANCE proc3 = Process(3,proc0)
+
+
+
+// PROPIEDADES:
+
+PROPERTY nb = 
+        NORMAL_BEHAIVIOUR -> G F (
+        ( proc0.maxid = MAXID & proc1.maxid = MAXID &
+          proc2.maxid = MAXID & proc3.maxid = MAXID) 
+		& 
+	    ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
+          proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+
+
+PROPERTY Acuerdo =  
+        LTLSPEC G F (
+        ( proc0.maxid = MAXID & proc1.maxid = MAXID &
+          proc2.maxid = MAXID & proc3.maxid = MAXID) 
+		& 
+	    ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
+          proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+
+
+PROPERTY AcuerdoEnsure = 
+        ENSURE(16, proc0.mine, proc0.neighbour, 
+                   proc0.lider,proc1.mine, proc1.neighbour,
+                   proc1.lider,proc2.mine, proc2.neighbour,
+                   proc2.lider,proc3.mine, proc3.neighbour, 
+                   proc3.lider)
+        WITHOUT () ->
+        G F (( proc0.maxid = MAXID & proc1.maxid = MAXID &
+               proc2.maxid = MAXID & proc3.maxid = MAXID) 
+		     & 
+	         ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
+             proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+
+PROPERTY AcuerdoEnsureFail =
+        ENSURE(15, proc0.mine, proc0.neighbour,
+                   proc0.lider,proc1.mine, proc1.neighbour,
+                   proc1.lider,proc2.mine, proc2.neighbour,
+                   proc2.lider,proc3.mine, proc3.neighbour,
+                   proc3.lider)
+        WITHOUT () ->
+        G F (( proc0.maxid = MAXID & proc1.maxid = MAXID &
+               proc2.maxid = MAXID & proc3.maxid = MAXID)
+                     &
+                 ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
+             proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
+
+PROPERTY AcuerdoEnsureCheck =
+        ENSURE(20, proc0.mine, proc0.neighbour,
+                   proc0.lider,proc1.mine, proc1.neighbour,
+                   proc1.lider,proc2.mine, proc2.neighbour,
+                   proc2.lider,proc3.mine, proc3.neighbour,
+                   proc3.lider)
+        WITHOUT () ->
+        G F (( proc0.maxid = MAXID & proc1.maxid = MAXID &
+               proc2.maxid = MAXID & proc3.maxid = MAXID)
+                     &
+                 ( proc3.dist = 0 & proc2.dist = proc3.dist + 1 &
+             proc1.dist = proc2.dist + 1 & proc0.dist = proc1.dist + 1))
