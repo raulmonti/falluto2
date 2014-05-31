@@ -48,7 +48,7 @@ logging.addLevelName(logging.INSPECT, "LOOK ")
 class MyFormatter(logging.Formatter):
     err_fmt  = "[    %(levelname)s    ] %(msg)s"
     dbg_fmt  = "[    %(levelname)s    ] %(module)s: %(lineno)d: %(msg)s"
-    info_fmt = "[    %(levelname)s    ] %(msg)s"
+    info_fmt = ">> %(msg)s"
     cri_fmt = "[    FIXME!    ] %(msg)s"
     war_fmt = "[    %(levelname)s    ] %(msg)s"
 

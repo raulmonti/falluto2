@@ -1,10 +1,9 @@
-"""
-    Raul Monti 30 agosto 2012
-    
-    Modulo encargado de interpretar las trazas devueltas por NuSMV a partir del
-    archivo generado por Falluto.
-    
-"""
+"""=============================================================================
+Raul Monti 30 agosto 2012
+
+Modulo encargado de interpretar las trazas devueltas por NuSMV a partir del
+archivo generado por Falluto.
+============================================================================="""
 import pyPEG
 from pyPEG import keyword, _and, _not, ignore, parseLine
 import re
@@ -46,17 +45,12 @@ CY = TraceInterpreter.CY
 
 
 
-string_state_start = "--|----------------->"
-string_state_end = string_state_start
-
-string_spec_end = \
-"\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+string_spec_end = "----------------------------------------"
 
 # For printig whith colors :D 
 # Put CR|CB|CG|CY before the text you want to color, and CE after it.
 
 COLOR__ = False
-
 
 
 class TraceInterpreter():
@@ -108,10 +102,9 @@ class TraceInterpreter():
         (ast, rest) = parseLine(trace, RESULT(), [], True, packrat=True)
 
         if rest != "":
-            debugCURRENT(ast)
-            debugERROR( "Error al interpretar las trazas. No se pudo " \
-                      + "interpretar lo que sigue:\n\n"  + rest)
-            os._exit(1)
+            LDEBUG(ast)
+            LERROR( "Error al interpretar las trazas. No se pudo " \
+                      + "interpretar lo que sigue:\n"  + rest)
 
         specrepr = cosys.compiled.props[specindex]['comm']
         specname = cosys.compiled.props[specindex]['name']
@@ -163,13 +156,13 @@ class TraceInterpreter():
             if state.__name__ == "STATE":
                 self.interpret_state(state)
             if state.__name__ == "STATELOOP":
-                print self.CG + "\n>> Loop starts here <<\n" + self.CE
+                print self.CG \
+                    + "\n----------- LOOP STARTS HERE -----------\n\n"\
+                    + self.CE
                 for st in state.what:
                     self.interpret_state(st)
 
-        self.tprint(self.CR + string_spec_end + self.CE)
-
-
+        print(self.CR + string_spec_end + self.CE)
     #.......................................................................
     """
         
@@ -192,12 +185,11 @@ class TraceInterpreter():
         if self.showstate:
             # Show the new state
             print "" #just a neline in the output
-            #self.tprint(self.CY+string_state_start+self.CE)
-            print "---> State: " + str(self.stateN) + " <---"
+            print "State " + str(self.stateN) + ":"
           
             #now we show the changes in this new state:
             for vch in varchs:
-                print "  " + self.interpret_var(vch)
+                print "    " + self.interpret_var(vch)
 
             #self.tprint(self.CY+string_state_end+self.CE)
             print ""

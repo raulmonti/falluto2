@@ -496,8 +496,8 @@ class Compiler(object):
                 pComp = "LTLSPEC "+self.compileAST(Compiler.__glinst, formula)
                 self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Nb:
-                pRepr = p.explain + ': ' + "NORMAL_BEAHAIVIOUR "\
-                    +putBracketsToFormula(p.formula,False)
+                pRepr = p.explain #+ ': ' + "NORMAL_BEAHAIVIOUR "\
+#                    +putBracketsToFormula(p.formula,False)
                 pComp = self.compileUnknownPropertie(p)
                 self.compiled.addprop(p.name, pRepr, pComp)
             elif p.type == Types.Fmf or p.type == Types.Fmfs:
@@ -512,28 +512,28 @@ class Compiler(object):
                     compiled = 'LTLSPEC G (' + self.__stfv + ' -> ' +\
                                compiled.split('LTLSPEC')[-1] + ')'
                 self.compiled.addprop(p.name
-                    , pRepr + "FINITELY_MANY_FAULT/S (" \
-                      + self.symbolSeparatedTupleString( \
-                      [ast2str(x) for x in p.params], False, False, ',') + ")"\
-                      + ' -> ' + putBracketsToFormula(p.formula,False)
+                    , pRepr #+ "FINITELY_MANY_FAULT/S (" \
+#                      + self.symbolSeparatedTupleString( \
+ #                     [ast2str(x) for x in p.params], False, False, ',') + ")"\
+  #                    + ' -> ' + putBracketsToFormula(p.formula,False)
                     , compiled)
 
             elif p.type == Types.Atmost:
                 self.compiled.addprop(p.name
-                    , pRepr + "ATMOST (" + ast2str(p.limit) + ','\
-                    + self.symbolSeparatedTupleString( 
-                          [ast2str(x) for x in p.params], False, False, ',')\
-                    + ") -> " + ast2str(p.formula)
+                    , pRepr #+ "ATMOST (" + ast2str(p.limit) + ','\
+#                    + self.symbolSeparatedTupleString( 
+ #                         [ast2str(x) for x in p.params], False, False, ',')\
+  #                  + ") -> " + ast2str(p.formula)
                     , self.compileUnknownPropertie(p))
             elif p.type == Types.Ensure:
                 self.compiled.addprop(p.name
-                    , pRepr + "ENSURE (" + ast2str(p.limit) + ','\
-                    + self.symbolSeparatedTupleString( 
-                          [ast2str(x) for x in p.actions], False, False, ',')\
-                    + ") WITHOUT ("\
-                    + self.symbolSeparatedTupleString( 
-                          [ast2str(x) for x in p.params], False, False, ',')
-                    + ") -> " + ast2str(p.formula)
+                    , pRepr# + "ENSURE (" + ast2str(p.limit) + ','\
+#                    + self.symbolSeparatedTupleString( 
+ #                         [ast2str(x) for x in p.actions], False, False, ',')\
+  #                  + ") WITHOUT ("\
+   #                 + self.symbolSeparatedTupleString( 
+    #                      [ast2str(x) for x in p.params], False, False, ',')
+     #               + ") -> " + ast2str(p.formula)
                     , self.compileEnsureProperty(p))
             else:
                 raise Error("bad type for propertie: " + str(p.type))
