@@ -390,8 +390,10 @@ class TraceInterpreter():
 """
 
 def RESULT():   return  NUSMVHEADER, -1, [WARNING, TRUESPEC, FALSESPEC]
-    
-def NUSMVHEADER():  return -1, re.compile(r".*\n")
+
+# Skip the five initial lines
+# from the NuSMV header
+def NUSMVHEADER():  return 5, re.compile(r".*\n")
 
 def ELSE():     return -1, re.compile(r".*\n")
 
@@ -401,7 +403,11 @@ def TRUESPEC():     return "--", keyword("specification"), re.compile(r".*(?=is)
 
 def FALSESPEC():    return "--", keyword("specification"), re.compile(r".*(?=is)"), "is", keyword("false"), TRACE
 def TRACE():        return -1, ignore(r"(?!->|--\ Loop).*\n"), -1 , [STATE, STATELOOP]
-def STATE():        return "->", "State:", re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
+
+# FIXME understand what Input 
+# states are and decide what 
+# to do with them.
+def STATE():        return "->", ["State:","Input:"], re.compile(r"\d*\.\d*"), "<-", -1 , VARCHANGE
 def VARCHANGE():    return re.compile(r"[\w\d\#\_]*(\[.*\])?"), "=", re.compile(r"\-?[a-zA-Z0-9\#\_]*")
 def STATELOOP():    return "--", "Loop", "starts", "here", -1, STATE
 
