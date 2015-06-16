@@ -391,7 +391,7 @@ class TraceInterpreter():
 
 def RESULT():   return  NUSMVHEADER, -1, [WARNING, TRUESPEC, FALSESPEC]
     
-def NUSMVHEADER():  return 11, re.compile(r".*\n")
+def NUSMVHEADER():  return -1, re.compile(r".*\n")
 
 def ELSE():     return -1, re.compile(r".*\n")
 

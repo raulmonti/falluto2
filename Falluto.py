@@ -250,17 +250,18 @@ if __name__ == '__main__':
         else:
             _pnames += _allprops
 
+        if not args.bonly:
         # model check each property
-        for _pname in _pnames:
-            LINFO("Checking propertie '"+ _pname + "' ...")
-            #construct model and place it in WORKINGFILE for NuSMV to read
-            c.buildModel(_pname,os.path.abspath(WORKINGFILE))
-            #save if asked so
-            if args.save:
-                shutil.copy2(os.path.abspath(WORKINGFILE), args.save+"."+_pname)
+            for _pname in _pnames:
+                LINFO("Checking propertie '"+ _pname + "' ...")
+                #construct model and place it in WORKINGFILE for NuSMV to read
+                c.buildModel(_pname,os.path.abspath(WORKINGFILE))
+                #save if asked so
+                if args.save:
+                    shutil.copy2(os.path.abspath(WORKINGFILE), args.save+"."+_pname)
 
-            tstart = tend = time()
-            if not args.bonly:
+                tstart = tend = time()
+                
                 output = ""
                 # Run the model checker.
                 if args.bmc:
@@ -273,7 +274,7 @@ if __name__ == '__main__':
                 tend = time()
                 # Interpret result and print user readible output.
                 t.interpret(c,output,_pname,args.color)
-            LINFO("Checked in: " + str(tend-tstart) + " seconds\n")
+                LINFO("Checked in: " + str(tend-tstart) + " seconds\n")
 
     # Exceptions handling
     except Exception, e:
