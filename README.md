@@ -5,8 +5,11 @@ Automatically exported from code.google.com/p/falluto2
 Trabajo de Grado - Raúl E. Monti
 
 Alumno: Raúl E. Monti
+
 Título: Falluto2.0: Un Model Checker para la verificación automática de sistemas tolerantes a fallas
+
 Fecha: Lunes 11 de marzo de 2013 a las 14:30 hs. Auditorio FaMAF.
+
 Link: http://hdl.handle.net/11086/28655
 
 Resumen:
